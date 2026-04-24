@@ -160,7 +160,8 @@
     }
 
     .km-directory-card {
-        @apply flex h-full min-w-0 w-full flex-col overflow-hidden rounded-[1.8rem] border bg-white;
+        @apply flex h-full min-w-0 w-full flex-col rounded-[1.8rem] border bg-white;
+        overflow: visible; /* permette all'avatar di sovrapporsi al banner */
         border-color: rgba(70, 93, 112, 0.12);
         box-shadow: 0 12px 34px rgba(39, 54, 67, 0.08);
     }
@@ -170,28 +171,38 @@
     }
 
     .km-directory-banner {
-        position: relative;
-        height: 82px;
-        background:
-            linear-gradient(180deg, #dbe7f3 0%, #c7d7ea 38%, #aac2dd 100%);
+        height: 100px;
+        background: linear-gradient(135deg, #dbe7f3 0%, #c7d7ea 45%, #aac2dd 100%);
         background-size: cover;
         background-position: center;
+        /* angoli arrotondati solo in alto (la card non usa overflow:hidden) */
+        border-radius: 1.75rem 1.75rem 0 0;
+    }
+
+    /* Avatar centrato con tecnica margin-top negativo (no position:absolute) */
+    .km-directory-avatar-wrap {
+        display: flex;
+        justify-content: center;
+        margin-top: -3.5rem;  /* metà dell'altezza avatar (7rem/2) */
+        position: relative;
+        z-index: 2;
     }
 
     .km-directory-avatar-button {
-        position: absolute;
-        left: 1.25rem;
-        bottom: -3.1rem;
         border: 0;
         background: transparent;
         padding: 0;
         cursor: pointer;
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .km-directory-avatar-button:hover .km-directory-avatar,
     .km-directory-avatar-button:focus-visible .km-directory-avatar {
         box-shadow: 0 18px 40px rgba(15, 23, 33, 0.28);
-        transform: translateY(-1px);
+        transform: translateY(-2px) scale(1.02);
     }
 
     .km-directory-avatar-play-badge {
@@ -201,39 +212,32 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 1.7rem;
-        height: 1.7rem;
+        width: 1.85rem;
+        height: 1.85rem;
         border-radius: 999px;
-        border: 2px solid rgba(255, 255, 255, 0.92);
+        border: 2.5px solid rgba(255, 255, 255, 0.95);
         background: linear-gradient(135deg, var(--km-accent) 0%, var(--km-accent-strong) 100%);
         box-shadow: 0 10px 20px rgba(14, 20, 27, 0.22);
     }
 
     .km-directory-avatar {
-        width: 126px;
-        height: 126px;
+        width: 7rem;
+        height: 7rem;
         border-radius: 999px;
-        border: 3.5px solid #e7e5e4;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.11);
+        border: 4px solid #ffffff;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
         background: linear-gradient(180deg, #ffffff 0%, #f5f5f4 100%);
-        transition: box-shadow 0.2s ease, transform 0.2s ease;
+        transition: box-shadow 0.22s ease, transform 0.22s ease;
+        flex-shrink: 0;
     }
 
+    /* Mantenuto per retrocompatibilità ma non usato nella nuova card */
     .km-directory-avatar-floating {
-        position: absolute;
-        left: 1.25rem;
-        top: 100%;
-        bottom: auto;
-        transform: translateY(-52%);
-        width: 5.95rem;
-        height: 5.95rem;
-        border-width: 4px;
-        border-color: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 16px 36px rgba(15, 23, 33, 0.2);
+        position: static;
     }
 
     .km-directory-detail {
@@ -352,33 +356,21 @@
     }
 
     .km-directory-banner {
-        height: 74px;
+        height: 80px;
     }
 
-    .km-directory-avatar-button {
-        left: 1rem;
-        top: 100%;
-        bottom: auto;
+    .km-directory-avatar-wrap {
+        margin-top: -3rem; /* metà di 6rem (avatar mobile) */
     }
 
     .km-directory-avatar {
-        width: 5.2rem;
-        height: 5.2rem;
-    }
-
-    .km-directory-avatar-floating {
-        left: 1rem;
-        top: 100%;
-        bottom: auto;
-        transform: translateY(-52%);
-        width: 5.2rem;
-        height: 5.2rem;
-        border-width: 3px;
+        width: 6rem;
+        height: 6rem;
     }
 
     .km-directory-avatar-play-badge {
-        width: 1.5rem;
-        height: 1.5rem;
+        width: 1.6rem;
+        height: 1.6rem;
     }
 
     .km-directory-detail {

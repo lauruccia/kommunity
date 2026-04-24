@@ -65,14 +65,14 @@
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-xs uppercase tracking-[0.22em] text-stone-500">Profilo business</p>
-                                <h2 class="mt-1 text-xl font-semibold text-stone-950">{{ $user->name ?? 'Utente' }}</h2>
+                                <h2 class="mt-1 text-xl font-semibold text-stone-950">{{ $user->name }}</h2>
                                 <p class="text-sm text-stone-600">
                                     {{ optional($user->memberProfile)->company_name ?: 'Azienda da inserire' }}
                                 </p>
                             </div>
 
                             <div class="flex h-16 w-16 items-center justify-center rounded-[1.6rem] bg-stone-900 text-2xl font-semibold text-white sm:h-20 sm:w-20 sm:rounded-[2rem] sm:text-3xl">
-                                {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         </div>
 
@@ -121,22 +121,14 @@
                                 <div class="rounded-[1.6rem] border border-stone-200 bg-white p-4">
                                     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                                         <div>
-                                            <p class="text-sm font-semibold text-stone-950">
-                                                {{ $requestItem->requester?->name ?? 'Utente non disponibile' }}
-                                            </p>
+                                            <p class="text-sm font-semibold text-stone-950">{{ $requestItem->requester->name }}</p>
                                             <p class="text-xs uppercase tracking-[0.16em] text-stone-500">
-                                                {{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }}
-                                                &middot;
-                                                {{ $requestItem->status?->label() ?? 'Stato non disponibile' }}
+                                                {{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }} Â· {{ $requestItem->status->label() }}
                                             </p>
                                         </div>
-                                        <div class="text-right text-xs text-stone-500">
-                                            {{ optional($requestItem->requested_at)->format('d/m H:i') ?? 'Data non disponibile' }}
-                                        </div>
+                                        <div class="text-right text-xs text-stone-500">{{ optional($requestItem->requested_at)->format('d/m H:i') }}</div>
                                     </div>
-                                    <p class="mt-3 text-sm leading-7 text-stone-600">
-                                        {{ $requestItem->goal ?? 'Obiettivo non indicato' }}
-                                    </p>
+                                    <p class="mt-3 text-sm leading-7 text-stone-600">{{ $requestItem->goal }}</p>
                                 </div>
                             @empty
                                 <p class="text-sm text-stone-600">Nessuna richiesta ricevuta per ora.</p>
@@ -158,11 +150,9 @@
                         <div class="mt-5 space-y-4">
                             @forelse ($upcomingEvents as $event)
                                 <a href="{{ route('events.show', $event) }}" class="block rounded-[1.6rem] bg-stone-100 p-4 transition hover:bg-stone-200/80">
-                                    <p class="text-sm font-semibold text-stone-950">{{ $event->title ?? 'Evento senza titolo' }}</p>
+                                    <p class="text-sm font-semibold text-stone-950">{{ $event->title }}</p>
                                     <p class="mt-1 text-sm text-stone-600">{{ $event->location ?: 'Online' }}</p>
-                                    <p class="mt-2 text-xs uppercase tracking-[0.16em] text-stone-500">
-                                        {{ optional($event->starts_at)->format('d M Y ¡¤ H:i') ?? 'Data da definire' }}
-                                    </p>
+                                    <p class="mt-2 text-xs uppercase tracking-[0.16em] text-stone-500">{{ $event->starts_at->format('d M Y Â· H:i') }}</p>
                                 </a>
                             @empty
                                 <p class="text-sm text-stone-600">Nessun evento in arrivo.</p>
@@ -182,7 +172,7 @@
                         <div class="mt-5 space-y-4">
                             @forelse ($latestThreads as $thread)
                                 <a href="{{ route('forum.show', $thread) }}" class="block rounded-[1.6rem] border border-stone-200 bg-white p-4">
-                                    <p class="text-sm font-semibold text-stone-950">{{ $thread->title ?? 'Discussione senza titolo' }}</p>
+                                    <p class="text-sm font-semibold text-stone-950">{{ $thread->title }}</p>
                                     <p class="mt-1 text-sm text-stone-600">{{ $thread->category?->name ?? 'Community' }}</p>
                                 </a>
                             @empty
@@ -202,13 +192,9 @@
                         <div class="mt-5 space-y-4">
                             @forelse ($sentReferrals as $referral)
                                 <div class="rounded-[1.6rem] bg-stone-100 p-4">
-                                    <p class="text-sm font-semibold text-stone-950">{{ $referral->title ?? 'Referenza senza titolo' }}</p>
-                                    <p class="mt-1 text-sm text-stone-600">
-                                        {{ $referral->recipient?->name ?? 'Destinatario non disponibile' }}
-                                    </p>
-                                    <p class="mt-2 text-xs uppercase tracking-[0.16em] text-stone-500">
-                                        {{ $referral->status?->label() ?? 'Stato non disponibile' }}
-                                    </p>
+                                    <p class="text-sm font-semibold text-stone-950">{{ $referral->title }}</p>
+                                    <p class="mt-1 text-sm text-stone-600">{{ $referral->recipient->name }}</p>
+                                    <p class="mt-2 text-xs uppercase tracking-[0.16em] text-stone-500">{{ $referral->status->label() }}</p>
                                 </div>
                             @empty
                                 <p class="text-sm text-stone-600">Non hai ancora inviato referenze.</p>
