@@ -68,46 +68,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/abbonamento/{subscription}', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 });
 
-// ─── ROTTA TEMPORANEA: backfill referral leggibili ───────────────────────────
-// Dopo aver eseguito questa rotta una volta, eliminala e ricarica il file sul server.
-Route::get('/admin-tools/backfill-referral-codes', function () {
-    abort_unless(
-        auth()->check() && auth()->user()->hasAnyRole(['super-admin', 'admin-community']),
-        403,
-        'Accesso negato.'
-    );
-
-    $users = \App\Models\User::query()->whereNull('referral_code')->get();
-
-    if ($users->isEmpty()) {
-        return response('<p style="font-family:sans-serif">✅ Nessun utente senza referral_code. Tutto già aggiornato!</p>');
-    }
-
-    $results = [];
-
-    foreach ($users as $user) {
-        $base = \Illuminate\Support\Str::slug($user->name, '');
-        if ($base === '') {
-            $base = 'membro';
-        }
-        $code  = $base;
-        $index = 2;
-        while (\App\Models\User::query()->where('referral_code', $code)->exists()) {
-            $code = $base . $index;
-            $index++;
-        }
-        $user->forceFill(['referral_code' => $code])->saveQuietly();
-        $results[] = "✅ {$user->name} → <strong>{$code}</strong>";
-    }
-
-    $list = implode('<br>', $results);
-
-    return response(
-        '<p style="font-family:sans-serif"><strong>Backfill completato per ' . count($results) . ' utenti:</strong></p>'
-        . '<p style="font-family:sans-serif;line-height:2">' . $list . '</p>'
-        . '<p style="font-family:sans-serif;color:red"><strong>Ora elimina questa rotta da routes/web.php e ricarica il file sul server!</strong></p>'
-    );
-})->middleware('auth');
-// ─────────────────────────────────────────────────────────────────────────────
-
 require __DIR__.'/auth.php';

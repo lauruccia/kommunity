@@ -1,0 +1,17 @@
+# ── Protegge il root del progetto ────────────────────────────────────────────
+# Su cPanel il document root deve puntare a /kommunity/public/
+# Questo file protegge nel caso il server esponga la cartella root.
+
+# Blocca accesso diretto a file sensibili
+<FilesMatch "(\.env|composer\.(json|lock)|artisan|phpunit\.xml|\.gitignore|webpack\.mix\.js|vite\.config\.*|package\.json|package-lock\.json)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Blocca accesso alle cartelle non pubbliche
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Blocca accesso diretto a /app, /config, /database, /routes, /storage, /tests, /resources, /lang
+    RewriteRule ^(app|config|database|routes|storage|tests|resources|lang|bootstrap/cache)(/|$) - [F,L]
+</IfModule>

@@ -1,8 +1,61 @@
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
+# ── Opzioni directory ────────────────────────────────────────────────────────
+<IfModule mod_negotiation.c>
+    Options -MultiViews -Indexes
+</IfModule>
 
+# ── Header sicurezza ─────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    # Impedisce il clickjacking (l'app non può essere inglobata in iframe esterni)
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Blocca lo sniffing del MIME type
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Forza HTTPS per 1 anno (solo se SSL attivo su cPanel)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+
+    # Controlla le informazioni di referrer inviate
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Limita le API browser accessibili (rimuovi se usi geolocalizzazione, camera, ecc.)
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+    # Rimuovi header che espongono info sul server
+    Header always unset X-Powered-By
+    Header always unset Server
+</IfModule>
+
+# ── Compressione GZIP ─────────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE text/javascript application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE font/ttf font/otf image/svg+xml
+</IfModule>
+
+# ── Cache browser asset statici ───────────────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # Vite genera hash nel filename → cache aggressiva su build/
+    <FilesMatch "\.(css|js|woff2?|ttf|otf|eot|svg|png|jpg|jpeg|gif|ico|webp|avif)$">
+        ExpiresDefault "access plus 1 year"
+        Header append Cache-Control "public, immutable"
+    </FilesMatch>
+    # HTML: no cache (sempre fresco)
+    <FilesMatch "\.(html|htm)$">
+        ExpiresDefault "access plus 0 seconds"
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+# ── Blocca accesso diretto a file sensibili ────────────────────────────────────
+<FilesMatch "(^\.env|composer\.(json|lock)|package\.json|artisan|webpack\.mix\.js|vite\.config\.*)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ── Rewrite (front controller Laravel) ───────────────────────────────────────
+<IfModule mod_rewrite.c>
     RewriteEngine On
 
     # Handle Authorization Header
@@ -12,6 +65,10 @@
     # Handle X-XSRF-Token Header
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # HTTPS redirect (decommentare se cPanel ha SSL attivo)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
