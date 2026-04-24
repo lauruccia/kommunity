@@ -530,35 +530,12 @@
                 <h2 class="font-serif text-2xl font-semibold text-stone-950">Gallery pagina personale</h2>
                 <p class="mt-2 text-sm leading-7 text-stone-600">Carica immagini del tuo lavoro, progetti, location o presentazione. Verranno mostrate nella pagina personale.</p>
             </div>
-            <div class="space-y-4">
-                <div>
-                    <x-input-label for="gallery_images" :value="'Nuove immagini gallery'" />
-                    <input id="gallery_images" name="gallery_images[]" type="file" accept="image/*" multiple class="km-input mt-2 block w-full py-2.5">
-                    <x-input-error class="mt-2" :messages="$errors->get('gallery_images')" />
-                    <x-input-error class="mt-2" :messages="$errors->get('gallery_images.*')" />
-                </div>
-
-                @if ($galleryImages->isNotEmpty())
-                    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        @foreach ($galleryImages as $galleryImage)
-                            <div class="overflow-hidden rounded-[1.6rem] border border-stone-200 bg-white shadow-sm">
-                                <img src="{{ $galleryImage->imageUrl() }}" alt="Immagine gallery" class="h-36 w-full object-cover">
-                                <div class="flex items-center justify-between gap-3 p-4">
-                                    <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Immagine {{ $loop->iteration }}</p>
-                                    <form method="POST" action="{{ route('profile.gallery.destroy', $galleryImage) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-xs font-semibold text-rose-600">Elimina</button>
-                                    </form>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-500">
-                        Nessuna immagine caricata nella gallery.
-                    </div>
-                @endif
+            <div>
+                {{-- Solo l'input di upload rimane nel form principale --}}
+                <x-input-label for="gallery_images" :value="'Nuove immagini gallery'" />
+                <input id="gallery_images" name="gallery_images[]" type="file" accept="image/*" multiple class="km-input mt-2 block w-full py-2.5">
+                <x-input-error class="mt-2" :messages="$errors->get('gallery_images')" />
+                <x-input-error class="mt-2" :messages="$errors->get('gallery_images.*')" />
             </div>
         </div>
 
@@ -572,6 +549,43 @@
             @endif
         </div>
     </form>
+
+    {{-- ── Gallery esistente — FUORI dal form principale ──────────────────────
+         I <form> di eliminazione devono essere a livello top, non annidati
+         dentro il <form> del profilo (i browser ignorano i form annidati).  --}}
+    @if ($galleryImages->isNotEmpty())
+        <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            @foreach ($galleryImages as $galleryImage)
+                <div class="overflow-hidden rounded-[1.6rem] border border-stone-200 bg-white shadow-sm">
+                    <img src="{{ $galleryImage->imageUrl() }}"
+                         alt="Immagine gallery"
+                         class="h-36 w-full object-cover"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                    {{-- Fallback se immagine non caricabile --}}
+                    <div style="display:none" class="h-36 w-full items-center justify-center bg-stone-100 text-stone-400">
+                        <svg class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <div class="flex items-center justify-between gap-3 p-4">
+                        <p class="text-xs uppercase tracking-[0.16em] text-stone-500">Immagine {{ $loop->iteration }}</p>
+                        <form method="POST" action="{{ route('profile.gallery.destroy', $galleryImage) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="text-xs font-semibold text-rose-600 hover:text-rose-800"
+                                    onclick="return confirm('Eliminare questa immagine?')">
+                                Elimina
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <div class="mt-6 rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-500">
+            Nessuna immagine caricata nella gallery.
+        </div>
+    @endif
+
 </section>
 
 <script>

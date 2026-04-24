@@ -19,6 +19,8 @@ trait ResolvesPublicMedia
             return $value;
         }
 
-        return '/'.ltrim(route('media.show', ['path' => $value], false), '/');
+        // Concatenazione diretta: evita che route() URL-encodi le slash (%2F)
+        // causando 404 su Apache/cPanel dove AllowEncodedSlashes è off
+        return '/media/' . ltrim($value, '/');
     }
 }

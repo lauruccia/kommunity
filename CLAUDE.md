@@ -9,3 +9,5 @@ Regole:
   2. codice completo dei file
   3. eventuale SQL da eseguire
 - compatibile con hosting condiviso
+
+Dimmi quando devo aggiornare vendor che ho caricato tramite file manager.
