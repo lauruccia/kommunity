@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use App\Models\SiteSetting;
+use Filament\Actions\Action;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
+
+/**
+ * @property-read Schema $form
+ */
+class SiteSettingsPage extends Page
+{
+    protected static ?string $navigationLabel = 'Impostazioni sito';
+    protected static ?string $title          = 'Impostazioni sito';
+    protected static ?int    $navigationSort = 99;
+    protected string $view                   = 'filament.pages.site-settings';
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return 'Kommunity';
+    }
+
+    /** @var array<string, mixed>|null */
+    public ?array $data = [];
+
+    public function mount(): void
+    {
+        $this->form->fill([
+            'registration_headline'    => SiteSetting::get('registration_headline', 'Entra in Kommunity'),
+            'registration_subheadline' => SiteSetting::get('registration_subheadline', 'La community professionale che fa crescere il tuo business'),
+            'registration_body'        => SiteSetting::get('registration_body'),
+        ]);
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->statePath('data')
+            ->components([
+                Section::make('Pagina di registrazione')
+                    ->description('Testo mostrato ai visitatori sulla pagina di registrazione, accanto al form di iscrizione.')
+                    ->schema([
+                        TextInput::make('registration_headline')
+                            ->label('Titolo principale')
+                            ->placeholder('Entra in Kommunity')
+                            ->maxLength(120),
+
+                        TextInput::make('registration_subheadline')
+                            ->label('Sottotitolo')
+                            ->placeholder('La community professionale che fa crescere il tuo business')
+                            ->maxLength(200),
+
+                        RichEditor::make('registration_body')
+                            ->label('Corpo del testo (perché iscriversi)')
+                            ->helperText('Spiega i vantaggi di iscriversi. Supporta grassetto, corsivo, elenchi e link.')
+                            ->toolbarButtons([
+                                'bold', 'italic', 'underline',
+                                'bulletList', 'orderedList',
+                                'h2', 'h3',
+                                'link',
+                                'undo', 'redo',
+                            ])
+                            ->columnSpanFull(),
+                    ]),
+            ]);
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                $this->getFormContentComponent(),
+            ]);
+    }
+
+    public function getFormContentComponent(): Component
+    {
+        return Form::make([EmbeddedSchema::make('form')])
+            ->id('form')
+            ->livewireSubmitHandler('save')
+            ->footer([
+                Actions::make($this->getFormActions())
+                    ->alignment(Alignment::Start)
+                    ->key('form-actions'),
+            ]);
+    }
+
+    public function save(): void
+    {
+        $data = $this->form->getState();
+
+        SiteSetting::set('registration_headline',    $data['registration_headline'] ?? null);
+        SiteSetting::set('registration_subheadline', $data['registration_subheadline'] ?? null);
+        SiteSetting::set('registration_body',        $data['registration_body'] ?? null);
+
+        Notification::make()
+            ->title('Impostazioni salvate con successo')
+            ->success()
+            ->send();
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label('Salva impostazioni')
+                ->submit('save'),
+        ];
+    }
+}

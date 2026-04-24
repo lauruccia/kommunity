@@ -1,0 +1,76 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div class="km-panel p-6">
+            <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Messaggistica privata</p>
+            <h1 class="mt-3 font-serif text-2xl font-semibold text-stone-950 sm:text-3xl lg:text-4xl">Conversazioni tra membri</h1>
+        </div>
+    </x-slot>
+
+    <div class="pb-12">
+        <div class="km-shell grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <aside class="km-panel p-6 order-last lg:order-first">
+                <h2 class="text-lg font-semibold text-stone-950">Nuovo messaggio</h2>
+                <form method="POST" action="{{ route('conversations.start') }}" class="mt-4 space-y-4">
+                    @csrf
+                    <select name="recipient_id" class="km-input" required>
+                        <option value="">Seleziona membro</option>
+                        @foreach ($members as $member)
+                            <option value="{{ $member->id }}">{{ $member->name }}</option>
+                        @endforeach
+                    </select>
+                    <textarea name="message" rows="5" class="km-input" placeholder="Scrivi il primo messaggio" required></textarea>
+                    <button type="submit" class="km-button-primary w-full">Apri conversazione</button>
+                </form>
+            </aside>
+
+            <section class="space-y-4">
+                <div class="km-panel p-5">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Inbox membri</p>
+                            <h2 class="mt-2 text-2xl font-semibold text-stone-950">Conversazioni attive</h2>
+                        </div>
+                        <div class="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
+                            {{ $unreadCount }} non lette
+                        </div>
+                    </div>
+                    <form method="GET" class="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_220px_auto]">
+                        <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-input" placeholder="Cerca per nome o testo ultimo messaggio">
+                        <select name="filter" class="km-input">
+                            <option value="all" @selected(($filters['filter'] ?? 'all') === 'all')>Tutte</option>
+                            <option value="unread" @selected(($filters['filter'] ?? 'all') === 'unread')>Solo non lette</option>
+                        </select>
+                        <button type="submit" class="km-button-primary">Applica filtri</button>
+                    </form>
+                </div>
+
+                @forelse ($conversations as $conversation)
+                    @php
+                        $otherParticipant = $conversation->getAttribute('other_participant');
+                        $lastMessage = $conversation->getAttribute('last_message');
+                        $hasUnread = $conversation->getAttribute('has_unread');
+                    @endphp
+                    <a href="{{ route('conversations.show', $conversation) }}" class="block km-panel p-6">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <h2 class="text-xl font-semibold text-stone-950">{{ $otherParticipant?->name ?? $conversation->subject }}</h2>
+                                    @if ($hasUnread)
+                                        <span class="rounded-full bg-[color:var(--km-accent)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">Nuovo</span>
+                                    @endif
+                                </div>
+                                <p class="mt-1 text-sm text-stone-500">{{ $otherParticipant?->memberProfile?->company_name ?: 'Membro Kommunity' }}</p>
+                                <p class="mt-2 line-clamp-2 text-sm leading-7 text-stone-600">{{ $lastMessage?->body }}</p>
+                            </div>
+                            <div class="text-xs text-stone-500">{{ optional($lastMessage?->created_at)->format('d/m H:i') }}</div>
+                        </div>
+                    </a>
+                @empty
+                    <div class="km-panel p-6">
+                        <p class="text-sm text-stone-600">Nessuna conversazione attiva.</p>
+                    </div>
+                @endforelse
+            </section>
+        </div>
+    </div>
+</x-app-layout>
