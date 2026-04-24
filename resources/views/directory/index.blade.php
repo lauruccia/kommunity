@@ -329,7 +329,6 @@
                                             @focus="preview()"
                                             @blur="reset()"
                                             class="km-directory-avatar-button km-directory-avatar-floating"
-                                            style="position:absolute;left:1rem;top:1rem;bottom:auto;"
                                             title="Guarda la videopresentazione"
                                         >
                                             <div class="km-directory-avatar">
@@ -360,7 +359,7 @@
                                             </span>
                                         </button>
                                     @else
-                                        <div class="km-directory-avatar km-directory-avatar-floating" style="position:absolute;left:1rem;top:1rem;bottom:auto;">
+                                        <div class="km-directory-avatar km-directory-avatar-floating">
                                             @if ($photoUrl)
                                                 <img src="{{ $photoUrl }}"
                                                      alt="{{ $member->user->name }}"
@@ -374,8 +373,7 @@
                                 </div>
 
                                 <div class="flex flex-1 flex-col px-5 pb-3 pt-4">
-                                    <div aria-hidden="true" class="h-[3.8rem] sm:h-[4.35rem]"></div>
-                                    <div class="min-h-[3.2rem]">
+                                    <div class="min-h-[6.25rem] pl-[6.6rem] pt-1 sm:min-h-[6.8rem] sm:pl-[7.25rem]">
                                         <h2 class="text-[1.18rem] font-semibold leading-[1.1] text-stone-950">
                                             <a href="{{ $profileUrl }}" class="transition hover:text-[color:var(--km-accent-strong)]">{{ $displayName }}</a>
                                         </h2>
