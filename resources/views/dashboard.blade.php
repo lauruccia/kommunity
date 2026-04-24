@@ -10,15 +10,15 @@
                     </p>
                 </div>
 
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('profile.edit') }}" class="km-button-secondary">Completa onboarding</a>
+                <div class="grid gap-3 sm:flex sm:flex-wrap">
+                    <a href="{{ route('profile.edit') }}" class="km-button-secondary w-full sm:w-auto">Completa onboarding</a>
 
                     @if(optional($user->memberOnepage)->slug)
-                        <a href="{{ route('members.show', $user->memberOnepage->slug) }}" class="km-button-primary">
+                        <a href="{{ route('members.show', $user->memberOnepage->slug) }}" class="km-button-primary w-full sm:w-auto">
                             Apri pagina personale
                         </a>
                     @else
-                        <span class="km-button-primary opacity-60 cursor-not-allowed">
+                        <span class="km-button-primary w-full cursor-not-allowed opacity-60 sm:w-auto">
                             Pagina personale non disponibile
                         </span>
                     @endif
@@ -62,7 +62,7 @@
             <section class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
                 <div class="space-y-6">
                     <div class="km-panel p-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-xs uppercase tracking-[0.22em] text-stone-500">Profilo business</p>
                                 <h2 class="mt-1 text-xl font-semibold text-stone-950">{{ $user->name }}</h2>
@@ -71,7 +71,7 @@
                                 </p>
                             </div>
 
-                            <div class="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-stone-900 text-3xl font-semibold text-white">
+                            <div class="flex h-16 w-16 items-center justify-center rounded-[1.6rem] bg-stone-900 text-2xl font-semibold text-white sm:h-20 sm:w-20 sm:rounded-[2rem] sm:text-3xl">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         </div>
@@ -108,7 +108,7 @@
                     </div>
 
                     <div class="km-panel p-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-xs uppercase tracking-[0.22em] text-stone-500">One-to-one ricevuti</p>
                                 <h2 class="mt-1 text-xl font-semibold text-stone-950">Ultime richieste</h2>
@@ -119,7 +119,7 @@
                         <div class="mt-5 space-y-4">
                             @forelse ($receivedOneToOnes as $requestItem)
                                 <div class="rounded-[1.6rem] border border-stone-200 bg-white p-4">
-                                    <div class="flex items-center justify-between gap-4">
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                                         <div>
                                             <p class="text-sm font-semibold text-stone-950">{{ $requestItem->requester->name }}</p>
                                             <p class="text-xs uppercase tracking-[0.16em] text-stone-500">
@@ -139,7 +139,7 @@
 
                 <div class="space-y-6">
                     <div class="km-panel p-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-xs uppercase tracking-[0.22em] text-stone-500">Eventi</p>
                                 <h2 class="mt-1 text-xl font-semibold text-stone-950">Prossimi appuntamenti</h2>
@@ -161,7 +161,7 @@
                     </div>
 
                     <div class="km-panel p-6">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p class="text-xs uppercase tracking-[0.22em] text-stone-500">Forum</p>
                                 <h2 class="mt-1 text-xl font-semibold text-stone-950">Discussioni attive</h2>

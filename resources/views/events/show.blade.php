@@ -8,10 +8,10 @@
                         <h1 class="font-serif text-2xl font-semibold sm:text-3xl lg:text-4xl">{{ $event->title }}</h1>
                         <p class="mt-3 max-w-4xl text-sm leading-7 text-white/80">{{ $event->description }}</p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="rounded-full bg-white/15 px-4 py-2 text-sm">{{ $event->type->label() }}</span>
-                        <span class="rounded-full bg-white/15 px-4 py-2 text-sm">{{ $event->chapter?->name ?? 'Community' }}</span>
-                    </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="rounded-full bg-white/15 px-4 py-2 text-sm">{{ $event->type->label() }}</span>
+                            <span class="rounded-full bg-white/15 px-4 py-2 text-sm">{{ $event->chapter?->name ?? 'Community' }}</span>
+                        </div>
                 </div>
             </div>
         </div>
@@ -58,8 +58,8 @@
                         </div>
                     </div>
 
-                    <div class="mt-6 overflow-hidden rounded-[1.75rem] border border-stone-200">
-                        <table class="min-w-full divide-y divide-stone-200 text-sm">
+                    <div class="mt-6 overflow-x-auto rounded-[1.75rem] border border-stone-200">
+                        <table class="min-w-[42rem] divide-y divide-stone-200 text-sm sm:min-w-full">
                             <thead class="bg-stone-50 text-left uppercase tracking-[0.18em] text-stone-500">
                                 <tr>
                                     <th class="px-5 py-4 font-medium">Membro</th>
@@ -118,9 +118,9 @@
                     @php
                         $currentStatus = $currentRegistration?->status;
                     @endphp
-                    <div class="mt-4 grid gap-2">
-                        @foreach ([\App\Enums\EventAttendanceStatus::Interested, \App\Enums\EventAttendanceStatus::NotInterested, \App\Enums\EventAttendanceStatus::Attending] as $status)
-                            <form method="POST" action="{{ route('events.register', $event) }}">
+                        <div class="mt-4 grid gap-2">
+                            @foreach ([\App\Enums\EventAttendanceStatus::Interested, \App\Enums\EventAttendanceStatus::NotInterested, \App\Enums\EventAttendanceStatus::Attending] as $status)
+                                <form method="POST" action="{{ route('events.register', $event) }}">
                                 @csrf
                                 <input type="hidden" name="status" value="{{ $status->value }}">
                                 <button type="submit" class="w-full rounded-full border px-4 py-3 text-sm font-semibold {{ $currentStatus === $status->value || ($currentStatus === 'registered' && $status->value === 'attending') ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-stone-200 bg-white text-stone-700' }}">

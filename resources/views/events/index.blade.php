@@ -34,16 +34,17 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap items-center gap-3">
+                        <div class="grid gap-3 sm:flex sm:flex-wrap sm:items-center">
+                            <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:items-center">
                             <a href="{{ route('events.index', ['view' => $viewMode, 'month' => now()->format('Y-m'), 'day' => now()->format('Y-m-d')]) }}" class="km-button-secondary px-4 py-2">Oggi</a>
                             <a href="{{ route('events.index', ['view' => $viewMode, 'month' => $monthDate->copy()->subMonth()->format('Y-m'), 'day' => $selectedDay->copy()->subMonthNoOverflow()->format('Y-m-d')]) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
                             </a>
-                            <div class="min-w-[220px] text-center">
+                            <div class="min-w-0 text-center sm:min-w-[220px]">
                                 <div class="text-xs uppercase tracking-[0.18em] text-stone-400">
                                     {{ $viewMode === 'month' ? 'Vista mese' : ($viewMode === 'week' ? 'Vista settimana' : 'Vista giorno') }}
                                 </div>
-                                <div class="text-2xl font-semibold text-stone-950">
+                                <div class="text-xl font-semibold text-stone-950 sm:text-2xl">
                                     @if ($viewMode === 'month')
                                         {{ $monthDate->translatedFormat('F Y') }}
                                     @elseif ($viewMode === 'week')
@@ -56,12 +57,13 @@
                             <a href="{{ route('events.index', ['view' => $viewMode, 'month' => $monthDate->copy()->addMonth()->format('Y-m'), 'day' => $selectedDay->copy()->addMonthNoOverflow()->format('Y-m-d')]) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
                             </a>
+                            </div>
 
-                            <div class="ml-0 flex overflow-hidden rounded-full border border-slate-300 bg-stone-50 2xl:ml-3">
+                            <div class="ml-0 grid grid-cols-3 overflow-hidden rounded-full border border-slate-300 bg-stone-50 2xl:ml-3">
                                 @foreach (['month' => 'Mese', 'week' => 'Settimana', 'day' => 'Giorno'] as $mode => $label)
                                     <a
                                         href="{{ route('events.index', ['view' => $mode, 'month' => $monthDate->format('Y-m'), 'day' => $selectedDay->format('Y-m-d')]) }}"
-                                        class="px-4 py-2 text-sm font-semibold {{ $viewMode === $mode ? 'bg-[color:var(--km-deep)] text-white' : 'text-slate-700' }}"
+                                        class="px-3 py-2 text-center text-sm font-semibold {{ $viewMode === $mode ? 'bg-[color:var(--km-deep)] text-white' : 'text-slate-700' }}"
                                     >
                                         {{ $label }}
                                     </a>
@@ -189,6 +191,40 @@
                     </aside>
 
                     <section class="min-w-0 bg-white">
+                        <div class="space-y-3 p-4 md:hidden">
+                            <div class="rounded-[1.4rem] border border-slate-200 bg-stone-50 p-4">
+                                <div class="text-xs uppercase tracking-[0.18em] text-stone-400">Agenda mobile</div>
+                                <div class="mt-1 text-xl font-semibold text-stone-950">{{ $selectedDay->translatedFormat('l d F Y') }}</div>
+                                <div class="mt-1 text-sm text-stone-500">{{ $selectedDayEvents->count() }} eventi nel giorno selezionato</div>
+                            </div>
+
+                            @forelse ($selectedDayEvents as $event)
+                                @php
+                                    $status = $eventStatuses[$event->id] ?? null;
+                                    $tone = match ($status) {
+                                        'interested' => 'bg-sky-500/12 text-sky-800 border-sky-200',
+                                        'attending', 'registered' => 'bg-[rgba(85,121,79,0.12)] text-[color:var(--km-accent-strong)] border-[rgba(85,121,79,0.22)]',
+                                        'not_interested' => 'bg-stone-200 text-stone-700 border-stone-300',
+                                        default => 'bg-white text-[color:var(--km-deep-strong)] border-slate-200',
+                                    };
+                                @endphp
+                                <button
+                                    type="button"
+                                    @click="showEvent({{ $event->id }})"
+                                    class="block w-full rounded-[1.4rem] border px-4 py-4 text-left {{ $tone }}"
+                                >
+                                    <div class="text-xs uppercase tracking-[0.18em]">{{ $event->starts_at->format('H:i') }}@if($event->ends_at) - {{ $event->ends_at->format('H:i') }}@endif</div>
+                                    <div class="mt-1 text-base font-semibold">{{ $event->title }}</div>
+                                    <div class="mt-1 text-sm opacity-80">{{ $event->location ?: 'Online' }}</div>
+                                </button>
+                            @empty
+                                <div class="rounded-[1.4rem] border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-stone-500">
+                                    Nessun evento nel giorno selezionato.
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <div class="hidden md:block">
                         @if ($viewMode === 'month')
                             <div class="grid grid-cols-7 border-b border-slate-200 bg-stone-50 text-center text-[11px] uppercase tracking-[0.18em] text-stone-400">
                                 <?php foreach ($weekdayLabels as $label): ?>
@@ -344,6 +380,7 @@
                                 <?php endforeach; ?>
                             </div>
                         @endif
+                        </div>
                     </section>
                 </div>
             </div>

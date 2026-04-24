@@ -30,7 +30,7 @@
                             <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Inbox membri</p>
                             <h2 class="mt-2 text-2xl font-semibold text-stone-950">Conversazioni attive</h2>
                         </div>
-                        <div class="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
+                        <div class="inline-flex rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
                             {{ $unreadCount }} non lette
                         </div>
                     </div>
@@ -51,10 +51,10 @@
                         $hasUnread = $conversation->getAttribute('has_unread');
                     @endphp
                     <a href="{{ route('conversations.show', $conversation) }}" class="block km-panel p-6">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                            <div class="min-w-0">
                                 <div class="flex items-center gap-3">
-                                    <h2 class="text-xl font-semibold text-stone-950">{{ $otherParticipant?->name ?? $conversation->subject }}</h2>
+                                    <h2 class="min-w-0 truncate text-xl font-semibold text-stone-950">{{ $otherParticipant?->name ?? $conversation->subject }}</h2>
                                     @if ($hasUnread)
                                         <span class="rounded-full bg-[color:var(--km-accent)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">Nuovo</span>
                                     @endif
@@ -62,7 +62,7 @@
                                 <p class="mt-1 text-sm text-stone-500">{{ $otherParticipant?->memberProfile?->company_name ?: 'Membro Kommunity' }}</p>
                                 <p class="mt-2 line-clamp-2 text-sm leading-7 text-stone-600">{{ $lastMessage?->body }}</p>
                             </div>
-                            <div class="text-xs text-stone-500">{{ optional($lastMessage?->created_at)->format('d/m H:i') }}</div>
+                            <div class="text-xs text-stone-500 sm:whitespace-nowrap">{{ optional($lastMessage?->created_at)->format('d/m H:i') }}</div>
                         </div>
                     </a>
                 @empty

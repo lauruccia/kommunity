@@ -138,7 +138,7 @@
                                 <option value="{{ $value }}" @selected(($filters['meeting_mode'] ?? null) === $value)>{{ $label }}</option>
                             @endforeach
                         </select>
-                        <div class="flex gap-3 lg:col-span-1 2xl:col-span-1">
+                        <div class="grid grid-cols-2 gap-3 lg:col-span-1 2xl:col-span-1">
                             <button type="submit" class="km-button-primary whitespace-nowrap">Filtra</button>
                             <a href="{{ route('one-to-ones.index') }}" class="km-button-secondary whitespace-nowrap">Reset</a>
                         </div>
@@ -147,7 +147,7 @@
 
                 <div class="km-panel overflow-hidden p-0">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-stone-200 text-sm">
+                        <table class="min-w-[56rem] divide-y divide-stone-200 text-sm xl:min-w-full">
                             <thead class="bg-stone-50">
                                 <tr class="text-left text-xs uppercase tracking-[0.16em] text-stone-500">
                                     <th class="px-5 py-4">Tipo</th>
@@ -215,8 +215,8 @@
             <div class="fixed inset-0 z-40 bg-stone-950/45">
                 <a href="{{ route('one-to-ones.index', array_filter(['member' => $selectedMember?->id])) }}" class="absolute inset-0" aria-label="Chiudi dettaglio"></a>
             </div>
-            <div class="fixed inset-x-0 bottom-0 top-6 z-50 mx-auto w-[min(1180px,calc(100%-2rem))] overflow-y-auto rounded-t-[2rem] bg-white shadow-[0_30px_80px_rgba(17,24,39,0.22)] lg:top-10 lg:rounded-[2rem]">
-                <div class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-stone-200 bg-white px-6 py-5">
+            <div class="fixed inset-x-0 bottom-0 top-3 z-50 mx-auto w-[min(1180px,calc(100%-1rem))] overflow-y-auto rounded-t-[2rem] bg-white shadow-[0_30px_80px_rgba(17,24,39,0.22)] sm:top-6 sm:w-[min(1180px,calc(100%-2rem))] lg:top-10 lg:rounded-[2rem]">
+                <div class="sticky top-0 z-10 flex flex-col gap-4 border-b border-stone-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
                     <div>
                         <p class="text-xs uppercase tracking-[0.18em] text-stone-500">Dettaglio richiesta</p>
                         <h3 class="mt-2 text-xl font-semibold text-stone-950">Gestione one-to-one selezionato</h3>
@@ -229,7 +229,7 @@
                     </a>
                 </div>
 
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">

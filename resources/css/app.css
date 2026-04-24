@@ -7,6 +7,12 @@
         display: none !important;
     }
 
+    html {
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+        scroll-padding-top: 1rem;
+    }
+
     :root {
         --km-bg: #eef2f3;
         --km-surface: #f8fbfb;
@@ -32,9 +38,21 @@
             radial-gradient(circle at top right, var(--km-glow-green), transparent 30%),
             linear-gradient(180deg, #f5f8f8 0%, #edf3f3 42%, #e6edee 100%);
         min-height: 100vh;
+        overflow-x: hidden;
         color: var(--km-ink);
         font-feature-settings: "kern" 1, "liga" 1;
         -webkit-font-smoothing: antialiased;
+    }
+
+    img,
+    svg,
+    video,
+    iframe {
+        max-width: 100%;
+    }
+
+    textarea {
+        resize: vertical;
     }
 
     h1,
@@ -280,5 +298,97 @@
     .km-directory-action-button-primary:hover {
         background: linear-gradient(135deg, #4f704b 0%, #39563a 100%);
         color: #fff;
+    }
+}
+
+@media (max-width: 639px) {
+    .km-shell {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .km-panel {
+        border-radius: 24px;
+    }
+
+    .km-button {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9375rem;
+    }
+
+    .km-brand-lockup {
+        gap: 0.75rem;
+        min-width: 0;
+    }
+
+    .km-brand-mark {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 1.2rem;
+    }
+
+    .km-brand-mark-sm {
+        width: 2.45rem;
+        height: 2.45rem;
+        border-radius: 0.95rem;
+    }
+
+    .km-brand-mark svg {
+        width: 1.7rem;
+        height: 2.5rem;
+    }
+
+    .km-brand-mark-sm svg {
+        width: 1.35rem;
+        height: 2rem;
+    }
+
+    .km-brand-kicker {
+        font-size: 10px;
+        letter-spacing: 0.18em;
+    }
+
+    .km-directory-banner {
+        height: 74px;
+    }
+
+    .km-directory-avatar-button {
+        left: 1rem;
+        bottom: -2.7rem;
+    }
+
+    .km-directory-avatar {
+        width: 5.2rem;
+        height: 5.2rem;
+    }
+
+    .km-directory-avatar-floating {
+        left: 1rem;
+        bottom: -2.7rem;
+        width: 5.2rem;
+        height: 5.2rem;
+        border-width: 3px;
+    }
+
+    .km-directory-avatar-play-badge {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .km-directory-detail {
+        font-size: 0.84rem;
+    }
+
+    .km-directory-actions {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        gap: 0.625rem;
+        justify-content: space-between;
+    }
+
+    .km-directory-action-button {
+        width: 2.65rem;
+        height: 2.65rem;
     }
 }

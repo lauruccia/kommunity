@@ -16,7 +16,7 @@
                             <p class="mt-1 text-sm" style="color: #5f778b;">Forum operativo per topic, risposte, opportunita e confronto tra membri.</p>
                         </div>
                     </div>
-                    <div class="grid gap-3 sm:grid-cols-3">
+                    <div class="grid w-full gap-3 sm:w-auto sm:grid-cols-3">
                         <div class="rounded-[0.85rem] border px-4 py-3" style="background: rgba(255,255,255,0.72); border-color: rgba(120,150,175,0.28);">
                             <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: #6a8599;">Discussioni</div>
                             <div class="mt-1 text-2xl font-semibold text-[#1f3445]">{{ $stats['threads'] }}</div>
@@ -40,7 +40,7 @@
                         <span>{{ $activeCategory->name }}</span>
                     @endif
                 </div>
-                <div class="flex flex-wrap gap-3">
+                <div class="grid w-full gap-3 sm:flex sm:w-auto sm:flex-wrap">
                     <button type="button" id="open-forum-thread-modal" class="inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-semibold text-white" style="background: #4f7d4a;">Nuovo topic</button>
                     <button type="button" id="open-forum-category-modal" class="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-semibold text-[#35526b]" style="background: #ffffff; border-color: #c8d7e2;">Proponi categoria</button>
                 </div>
@@ -80,7 +80,7 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
+                    <table class="min-w-[48rem] text-sm xl:min-w-full">
                         <thead style="background: linear-gradient(180deg, #7ea1b8 0%, #607b8f 100%); color: #ffffff;">
                             <tr class="text-left text-[11px] font-semibold uppercase tracking-[0.18em]">
                                 <th class="px-5 py-3">Forum</th>
@@ -133,7 +133,7 @@
                     <div class="text-sm text-[#587287]">{{ $threads->total() }} topic</div>
                 </div>
 
-                <div class="grid grid-cols-[minmax(0,1fr)_96px_96px_250px] gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em]" style="background: linear-gradient(180deg, #7ea1b8 0%, #607b8f 100%); color: #ffffff;">
+                <div class="hidden grid-cols-[minmax(0,1fr)_96px_96px_250px] gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] md:grid" style="background: linear-gradient(180deg, #7ea1b8 0%, #607b8f 100%); color: #ffffff;">
                     <div>Topics</div>
                     <div class="text-center">Replies</div>
                     <div class="text-center">Views</div>
@@ -145,7 +145,7 @@
                         $replyCount = max(0, $thread->posts_count - 1);
                         $latestPost = $thread->latestPost;
                     @endphp
-                    <a href="{{ route('forum.show', $thread) }}" class="grid grid-cols-[minmax(0,1fr)_96px_96px_250px] gap-4 border-b border-[#d8e8f2] px-5 py-4 transition {{ $loop->odd ? 'bg-[#f8fbfe]' : 'bg-[#eef5fb]' }} hover:bg-[#e7f2fa]">
+                    <a href="{{ route('forum.show', $thread) }}" class="grid gap-4 border-b border-[#d8e8f2] px-5 py-4 transition md:grid-cols-[minmax(0,1fr)_96px_96px_250px] {{ $loop->odd ? 'bg-[#f8fbfe]' : 'bg-[#eef5fb]' }} hover:bg-[#e7f2fa]">
                         <div class="min-w-0">
                             <div class="flex gap-4">
                                 <div class="mt-1 flex h-11 w-11 items-center justify-center rounded-full border border-[#a9c7dd] bg-white text-sm font-semibold text-[#0f76b0]">{{ $thread->is_pinned ? 'A' : 'T' }}</div>
@@ -165,13 +165,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center text-center text-[#23425a]">
+                        <div class="flex items-center justify-start text-left text-[#23425a] md:justify-center md:text-center">
                             <div>
                                 <div class="text-xl font-semibold">{{ $replyCount }}</div>
                                 <div class="text-[11px] uppercase tracking-[0.14em] text-[#678298]">reply</div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center text-center text-[#23425a]">
+                        <div class="flex items-center justify-start text-left text-[#23425a] md:justify-center md:text-center">
                             <div>
                                 <div class="text-xl font-semibold">{{ $thread->posts_count }}</div>
                                 <div class="text-[11px] uppercase tracking-[0.14em] text-[#678298]">view</div>

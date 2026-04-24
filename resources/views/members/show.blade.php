@@ -21,18 +21,18 @@
                     <p class="mt-3 text-base text-white/80 lg:text-lg">{{ $onepage->hero_subtitle ?: 'Profilo professionale membro Kommunity' }}</p>
                 </div>
                 @unless($viewerIsOwner)
-                    <div class="flex flex-wrap gap-3">
+                    <div class="grid w-full gap-3 sm:flex sm:w-auto sm:flex-wrap">
                         <form method="POST" action="{{ route('conversations.start') }}">
                             @csrf
                             <input type="hidden" name="recipient_id" value="{{ $user->id }}">
-                            <button type="submit" class="km-button-secondary border-white/25 bg-white/10 text-white hover:bg-white/20">Messaggio diretto</button>
+                            <button type="submit" class="km-button-secondary w-full border-white/25 bg-white/10 text-white hover:bg-white/20">Messaggio diretto</button>
                         </form>
                         <form method="POST" action="{{ route('one-to-ones.store') }}">
                             @csrf
                             <input type="hidden" name="recipient_id" value="{{ $user->id }}">
                             <input type="hidden" name="meeting_mode" value="online">
                             <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
-                            <button type="submit" class="inline-flex items-center justify-center rounded-full border border-white/20 bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]">Prenota one-to-one</button>
+                            <button type="submit" class="inline-flex w-full items-center justify-center rounded-full border border-white/20 bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]">Prenota one-to-one</button>
                         </form>
                     </div>
                 @endunless
@@ -71,7 +71,7 @@
                                         <path fill-rule="evenodd" d="M5.05 8.05a4.95 4.95 0 119.9 0c0 3.39-3.34 6.63-4.39 7.56a.85.85 0 01-1.12 0c-1.05-.93-4.39-4.17-4.39-7.56zM10 10.5A2.45 2.45 0 1010 5.6a2.45 2.45 0 000 4.9z" clip-rule="evenodd"/>
                                     </svg>
                                 </span>
-                                <span>{{ $profile->city?->name ?? 'Citta\' n.d.' }}{{ $profile->region?->name ? ', '.$profile->region->name : '' }}</span>
+                                <span class="min-w-0 break-words">{{ $profile->city?->name ?? 'Citta\' n.d.' }}{{ $profile->region?->name ? ', '.$profile->region->name : '' }}</span>
                             </div>
                             @if ($profile->show_email)
                                 <a href="mailto:{{ $user->email }}" class="flex items-center gap-2.5 text-[color:var(--km-accent-strong)]">
@@ -81,7 +81,7 @@
                                             <path d="M2 7.56V13.5a2 2 0 002 2h12a2 2 0 002-2V7.56l-7.45 4.85a1 1 0 01-1.1 0L2 7.56z"/>
                                         </svg>
                                     </span>
-                                    <span>{{ $user->email }}</span>
+                                    <span class="min-w-0 break-all">{{ $user->email }}</span>
                                 </a>
                             @endif
                             @if ($profile->show_phone && $profile->phone)
@@ -91,7 +91,7 @@
                                             <path d="M2 3.5A1.5 1.5 0 013.5 2h2.17a1.5 1.5 0 011.45 1.12l.65 2.6a1.5 1.5 0 01-.4 1.43l-1.2 1.2a11.04 11.04 0 005.31 5.31l1.2-1.2a1.5 1.5 0 011.43-.4l2.6.65A1.5 1.5 0 0118 14.33v2.17A1.5 1.5 0 0116.5 18h-1C8.596 18 2 11.404 2 3.5z"/>
                                         </svg>
                                     </span>
-                                    <span>{{ $profile->phone }}</span>
+                                    <span class="min-w-0 break-words">{{ $profile->phone }}</span>
                                 </a>
                             @endif
                             @if ($profile->show_whatsapp && $profile->allow_whatsapp_contact && $profile->whatsapp_number)
@@ -101,7 +101,7 @@
                                             <path d="M19.05 4.91A9.82 9.82 0 0012.03 2C6.56 2 2.12 6.43 2.12 11.9c0 1.75.46 3.46 1.33 4.96L2 22l5.29-1.39a9.9 9.9 0 004.74 1.2h.01c5.47 0 9.9-4.44 9.9-9.91a9.83 9.83 0 00-2.89-6.99zm-7.02 15.22h-.01a8.23 8.23 0 01-4.19-1.14l-.3-.18-3.14.82.84-3.06-.2-.31a8.2 8.2 0 01-1.26-4.36c0-4.53 3.69-8.22 8.24-8.22a8.16 8.16 0 015.82 2.41 8.16 8.16 0 012.4 5.82c0 4.54-3.69 8.22-8.2 8.22zm4.5-6.16c-.25-.12-1.47-.72-1.7-.8-.23-.09-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.17-.28.19-.53.07-.25-.12-1.03-.38-1.96-1.22-.73-.64-1.22-1.43-1.36-1.67-.14-.24-.01-.37.11-.49.11-.11.25-.28.37-.42.12-.14.16-.24.25-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.86-.2-.48-.41-.42-.56-.42h-.48c-.16 0-.43.06-.65.31-.22.25-.86.84-.86 2.05 0 1.2.88 2.37 1 2.53.12.17 1.73 2.64 4.19 3.7.58.25 1.03.39 1.38.5.58.18 1.11.16 1.53.1.47-.07 1.47-.6 1.68-1.19.21-.59.21-1.09.14-1.19-.06-.1-.22-.16-.47-.28z"/>
                                         </svg>
                                     </span>
-                                    <span>{{ $profile->whatsapp_number }}</span>
+                                    <span class="min-w-0 break-words">{{ $profile->whatsapp_number }}</span>
                                 </a>
                             @endif
                             @if ($profile->website)
@@ -162,7 +162,7 @@
 
             <section class="space-y-6">
                 <div class="km-panel overflow-hidden p-0">
-                    <div class="relative h-[340px] bg-[linear-gradient(135deg,#425767_0%,#d7e3d1_100%)]" @if($onepage->coverImageUrl()) style="background-image:url('{{ $onepage->coverImageUrl() }}'); background-size:cover; background-position:center;" @endif>
+                    <div class="relative h-[220px] bg-[linear-gradient(135deg,#425767_0%,#d7e3d1_100%)] sm:h-[280px] lg:h-[340px]" @if($onepage->coverImageUrl()) style="background-image:url('{{ $onepage->coverImageUrl() }}'); background-size:cover; background-position:center;" @endif>
                         <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(22,31,41,0.06),rgba(22,31,41,0.26))]"></div>
                     </div>
                 </div>
@@ -209,7 +209,7 @@
                                         @keydown.arrow-right.window="open && next()"
                                     >
                                         {{-- Griglia thumbnail cliccabili --}}
-                                        <div class="mt-2 grid grid-cols-3 gap-3 xl:grid-cols-4">
+                                        <div class="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                                             @foreach ($user->memberGalleryImages as $idx => $galleryImage)
                                                 <button
                                                     type="button"
@@ -218,7 +218,7 @@
                                                 >
                                                     <img src="{{ $galleryImage->imageUrl() }}"
                                                          alt="{{ $user->name }}"
-                                                         class="h-36 w-full object-cover transition duration-300 group-hover:scale-105">
+                                                         class="h-28 w-full object-cover transition duration-300 group-hover:scale-105 sm:h-36">
                                                 </button>
                                             @endforeach
                                         </div>
