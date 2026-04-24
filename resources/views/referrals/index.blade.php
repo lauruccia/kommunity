@@ -15,6 +15,7 @@
         <div class="km-shell grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
             <aside class="km-panel p-6">
                 <h2 class="text-lg font-semibold text-stone-950">Nuova referenza</h2>
+                <p class="mt-2 text-sm leading-6 text-stone-600">Puoi inviare una referenza solo a membri con cui hai gia' completato almeno un one-to-one.</p>
                 @if (session('status') === 'referral-created')
                     <div class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                         Referenza inviata correttamente.
@@ -59,7 +60,7 @@
                     <textarea name="notes" rows="3" class="km-input" placeholder="Note interne">{{ old('notes') }}</textarea>
                     @if ($members->isEmpty())
                         <div class="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
-                            Nessun altro membro attivo disponibile come destinatario.
+                            Nessun membro idoneo: completa prima un one-to-one per poter inviare una referenza.
                         </div>
                     @else
                         <button type="submit" class="km-button-primary w-full">Invia referenza</button>

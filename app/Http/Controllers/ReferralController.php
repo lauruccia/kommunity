@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OneToOneStatus;
 use App\Enums\ReferralStatus;
+use App\Models\OneToOneRequest;
 use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -15,6 +17,7 @@ class ReferralController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
+        $eligibleMemberIds = $this->eligibleRecipientIds($user->id);
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(array_column(ReferralStatus::cases(), 'value'))],
@@ -53,6 +56,7 @@ class ReferralController extends Controller
             'members' => User::query()
                 ->with('memberProfile')
                 ->whereKeyNot($user->id)
+                ->whereIn('id', $eligibleMemberIds)
                 ->whereHas('memberProfile', fn ($query) => $query->where('is_active', true))
                 ->orderBy('name')
                 ->get(),
@@ -66,6 +70,7 @@ class ReferralController extends Controller
                 ->withQueryString(),
             'statusOptions' => ReferralStatus::options(),
             'filters' => $filters,
+            'eligibleMemberIds' => $eligibleMemberIds,
             'summary' => [
                 'sent' => Referral::query()->where('sender_id', $user->id)->count(),
                 'received' => Referral::query()->where('recipient_id', $user->id)->count(),
@@ -82,6 +87,7 @@ class ReferralController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $eligibleMemberIds = $this->eligibleRecipientIds($request->user()->id);
         $data = $request->validate([
             'recipient_id' => ['required', 'exists:users,id', 'different:' . $request->user()->id],
             'title' => ['required', 'string', 'max:255'],
@@ -92,6 +98,8 @@ class ReferralController extends Controller
             'priority' => ['required', Rule::in(['low', 'medium', 'high'])],
             'notes' => ['nullable', 'string', 'max:3000'],
         ]);
+
+        abort_unless(in_array((int) $data['recipient_id'], $eligibleMemberIds, true), 403);
 
         Referral::query()->create([
             ...$data,
@@ -118,5 +126,26 @@ class ReferralController extends Controller
         $referral->update($data);
 
         return back()->with('status', 'referral-updated');
+    }
+
+    private function eligibleRecipientIds(int $userId): array
+    {
+        return OneToOneRequest::query()
+            ->where('status', OneToOneStatus::Completed->value)
+            ->where(function ($query) use ($userId): void {
+                $query
+                    ->where('requester_id', $userId)
+                    ->orWhere('recipient_id', $userId);
+            })
+            ->get(['requester_id', 'recipient_id'])
+            ->flatMap(function (OneToOneRequest $oneToOne) use ($userId) {
+                return [
+                    $oneToOne->requester_id === $userId ? $oneToOne->recipient_id : $oneToOne->requester_id,
+                ];
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }

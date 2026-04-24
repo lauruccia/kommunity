@@ -1,6 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         @php
+            $viewerIsOwner = auth()->check() && auth()->id() === $user->id;
             $heroBackground = $onepage->coverImageUrl()
                 ? "background-image:linear-gradient(90deg,rgba(38,52,63,0.82),rgba(72,97,81,0.58)),url('".$onepage->coverImageUrl()."'); background-size:cover; background-position:center;"
                 : "background:linear-gradient(135deg,#425767 0%,#4f6778 58%,#5b7d4b 100%);";
@@ -19,34 +20,28 @@
                     <h1 class="mt-3 font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">{{ $onepage->hero_title ?: $user->name }}</h1>
                     <p class="mt-3 text-base text-white/80 lg:text-lg">{{ $onepage->hero_subtitle ?: 'Profilo professionale membro Kommunity' }}</p>
                 </div>
-                <div class="flex flex-wrap gap-3">
-                    <form method="POST" action="{{ route('conversations.start') }}">
-                        @csrf
-                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
-                        <input type="hidden" name="message" value="Ciao {{ $user->name }}, ti contatto dalla tua pagina personale su Kommunity.">
-                        <button type="submit" class="km-button-secondary border-white/25 bg-white/10 text-white hover:bg-white/20">Messaggio diretto</button>
-                    </form>
-                    <form method="POST" action="{{ route('one-to-ones.store') }}">
-                        @csrf
-                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
-                        <input type="hidden" name="meeting_mode" value="online">
-                        <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
-                        <button type="submit" class="km-button-primary bg-white text-stone-950 hover:bg-stone-100">Prenota one-to-one</button>
-                    </form>
-                </div>
+                @unless($viewerIsOwner)
+                    <div class="flex flex-wrap gap-3">
+                        <form method="POST" action="{{ route('conversations.start') }}">
+                            @csrf
+                            <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                            <button type="submit" class="km-button-secondary border-white/25 bg-white/10 text-white hover:bg-white/20">Messaggio diretto</button>
+                        </form>
+                        <form method="POST" action="{{ route('one-to-ones.store') }}">
+                            @csrf
+                            <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                            <input type="hidden" name="meeting_mode" value="online">
+                            <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
+                            <button type="submit" class="inline-flex items-center justify-center rounded-full border border-white/20 bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]">Prenota one-to-one</button>
+                        </form>
+                    </div>
+                @endunless
             </div>
         </div>
     </x-slot>
 
     <div class="pb-12">
         <div class="w-full px-4 sm:px-6 lg:px-8">
-            @php
-                $tabs = [
-                    'profile' => 'Profilo',
-                    'kommunity' => 'Kommunity',
-                    'collaborations' => 'Collaborazioni',
-                ];
-            @endphp
             <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
             <aside class="space-y-6">
                 <div class="km-panel overflow-hidden p-0">
@@ -126,18 +121,18 @@
                 @if ($profile->hasVideo())
                 <div class="km-panel overflow-hidden p-0">
                     @if ($profile->videoEmbedUrl())
-                        <div class="mx-auto w-full {{ $profile->prefersPortraitVideo() ? 'max-w-[420px]' : '' }}" style="aspect-ratio:{{ $profile->prefersPortraitVideo() ? '9/16' : '16/9' }};">
+                        <div class="mx-auto w-full bg-black {{ $profile->prefersPortraitVideo() ? 'max-w-[520px]' : '' }}" style="aspect-ratio:{{ $profile->prefersPortraitVideo() ? '9/16' : '16/9' }};">
                             <iframe src="{{ $profile->videoEmbedUrl() }}"
-                                    class="h-full w-full"
+                                    class="h-full w-full bg-black"
                                     frameborder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen>
                             </iframe>
                         </div>
                     @elseif ($profile->introVideoUrl())
-                        <div x-data="{ portrait: false }" class="p-4 sm:p-6">
-                            <div class="mx-auto w-full" :class="portrait ? 'max-w-[420px]' : 'max-w-full'" :style="portrait ? 'aspect-ratio:9/16' : 'aspect-ratio:16/9'">
-                                <video controls playsinline class="h-full w-full rounded-[1.4rem] bg-black object-contain"
+                        <div x-data="{ portrait: false }" class="bg-black">
+                            <div class="mx-auto w-full bg-black" :class="portrait ? 'max-w-[520px]' : 'max-w-full'" :style="portrait ? 'aspect-ratio:9/16' : 'aspect-ratio:16/9'">
+                                <video controls playsinline class="h-full w-full bg-black object-cover"
                                        @loadedmetadata="portrait = $event.target.videoHeight > $event.target.videoWidth">
                                     <source src="{{ $profile->introVideoUrl() }}">
                                 </video>
@@ -163,14 +158,6 @@
                         <div><span class="font-semibold">Contatto preferito:</span> {{ $profile->preferred_contact_method?->label() ?? 'Email' }}</div>
                     </div>
                 </div>
-
-                <div class="km-panel p-6">
-                    <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Azioni rapide</h3>
-                    <div class="mt-4 flex flex-col gap-3">
-                        <a href="{{ route('directory.index') }}" class="km-button-secondary w-full">Torna alla directory</a>
-                        <a href="{{ route('one-to-ones.index', ['member' => $user->id]) }}" class="km-button-secondary w-full">Gestisci one-to-one</a>
-                    </div>
-                </div>
             </aside>
 
             <section class="space-y-6">
@@ -181,121 +168,7 @@
                 </div>
 
                 <div class="km-panel p-6">
-                    <div class="flex items-center justify-between border-b border-stone-200 pb-4">
-                        <div class="flex gap-6 text-sm font-medium text-stone-600">
-                            @foreach ($tabs as $tabKey => $tabLabel)
-                                <a href="{{ route('members.show', ['slug' => $onepage->slug, 'tab' => $tabKey]) }}" class="{{ $currentTab === $tabKey ? 'border-b-2 border-[color:var(--km-accent)] pb-3 text-stone-950' : 'pb-3 text-stone-500 transition hover:text-stone-900' }}">
-                                    {{ $tabLabel }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div class="grid gap-6 pt-6">
-                        @if ($currentTab === 'kommunity')
-                            <div>
-                                <h2 class="font-serif text-3xl font-semibold text-stone-950">Presenza nella kommunity</h2>
-                                <div class="mt-5 grid gap-4 lg:grid-cols-2">
-                                    <div class="rounded-[1.6rem] bg-stone-100 p-5">
-                                        <p class="text-xs uppercase tracking-[0.18em] text-stone-500">Pianeta</p>
-                                        <p class="mt-3 text-lg font-semibold text-stone-950">{{ $profile->chapter?->name ?? 'Nessun capitolo assegnato' }}</p>
-                                        <p class="mt-2 text-sm leading-7 text-stone-600">{{ $profile->chapter?->description ?: 'Il membro non e\' ancora collegato a un capitolo territoriale.' }}</p>
-                                    </div>
-                                    <div class="rounded-[1.6rem] bg-stone-100 p-5">
-                                        <p class="text-xs uppercase tracking-[0.18em] text-stone-500">Networking</p>
-                                        <p class="mt-3 text-sm leading-7 text-stone-700">{{ $profile->networking_goals ?: 'Disponibile a creare sinergie, referral qualificati e nuove collaborazioni nella kommunity.' }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h2 class="font-serif text-3xl font-semibold text-stone-950">Tipologie che desidera conoscere</h2>
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    @forelse ($profile->companyInterestTypes as $companyInterestType)
-                                        <span class="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">{{ $companyInterestType->name }}</span>
-                                    @empty
-                                        <div class="rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-500">
-                                            Nessuna tipologia selezionata.
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </div>
-
-                            <div>
-                                <h2 class="font-serif text-3xl font-semibold text-stone-950">Discussioni recenti</h2>
-                                <div class="mt-2 grid gap-4">
-                                    @forelse ($communityThreads as $thread)
-                                        <a href="{{ route('forum.show', $thread) }}" class="rounded-[1.6rem] border border-stone-200 bg-white p-5 transition hover:bg-stone-50">
-                                            <p class="text-xs uppercase tracking-[0.18em] text-stone-500">{{ $thread->category?->name ?? 'Kommunity' }}</p>
-                                            <p class="mt-2 text-lg font-semibold text-stone-950">{{ $thread->title }}</p>
-                                            <p class="mt-2 text-sm text-stone-600">{{ $thread->excerpt }}</p>
-                                        </a>
-                                    @empty
-                                        <div class="rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-500">
-                                            Nessuna discussione pubblicata da questo membro.
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </div>
-                        @elseif ($currentTab === 'collaborations')
-                            <div>
-                                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                                    <div>
-                                        <h2 class="font-serif text-3xl font-semibold text-stone-950">Storico collaborazioni</h2>
-                                        <p class="mt-3 text-sm leading-7 text-stone-600">One-to-one e referenze tra te e questo membro.</p>
-                                    </div>
-                                    <a href="{{ route('one-to-ones.index', ['member' => $user->id]) }}" class="km-button-secondary">Apri gestione one-to-one</a>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 class="font-serif text-2xl font-semibold text-stone-950">One-to-one condivisi</h3>
-                                <div class="mt-4 grid gap-4">
-                                    @forelse ($sharedOneToOnes as $oneToOne)
-                                        <div class="rounded-[1.6rem] border border-stone-200 bg-white p-5">
-                                            <div class="flex flex-wrap items-center gap-2">
-                                                <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-stone-700">
-                                                    {{ $oneToOne->requester_id === auth()->id() ? 'Inviato da te' : 'Ricevuto da te' }}
-                                                </span>
-                                                <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-800">
-                                                    {{ $oneToOne->status->label() }}
-                                                </span>
-                                            </div>
-                                            <p class="mt-3 text-sm leading-7 text-stone-700">{{ $oneToOne->goal }}</p>
-                                            <p class="mt-2 text-sm text-stone-500">{{ optional($oneToOne->requested_at)->format('d/m/Y H:i') ?: 'Data da confermare' }}</p>
-                                        </div>
-                                    @empty
-                                        <div class="rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-500">
-                                            Nessun one-to-one registrato tra te e questo membro.
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 class="font-serif text-2xl font-semibold text-stone-950">Referenze condivise</h3>
-                                <div class="mt-4 grid gap-4">
-                                    @forelse ($sharedReferrals as $referral)
-                                        <div class="rounded-[1.6rem] border border-stone-200 bg-white p-5">
-                                            <div class="flex flex-wrap items-center gap-2">
-                                                <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-stone-700">
-                                                    {{ $referral->sender_id === auth()->id() ? 'Inviata da te' : 'Ricevuta da te' }}
-                                                </span>
-                                                <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-stone-700">
-                                                    {{ $referral->status->label() }}
-                                                </span>
-                                            </div>
-                                            <p class="mt-3 text-lg font-semibold text-stone-950">{{ $referral->title }}</p>
-                                            <p class="mt-2 text-sm leading-7 text-stone-700">{{ $referral->description }}</p>
-                                        </div>
-                                    @empty
-                                        <div class="rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-500">
-                                            Nessuna referenza condivisa tra te e questo membro.
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </div>
-                        @else
+                    <div class="grid gap-6">
                             <div>
                                 <h2 class="font-serif text-3xl font-semibold text-stone-950">Chi sono</h2>
                                 <p class="mt-2 text-base leading-8 text-stone-700">{{ $onepage->about_text ?: ($profile->bio ?: 'Profilo professionale in fase di completamento.') }}</p>
@@ -360,11 +233,22 @@
                                             x-transition:leave="transition ease-in duration-150"
                                             x-transition:leave-start="opacity-100"
                                             x-transition:leave-end="opacity-0"
-                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
-                                            @click.self="open = false"
+                                            {{-- click sul background scuro chiude; i figli usano @click.stop --}}
+                                            @click="open = false"
+                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/85"
+                                            style="padding: 3.5rem 1rem 1rem;"
                                         >
-                                            {{-- Immagine corrente --}}
-                                            <div class="relative flex max-h-[90vh] max-w-5xl w-full items-center justify-center">
+                                            {{-- Pulsante chiudi — sempre in cima, z alto, mai coperto --}}
+                                            <button
+                                                @click.stop="open = false"
+                                                class="absolute top-3 right-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                                aria-label="Chiudi">
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
+                                            </button>
+
+                                            {{-- Contenitore immagine: @click.stop blocca la chiusura quando si clicca sull'img --}}
+                                            <div class="flex max-h-full max-w-full items-center justify-center"
+                                                 @click.stop>
                                                 <template x-for="(url, i) in images" :key="i">
                                                     <img
                                                         x-show="current === i"
@@ -372,33 +256,29 @@
                                                         x-transition:enter="transition ease-out duration-150"
                                                         x-transition:enter-start="opacity-0 scale-95"
                                                         x-transition:enter-end="opacity-100 scale-100"
-                                                        class="max-h-[80vh] max-w-full rounded-[1.4rem] object-contain shadow-2xl"
+                                                        class="rounded-[1.2rem] object-contain shadow-2xl"
+                                                        style="max-height: calc(100vh - 5rem); max-width: min(90vw, 1200px);"
                                                         alt="Gallery"
                                                     >
                                                 </template>
                                             </div>
 
-                                            {{-- Chiudi --}}
-                                            <button @click="open = false"
-                                                    class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30">
-                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
-                                            </button>
-
                                             {{-- Prev --}}
-                                            <button @click="prev()" x-show="images.length > 1"
-                                                    class="absolute left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30">
+                                            <button @click.stop="prev()" x-show="images.length > 1"
+                                                    class="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none">
                                                 <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 010 1.06L8.06 10l3.72 3.72a.75.75 0 11-1.06 1.06l-4.25-4.25a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0z" clip-rule="evenodd"/></svg>
                                             </button>
 
                                             {{-- Next --}}
-                                            <button @click="next()" x-show="images.length > 1"
-                                                    class="absolute right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30">
+                                            <button @click.stop="next()" x-show="images.length > 1"
+                                                    class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none">
                                                 <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 010-1.06z" clip-rule="evenodd"/></svg>
                                             </button>
 
                                             {{-- Dot indicator --}}
                                             <div x-show="images.length > 1"
-                                                 class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                                 class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5"
+                                                 @click.stop>
                                                 <template x-for="(url, i) in images" :key="i">
                                                     <button @click="current = i"
                                                             :class="current === i ? 'bg-white w-4' : 'bg-white/40 w-2'"
@@ -414,7 +294,6 @@
                                     </div>
                                 @endif
                             </div>
-                        @endif
                     </div>
                 </div>
             </section>

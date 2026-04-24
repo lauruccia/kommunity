@@ -86,11 +86,14 @@ class ConversationController extends Controller
     {
         $data = $request->validate([
             'recipient_id' => ['required', 'exists:users,id'],
-            'message' => ['required', 'string', 'max:3000'],
+            'message' => ['nullable', 'string', 'max:3000'],
         ]);
 
         $userId = $request->user()->id;
         $recipientId = (int) $data['recipient_id'];
+        $message = trim((string) ($data['message'] ?? ''));
+
+        abort_if($recipientId === $userId, 422, 'Non puoi avviare una conversazione con te stesso.');
 
         $conversation = Conversation::query()
             ->whereHas('participants', fn ($query) => $query->where('users.id', $userId))
@@ -110,12 +113,14 @@ class ConversationController extends Controller
             ]);
         }
 
-        $conversation->messages()->create([
-            'user_id' => $userId,
-            'body' => $data['message'],
-        ]);
+        if ($message !== '') {
+            $conversation->messages()->create([
+                'user_id' => $userId,
+                'body' => $message,
+            ]);
 
-        $conversation->touch();
+            $conversation->touch();
+        }
 
         return redirect()->route('conversations.show', $conversation);
     }
