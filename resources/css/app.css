@@ -163,7 +163,7 @@
     .km-directory-avatar-button {
         position: absolute;
         left: 1.25rem;
-        bottom: -2.35rem;
+        bottom: -3.1rem;
         border: 0;
         background: transparent;
         padding: 0;
@@ -208,7 +208,7 @@
     .km-directory-avatar-floating {
         position: absolute;
         left: 1.25rem;
-        bottom: -2.35rem;
+        bottom: -3.1rem;
         width: 5.95rem;
         height: 5.95rem;
         border-width: 4px;
