@@ -17,32 +17,32 @@
 
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                            {{ __('Dashboard') }}
+                            {{ __('nav.dashboard') }}
                         </x-nav-link>
                         <x-nav-link :href="route('directory.index')" :active="request()->routeIs('directory.*')">
-                            Directory membri
+                            {{ __('nav.directory') }}
                         </x-nav-link>
                         <x-nav-link :href="route('one-to-ones.index')" :active="request()->routeIs('one-to-ones.*')">
-                            {{ __('One-to-one') }}
+                            {{ __('nav.one_to_one') }}
                         </x-nav-link>
                         <x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
-                            {{ __('Eventi') }}
+                            {{ __('nav.events') }}
                         </x-nav-link>
                         <x-nav-link :href="route('forum.index')" :active="request()->routeIs('forum.*')">
-                            {{ __('Forum') }}
+                            {{ __('nav.forum') }}
                         </x-nav-link>
                         <x-nav-link :href="route('conversations.index')" :active="request()->routeIs('conversations.*')">
-                            {{ __('Messaggi') }}
+                            {{ __('nav.messages') }}
                         </x-nav-link>
                         <x-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
-                            Referenze
+                            {{ __('nav.referrals') }}
                         </x-nav-link>
                         <x-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
-                            Abbonamento
+                            {{ __('nav.subscription') }}
                         </x-nav-link>
                         @if (auth()->user()?->can('gestire-utenti'))
                             <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
-                                Gestione utenti
+                                {{ __('nav.admin') }}
                             </x-nav-link>
                         @endif
                     </div>
@@ -125,32 +125,32 @@
             <div :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-stone-200 pb-4 pt-2 sm:hidden">
                 <div class="space-y-1 pb-3 pt-2">
                     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        {{ __('nav.dashboard') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('directory.index')" :active="request()->routeIs('directory.*')">
-                        Directory membri
+                        {{ __('nav.directory') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('one-to-ones.index')" :active="request()->routeIs('one-to-ones.*')">
-                        {{ __('One-to-one') }}
+                        {{ __('nav.one_to_one') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
-                        {{ __('Eventi') }}
+                        {{ __('nav.events') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('forum.index')" :active="request()->routeIs('forum.*')">
-                        {{ __('Forum') }}
+                        {{ __('nav.forum') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('conversations.index')" :active="request()->routeIs('conversations.*')">
-                        {{ __('Messaggi') }}
+                        {{ __('nav.messages') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
-                        Referenze
+                        {{ __('nav.referrals') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
-                        Abbonamento
+                        {{ __('nav.subscription') }}
                     </x-responsive-nav-link>
                     @if (auth()->user()?->can('gestire-utenti'))
                         <x-responsive-nav-link href="/admin/users" :active="request()->is('admin/users*')">
-                            Gestione utenti
+                            {{ __('nav.admin') }}
                         </x-responsive-nav-link>
                     @endif
                 </div>
@@ -163,30 +163,45 @@
 
                     <div class="mt-3 space-y-1">
                         <x-responsive-nav-link :href="route('profile.edit')">
-                            Profilo
+                            {{ __('nav.profile') }}
                         </x-responsive-nav-link>
 
                         @if (auth()->user()?->can('gestire-utenti'))
                             <x-responsive-nav-link href="/admin/users">
-                                Gestione utenti
+                                {{ __('nav.admin') }}
                             </x-responsive-nav-link>
                         @endif
 
                         <button @click="$dispatch('km:open-password-modal'); open = false"
                             class="block w-full px-4 py-2 text-start text-base font-medium text-stone-600 transition hover:bg-stone-50 hover:text-stone-800">
-                            Cambia password
+                            {{ __('nav.change_password') }}
                         </button>
 
                         <button @click="$dispatch('km:open-delete-modal'); open = false"
                             class="block w-full px-4 py-2 text-start text-base font-medium text-rose-600 transition hover:bg-rose-50">
-                            Elimina account
+                            {{ __('nav.delete_account') }}
                         </button>
+
+                        {{-- Switcher lingua mobile --}}
+                        <div class="px-4 py-3 border-t border-stone-100">
+                            <p class="mb-2 text-[10px] font-semibold uppercase tracking-widest text-stone-400">{{ __('nav.language') }}</p>
+                            <div class="flex gap-2">
+                                <a href="{{ route('locale.switch', 'it') }}"
+                                   class="rounded-lg px-3 py-1.5 text-sm font-medium transition {{ app()->getLocale() === 'it' ? 'bg-[color:var(--km-accent)] text-white' : 'bg-stone-100 text-stone-600' }}">
+                                    🇮🇹 IT
+                                </a>
+                                <a href="{{ route('locale.switch', 'en') }}"
+                                   class="rounded-lg px-3 py-1.5 text-sm font-medium transition {{ app()->getLocale() === 'en' ? 'bg-[color:var(--km-accent)] text-white' : 'bg-stone-100 text-stone-600' }}">
+                                    🇬🇧 EN
+                                </a>
+                            </div>
+                        </div>
 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-responsive-nav-link :href="route('logout')"
                                 onclick="event.preventDefault(); this.closest('form').submit();">
-                                Esci
+                                {{ __('nav.logout') }}
                             </x-responsive-nav-link>
                         </form>
                     </div>
