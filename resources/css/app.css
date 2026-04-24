@@ -161,7 +161,7 @@
 
     .km-directory-card {
         @apply flex h-full min-w-0 w-full flex-col rounded-[1.8rem] border bg-white;
-        overflow: visible; /* permette all'avatar di sovrapporsi al banner */
+        overflow: hidden;   /* mantiene border-radius e non fa uscire l'avatar */
         border-color: rgba(70, 93, 112, 0.12);
         box-shadow: 0 12px 34px rgba(39, 54, 67, 0.08);
     }
@@ -170,22 +170,40 @@
         box-shadow: 0 20px 42px rgba(39, 54, 67, 0.13);
     }
 
+    /*
+     * Zona header: contiene banner (100px) + metà avatar (3.5rem = 56px).
+     * Altezza totale = 100px + 3.5rem  →  l'avatar è esattamente a cavallo.
+     * La card ha overflow:hidden, quindi niente fuoriesce.
+     */
+    .km-directory-header-zone {
+        position: relative;
+        flex-shrink: 0;
+        height: calc(100px + 3.5rem);   /* 156px desktop */
+    }
+
+    /* Banner: occupa i primi 100px della zona */
     .km-directory-banner {
+        position: absolute;
+        inset: 0;
         height: 100px;
         background: linear-gradient(135deg, #dbe7f3 0%, #c7d7ea 45%, #aac2dd 100%);
         background-size: cover;
         background-position: center;
-        /* angoli arrotondati solo in alto (la card non usa overflow:hidden) */
-        border-radius: 1.75rem 1.75rem 0 0;
     }
 
-    /* Avatar centrato con tecnica margin-top negativo (no position:absolute) */
+    /*
+     * Avatar centrato: posizionato esattamente a 100px dal top (= fondo banner),
+     * poi traslato su di -50% → è a metà sopra e metà sotto il banner.
+     */
     .km-directory-avatar-wrap {
-        display: flex;
-        justify-content: center;
-        margin-top: -3.5rem;  /* metà dell'altezza avatar (7rem/2) */
-        position: relative;
+        position: absolute;
+        left: 50%;
+        top: 100px;           /* = altezza banner */
+        transform: translate(-50%, -50%);
         z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .km-directory-avatar-button {
@@ -195,8 +213,8 @@
         cursor: pointer;
         position: relative;
         display: inline-flex;
-        flex-direction: column;
         align-items: center;
+        justify-content: center;
     }
 
     .km-directory-avatar-button:hover .km-directory-avatar,
@@ -233,11 +251,6 @@
         background: linear-gradient(180deg, #ffffff 0%, #f5f5f4 100%);
         transition: box-shadow 0.22s ease, transform 0.22s ease;
         flex-shrink: 0;
-    }
-
-    /* Mantenuto per retrocompatibilità ma non usato nella nuova card */
-    .km-directory-avatar-floating {
-        position: static;
     }
 
     .km-directory-detail {
@@ -355,12 +368,17 @@
         letter-spacing: 0.18em;
     }
 
+    /* Mobile: banner 80px, avatar 6rem, zona = 80px + 3rem */
+    .km-directory-header-zone {
+        height: calc(80px + 3rem);   /* 128px mobile */
+    }
+
     .km-directory-banner {
         height: 80px;
     }
 
     .km-directory-avatar-wrap {
-        margin-top: -3rem; /* metà di 6rem (avatar mobile) */
+        top: 80px;   /* = banner height mobile */
     }
 
     .km-directory-avatar {

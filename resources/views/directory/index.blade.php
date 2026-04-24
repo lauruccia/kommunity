@@ -1,15 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="w-full rounded-[2rem] bg-[linear-gradient(135deg,#425767_0%,#4d6474_52%,#5b7d4b_100%)] p-6 text-white shadow-[0_22px_60px_rgba(66,87,103,0.22)]">
-            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-[0.24em] text-white/70">Directory membri</p>
-                    <h1 class="mt-3 font-serif text-2xl font-semibold sm:text-3xl lg:text-4xl">Kommunity business interna</h1>
-                    <p class="mt-3 max-w-4xl text-sm leading-7 text-white/80">
-                        Esplora professionisti, networker e imprenditori: filtri laterali, ricerca veloce e card ricche di contatti.
-                    </p>
+                    <h1 class="mt-2 font-serif text-2xl font-semibold sm:text-3xl">Kommunity business interna</h1>
                 </div>
-                <div class="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                <div class="shrink-0 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
                     {{ $members->total() }} membri attivi
                 </div>
             </div>
@@ -18,7 +15,7 @@
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)"
-             class="mx-2 mb-4 mt-2 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm text-emerald-800 shadow-sm sm:mx-3 lg:mx-4">
+             class="mx-2 mb-4 mt-2 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm text-emerald-800 shadow-sm">
             <svg class="h-5 w-5 shrink-0 text-emerald-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
             {{ session('success') }}
             <button @click="show = false" class="ml-auto text-emerald-500 hover:text-emerald-700">
@@ -28,59 +25,67 @@
     @endif
 
     <div class="pb-12">
-        <div class="w-full px-2 sm:px-3 lg:px-4" x-data="{ filtersOpen: window.innerWidth >= 1024 }">
+        <div class="w-full px-2 sm:px-3 lg:px-4"
+             x-data="{ filtersOpen: false }">
 
-            <div class="mb-4 lg:hidden">
+            {{-- Toggle filtri: solo su mobile (< md) --}}
+            <div class="mb-4 md:hidden">
                 <button @click="filtersOpen = !filtersOpen"
                         class="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50">
                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 01.628.74v2.288a2.25 2.25 0 01-.659 1.59l-4.682 4.683a2.25 2.25 0 00-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 018 18.25v-5.757a2.25 2.25 0 00-.659-1.591L2.659 6.22A2.25 2.25 0 012 4.629V2.34a.75.75 0 01.628-.74z" clip-rule="evenodd" />
                     </svg>
-                    <span x-text="filtersOpen ? 'Nascondi filtri' : 'Filtra membri'">Filtra membri</span>
+                    <span x-text="filtersOpen ? 'Chiudi filtri' : 'Filtri'">Filtri</span>
                 </button>
             </div>
 
-            <div class="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
+            {{-- Layout principale: sidebar + cards --}}
+            <div class="flex gap-5">
 
-                {{-- ── SIDEBAR FILTRI ── --}}
-                <aside class="space-y-4 lg:sticky lg:top-6 lg:self-start"
-                       x-show="filtersOpen" x-cloak
-                       x-transition:enter="transition ease-out duration-200"
-                       x-transition:enter-start="opacity-0 -translate-y-2"
-                       x-transition:enter-end="opacity-100 translate-y-0"
-                       x-transition:leave="transition ease-in duration-150"
-                       x-transition:leave-start="opacity-100 translate-y-0"
-                       x-transition:leave-end="opacity-0 -translate-y-2">
-
+                {{-- ═══════════════════════════════════════════
+                     SIDEBAR — visibile sempre da md in su,
+                     collassabile su mobile
+                ════════════════════════════════════════════ --}}
+                <aside
+                    class="md:sticky md:top-6 md:self-start md:block md:w-[260px] lg:w-[280px] shrink-0 space-y-4"
+                    :class="filtersOpen ? 'block' : 'hidden md:block'"
+                    style="min-width:0;"
+                >
+                    {{-- Categorie --}}
                     <div class="km-panel overflow-hidden p-0 shadow-[0_14px_34px_rgba(66,87,103,0.08)]">
-                        <div class="border-b border-stone-200 bg-[color:var(--km-soft)] px-5 py-4">
+                        <div class="border-b border-stone-200 bg-[color:var(--km-soft)] px-5 py-3.5">
                             <div class="flex items-center justify-between">
-                                <h2 class="text-base font-semibold text-stone-950">Categorie</h2>
+                                <h2 class="text-sm font-semibold text-stone-950">Categorie</h2>
                                 @if($filters['category'] ?? null)
-                                    <a href="{{ route('directory.index', array_filter(array_merge($filters, ['category' => null]))) }}" class="text-xs text-stone-400 hover:text-stone-700">Azzera</a>
+                                    <a href="{{ route('directory.index', array_filter(array_merge($filters, ['category' => null]))) }}"
+                                       class="text-xs text-stone-400 hover:text-stone-700">Azzera</a>
                                 @endif
                             </div>
                         </div>
-                        <div class="divide-y divide-stone-100">
+                        <div class="divide-y divide-stone-100 text-sm">
                             @foreach ($rootCategories as $root)
                                 <div x-data="{ open: {{ $root->activeChildren->isNotEmpty() && (($filters['category'] ?? null) == $root->id || $root->activeChildren->contains('id', (int)($filters['category'] ?? 0))) ? 'true' : 'false' }} }">
                                     <div class="flex items-center">
                                         <a href="{{ route('directory.index', array_filter(array_merge($filters, ['category' => $root->id]))) }}"
-                                           class="flex-1 px-5 py-2.5 text-[13px] font-medium transition hover:bg-stone-50 {{ ($filters['category'] ?? null) == $root->id ? 'text-emerald-700' : 'text-stone-700' }}">
+                                           class="flex-1 px-5 py-2.5 font-medium transition hover:bg-stone-50
+                                                  {{ ($filters['category'] ?? null) == $root->id ? 'text-emerald-700' : 'text-stone-700' }}">
                                             {{ $root->name }}
                                         </a>
                                         @if($root->activeChildren->isNotEmpty())
-                                            <button @click="open = !open" class="px-4 py-2.5 text-stone-400 hover:text-stone-700">
-                                                <svg class="h-3.5 w-3.5 transition-transform" :class="open ? 'rotate-90' : ''" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd"/></svg>
+                                            <button @click="open = !open" class="px-3 py-2.5 text-stone-400 hover:text-stone-700">
+                                                <svg class="h-3.5 w-3.5 transition-transform duration-150" :class="open ? 'rotate-90' : ''" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd"/>
+                                                </svg>
                                             </button>
                                         @endif
                                     </div>
                                     @if($root->activeChildren->isNotEmpty())
-                                        <div x-show="open" x-cloak class="border-t border-stone-100 bg-stone-50/60">
+                                        <div x-show="open" x-cloak class="border-t border-stone-100 bg-stone-50/70">
                                             @foreach($root->activeChildren as $child)
                                                 <a href="{{ route('directory.index', array_filter(array_merge($filters, ['category' => $child->id]))) }}"
-                                                   class="flex items-center gap-2 py-2 pl-9 pr-5 text-[12px] transition hover:bg-stone-100 {{ ($filters['category'] ?? null) == $child->id ? 'font-medium text-emerald-700' : 'text-stone-600' }}">
-                                                    <span class="h-1 w-1 rounded-full bg-stone-300"></span>
+                                                   class="flex items-center gap-2 py-2 pl-9 pr-5 text-xs transition hover:bg-stone-100
+                                                          {{ ($filters['category'] ?? null) == $child->id ? 'font-semibold text-emerald-700' : 'text-stone-600' }}">
+                                                    <span class="h-1 w-1 rounded-full bg-stone-300 shrink-0"></span>
                                                     {{ $child->name }}
                                                 </a>
                                             @endforeach
@@ -91,28 +96,39 @@
                         </div>
                     </div>
 
+                    {{-- Filtri rapidi --}}
                     @php
                         $provinceOptions = $provinces->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'region_id' => $p->region_id])->values();
-                        $cityOptions = $regions->flatMap(fn ($r) => $r->cities)->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'province_id' => $c->province_id ?? null, 'region_id' => $c->region_id])->values();
+                        $cityOptions     = $regions->flatMap(fn ($r) => $r->cities)
+                            ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'province_id' => $c->province_id ?? null, 'region_id' => $c->region_id])
+                            ->values();
                     @endphp
 
                     <div class="km-panel p-5 shadow-[0_14px_34px_rgba(66,87,103,0.08)]"
                          x-data="{
-                            regionId: '{{ $filters['region'] ?? '' }}',
-                            provinceId: '{{ $filters['province'] ?? '' }}',
-                            provinces: @js($provinceOptions),
-                            cities: @js($cityOptions),
-                            get filteredProvinces() { return this.regionId ? this.provinces.filter(p => p.region_id == this.regionId) : this.provinces; },
-                            get filteredCities() {
-                                if (this.provinceId) return this.cities.filter(c => c.province_id == this.provinceId);
-                                if (this.regionId) return this.cities.filter(c => c.region_id == this.regionId);
-                                return this.cities;
-                            }
+                             regionId:   '{{ $filters['region']   ?? '' }}',
+                             provinceId: '{{ $filters['province'] ?? '' }}',
+                             provinces:  @js($provinceOptions),
+                             cities:     @js($cityOptions),
+                             get filteredProvinces() {
+                                 return this.regionId
+                                     ? this.provinces.filter(p => p.region_id == this.regionId)
+                                     : this.provinces;
+                             },
+                             get filteredCities() {
+                                 if (this.provinceId) return this.cities.filter(c => c.province_id == this.provinceId);
+                                 if (this.regionId)   return this.cities.filter(c => c.region_id   == this.regionId);
+                                 return this.cities;
+                             }
                          }">
                         <h3 class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Filtri rapidi</h3>
-                        <form method="GET" class="mt-3 space-y-2.5">
-                            @if($filters['category'] ?? null)<input type="hidden" name="category" value="{{ $filters['category'] }}">@endif
-                            @if($filters['search'] ?? null)<input type="hidden" name="search" value="{{ $filters['search'] }}">@endif
+                        <form method="GET" class="mt-3 space-y-3">
+                            @if($filters['category'] ?? null)
+                                <input type="hidden" name="category" value="{{ $filters['category'] }}">
+                            @endif
+                            @if($filters['search'] ?? null)
+                                <input type="hidden" name="search" value="{{ $filters['search'] }}">
+                            @endif
 
                             <div>
                                 <label class="mb-1 block text-xs font-medium text-stone-500">Regione</label>
@@ -123,7 +139,8 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div x-show="filteredProvinces.length > 0">
+
+                            <div x-show="filteredProvinces.length > 0" x-cloak>
                                 <label class="mb-1 block text-xs font-medium text-stone-500">Provincia</label>
                                 <select name="province" class="km-input text-sm" x-model="provinceId">
                                     <option value="">Tutte le province</option>
@@ -132,7 +149,8 @@
                                     </template>
                                 </select>
                             </div>
-                            <div x-show="filteredCities.length > 0">
+
+                            <div x-show="filteredCities.length > 0" x-cloak>
                                 <label class="mb-1 block text-xs font-medium text-stone-500">Città</label>
                                 <select name="city" class="km-input text-sm">
                                     <option value="">Tutte le città</option>
@@ -141,6 +159,7 @@
                                     </template>
                                 </select>
                             </div>
+
                             <div>
                                 <label class="mb-1 block text-xs font-medium text-stone-500">Pianeta</label>
                                 <select name="chapter" class="km-input text-sm">
@@ -150,44 +169,55 @@
                                     @endforeach
                                 </select>
                             </div>
+
                             <button type="submit" class="km-button-primary w-full py-2.5 text-sm">Applica filtri</button>
-                            <a href="{{ route('directory.index') }}" class="block text-center text-xs text-stone-400 hover:text-stone-700">Azzera tutti i filtri</a>
+                            <a href="{{ route('directory.index') }}" class="block text-center text-xs text-stone-400 hover:text-stone-700">
+                                Azzera tutti i filtri
+                            </a>
                         </form>
                     </div>
                 </aside>
 
-                {{-- ── AREA PRINCIPALE ── --}}
-                <section class="min-w-0 space-y-4">
+                {{-- ═══════════════════════════════════════════
+                     AREA PRINCIPALE: ricerca + card
+                ════════════════════════════════════════════ --}}
+                <section class="min-w-0 flex-1 space-y-4">
 
-                    {{-- Barra ricerca --}}
-                    <form method="GET" class="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-                        <input type="text" name="search" value="{{ $filters['search'] ?? '' }}"
-                               class="km-input flex-1 bg-white shadow-sm" placeholder="Nome, professione, categoria…">
-                        <button type="submit" class="km-button-primary px-6">Cerca</button>
+                    {{-- Barra di ricerca --}}
+                    <form method="GET" class="flex gap-2">
+                        <input type="text" name="search"
+                               value="{{ $filters['search'] ?? '' }}"
+                               class="km-input flex-1 bg-white shadow-sm"
+                               placeholder="Nome, professione, categoria…">
+                        <button type="submit" class="km-button-primary px-5 shrink-0">Cerca</button>
                         @if(array_filter($filters))
-                            <a href="{{ route('directory.index') }}" class="km-button-secondary px-5">×</a>
+                            <a href="{{ route('directory.index') }}" class="km-button-secondary px-4 shrink-0">×</a>
                         @endif
                         @foreach(['category','region','province','city','chapter'] as $fk)
-                            @if($filters[$fk] ?? null)<input type="hidden" name="{{ $fk }}" value="{{ $filters[$fk] }}">@endif
+                            @if($filters[$fk] ?? null)
+                                <input type="hidden" name="{{ $fk }}" value="{{ $filters[$fk] }}">
+                            @endif
                         @endforeach
                     </form>
 
-                    {{-- ── Modal video globale ── --}}
+                    {{-- Modal video globale --}}
                     <div x-data="{
-                            open: false, embedUrl: '', localUrl: '',
-                            openVideo(detail) { this.embedUrl = detail.embed || ''; this.localUrl = detail.local || ''; this.open = true; },
-                            closeVideo() {
-                                const v = this.$refs.modalVideo;
-                                if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
-                                this.open = false; this.embedUrl = ''; this.localUrl = '';
-                            }
+                             open: false, embedUrl: '', localUrl: '',
+                             openVideo(d) { this.embedUrl = d.embed||''; this.localUrl = d.local||''; this.open = true; },
+                             closeVideo() {
+                                 const v = this.$refs.mv;
+                                 if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
+                                 this.open = false; this.embedUrl = ''; this.localUrl = '';
+                             }
                          }"
                          @open-video.window="openVideo($event.detail)"
-                         @keydown.escape.window="if (open) closeVideo()">
+                         @keydown.escape.window="if(open) closeVideo()">
                         <template x-if="open">
                             <div x-cloak
-                                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                                  class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
                                  @click.self="closeVideo()">
                                 <div class="relative w-full max-w-3xl overflow-hidden rounded-[1.6rem] bg-black shadow-2xl" style="aspect-ratio:16/9;">
@@ -195,9 +225,10 @@
                                         <iframe :src="embedUrl" class="h-full w-full" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
                                     </template>
                                     <template x-if="!embedUrl && localUrl">
-                                        <video x-ref="modalVideo" :src="localUrl" controls autoplay class="h-full w-full"></video>
+                                        <video x-ref="mv" :src="localUrl" controls autoplay class="h-full w-full"></video>
                                     </template>
-                                    <button @click="closeVideo()" class="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30">
+                                    <button @click="closeVideo()"
+                                            class="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30">
                                         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
                                     </button>
                                 </div>
@@ -205,65 +236,72 @@
                         </template>
                     </div>
 
-                    {{-- ── GRIGLIA CARD ── --}}
-                    <div class="grid grid-cols-2 items-stretch gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+                    {{-- ═══════ GRIGLIA CARD ═══════ --}}
+                    {{-- 1 col < sm | 2 col sm | 3 col lg | 4 col xl --}}
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
                         @forelse ($members as $member)
                             @php
-                                $onepage     = $member->user->memberOnepage ?? null;
-                                $photoUrl    = $member->avatarUrl() ?: $member->logoUrl();
-                                $mediaFit    = $member->avatarUrl() ? 'cover' : 'contain';
-                                $profession  = $member->professions->first()?->name ?? $member->profession?->name ?? $member->profession_other ?? null;
-                                $profileUrl  = $onepage?->slug ? route('members.show', $onepage->slug) : '#';
-                                $embedUrl    = $member->videoEmbedUrl() ?? '';
-                                $localUrl    = (!$embedUrl && $member->introVideoUrl()) ? $member->introVideoUrl() : '';
-                                $hasVideo    = $member->hasVideo();
+                                $onepage      = $member->user->memberOnepage ?? null;
+                                $photoUrl     = $member->avatarUrl() ?: $member->logoUrl();
+                                $mediaFit     = $member->avatarUrl() ? 'cover' : 'contain';
+                                $profession   = $member->professions->first()?->name
+                                             ?? $member->profession?->name
+                                             ?? $member->profession_other
+                                             ?? null;
+                                $profileUrl   = $onepage?->slug ? route('members.show', $onepage->slug) : '#';
+                                $embedUrl     = $member->videoEmbedUrl() ?? '';
+                                $localUrl     = (!$embedUrl && $member->introVideoUrl()) ? $member->introVideoUrl() : '';
+                                $hasVideo     = $member->hasVideo();
 
                                 $ytId = null;
                                 if ($embedUrl && preg_match('/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/', $embedUrl, $m)) {
                                     $ytId = $m[1];
                                 }
-                                $circleType  = 'photo';
+                                $circleType = 'photo';
                                 if ($hasVideo) {
-                                    if ($ytId)         $circleType = 'yt';
-                                    elseif ($localUrl) $circleType = 'local';
-                                    else               $circleType = 'vimeo';
+                                    $circleType = $ytId ? 'yt' : ($localUrl ? 'local' : 'vimeo');
                                 }
 
                                 $coverImage   = $onepage?->coverImageUrl()
-                                    ?: ($ytId ? 'https://img.youtube.com/vi/'.$ytId.'/hqdefault.jpg' : ($photoUrl ?: null));
+                                             ?: ($ytId ? 'https://img.youtube.com/vi/'.$ytId.'/hqdefault.jpg'
+                                                       : ($photoUrl ?: null));
                                 $displayName  = $member->user->name;
                                 $rawWebsite   = $member->website ?? null;
                                 $websiteUrl   = $rawWebsite
-                                    ? (\Illuminate\Support\Str::startsWith($rawWebsite, ['http://', 'https://']) ? $rawWebsite : 'https://'.$rawWebsite)
+                                    ? (\Illuminate\Support\Str::startsWith($rawWebsite, ['http://', 'https://'])
+                                        ? $rawWebsite : 'https://'.$rawWebsite)
                                     : null;
-                                $locationLabel = collect([$member->city?->name, $member->region?->name])->filter()->join(', ');
+                                $locationLabel = collect([$member->city?->name, $member->region?->name])
+                                    ->filter()->join(', ');
                             @endphp
 
-                            <article class="km-directory-card group overflow-visible! transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(39,54,67,0.15)]"
-                                     style="overflow:visible;">
+                            {{-- ─── CARD ─── --}}
+                            <article class="km-directory-card group transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_rgba(39,54,67,0.14)]">
 
-                                {{-- Banner --}}
-                                <div class="km-directory-banner rounded-t-[1.75rem]"
-                                     style="{{ $coverImage
-                                        ? "background-image:linear-gradient(180deg,rgba(16,24,32,0.06),rgba(16,24,32,0.40)),url('".$coverImage."');background-size:cover;background-position:center;"
-                                        : "background:linear-gradient(135deg,#dbe7f3 0%,#c7d7ea 45%,#aac2dd 100%);" }}">
-                                </div>
+                                {{-- Zona header: banner (100px) + metà avatar (3.5rem) --}}
+                                <div class="km-directory-header-zone">
 
-                                {{-- Avatar centrato (margin-top negativo = sovrapposto al banner) --}}
-                                <div class="km-directory-avatar-wrap">
+                                    {{-- Banner --}}
+                                    <div class="km-directory-banner"
+                                         style="{{ $coverImage
+                                            ? "background-image:linear-gradient(180deg,rgba(16,24,32,0.05),rgba(16,24,32,0.38)),url('".e($coverImage)."');background-size:cover;background-position:center;"
+                                            : "" }}">
+                                    </div>
+
+                                    {{-- Avatar centrato a cavallo del banner --}}
+                                    <div class="km-directory-avatar-wrap">
                                     @if ($hasVideo)
-                                        <button
-                                            type="button"
-                                            x-data="{
-                                                preview() { const v=this.$refs.pv; if(!v) return; v.currentTime=0; v.play().catch(()=>{}); },
-                                                reset()   { const v=this.$refs.pv; if(!v) return; v.pause(); v.currentTime=0; }
-                                            }"
-                                            @click="reset(); window.dispatchEvent(new CustomEvent('open-video', { detail: { embed: @js($embedUrl), local: @js($localUrl) } }))"
-                                            @mouseenter="preview()" @mouseleave="reset()"
-                                            @focus="preview()" @blur="reset()"
-                                            class="km-directory-avatar-button"
-                                            title="Guarda la videopresentazione"
-                                        >
+                                        <button type="button"
+                                                x-data="{
+                                                    preview() { const v=this.$refs.pv; if(!v) return; v.currentTime=0; v.play().catch(()=>{}); },
+                                                    reset()   { const v=this.$refs.pv; if(!v) return; v.pause(); v.currentTime=0; }
+                                                }"
+                                                @click="reset(); window.dispatchEvent(new CustomEvent('open-video',{detail:{embed:@js($embedUrl),local:@js($localUrl)}}))"
+                                                @mouseenter="preview()" @mouseleave="reset()"
+                                                @focus="preview()"     @blur="reset()"
+                                                class="km-directory-avatar-button"
+                                                title="Guarda la videopresentazione">
                                             <div class="km-directory-avatar">
                                                 @if ($circleType === 'yt')
                                                     <img src="https://img.youtube.com/vi/{{ $ytId }}/mqdefault.jpg"
@@ -271,16 +309,19 @@
                                                 @elseif ($circleType === 'local')
                                                     <video src="{{ $localUrl }}" x-ref="pv"
                                                            muted playsinline preload="metadata"
-                                                           class="h-full w-full object-cover" style="pointer-events:none;"></video>
+                                                           class="h-full w-full object-cover"
+                                                           style="pointer-events:none;"></video>
                                                 @elseif ($photoUrl)
                                                     <img src="{{ $photoUrl }}" alt="{{ $displayName }}"
-                                                         class="h-full w-full" style="object-fit:{{ $mediaFit }};">
+                                                         class="h-full w-full"
+                                                         style="object-fit:{{ $mediaFit }};">
                                                 @else
-                                                    <span style="font-size:1.8rem;font-weight:700;color:#57534e;">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
+                                                    <span class="text-2xl font-bold text-stone-500">{{ strtoupper(substr($displayName,0,1)) }}</span>
                                                 @endif
                                             </div>
+                                            {{-- Pallino play --}}
                                             <span class="km-directory-avatar-play-badge">
-                                                <svg class="h-3.5 w-3.5 translate-x-[1px] text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg class="h-3.5 w-3.5 translate-x-px text-white" viewBox="0 0 20 20" fill="currentColor">
                                                     <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.34-5.89a1.5 1.5 0 000-2.54L6.3 2.84z"/>
                                                 </svg>
                                             </span>
@@ -289,73 +330,82 @@
                                         <div class="km-directory-avatar">
                                             @if ($photoUrl)
                                                 <img src="{{ $photoUrl }}" alt="{{ $displayName }}"
-                                                     class="h-full w-full" style="object-fit:{{ $mediaFit }};">
+                                                     class="h-full w-full"
+                                                     style="object-fit:{{ $mediaFit }};">
                                             @else
-                                                <span style="font-size:1.8rem;font-weight:700;color:#57534e;">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
+                                                <span class="text-2xl font-bold text-stone-500">{{ strtoupper(substr($displayName,0,1)) }}</span>
                                             @endif
                                         </div>
                                     @endif
-                                </div>
+                                </div>{{-- chiude km-directory-avatar-wrap --}}
+                                </div>{{-- chiude km-directory-header-zone --}}
 
-                                {{-- Dati membro --}}
-                                <div class="flex flex-1 flex-col px-4 pb-3 pt-3">
+                                {{-- Dati: NOME sotto l'avatar, con padding-top garantito --}}
+                                <div class="flex flex-1 flex-col px-4 pb-3" style="padding-top: 0.75rem;">
 
-                                    {{-- Nome + professione centrati --}}
+                                    {{-- Nome + professione --}}
                                     <div class="text-center">
-                                        <h2 class="text-[0.9rem] font-semibold leading-tight text-stone-950 sm:text-[0.95rem]">
-                                            <a href="{{ $profileUrl }}" class="transition hover:text-[color:var(--km-accent-strong)]">{{ $displayName }}</a>
+                                        <h2 class="text-[0.92rem] font-semibold leading-snug text-stone-950">
+                                            <a href="{{ $profileUrl }}"
+                                               class="transition hover:text-[color:var(--km-accent-strong)]">{{ $displayName }}</a>
                                         </h2>
                                         @if ($profession)
-                                            <p class="mt-0.5 text-[0.72rem] leading-snug text-stone-500">{{ $profession }}</p>
+                                            <p class="mt-0.5 text-[0.75rem] leading-tight text-stone-400">{{ $profession }}</p>
                                         @endif
                                     </div>
 
-                                    {{-- Lista contatti --}}
-                                    <div class="mt-3 space-y-1.5">
+                                    {{-- Divisore --}}
+                                    <div class="my-2.5 border-t border-stone-100"></div>
+
+                                    {{-- Lista contatti icona + testo --}}
+                                    <div class="space-y-1.5">
                                         @if ($locationLabel !== '')
-                                            <div class="flex items-center gap-1.5 min-w-0" style="color:#334155;">
-                                                <span class="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 rounded-full bg-emerald-50 text-emerald-600">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <span class="inline-flex items-center justify-center w-5 h-5 shrink-0 rounded-full bg-emerald-50 text-emerald-600">
                                                     <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 8.05a4.95 4.95 0 119.9 0c0 3.39-3.34 6.63-4.39 7.56a.85.85 0 01-1.12 0c-1.05-.93-4.39-4.17-4.39-7.56zM10 10.5A2.45 2.45 0 1010 5.6a2.45 2.45 0 000 4.9z" clip-rule="evenodd"/></svg>
                                                 </span>
-                                                <span class="truncate text-[0.75rem]">{{ $locationLabel }}</span>
+                                                <span class="truncate text-[0.76rem] text-stone-600">{{ $locationLabel }}</span>
                                             </div>
                                         @endif
 
                                         @if ($member->show_phone && $member->phone)
-                                            <a href="tel:{{ preg_replace('/\s+/', '', $member->phone) }}"
-                                               class="flex items-center gap-1.5 min-w-0 no-underline transition hover:text-[color:var(--km-accent-strong)]" style="color:#334155;">
-                                                <span class="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 rounded-full bg-rose-50 text-rose-500">
+                                            <a href="tel:{{ preg_replace('/\s+/','',$member->phone) }}"
+                                               class="flex items-center gap-2 min-w-0 group/link">
+                                                <span class="inline-flex items-center justify-center w-5 h-5 shrink-0 rounded-full bg-rose-50 text-rose-500">
                                                     <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3.5A1.5 1.5 0 013.5 2h2.17a1.5 1.5 0 011.45 1.12l.65 2.6a1.5 1.5 0 01-.4 1.43l-1.2 1.2a11.04 11.04 0 005.31 5.31l1.2-1.2a1.5 1.5 0 011.43-.4l2.6.65A1.5 1.5 0 0118 14.33v2.17A1.5 1.5 0 0116.5 18h-1C8.596 18 2 11.404 2 3.5z"/></svg>
                                                 </span>
-                                                <span class="truncate text-[0.75rem]">{{ $member->phone }}</span>
+                                                <span class="truncate text-[0.76rem] text-stone-600 group-hover/link:text-[color:var(--km-accent-strong)] transition">{{ $member->phone }}</span>
                                             </a>
                                         @endif
 
                                         @if ($member->show_email)
                                             <a href="mailto:{{ $member->user->email }}"
-                                               class="flex items-center gap-1.5 min-w-0 no-underline transition hover:text-[color:var(--km-accent-strong)]" style="color:#334155;">
-                                                <span class="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 rounded-full bg-sky-50 text-sky-500">
+                                               class="flex items-center gap-2 min-w-0 group/link">
+                                                <span class="inline-flex items-center justify-center w-5 h-5 shrink-0 rounded-full bg-sky-50 text-sky-500">
                                                     <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M2.94 6.34A2 2 0 014.6 5.5h10.8a2 2 0 011.66.84L10 10.94 2.94 6.34z"/><path d="M2 7.56V13.5a2 2 0 002 2h12a2 2 0 002-2V7.56l-7.45 4.85a1 1 0 01-1.1 0L2 7.56z"/></svg>
                                                 </span>
-                                                <span class="truncate text-[0.75rem]">{{ $member->user->email }}</span>
+                                                <span class="truncate text-[0.76rem] text-stone-600 group-hover/link:text-[color:var(--km-accent-strong)] transition">{{ $member->user->email }}</span>
                                             </a>
                                         @endif
 
                                         @if ($websiteUrl)
                                             <a href="{{ $websiteUrl }}" target="_blank" rel="noopener"
-                                               class="flex items-center gap-1.5 min-w-0 no-underline transition hover:text-[color:var(--km-accent-strong)]" style="color:#334155;">
-                                                <span class="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 rounded-full bg-lime-50 text-lime-600">
+                                               class="flex items-center gap-2 min-w-0 group/link">
+                                                <span class="inline-flex items-center justify-center w-5 h-5 shrink-0 rounded-full bg-lime-50 text-lime-600">
                                                     <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm5.25-8a6.98 6.98 0 00-.9-3.42h-2.08c.24 1.03.38 2.2.4 3.42h2.58zm-4.58 0a16.2 16.2 0 00-.45-3.42H9.78c-.23 1.02-.39 2.19-.45 3.42h1.34zm-1.34 2c.06 1.23.22 2.4.45 3.42h.44c.23-1.02.39-2.19.45-3.42H9.33zm-2 0H4.75a6.98 6.98 0 00.9 3.42h2.08a17.37 17.37 0 01-.4-3.42zm0-2c.02-1.22.16-2.39.4-3.42H5.65A6.98 6.98 0 004.75 10h2.58zm4.92 5.1a5 5 0 001.72-1.68h-1.36c-.11.61-.23 1.18-.36 1.68zm1.72-8.52a5 5 0 00-1.72-1.68c.13.5.25 1.07.36 1.68h1.36zM8.09 4.9A5 5 0 006.37 6.58h1.36c.11-.61.23-1.18.36-1.68zm-1.72 8.52a5 5 0 001.72 1.68c-.13-.5-.25-1.07-.36-1.68H6.37z" clip-rule="evenodd"/></svg>
                                                 </span>
-                                                <span class="truncate text-[0.75rem]">{{ preg_replace('/^https?:\/\//', '', rtrim($rawWebsite, '/')) }}</span>
+                                                <span class="truncate text-[0.76rem] text-stone-600 group-hover/link:text-[color:var(--km-accent-strong)] transition">
+                                                    {{ preg_replace('/^https?:\/\//', '', rtrim($rawWebsite, '/')) }}
+                                                </span>
                                             </a>
                                         @endif
                                     </div>
                                 </div>
 
-                                {{-- Azioni --}}
-                                <div class="flex items-center gap-2 border-t px-4 pb-3 pt-2.5" style="border-color:rgba(70,93,112,.10);">
-                                    <a href="{{ $profileUrl }}" title="Profilo"
+                                {{-- Barra azioni --}}
+                                <div class="flex items-center gap-2 border-t px-4 pb-3 pt-2.5"
+                                     style="border-color:rgba(70,93,112,.10);">
+                                    <a href="{{ $profileUrl }}" title="Vedi profilo"
                                        class="km-directory-action-button km-directory-action-button-primary"
                                        style="width:2.5rem;height:2.5rem;">
                                         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
@@ -365,7 +415,8 @@
                                         <form method="POST" action="{{ route('conversations.start') }}" style="margin:0;">
                                             @csrf
                                             <input type="hidden" name="recipient_id" value="{{ $member->user_id }}">
-                                            <button type="submit" title="Invia messaggio" class="km-directory-action-button" style="width:2.5rem;height:2.5rem;">
+                                            <button type="submit" title="Invia messaggio"
+                                                    class="km-directory-action-button" style="width:2.5rem;height:2.5rem;">
                                                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M3.105 2.288a.75.75 0 00-.826.95l1.414 4.926A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.897 28.897 0 0015.293-7.155.75.75 0 000-1.115A28.897 28.897 0 003.105 2.288z"/></svg>
                                             </button>
                                         </form>
@@ -375,7 +426,8 @@
                                             <input type="hidden" name="meeting_mode" value="online">
                                             <input type="hidden" name="goal" value="Conosciamoci e valutiamo possibili sinergie professionali.">
                                             <input type="hidden" name="redirect_to" value="directory">
-                                            <button type="submit" title="Proponi One-to-one" class="km-directory-action-button" style="width:2.5rem;height:2.5rem;">
+                                            <button type="submit" title="Proponi One-to-one"
+                                                    class="km-directory-action-button" style="width:2.5rem;height:2.5rem;">
                                                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3zm13.5-9a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm-11 0a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
                                             </button>
                                         </form>
@@ -384,9 +436,10 @@
 
                             </article>
                         @empty
-                            <div class="km-panel p-8 col-span-2 sm:col-span-3 xl:col-span-4">
-                                <h2 class="text-2xl font-semibold text-stone-950">Nessun profilo trovato</h2>
-                                <p class="mt-3 text-sm leading-7 text-stone-600">Allarga i filtri o riparti dalla directory completa.</p>
+                            <div class="km-panel p-8 col-span-full">
+                                <h2 class="text-xl font-semibold text-stone-950">Nessun profilo trovato</h2>
+                                <p class="mt-2 text-sm text-stone-500">Allarga i filtri o riparti dalla directory completa.</p>
+                                <a href="{{ route('directory.index') }}" class="km-button-secondary mt-4 inline-flex">Azzera filtri</a>
                             </div>
                         @endforelse
                     </div>

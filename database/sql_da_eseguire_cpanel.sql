@@ -1,16 +1,9 @@
 -- =====================================================================
 -- SQL DA ESEGUIRE SU cPanel → phpMyAdmin
--- Esegui questo script se php artisan migrate non è disponibile.
--- Eseguire in ordine dall'alto verso il basso.
+-- La colonna `locale` esiste già: esegui SOLO le tabelle subscription
 -- =====================================================================
 
--- ── 1. Colonna locale sulla tabella users ────────────────────────────
--- (Migrazione: 2026_04_24_000021_add_locale_to_users_table)
-ALTER TABLE `users`
-    ADD COLUMN `locale` VARCHAR(5) NOT NULL DEFAULT 'it' AFTER `email`;
-
--- ── 2. Tabella subscription_plans ────────────────────────────────────
--- (Migrazione: 2026_04_24_000020 - prima parte)
+-- ── 1. Tabella subscription_plans ────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `subscription_plans` (
     `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name`          VARCHAR(255) NOT NULL,
@@ -28,8 +21,7 @@ CREATE TABLE IF NOT EXISTS `subscription_plans` (
     UNIQUE KEY `subscription_plans_slug_unique` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── 3. Tabella member_subscriptions ──────────────────────────────────
--- (Migrazione: 2026_04_24_000020 - seconda parte)
+-- ── 2. Tabella member_subscriptions ──────────────────────────────────
 CREATE TABLE IF NOT EXISTS `member_subscriptions` (
     `id`                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id`            BIGINT UNSIGNED NOT NULL,
@@ -47,22 +39,18 @@ CREATE TABLE IF NOT EXISTS `member_subscriptions` (
     `admin_notes`        TEXT NULL,
     `created_at`         TIMESTAMP NULL,
     `updated_at`         TIMESTAMP NULL,
-    CONSTRAINT `ms_user_fk`     FOREIGN KEY (`user_id`)     REFERENCES `users`(`id`)                ON DELETE CASCADE,
-    CONSTRAINT `ms_plan_fk`     FOREIGN KEY (`plan_id`)     REFERENCES `subscription_plans`(`id`)   ON DELETE RESTRICT,
-    CONSTRAINT `ms_approver_fk` FOREIGN KEY (`approved_by`) REFERENCES `users`(`id`)                ON DELETE SET NULL,
+    CONSTRAINT `ms_user_fk`     FOREIGN KEY (`user_id`)     REFERENCES `users`(`id`)               ON DELETE CASCADE,
+    CONSTRAINT `ms_plan_fk`     FOREIGN KEY (`plan_id`)     REFERENCES `subscription_plans`(`id`)  ON DELETE RESTRICT,
+    CONSTRAINT `ms_approver_fk` FOREIGN KEY (`approved_by`) REFERENCES `users`(`id`)               ON DELETE SET NULL,
     INDEX `ms_user_status` (`user_id`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── 4. Aggiorna la tabella migrations ────────────────────────────────
--- (Segnala a Laravel che le migrazioni sono state eseguite)
+-- ── 3. Aggiorna tabella migrations (segnala a Laravel le migrazioni eseguite) ──
 INSERT IGNORE INTO `migrations` (`migration`, `batch`)
 VALUES
     ('2026_04_24_000020_create_subscription_plans_and_subscriptions', 99),
     ('2026_04_24_000021_add_locale_to_users_table', 99);
 
 -- =====================================================================
--- FINE — Dopo aver eseguito questo script:
---   1. In cPanel → artisan (o via cron "una volta"):
---      php artisan optimize:clear && php artisan optimize
---   2. Oppure svuota manualmente storage/framework/cache/data/
+-- FINE. Dopo l'import: php artisan optimize:clear && php artisan optimize
 -- =====================================================================
