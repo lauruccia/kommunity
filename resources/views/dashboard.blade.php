@@ -4,7 +4,7 @@
             <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Dashboard membro</p>
-                    <h1 class="mt-2 text-2xl font-semibold text-stone-950 lg:text-3xl">Gestisci presenza, relazioni e attivita' nella community</h1>
+                    <h1 class="mt-2 text-2xl font-semibold text-stone-950 lg:text-3xl">Gestisci presenza, relazioni e attivit&agrave; nella community</h1>
                     <p class="mt-2 text-sm leading-6 text-stone-500">
                         Profilo business, mini sito personale, incontri one-to-one, eventi, forum e messaggi sono ora concentrati in un'unica area operativa.
                     </p>
