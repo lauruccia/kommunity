@@ -226,7 +226,9 @@
     .km-directory-avatar-floating {
         position: absolute;
         left: 1.25rem;
-        bottom: -3.1rem;
+        top: 100%;
+        bottom: auto;
+        transform: translateY(-52%);
         width: 5.95rem;
         height: 5.95rem;
         border-width: 4px;
@@ -355,7 +357,8 @@
 
     .km-directory-avatar-button {
         left: 1rem;
-        bottom: -2.7rem;
+        top: 100%;
+        bottom: auto;
     }
 
     .km-directory-avatar {
@@ -365,7 +368,9 @@
 
     .km-directory-avatar-floating {
         left: 1rem;
-        bottom: -2.7rem;
+        top: 100%;
+        bottom: auto;
+        transform: translateY(-52%);
         width: 5.2rem;
         height: 5.2rem;
         border-width: 3px;
