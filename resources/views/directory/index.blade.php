@@ -382,38 +382,38 @@
 
                                     <div class="mt-2.5 space-y-1">
                                         @if ($locationLabel !== '')
-                                            <div class="km-directory-detail">
-                                                <span class="km-directory-detail-icon bg-emerald-50 text-emerald-600">
+                                            <div class="km-directory-detail" style="display:flex;align-items:center;gap:.6rem;min-width:0;font-size:.9rem;line-height:1.15;color:#334155;white-space:nowrap;">
+                                                <span class="km-directory-detail-icon bg-emerald-50 text-emerald-600" style="display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;flex:0 0 1.6rem;border-radius:999px;">
                                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 8.05a4.95 4.95 0 119.9 0c0 3.39-3.34 6.63-4.39 7.56a.85.85 0 01-1.12 0c-1.05-.93-4.39-4.17-4.39-7.56zM10 10.5A2.45 2.45 0 1010 5.6a2.45 2.45 0 000 4.9z" clip-rule="evenodd"/></svg>
                                                 </span>
-                                                <span>{{ $locationLabel }}</span>
+                                                <span style="display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;">{{ $locationLabel }}</span>
                                             </div>
                                         @endif
 
                                         @if ($member->show_phone && $member->phone)
-                                            <a href="tel:{{ preg_replace('/\s+/', '', $member->phone) }}" class="km-directory-detail km-directory-detail-link">
-                                                <span class="km-directory-detail-icon bg-rose-50 text-rose-500">
+                                            <a href="tel:{{ preg_replace('/\s+/', '', $member->phone) }}" class="km-directory-detail km-directory-detail-link" style="display:flex;align-items:center;gap:.6rem;min-width:0;font-size:.9rem;line-height:1.15;color:#334155;text-decoration:none;white-space:nowrap;">
+                                                <span class="km-directory-detail-icon bg-rose-50 text-rose-500" style="display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;flex:0 0 1.6rem;border-radius:999px;">
                                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3.5A1.5 1.5 0 013.5 2h2.17a1.5 1.5 0 011.45 1.12l.65 2.6a1.5 1.5 0 01-.4 1.43l-1.2 1.2a11.04 11.04 0 005.31 5.31l1.2-1.2a1.5 1.5 0 011.43-.4l2.6.65A1.5 1.5 0 0118 14.33v2.17A1.5 1.5 0 0116.5 18h-1C8.596 18 2 11.404 2 3.5z"/></svg>
                                                 </span>
-                                                <span>{{ $member->phone }}</span>
+                                                <span style="display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;">{{ $member->phone }}</span>
                                             </a>
                                         @endif
 
                                         @if ($member->show_email)
-                                            <a href="mailto:{{ $member->user->email }}" class="km-directory-detail km-directory-detail-link">
-                                                <span class="km-directory-detail-icon bg-sky-50 text-sky-500">
+                                            <a href="mailto:{{ $member->user->email }}" class="km-directory-detail km-directory-detail-link" style="display:flex;align-items:center;gap:.6rem;min-width:0;font-size:.9rem;line-height:1.15;color:#334155;text-decoration:none;white-space:nowrap;">
+                                                <span class="km-directory-detail-icon bg-sky-50 text-sky-500" style="display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;flex:0 0 1.6rem;border-radius:999px;">
                                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2.94 6.34A2 2 0 014.6 5.5h10.8a2 2 0 011.66.84L10 10.94 2.94 6.34z"/><path d="M2 7.56V13.5a2 2 0 002 2h12a2 2 0 002-2V7.56l-7.45 4.85a1 1 0 01-1.1 0L2 7.56z"/></svg>
                                                 </span>
-                                                <span class="truncate">{{ $member->user->email }}</span>
+                                                <span style="display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;">{{ $member->user->email }}</span>
                                             </a>
                                         @endif
 
                                         @if ($websiteUrl)
-                                            <a href="{{ $websiteUrl }}" target="_blank" rel="noopener" class="km-directory-detail km-directory-detail-link">
-                                                <span class="km-directory-detail-icon bg-lime-50 text-lime-600">
+                                            <a href="{{ $websiteUrl }}" target="_blank" rel="noopener" class="km-directory-detail km-directory-detail-link" style="display:flex;align-items:center;gap:.6rem;min-width:0;font-size:.9rem;line-height:1.15;color:#334155;text-decoration:none;white-space:nowrap;">
+                                                <span class="km-directory-detail-icon bg-lime-50 text-lime-600" style="display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;flex:0 0 1.6rem;border-radius:999px;">
                                                     <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm5.25-8a6.98 6.98 0 00-.9-3.42h-2.08c.24 1.03.38 2.2.4 3.42h2.58zm-4.58 0a16.2 16.2 0 00-.45-3.42H9.78c-.23 1.02-.39 2.19-.45 3.42h1.34zm-1.34 2c.06 1.23.22 2.4.45 3.42h.44c.23-1.02.39-2.19.45-3.42H9.33zm-2 0H4.75a6.98 6.98 0 00.9 3.42h2.08a17.37 17.37 0 01-.4-3.42zm0-2c.02-1.22.16-2.39.4-3.42H5.65A6.98 6.98 0 004.75 10h2.58zm4.92 5.1a5 5 0 001.72-1.68h-1.36c-.11.61-.23 1.18-.36 1.68zm1.72-8.52a5 5 0 00-1.72-1.68c.13.5.25 1.07.36 1.68h1.36zM8.09 4.9A5 5 0 006.37 6.58h1.36c.11-.61.23-1.18.36-1.68zm-1.72 8.52a5 5 0 001.72 1.68c-.13-.5-.25-1.07-.36-1.68H6.37z" clip-rule="evenodd"/></svg>
                                                 </span>
-                                                <span class="truncate">{{ preg_replace('/^https?:\/\//', '', $member->website) }}</span>
+                                                <span style="display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;">{{ preg_replace('/^https?:\/\//', '', $member->website) }}</span>
                                             </a>
                                         @endif
                                     </div>
@@ -422,7 +422,7 @@
                                 {{-- ── Barra azioni ─────────────────────────────────────── --}}
                                 <div class="km-directory-actions" style="display:flex;align-items:center;gap:.5rem;border-top:1px solid rgba(70,93,112,.12);padding:0.7rem 1.25rem 0.9rem;">
 
-                                    <div class="flex shrink-0 items-center gap-2">
+                                    <div class="flex shrink-0 items-center gap-2" style="display:flex;align-items:center;gap:.5rem;">
                                         <a href="{{ $profileUrl }}"
                                            title="Profilo"
                                            class="km-directory-action-button km-directory-action-button-primary"
@@ -431,7 +431,7 @@
                                         </a>
 
                                         @if(auth()->check() && auth()->id() !== $member->user_id)
-                                            <form method="POST" action="{{ route('conversations.start') }}">
+                                            <form method="POST" action="{{ route('conversations.start') }}" style="margin:0;">
                                                 @csrf
                                                 <input type="hidden" name="recipient_id" value="{{ $member->user_id }}">
                                                 <button type="submit" title="Invia messaggio"
@@ -443,7 +443,7 @@
                                                 </button>
                                             </form>
 
-                                            <form method="POST" action="{{ route('one-to-ones.store') }}">
+                                            <form method="POST" action="{{ route('one-to-ones.store') }}" style="margin:0;">
                                                 @csrf
                                                 <input type="hidden" name="recipient_id" value="{{ $member->user_id }}">
                                                 <input type="hidden" name="meeting_mode" value="online">
