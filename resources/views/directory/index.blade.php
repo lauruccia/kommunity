@@ -374,15 +374,17 @@
                                 </div>
 
                                 <div class="flex flex-1 flex-col px-5 pb-3 pt-4">
-                                    <div aria-hidden="true" style="height:4.9rem;"></div>
+                                    <div aria-hidden="true" style="height:4.35rem;"></div>
                                     <div class="min-h-[3.2rem]">
-                                        <h2 class="text-[1.18rem] font-semibold leading-[1.1] text-stone-950">{{ $displayName }}</h2>
+                                        <h2 class="text-[1.18rem] font-semibold leading-[1.1] text-stone-950">
+                                            <a href="{{ $profileUrl }}" class="transition hover:text-[color:var(--km-accent-strong)]">{{ $displayName }}</a>
+                                        </h2>
                                         @if ($profession)
                                             <p class="mt-0.5 text-[0.83rem] leading-4 text-stone-500">{{ $profession }}</p>
                                         @endif
                                     </div>
 
-                                    <div class="mt-2.5 space-y-1">
+                                    <div class="mt-3 space-y-1">
                                         @if ($locationLabel !== '')
                                             <div class="km-directory-detail" style="display:flex;align-items:center;gap:.6rem;min-width:0;font-size:.9rem;line-height:1.15;color:#334155;white-space:nowrap;">
                                                 <span class="km-directory-detail-icon bg-emerald-50 text-emerald-600" style="display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;flex:0 0 1.6rem;border-radius:999px;">
