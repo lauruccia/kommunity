@@ -303,7 +303,7 @@
 
                             <article class="km-directory-card group transition duration-300 hover:-translate-y-1">
                                 <div class="relative">
-                                    <div class="km-directory-banner" @if($coverImage) style="background-image:linear-gradient(180deg,rgba(16,24,32,0.12),rgba(16,24,32,0.46)), url('{{ $coverImage }}');" @endif>
+                                    <div class="km-directory-banner" style="height:82px;background-size:cover;background-position:center;{{ $coverImage ? "background-image:linear-gradient(180deg,rgba(16,24,32,0.12),rgba(16,24,32,0.46)), url('".$coverImage."');" : "background-image:linear-gradient(180deg,#dbe7f3 0%, #c7d7ea 38%, #aac2dd 100%);" }}">
                                     </div>
 
                                     @if ($hasVideo)
@@ -420,12 +420,13 @@
                                 </div>
 
                                 {{-- ── Barra azioni ─────────────────────────────────────── --}}
-                                <div class="km-directory-actions">
+                                <div class="km-directory-actions" style="display:flex;align-items:center;gap:.5rem;border-top:1px solid rgba(70,93,112,.12);padding:0.7rem 1.25rem 0.9rem;">
 
                                     <div class="flex shrink-0 items-center gap-2">
                                         <a href="{{ $profileUrl }}"
                                            title="Profilo"
-                                           class="km-directory-action-button km-directory-action-button-primary">
+                                           class="km-directory-action-button km-directory-action-button-primary"
+                                           style="display:inline-flex;align-items:center;justify-content:center;width:2.85rem;height:2.85rem;border-radius:999px;background:linear-gradient(135deg,#55794f 0%,#426240 100%);color:#fff;box-shadow:0 14px 28px rgba(66,98,64,.22);">
                                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
                                         </a>
 
@@ -434,7 +435,8 @@
                                                 @csrf
                                                 <input type="hidden" name="recipient_id" value="{{ $member->user_id }}">
                                                 <button type="submit" title="Invia messaggio"
-                                                        class="km-directory-action-button">
+                                                        class="km-directory-action-button"
+                                                        style="display:inline-flex;align-items:center;justify-content:center;width:2.85rem;height:2.85rem;border-radius:999px;border:1px solid rgba(70,93,112,.14);background:#f8fafc;color:#334155;box-shadow:0 6px 18px rgba(15,23,42,.08);">
                                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                         <path d="M3.105 2.288a.75.75 0 00-.826.95l1.414 4.926A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.897 28.897 0 0015.293-7.155.75.75 0 000-1.115A28.897 28.897 0 003.105 2.288z"/>
                                                     </svg>
@@ -448,7 +450,8 @@
                                                 <input type="hidden" name="goal" value="Conosciamoci e valutiamo possibili sinergie professionali.">
                                                 <input type="hidden" name="redirect_to" value="directory">
                                                 <button type="submit" title="Proponi One-to-one"
-                                                        class="km-directory-action-button">
+                                                        class="km-directory-action-button"
+                                                        style="display:inline-flex;align-items:center;justify-content:center;width:2.85rem;height:2.85rem;border-radius:999px;border:1px solid rgba(70,93,112,.14);background:#f8fafc;color:#334155;box-shadow:0 6px 18px rgba(15,23,42,.08);">
                                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                         <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3zm13.5-9a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm-11 0a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
                                                     </svg>
