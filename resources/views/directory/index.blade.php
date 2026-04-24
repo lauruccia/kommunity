@@ -373,7 +373,7 @@
                                     @endif
                                 </div>
 
-                                <div class="flex flex-1 flex-col px-5 pb-3 pt-[5.35rem]">
+                                <div class="flex flex-1 flex-col px-5 pb-3 pt-[7.9rem]">
                                     <div class="min-h-[3.2rem]">
                                         <h2 class="text-[1.18rem] font-semibold leading-[1.1] text-stone-950">{{ $displayName }}</h2>
                                         @if ($profession)
