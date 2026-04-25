@@ -5,19 +5,26 @@
 
 <style>
 
-    .km-directory-avatar video.km-video-preview{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
+.km-directory-avatar video.km-video-preview{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    border-radius:9999px!important;
     pointer-events:none;
-    opacity:0;
-    transition:opacity .25s ease;
+    opacity:1!important;
+    z-index:2;
 }
 
-.km-directory-avatar video.km-video-preview.is-playing{
-    opacity:1;
+.km-directory-avatar img,
+.km-directory-avatar span{
+    position:relative;
+    z-index:1;
+}
+
+.km-directory-avatar-play-badge{
+    z-index:4;
 }
 
 .km-directory-avatar-play-badge{
@@ -423,14 +430,13 @@
                                     @if ($hasVideo)
                                         <button type="button"
                                                 x-data="{ playing: false }"
-                                                @mouseenter="
-                                                    playing = true;
-                                                    $nextTick(() => {
-                                                        const v = $el.querySelector('video.km-video-preview');
-                                                        if (v) { v.currentTime = 0; v.play().catch(() => {}); }
-                                                        $el.querySelector('video.km-video-preview')?.classList.add('is-playing');
-                                                    });
-                                                "
+                                                @mouseleave="
+    const v = $el.querySelector('video.km-video-preview');
+    if (v) {
+        v.pause();
+        v.currentTime = 0;
+    }
+"
                                                 @mouseleave="
                                                     playing = false;
                                                     const v = $el.querySelector('video.km-video-preview');
@@ -454,14 +460,14 @@
                                                 @endif
 
                                                 @if ($circleType === 'local' && $localUrl)
-                                                    <video class="km-video-preview"
-                                                           src="{{ $localUrl }}"
-                                                           muted
-                                                           playsinline
-                                                           preload="none"
-                                                           loop>
-                                                    </video>
-                                                @endif
+    <video class="km-video-preview"
+           src="{{ $localUrl }}"
+           muted
+           playsinline
+           preload="metadata"
+           loop>
+    </video>
+@endif
                                             </div>
 
                                             <span class="km-directory-avatar-play-badge">
