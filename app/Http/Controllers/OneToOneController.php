@@ -263,6 +263,10 @@ class OneToOneController extends Controller
             ])->save();
         }
 
+        if ($isRequester && ($data['status'] ?? null) === OneToOneStatus::Cancelled->value) {
+            $oneToOneRequest->fill(['status' => OneToOneStatus::Cancelled])->save();
+        }
+
         if ($isRequester && array_key_exists('follow_up_notes', $data)) {
             $followUpContent = trim((string) ($data['follow_up_notes'] ?? ''));
 
