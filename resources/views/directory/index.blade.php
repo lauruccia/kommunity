@@ -4,6 +4,37 @@
 
 
 <style>
+
+    .km-directory-avatar video.km-video-preview{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .25s ease;
+}
+
+.km-directory-avatar video.km-video-preview.is-playing{
+    opacity:1;
+}
+
+.km-directory-avatar-play-badge{
+    position:absolute;
+    right:.15rem;
+    bottom:.15rem;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:1.85rem!important;
+    height:1.85rem!important;
+    border-radius:9999px;
+    border:2.5px solid rgba(255,255,255,.95);
+    background:linear-gradient(135deg,#55794f 0%,#426240 100%);
+    box-shadow:0 10px 20px rgba(14,20,27,.22);
+}
+
 .km-directory-card{
     position:relative!important;
     display:flex!important;
@@ -121,7 +152,7 @@
 @endif
 
 <div class="pb-12">
-    <div class="w-full px-2 sm:px-3 lg:px-4" x-data="{ filtersOpen: false }">
+    <div class="w-full px-2 sm:px-3 lg:px-4" x-data="{ filtersOpen: window.innerWidth >= 768 }">
 
         <div class="mb-4 md:hidden">
             <button @click="filtersOpen = !filtersOpen"
@@ -133,10 +164,11 @@
         <div class="flex gap-5">
 
             <aside
-                class="md:sticky md:top-6 md:self-start md:block md:w-[260px] lg:w-[280px] shrink-0 space-y-4"
-                :class="filtersOpen ? 'block' : 'hidden md:block'"
-                style="min-width:0;"
-            >
+    class="md:sticky md:top-6 md:self-start md:w-[260px] lg:w-[280px] shrink-0 space-y-4"
+    x-show="filtersOpen || window.innerWidth >= 768"
+    x-cloak
+    style="min-width:0;"
+>
                 <div class="km-panel overflow-hidden p-0 shadow-[0_14px_34px_rgba(66,87,103,0.08)]">
                     <div class="border-b border-stone-200 bg-[color:var(--km-soft)] px-5 py-3.5">
                         <div class="flex items-center justify-between">
