@@ -87,7 +87,7 @@
 
     $steps = [
         ['01','Crea il tuo profilo','Mostra chi sei, cosa fai e quali sono i tuoi obiettivi.','<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
-        ['02','Entra nei capitoli','Unisciti alla community più vicina a te.','<circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 22s7-5.5 7-12a7 7 0 1 0-14 0c0 6.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/>'],
+        ['02','Entra nei Pianeti','Unisciti alla community più vicina a te.','<circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 22s7-5.5 7-12a7 7 0 1 0-14 0c0 6.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/>'],
         ['03','Connettiti','Incontra professionisti e crea relazioni di valore.','<path d="M18 8a3 3 0 1 0-3-3M6 19a3 3 0 1 0 0-6m12 6a3 3 0 1 0 0-6M8.5 14.5l7-6m-7 0l7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
         ['04','Genera opportunità','Collabora, condividi, fai crescere il tuo business.','<path d="M13 10V3L4 14h7v7l9-11h-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'],
     ];
@@ -99,10 +99,10 @@
         ['Chat e connessioni','Comunica in modo diretto e senza filtri.','<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z" stroke="currentColor" stroke-width="1.8"/>'],
         ['News e contenuti','Resta aggiornato su trend, novità e best practice.','<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" stroke-width="1.8"/><path d="M14 2v6h6M16 13H8m8 4H8m2-8H8" stroke="currentColor" stroke-width="1.8"/>'],
     ];
-    $stats = [['500+','Professionisti attivi'],['120+','Collaborazioni generate'],['20+','Capitoli attivi'],['15+','Eventi ogni mese']];
+    $stats = [['500+','Professionisti attivi'],['120+','Collaborazioni generate'],['20+','Pianeti attivi'],['15+','Eventi ogni mese']];
     $testimonials = [
         ['Kommunity mi ha permesso di entrare in contatto con clienti e partner in modo autentico e produttivo.','Francesca R.','Consulente HR','a'],
-        ['Grazie ai capitoli ho trovato persone straordinarie con cui collaboro ogni giorno.','Alessandro T.','Imprenditore','b'],
+        ['Grazie ai Pianeti ho trovato persone straordinarie con cui collaboro ogni giorno.','Alessandro T.','Imprenditore','b'],
         ['Un ambiente positivo, professionale e dove le relazioni contano davvero.','Giulia M.','Marketing Manager','c'],
     ];
 @endphp
@@ -194,13 +194,13 @@
 <section id="community-locale" class="local-section km-section">
     <div class="km-wrap local-grid">
         <div>
-            <h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">Trova la tua community locale</h2>
-            <p class="section-copy">Partiamo da Roma e dal Lazio con capitoli professionali attivi. Trova la community più vicina a te e inizia a connetterti.</p>
-            <div class="search-bar"><span>Cerca la tua città...</span><span>⌕</span></div>
+            <h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">Trova il tuo Pianeta</h2>
+            <p class="section-copy">Partiamo da Roma e dal Lazio con pianeti professionali attivi. Trova il Pianeta più vicino a te e inizia a connetterti.</p>
+            <div class="search-bar"><span>Cerca il tuo Pianeta...</span><span>⌕</span></div>
             <p style="margin-top:1.35rem;font-size:.8rem;font-weight:900;color:rgba(214,228,236,.78)">Aree attive nel Lazio</p>
             <div class="city-chips">
                 @foreach(['Roma','Latina','Frosinone','Viterbo','Rieti','Castelli Romani','Ostia','Tivoli'] as $city)<span class="city-chip">{{ $city }}</span>@endforeach
-                <a href="{{ route('register') }}" class="city-chip" style="border-color:rgba(111,163,103,.55);color:var(--brand4)">Vedi tutte le città</a>
+                <a href="{{ route('register') }}" class="city-chip" style="border-color:rgba(111,163,103,.55);color:var(--brand4)">Vedi tutti i Pianeti</a>
             </div>
         </div>
         <div class="map-wrap">
@@ -209,9 +209,9 @@
                 <div class="map-city-card glass">
                     <span class="city-thumb"></span>
                     <p style="font-size:1.15rem;font-weight:900;margin:0">Roma</p>
-                    <p style="font-size:.76rem;color:var(--brand4);margin:.25rem 0">Capitolo attivo</p>
+                    <p style="font-size:.76rem;color:var(--brand4);margin:.25rem 0">Pianeta attivo</p>
                     <p style="font-size:.76rem;color:var(--muted);margin:.15rem 0">48 membri nel Lazio</p>
-                    <a href="{{ route('register') }}" style="display:inline-flex;margin-top:.65rem;font-size:.78rem;font-weight:900;color:var(--brand4)">Scopri il capitolo →</a>
+                    <a href="{{ route('register') }}" style="display:inline-flex;margin-top:.65rem;font-size:.78rem;font-weight:900;color:var(--brand4)">Scopri il Pianeta →</a>
                 </div>
             </div>
         </div>
