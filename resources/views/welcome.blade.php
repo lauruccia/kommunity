@@ -114,11 +114,9 @@
             <span class="brand-mark"><x-application-logo /></span><span>Kommunity</span>
         </a>
         <nav class="site-nav" aria-label="Navigazione principale">
-            <a href="#chi-siamo" class="nav-link">Chi siamo</a>
             <a href="#come-funziona" class="nav-link">Come funziona</a>
             <a href="#community" class="nav-link">Community</a>
-            <a href="#eventi" class="nav-link">Eventi</a>
-            <a href="#blog" class="nav-link">Blog</a>
+
             <a href="#contatti" class="nav-link">Contatti</a>
             @foreach($navPages as $np)<a href="{{ route('page.show', $np->slug) }}" class="nav-link">{{ $np->title }}</a>@endforeach
         </nav>
@@ -164,9 +162,9 @@
             <div class="hero-orb-icon orb-b"><svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 14v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
             <div class="hero-orb-icon orb-c"><svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 14v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
             <div class="hero-orb-icon orb-d"><svg viewBox="0 0 24 24" fill="none"><path d="M18 8a3 3 0 1 0-3-3M6 19a3 3 0 1 0 0-6m12 6a3 3 0 1 0 0-6M8.5 14.5l7-6m-7 0l7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-            <article class="hero-member-card card-marco"><span class="member-face"></span><div><p class="member-name">Marco<br>Bianchi</p><p class="member-role">Consulente Marketing</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
-            <article class="hero-member-card card-sara"><span class="member-face face-sara"></span><div><p class="member-name">Sara<br>Verdi</p><p class="member-role">Graphic Designer</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
-            <article class="hero-member-card card-luca"><span class="member-face face-luca"></span><div><p class="member-name">Luca<br>Rossi</p><p class="member-role">Finanziario</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
+            <article class="hero-member-card card-marco"><span class="member-face"></span><div><p class="member-name">Marco<br>B.</p><p class="member-role">Consulente Marketing</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
+            <article class="hero-member-card card-sara"><span class="member-face face-sara"></span><div><p class="member-name">Sara<br>V.</p><p class="member-role">Graphic Designer</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
+            <article class="hero-member-card card-luca"><span class="member-face face-luca"></span><div><p class="member-name">Luca<br>R.</p><p class="member-role">Finanziario</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
         </div>
     </div>
     <span class="hero-line-bottom" aria-hidden="true"></span>
@@ -226,12 +224,12 @@
 <footer id="contatti" class="site-footer">
     <div class="km-wrap footer-grid">
         <div><a href="{{ route('home') }}" class="brand-lockup"><span class="brand-mark"><x-application-logo /></span><span>Kommunity</span></a><p style="margin-top:1rem;max-width:280px;font-size:.78rem;line-height:1.72;color:var(--muted)">Kommunity è l'ecosistema che connette professionisti e aziende per generare valore, collaborare e crescere insieme.</p><div class="social-icons"><a href="#" class="soc-icon">in</a><a href="#" class="soc-icon">f</a><a href="#" class="soc-icon">IG</a><a href="#" class="soc-icon">X</a></div></div>
-        <nav><p class="footer-col-title">Esplora</p><a href="#chi-siamo" class="footer-link">Chi siamo</a><a href="#come-funziona" class="footer-link">Come funziona</a><a href="#community" class="footer-link">Community</a><a href="#eventi" class="footer-link">Eventi</a>@foreach($footerPages as $fp)<a href="{{ route('page.show', $fp->slug) }}" class="footer-link">{{ $fp->title }}</a>@endforeach</nav>
-        <nav><p class="footer-col-title">Risorse</p><a href="#" class="footer-link">Guide</a><a href="#" class="footer-link">FAQ</a><a href="#" class="footer-link">News</a><a href="#" class="footer-link">Storie di successo</a></nav>
-        <address style="font-style:normal"><p class="footer-col-title">Contatti</p><a href="mailto:info@kommunity.it" class="footer-link">info@kommunity.it</a><a href="tel:+390678216530" class="footer-link">+39 06.7821653</a><p class="footer-link" style="cursor:default;line-height:1.7">KNM Srl<br>Via Eurialo, 56<br>00181 Roma (IT)</p></address>
-        <div><p class="footer-col-title">Resta aggiornato</p><p style="font-size:.78rem;color:var(--muted);margin-bottom:.75rem">Iscriviti alla newsletter</p>@if(session('newsletter_success'))<p style="font-size:.8rem;color:var(--brand4);font-weight:700;padding:.6rem .8rem;border-radius:.4rem;background:rgba(85,121,79,.12);border:1px solid rgba(85,121,79,.3);margin-bottom:.75rem">✓ Iscritto con successo!</p>@endif<form class="newsletter-form" method="POST" action="{{ route('newsletter.subscribe') }}">@csrf<input type="email" name="email" placeholder="La tua email" required><button type="submit">→</button></form></div>
+        <nav><p class="footer-col-title">Esplora</p><a href="#come-funziona" class="footer-link">Come funziona</a><a href="#community" class="footer-link">Community</a>@foreach($footerPages as $fp)<a href="{{ route('page.show', $fp->slug) }}" class="footer-link">{{ $fp->title }}</a>@endforeach</nav>
+        <nav><p class="footer-col-title">Risorse</p><a href="#" class="footer-link">FAQ</a><a href="#" class="footer-link">Storie di successo</a></nav>
+        <address style="font-style:normal"><p class="footer-col-title">Contatti</p><p class="footer-link" style="cursor:default;line-height:1.7">KNM Srl<br>Via Eurialo, 56<br>00181 Roma (IT)</p> <a href="mailto:info@kommunity.it" class="footer-link">info@kommunity.it</a><a href="tel:+390678216530" class="footer-link">+39 06.7821653</a></address>
+        <!-- <div><p class="footer-col-title">Resta aggiornato</p><p style="font-size:.78rem;color:var(--muted);margin-bottom:.75rem">Iscriviti alla newsletter</p>@if(session('newsletter_success'))<p style="font-size:.8rem;color:var(--brand4);font-weight:700;padding:.6rem .8rem;border-radius:.4rem;background:rgba(85,121,79,.12);border:1px solid rgba(85,121,79,.3);margin-bottom:.75rem">✓ Iscritto con successo!</p>@endif<form class="newsletter-form" method="POST" action="{{ route('newsletter.subscribe') }}">@csrf<input type="email" name="email" placeholder="La tua email" required><button type="submit">→</button></form></div> -->
     </div>
-    <div class="footer-bottom"><div class="km-wrap footer-bottom-inner"><p>© {{ date('Y') }} KNM Srl · P.IVA 13273091002 · Tutti i diritti riservati</p><nav class="footer-bottom-links"><a href="#">Privacy Policy</a><a href="#">Termini e condizioni</a><a href="#">Cookie Policy</a></nav></div></div>
+    <div class="footer-bottom"><div class="km-wrap footer-bottom-inner"><p>© {{ date('Y') }} KNM Srl · P.IVA 13273091002 · Tutti i diritti riservati</p><nav class="footer-bottom-links"><a href="https://kommunity.it/pagina/privacy-policy">Privacy Policy</a><a href="https://kommunity.it/pagina/termini-e-condizioni">Termini e condizioni</a><a href="https://kommunity.it/pagina/cookie-policy">Cookie Policy</a></nav></div></div>
 </footer>
 </div>
 
