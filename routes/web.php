@@ -8,6 +8,7 @@ use App\Http\Controllers\ForumController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MemberOnepageController;
 use App\Http\Controllers\OneToOneController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\LocaleController;
@@ -18,8 +19,21 @@ use Illuminate\Support\Facades\Route;
 Route::get('/lingua/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
 
 Route::get('/', function () {
-    return view('welcome');
+    // Passa capitoli e pagine CMS alla homepage
+    $chapters  = \App\Models\Chapter::with('city')
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
+    $navPages  = \App\Models\Page::forNav();
+    $footerPages = \App\Models\Page::forFooter();
+    return view('welcome', compact('chapters', 'navPages', 'footerPages'));
 })->name('home');
+
+// ── Newsletter iscrizione ─────────────────────────────────────────────────────
+Route::post('/newsletter', [PageController::class, 'newsletter'])->name('newsletter.subscribe');
+
+// ── Pagine CMS pubbliche ──────────────────────────────────────────────────────
+Route::get('/pagina/{slug}', [PageController::class, 'show'])->name('page.show');
 
 Route::get('/media/{path}', [MediaController::class, 'show'])
     ->where('path', '.*')
