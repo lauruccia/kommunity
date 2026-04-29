@@ -9,6 +9,7 @@ use App\Models\OneToOneNote;
 use App\Models\OneToOneRequest;
 use App\Models\User;
 use App\Notifications\OneToOneReceivedNotification;
+use App\Notifications\OneToOneStatusChangedNotification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -295,6 +296,14 @@ class OneToOneController extends Controller
 
             $oneToOneRequest->status = OneToOneStatus::from($data['status']);
             $oneToOneRequest->save();
+
+            // Notifica il richiedente del cambio di stato
+            $requester = User::find($oneToOneRequest->requester_id);
+            $requester?->notify(new OneToOneStatusChangedNotification(
+                $oneToOneRequest,
+                $oneToOneRequest->status,
+                $user->name,
+            ));
         }
 
         if ($isRecipient && array_key_exists('post_notes', $data)) {
@@ -306,6 +315,14 @@ class OneToOneController extends Controller
             abort_unless($oneToOneRequest->status !== OneToOneStatus::Completed, 422);
 
             $oneToOneRequest->fill(['status' => OneToOneStatus::Cancelled])->save();
+
+            // Notifica il destinatario dell'annullamento
+            $recipient = User::find($oneToOneRequest->recipient_id);
+            $recipient?->notify(new OneToOneStatusChangedNotification(
+                $oneToOneRequest,
+                OneToOneStatus::Cancelled,
+                $user->name,
+            ));
         }
 
         if ($isRequester && array_key_exists('follow_up_notes', $data)) {

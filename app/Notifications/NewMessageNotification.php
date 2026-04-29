@@ -17,7 +17,7 @@ class NewMessageNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -32,5 +32,17 @@ class NewMessageNotification extends Notification
             ->line('"' . $preview . '"')
             ->action('Leggi e rispondi', $url)
             ->salutation('Il team Kommunity');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type'       => 'new_message',
+            'title'      => 'Nuovo messaggio da ' . $this->sender->name,
+            'body'       => mb_strimwidth($this->messagePreview, 0, 80, '…'),
+            'url'        => route('conversations.show', $this->conversation),
+            'icon'       => '💬',
+            'actor'      => $this->sender->name,
+        ];
     }
 }

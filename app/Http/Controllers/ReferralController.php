@@ -7,6 +7,7 @@ use App\Enums\ReferralStatus;
 use App\Models\OneToOneRequest;
 use App\Models\Referral;
 use App\Models\User;
+use App\Notifications\ReferralReceivedNotification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -101,11 +102,15 @@ class ReferralController extends Controller
 
         abort_unless(in_array((int) $data['recipient_id'], $eligibleMemberIds, true), 403);
 
-        Referral::query()->create([
+        $referral = Referral::query()->create([
             ...$data,
             'sender_id' => $request->user()->id,
             'status' => ReferralStatus::Sent,
         ]);
+
+        $recipient = User::find($data['recipient_id']);
+        $referral->load('sender');
+        $recipient?->notify(new ReferralReceivedNotification($referral));
 
         return back()->with('status', 'referral-created');
     }

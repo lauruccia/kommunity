@@ -13,6 +13,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin\CacheController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,10 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::get('/referenze', [ReferralController::class, 'index'])->name('referrals.index');
     Route::post('/referenze', [ReferralController::class, 'store'])->middleware('throttle:10,1')->name('referrals.store');
     Route::patch('/referenze/{referral}/status', [ReferralController::class, 'updateStatus'])->name('referrals.status');
+
+    // ── Notifiche in-app ─────────────────────────────────────────────────────
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
     // ── Abbonamenti ──────────────────────────────────────────────────────────
     Route::get('/abbonamento', [SubscriptionController::class, 'index'])->name('subscriptions.index');

@@ -4,6 +4,18 @@
         now()->addMinutes(30),
         fn () => \App\Models\SubscriptionPlan::query()->where('is_active', true)->exists()
     );
+
+    $navNotifications    = [];
+    $navUnreadCount      = 0;
+    if (auth()->check()) {
+        $navNotifications = auth()->user()
+            ->notifications()
+            ->latest()
+            ->take(5)
+            ->get()
+            ->toArray();
+        $navUnreadCount = auth()->user()->unreadNotifications()->count();
+    }
 @endphp
 
 <nav x-data="{ open: false }" class="relative z-50 overflow-visible pt-5">
@@ -52,6 +64,94 @@
                         @endif
                     </div>
                 </div>
+
+                {{-- ── Campanella notifiche (desktop) ─────────────────── --}}
+                @auth
+                <div class="relative z-50 hidden sm:flex sm:items-center"
+                     x-data="{
+                        open: false,
+                        unread: {{ $navUnreadCount }},
+                        notifications: {{ Js::from($navNotifications) }},
+                        markRead(id) {
+                            fetch('/notifications/' + id + '/read', {
+                                method: 'POST',
+                                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }
+                            });
+                            this.notifications = this.notifications.map(n => n.id === id ? {...n, read_at: new Date().toISOString()} : n);
+                            this.unread = Math.max(0, this.unread - 1);
+                        },
+                        markAllRead() {
+                            fetch('/notifications/read-all', {
+                                method: 'POST',
+                                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }
+                            });
+                            this.notifications = this.notifications.map(n => ({...n, read_at: new Date().toISOString()}));
+                            this.unread = 0;
+                        },
+                        goTo(n) {
+                            if (!n.read_at) this.markRead(n.id);
+                            this.open = false;
+                            window.location.href = n.data.url || '#';
+                        },
+                        timeAgo(dateStr) {
+                            const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+                            if (diff < 60) return 'Adesso';
+                            if (diff < 3600) return Math.floor(diff/60) + ' min fa';
+                            if (diff < 86400) return Math.floor(diff/3600) + ' ore fa';
+                            return Math.floor(diff/86400) + ' giorni fa';
+                        }
+                     }"
+                     @click.away="open = false">
+                    <button @click="open = !open"
+                            class="relative mr-3 flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-50 hover:text-stone-700 focus:outline-none">
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-2.83-2h5.66A3 3 0 0110 18z"/>
+                        </svg>
+                        <span x-show="unread > 0" x-cloak
+                              class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white"
+                              x-text="unread > 9 ? '9+' : unread"></span>
+                    </button>
+
+                    {{-- Dropdown notifiche --}}
+                    <div x-show="open" x-cloak
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         class="absolute right-0 top-full mt-2 w-80 origin-top-right overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl"
+                         style="z-index:9999;">
+
+                        <div class="flex items-center justify-between border-b border-stone-100 px-4 py-3">
+                            <span class="text-sm font-semibold text-stone-900">Notifiche</span>
+                            <button x-show="unread > 0" x-cloak
+                                    @click.stop="markAllRead()"
+                                    class="text-xs font-medium text-emerald-600 hover:text-emerald-700">
+                                Segna tutte come lette
+                            </button>
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto divide-y divide-stone-50">
+                            <template x-if="notifications.length === 0">
+                                <div class="px-4 py-8 text-center text-sm text-stone-400">
+                                    Nessuna notifica
+                                </div>
+                            </template>
+                            <template x-for="n in notifications" :key="n.id">
+                                <button @click="goTo(n)"
+                                        class="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-stone-50"
+                                        :class="{ 'bg-emerald-50/50': !n.read_at }">
+                                    <span class="mt-0.5 shrink-0 text-xl leading-none" x-text="n.data.icon || '🔔'"></span>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-sm font-medium text-stone-900" x-text="n.data.title"></p>
+                                        <p class="mt-0.5 line-clamp-2 text-xs text-stone-500" x-text="n.data.body"></p>
+                                        <p class="mt-1 text-[10px] text-stone-400" x-text="timeAgo(n.created_at)"></p>
+                                    </div>
+                                    <span x-show="!n.read_at" class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-rose-400"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                @endauth
 
                 <div class="relative z-50 hidden sm:ms-6 sm:flex sm:items-center">
                     <x-dropdown align="right" width="48">
@@ -152,9 +252,16 @@
                 </div>
 
                 <div class="border-t border-stone-200 pt-4">
-                    <div class="px-4">
-                        <div class="text-base font-medium text-stone-900">{{ Auth::user()->name }}</div>
-                        <div class="text-sm font-medium text-stone-500">{{ Auth::user()->email }}</div>
+                    <div class="flex items-center justify-between px-4">
+                        <div>
+                            <div class="text-base font-medium text-stone-900">{{ Auth::user()->name }}</div>
+                            <div class="text-sm font-medium text-stone-500">{{ Auth::user()->email }}</div>
+                        </div>
+                        @if($navUnreadCount > 0)
+                            <span class="flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-1.5 text-xs font-bold text-white">
+                                {{ $navUnreadCount > 9 ? '9+' : $navUnreadCount }}
+                            </span>
+                        @endif
                     </div>
 
                     <div class="mt-3 space-y-1">

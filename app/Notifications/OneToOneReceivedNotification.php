@@ -14,7 +14,7 @@ class OneToOneReceivedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -30,5 +30,17 @@ class OneToOneReceivedNotification extends Notification
             ->action('Vedi la richiesta', $url)
             ->line('Puoi accettarla, rifiutarla o proporre un orario alternativo dalla sezione One-to-One.')
             ->salutation('Il team Kommunity');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type'  => 'one_to_one_received',
+            'title' => 'Nuova richiesta One-to-One da ' . $this->oneToOneRequest->requester->name,
+            'body'  => mb_strimwidth($this->oneToOneRequest->goal, 0, 80, '…'),
+            'url'   => route('one-to-ones.index'),
+            'icon'  => '🤝',
+            'actor' => $this->oneToOneRequest->requester->name,
+        ];
     }
 }

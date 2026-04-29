@@ -7,6 +7,7 @@ use App\Models\ForumCategoryProposal;
 use App\Models\ForumPost;
 use App\Models\ForumThread;
 use App\Models\User;
+use App\Notifications\ForumReplyNotification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -170,12 +171,19 @@ class ForumController extends Controller
                 ->findOrFail($data['parent_id']);
         }
 
-        ForumPost::query()->create([
+        $post = ForumPost::query()->create([
             'forum_thread_id' => $thread->id,
             'user_id' => $request->user()->id,
             'parent_id' => $parent?->id,
             'content' => $data['content'],
         ]);
+
+        // Notifica l'autore del thread (se non è lo stesso che ha risposto)
+        if ($thread->user_id !== $request->user()->id) {
+            $post->load('user');
+            $threadAuthor = User::find($thread->user_id);
+            $threadAuthor?->notify(new ForumReplyNotification($thread, $post));
+        }
 
         return back()->with('status', 'thread-replied');
     }

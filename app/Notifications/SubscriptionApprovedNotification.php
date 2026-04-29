@@ -14,7 +14,7 @@ class SubscriptionApprovedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -33,5 +33,17 @@ class SubscriptionApprovedNotification extends Notification
             ->action('Accedi a Kommunity', $url)
             ->line('Ora hai accesso completo a tutte le funzionalità della piattaforma.')
             ->salutation('Il team Kommunity');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type'  => 'subscription_approved',
+            'title' => 'Abbonamento approvato!',
+            'body'  => 'Il tuo abbonamento ' . ($this->subscription->plan?->name ?? 'Kommunity') . ' è stato approvato.',
+            'url'   => route('subscriptions.index'),
+            'icon'  => '🎉',
+            'actor' => 'Kommunity',
+        ];
     }
 }
