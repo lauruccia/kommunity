@@ -1,5 +1,29 @@
 <x-app-layout>
     <x-slot name="header">
+        @if(! optional(auth()->user()->memberProfile)->onboarding_completed)
+            <div class="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-5 py-4">
+                <div class="flex items-start gap-3">
+                    <span class="mt-0.5 text-xl leading-none">🔒</span>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold text-amber-800">Completa il profilo per sbloccare la piattaforma</p>
+                        <p class="mt-1 text-sm text-amber-700">
+                            Finché non salvi questa pagina con i campi essenziali compilati, non potrai accedere alle altre sezioni (directory, eventi, forum, messaggi).
+                            Compila i campi qui sotto e clicca <strong>Salva</strong>.
+                        </p>
+                        @if(count($profileCompletion['missing']) > 0)
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @foreach($profileCompletion['missing'] as $item)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800 border border-amber-200">
+                                        {{ $item['icon'] }} {{ $item['label'] }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="km-panel p-6">
             <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                 <div class="min-w-0 flex-1">
