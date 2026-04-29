@@ -144,8 +144,7 @@
                 <button @click="prev()" style="padding:.8rem 1.25rem;border-radius:.9rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.6);font-size:.85rem;cursor:pointer;">← Indietro</button>
                 <button @click="next()" :disabled="saving"
                         x-text="saving ? 'Salvataggio...' : 'Avanti →'"
-                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;"
-                        :style="saving ? 'opacity:.6;cursor:not-allowed' : ''">
+                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;">
                     Avanti →
                 </button>
             </div>
@@ -182,8 +181,7 @@
                 <button @click="prev()" style="padding:.8rem 1.25rem;border-radius:.9rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.6);font-size:.85rem;cursor:pointer;">← Indietro</button>
                 <button @click="next()" :disabled="saving"
                         x-text="saving ? 'Salvataggio...' : 'Avanti →'"
-                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;"
-                        :style="saving ? 'opacity:.6;cursor:not-allowed' : ''">
+                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;">
                     Avanti →
                 </button>
             </div>
@@ -220,8 +218,7 @@
                 <button @click="prev()" style="padding:.8rem 1.25rem;border-radius:.9rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.6);font-size:.85rem;cursor:pointer;">← Indietro</button>
                 <button @click="next()" :disabled="saving"
                         x-text="saving ? 'Salvataggio...' : 'Avanti →'"
-                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;"
-                        :style="saving ? 'opacity:.6;cursor:not-allowed' : ''">
+                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;">
                     Avanti →
                 </button>
             </div>
@@ -265,8 +262,7 @@
                 <button @click="prev()" style="padding:.8rem 1.25rem;border-radius:.9rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.6);font-size:.85rem;cursor:pointer;">← Indietro</button>
                 <button @click="next()" :disabled="saving"
                         x-text="saving ? 'Salvataggio...' : 'Avanti →'"
-                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;"
-                        :style="saving ? 'opacity:.6;cursor:not-allowed' : ''">
+                        style="flex:1;padding:.8rem;border-radius:.9rem;background:linear-gradient(135deg,#8BC53F,#5f9d42);color:#061018;font-weight:900;font-size:.9rem;border:0;cursor:pointer;transition:.2s;">
                     Avanti →
                 </button>
             </div>
@@ -323,5 +319,3 @@
     100% { transform: scale(1); opacity: 1; }
 }
 [x-cloak] { display: none !important; }
-</style>
-@endif
