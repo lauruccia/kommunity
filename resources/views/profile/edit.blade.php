@@ -1,11 +1,57 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="km-panel p-6">
-            <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Onboarding membro</p>
-            <h1 class="mt-3 font-serif text-2xl font-semibold text-stone-950 sm:text-3xl lg:text-4xl">Completa il profilo business e le preferenze di networking</h1>
-            <p class="mt-3 text-sm leading-7 text-stone-600">
-                Questa area alimenta directory interna, pagina personale, contatti rapidi, richieste one-to-one e visibilita' nella kommunity.
-            </p>
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Onboarding membro</p>
+                    <h1 class="mt-3 font-serif text-2xl font-semibold text-stone-950 sm:text-3xl lg:text-4xl">Completa il profilo business e le preferenze di networking</h1>
+                    <p class="mt-3 text-sm leading-7 text-stone-600">
+                        Questa area alimenta directory interna, pagina personale, contatti rapidi, richieste one-to-one e visibilità nella kommunity.
+                    </p>
+                </div>
+
+                {{-- Widget completamento profilo --}}
+                <div class="shrink-0 rounded-2xl border border-stone-200 bg-stone-50 px-5 py-4 sm:min-w-[200px]">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p class="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-stone-400">Completamento</p>
+                            <p class="mt-0.5 text-2xl font-black text-stone-900">{{ $profileCompletion['percentage'] }}%</p>
+                            <p class="text-xs text-stone-400">{{ $profileCompletion['done'] }}/{{ $profileCompletion['total'] }} campi</p>
+                        </div>
+                        <div class="relative flex h-14 w-14 shrink-0 items-center justify-center">
+                            <svg class="h-14 w-14 -rotate-90" viewBox="0 0 48 48">
+                                <circle cx="24" cy="24" r="20" fill="none" stroke="#e7e5e4" stroke-width="4"/>
+                                <circle cx="24" cy="24" r="20" fill="none"
+                                        stroke="{{ $profileCompletion['percentage'] === 100 ? '#10b981' : '#537d4d' }}"
+                                        stroke-width="4"
+                                        stroke-linecap="round"
+                                        stroke-dasharray="{{ round(2 * M_PI * 20, 2) }}"
+                                        stroke-dashoffset="{{ round(2 * M_PI * 20 * (1 - $profileCompletion['percentage'] / 100), 2) }}"/>
+                            </svg>
+                            <span class="absolute text-[0.6rem] font-black text-stone-700">{{ $profileCompletion['percentage'] }}%</span>
+                        </div>
+                    </div>
+
+                    @if(count($profileCompletion['missing']) > 0)
+                        <div class="mt-3 border-t border-stone-200 pt-3 space-y-1">
+                            <p class="text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-stone-400">Da completare</p>
+                            @foreach(array_slice($profileCompletion['missing'], 0, 3) as $item)
+                                <div class="flex items-center gap-1.5 text-[0.74rem] text-stone-500">
+                                    <span class="text-sm leading-none">{{ $item['icon'] }}</span>
+                                    <span>{{ $item['label'] }}</span>
+                                </div>
+                            @endforeach
+                            @if(count($profileCompletion['missing']) > 3)
+                                <p class="text-[0.65rem] text-stone-400">+ altri {{ count($profileCompletion['missing']) - 3 }}</p>
+                            @endif
+                        </div>
+                    @else
+                        <p class="mt-3 border-t border-stone-200 pt-3 text-xs font-semibold text-emerald-600">
+                            ✓ Profilo completo!
+                        </p>
+                    @endif
+                </div>
+            </div>
         </div>
     </x-slot>
 

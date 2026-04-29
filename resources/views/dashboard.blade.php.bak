@@ -185,71 +185,15 @@
         <div class="km-shell space-y-6">
 
             <section class="grid gap-5 lg:grid-cols-4">
-                <article class="km-dark-card p-5" x-data="{ open: false }">
-                    {{-- Cerchio progress SVG --}}
-                    <div class="mb-4 flex items-center justify-between">
-                        <div class="relative flex h-14 w-14 items-center justify-center">
-                            <svg class="h-14 w-14 -rotate-90" viewBox="0 0 48 48">
-                                <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/>
-                                <circle cx="24" cy="24" r="20" fill="none"
-                                        stroke="#8BC53F" stroke-width="4"
-                                        stroke-linecap="round"
-                                        stroke-dasharray="{{ round(2 * M_PI * 20, 2) }}"
-                                        stroke-dashoffset="{{ round(2 * M_PI * 20 * (1 - $profileCompletion['percentage'] / 100), 2) }}"
-                                        style="transition:stroke-dashoffset .6s ease;"/>
-                            </svg>
-                            <span class="absolute text-[0.65rem] font-black text-white">{{ $profileCompletion['percentage'] }}%</span>
-                        </div>
-                        @if(count($profileCompletion['missing']) > 0)
-                            <button @click="open = !open"
-                                    class="text-[0.7rem] font-semibold text-[color:var(--km-green)] hover:underline focus:outline-none">
-                                <span x-show="!open">Suggerimenti ↓</span>
-                                <span x-show="open" x-cloak>Nascondi ↑</span>
-                            </button>
-                        @endif
-                    </div>
-
-                    <p class="km-eyebrow">Completamento profilo</p>
-                    <p class="mt-2 text-2xl font-black text-white">
-                        {{ $profileCompletion['done'] }}/{{ $profileCompletion['total'] }} campi
+                <article class="km-dark-card p-5">
+                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(139,197,63,.12)] text-xl text-[color:var(--km-green)]">◎</div>
+                    <p class="km-eyebrow">Onboarding</p>
+                    <p class="mt-3 text-3xl font-black text-white">
+                        {{ optional($user->memberProfile)->onboarding_completed ? '100%' : 'in corso' }}
                     </p>
-
-                    {{-- Progress bar lineare --}}
-                    <div class="mt-3 h-1.5 w-full rounded-full bg-white/10">
-                        <div class="h-1.5 rounded-full bg-gradient-to-r from-[#8BC53F] to-[#2DD4BF] transition-all duration-500"
-                             style="width: {{ $profileCompletion['percentage'] }}%"></div>
-                    </div>
-
-                    <p class="km-muted mt-2 text-xs leading-5">
-                        @if($profileCompletion['percentage'] === 100)
-                            Profilo completo al 100%. Ottimo lavoro!
-                        @else
-                            {{ count($profileCompletion['missing']) }} {{ count($profileCompletion['missing']) === 1 ? 'campo mancante' : 'campi mancanti' }} per raggiungere il 100%.
-                        @endif
+                    <p class="km-muted mt-2 text-sm leading-6">
+                        {{ optional($user->memberProfile)->onboarding_completed ? 'Profilo pronto per la directory.' : 'Completa i dati business e le preferenze di networking.' }}
                     </p>
-
-                    {{-- Lista suggerimenti espandibile --}}
-                    @if(count($profileCompletion['missing']) > 0)
-                        <div x-show="open" x-cloak
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 -translate-y-1"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             class="mt-3 space-y-1.5 border-t border-white/10 pt-3">
-                            @foreach(array_slice($profileCompletion['missing'], 0, 4) as $item)
-                                <a href="{{ route('profile.edit') }}"
-                                   class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 transition hover:bg-white/[.07] hover:text-white">
-                                    <span class="shrink-0 text-base leading-none">{{ $item['icon'] }}</span>
-                                    <span>{{ $item['label'] }}</span>
-                                    <span class="ml-auto shrink-0 text-white/30">→</span>
-                                </a>
-                            @endforeach
-                            @if(count($profileCompletion['missing']) > 4)
-                                <p class="pl-3 text-[0.68rem] text-white/30">
-                                    + altri {{ count($profileCompletion['missing']) - 4 }} elementi
-                                </p>
-                            @endif
-                        </div>
-                    @endif
                 </article>
 
                 <article class="km-dark-card p-5">
@@ -445,5 +389,4 @@
         </div>
     </div>
 
-    @include('onboarding._wizard')
-</x-app-layout>
+    @include('o

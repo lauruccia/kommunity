@@ -11,7 +11,6 @@ use App\Models\ProfileSuggestion;
 use App\Models\Profession;
 use App\Models\Province;
 use App\Models\Region;
-use App\Services\ProfileCompletionService;
 use App\Support\VideoCompressor;
 use App\Support\VideoUploadLimits;
 use Illuminate\Http\RedirectResponse;
@@ -31,20 +30,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        $user = $request->user()->load(['memberProfile.professions']);
-
         return view('profile.edit', [
-            'user'              => $user,
-            'profile'           => $user->memberProfile()->with(['chapter', 'categories', 'professions', 'companyInterestTypes', 'city'])->firstOrFail(),
-            'profileCompletion' => (new ProfileCompletionService())->calculate($user),
-            'galleryImages'     => $user->memberGalleryImages()->get(),
-            'professions'       => Profession::query()->where('is_active', true)->orderBy('name')->get(),
-            'rootCategories'    => Category::query()->with(['activeChildren'])->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get(),
-            'regions'           => Region::query()->orderBy('name')->get(),
-            'provinces'         => Province::query()->orderBy('name')->get(),
-            'cities'            => City::query()->orderBy('name')->get(),
+            'user' => $request->user(),
+            'profile' => $request->user()->memberProfile()->with(['chapter', 'categories', 'professions', 'companyInterestTypes', 'city'])->firstOrFail(),
+            'galleryImages' => $request->user()->memberGalleryImages()->get(),
+            'professions' => Profession::query()->where('is_active', true)->orderBy('name')->get(),
+            'rootCategories' => Category::query()->with(['activeChildren'])->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get(),
+            'regions' => Region::query()->orderBy('name')->get(),
+            'provinces' => Province::query()->orderBy('name')->get(),
+            'cities' => City::query()->orderBy('name')->get(),
             'companyInterestTypes' => CompanyInterestType::query()->where('is_active', true)->orderBy('name')->get(),
-            'referralLink'      => $user->referralRegistrationUrl(),
+            'referralLink' => $request->user()->referralRegistrationUrl(),
             'videoUploadLimits' => app(VideoUploadLimits::class),
         ]);
     }
@@ -290,3 +286,4 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 }
+ 
