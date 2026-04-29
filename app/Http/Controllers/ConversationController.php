@@ -15,9 +15,46 @@ class ConversationController extends Controller
         $user = $request->user();
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
-            'filter' => ['nullable', 'in:all,unread'],
+            'filter' => ['nullable', 'in:all,unread,favorites'],
         ]);
 
+        $conversations = $this->conversationList($user, $filters);
+
+        return view('conversations.index', [
+            'conversations' => $conversations,
+            'members' => $this->availableMembers($user),
+            'filters' => $filters,
+            'unreadCount' => $conversations->where('has_unread', true)->count(),
+        ]);
+    }
+
+    public function show(Request $request, Conversation $conversation): View
+    {
+        abort_unless($conversation->participants()->where('users.id', $request->user()->id)->exists(), 403);
+
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'filter' => ['nullable', 'in:all,unread,favorites'],
+        ]);
+
+        $conversation->load(['participants.memberProfile', 'messages.user.memberProfile']);
+        $conversation->participants()->updateExistingPivot($request->user()->id, [
+            'last_read_at' => now(),
+        ]);
+
+        $conversations = $this->conversationList($request->user(), $filters);
+
+        return view('conversations.show', [
+            'conversation' => $conversation,
+            'conversations' => $conversations,
+            'members' => $this->availableMembers($request->user()),
+            'filters' => $filters,
+            'unreadCount' => $conversations->where('has_unread', true)->count(),
+        ]);
+    }
+
+    private function conversationList(User $user, array $filters = [])
+    {
         $conversations = Conversation::query()
             ->with(['participants.memberProfile', 'messages.user'])
             ->whereHas('participants', fn ($query) => $query->where('users.id', $user->id))
@@ -57,29 +94,17 @@ class ConversationController extends Controller
             })
             ->values();
 
-        return view('conversations.index', [
-            'conversations' => $conversations,
-            'members' => User::query()
-                ->with('memberProfile')
-                ->whereKeyNot($user->id)
-                ->whereHas('memberProfile', fn ($query) => $query->where('is_active', true))
-                ->orderBy('name')
-                ->get(),
-            'filters' => $filters,
-            'unreadCount' => $conversations->where('has_unread', true)->count(),
-        ]);
+        return $conversations;
     }
 
-    public function show(Request $request, Conversation $conversation): View
+    private function availableMembers(User $user)
     {
-        abort_unless($conversation->participants()->where('users.id', $request->user()->id)->exists(), 403);
-
-        $conversation->load(['participants.memberProfile', 'messages.user']);
-        $conversation->participants()->updateExistingPivot($request->user()->id, [
-            'last_read_at' => now(),
-        ]);
-
-        return view('conversations.show', ['conversation' => $conversation]);
+        return User::query()
+            ->with('memberProfile')
+            ->whereKeyNot($user->id)
+            ->whereHas('memberProfile', fn ($query) => $query->where('is_active', true))
+            ->orderBy('name')
+            ->get();
     }
 
     public function start(Request $request): RedirectResponse

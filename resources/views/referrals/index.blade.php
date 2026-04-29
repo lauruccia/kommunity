@@ -1,349 +1,434 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="km-panel p-6">
-            <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Referenze business</p>
-            <h1 class="mt-3 font-serif text-2xl font-semibold text-stone-950 sm:text-3xl lg:text-4xl">
-                Opportunità e introduzioni tra membri
-            </h1>
-            <p class="mt-2 text-sm leading-7 text-stone-600">
-                Invia opportunità, traccia lo stato e tieni ordinata la pipeline relazionale della community.
-            </p>
-            <div class="mt-3 flex items-center gap-2 text-sm text-amber-500">
-                <span class="tracking-[0.2em]" aria-label="Valutazione recensione">★★★★★</span>
-                <span class="text-stone-600">Referenze qualificate dalla rete Kommunity</span>
+    @php
+        $allReferrals = $receivedReferrals->getCollection()->concat($sentReferrals->getCollection())->sortByDesc('updated_at');
+        $openStatuses = ['sent', 'in_charge', 'contacted', 'negotiating'];
+        $receivedOpen = $receivedReferrals->getCollection()->filter(fn ($referral) => in_array($referral->status->value, $openStatuses, true));
+        $archiveReferrals = $allReferrals->filter(fn ($referral) => ! in_array($referral->status->value, $openStatuses, true));
+        $visibleArchive = $archiveReferrals->take(4);
+        $receivedPercent = ($summary['sent'] + $summary['received']) > 0 ? round(($summary['received'] / max(1, $summary['sent'] + $summary['received'])) * 100) : 0;
+        $openPercent = ($summary['sent'] + $summary['received']) > 0 ? round(($summary['open'] / max(1, $summary['sent'] + $summary['received'])) * 100) : 0;
+
+        $priorityLabel = fn (?string $priority) => match ($priority) {
+            'high' => 'Alta',
+            'low' => 'Bassa',
+            default => 'Media',
+        };
+
+        $priorityClass = fn (?string $priority) => match ($priority) {
+            'high' => 'kr-priority-high',
+            'low' => 'kr-priority-low',
+            default => 'kr-priority-medium',
+        };
+
+        $statusClass = fn ($status) => match ($status?->value ?? $status) {
+            'sent' => 'kr-status-blue',
+            'in_charge', 'contacted', 'negotiating' => 'kr-status-green',
+            'won' => 'kr-status-green',
+            'lost' => 'kr-status-red',
+            'archived' => 'kr-status-slate',
+            default => 'kr-status-slate',
+        };
+    @endphp
+
+    <style>
+        :root {
+            --kr-bg: #001821;
+            --kr-panel: rgba(4, 34, 45, .78);
+            --kr-panel-2: rgba(7, 43, 55, .64);
+            --kr-line: rgba(153, 194, 202, .17);
+            --kr-line-strong: rgba(169, 214, 221, .26);
+            --kr-text: #f5fbfd;
+            --kr-muted: rgba(222, 235, 238, .68);
+            --kr-soft: rgba(222, 235, 238, .48);
+            --kr-green: #79c843;
+            --kr-green-2: #55aa54;
+            --kr-teal: #2dd4bf;
+            --kr-amber: #f6c343;
+            --kr-red: #ef6262;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 82% 0%, rgba(121, 200, 67, .16), transparent 28%),
+                radial-gradient(circle at 8% 22%, rgba(45, 212, 191, .10), transparent 30%),
+                linear-gradient(135deg, #00121a, var(--kr-bg) 48%, #042d31) !important;
+            color: var(--kr-text);
+        }
+
+        .kr-shell {
+            width: min(1500px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .kr-card {
+            background: linear-gradient(145deg, rgba(4, 35, 46, .86), rgba(2, 25, 34, .74));
+            border: 1px solid var(--kr-line);
+            border-radius: 18px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.18);
+            backdrop-filter: blur(16px);
+            color: var(--kr-text);
+        }
+
+        .kr-green-text { color: var(--kr-green); }
+
+        .kr-layout {
+            display: grid;
+            grid-template-columns: 300px minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .kr-hero {
+            margin-bottom: 20px;
+            padding: 24px 28px;
+        }
+
+        .kr-hero-grid {
+            display: grid;
+            grid-template-columns: 74px minmax(0, 1fr) auto;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .kr-filter-grid {
+            display: grid;
+            grid-template-columns: minmax(260px, 1fr) 180px 170px 110px;
+            gap: 14px;
+            align-items: end;
+        }
+
+        .kr-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .kr-stat-card {
+            min-height: 92px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .kr-input {
+            border: 1px solid var(--kr-line-strong);
+            background: rgba(2, 24, 33, .72);
+            color: var(--kr-text);
+            outline: none;
+        }
+
+        .kr-input:focus {
+            border-color: rgba(121, 200, 67, .42);
+            box-shadow: 0 0 0 3px rgba(121, 200, 67, .08);
+        }
+
+        .kr-primary {
+            background: linear-gradient(135deg, var(--kr-green-2), var(--kr-green));
+            color: #f8fff5;
+        }
+
+        .kr-stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: none;
+        }
+
+        .kr-icon-green { background: rgba(121, 200, 67, .18); color: var(--kr-green); }
+        .kr-icon-teal { background: rgba(45, 212, 191, .14); color: var(--kr-teal); }
+        .kr-icon-amber { background: rgba(246, 195, 67, .15); color: var(--kr-amber); }
+        .kr-icon-violet { background: rgba(120, 105, 240, .18); color: #9ca3ff; }
+
+        .kr-referral-row {
+            border-top: 1px solid rgba(153, 194, 202, .12);
+            position: relative;
+            padding: 18px 20px 18px 76px !important;
+        }
+
+        .kr-referral-row::before {
+            content: "";
+            position: absolute;
+            left: 34px;
+            top: 20px;
+            bottom: 20px;
+            width: 3px;
+            border-radius: 999px;
+            background: linear-gradient(var(--kr-green), #6d7df0);
+        }
+
+        .kr-referral-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 210px 150px;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .kr-referral-action {
+            justify-self: end;
+            position: relative;
+        }
+
+        .kr-referral-action form {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            z-index: 20;
+            width: 300px;
+        }
+
+        .kr-referral-archive::before {
+            background: linear-gradient(#6d7df0, #7b8794);
+        }
+
+        .kr-status {
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .kr-status-blue { background: rgba(113, 151, 255, .18); color: #adc0ff; }
+        .kr-status-green { background: rgba(121, 200, 67, .22); color: #a7ea76; }
+        .kr-status-red { background: rgba(239, 98, 98, .16); color: #ff8888; }
+        .kr-status-slate { background: rgba(148, 163, 184, .18); color: #d0dae4; }
+
+        .kr-priority-high { background: rgba(239, 98, 98, .16); color: #ff8888; }
+        .kr-priority-medium { background: rgba(246, 195, 67, .16); color: #ffd56c; }
+        .kr-priority-low { background: rgba(121, 200, 67, .16); color: #a7ea76; }
+
+        @media (max-width: 1180px) {
+            .kr-layout { grid-template-columns: 280px minmax(0, 1fr); gap: 16px; }
+            .kr-filter-grid { grid-template-columns: minmax(220px, 1fr) 150px 145px 96px; }
+            .kr-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .kr-referral-grid { grid-template-columns: minmax(0, 1fr); }
+            .kr-referral-action { justify-self: stretch; }
+            .kr-referral-action form { position: static; width: 100%; }
+        }
+
+        @media (max-width: 760px) {
+            .kr-shell { width: min(100% - 28px, 760px); }
+            .kr-layout,
+            .kr-hero-grid,
+            .kr-filter-grid,
+            .kr-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kr-hero { padding: 20px; }
+            .kr-referral-row { padding-left: 54px !important; }
+            .kr-referral-row::before { left: 22px; }
+        }
+    </style>
+
+    <div class="kr-shell py-7">
+        <header class="kr-card kr-hero">
+            <div class="kr-hero-grid">
+                <div class="kr-stat-icon kr-icon-green h-[74px] w-[74px]">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 2.7 5.47 6.03.88-4.36 4.25 1.03 6-5.4-2.84-5.4 2.84 1.03-6-4.36-4.25 6.03-.88L12 3Z"/><path d="M9 12l2 2 4-5"/></svg>
+                </div>
+
+                <div>
+                    <p class="kr-green-text text-sm font-semibold uppercase tracking-[.35em]">Referenze business</p>
+                    <h1 class="mt-3 text-3xl font-semibold text-white">Opportunità e introduzioni tra membri</h1>
+                    <p class="mt-2 text-base" style="color: var(--kr-muted);">Invia opportunità, traccia lo stato e tieni ordinata la pipeline relazionale della community.</p>
+
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['sent'] }}</strong> <span style="color: var(--kr-muted);">Inviate</span></div>
+                        <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['received'] }}</strong> <span style="color: var(--kr-muted);">Ricevute</span></div>
+                        <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['open'] }}</strong> <span style="color: var(--kr-muted);">Aperte</span></div>
+                        <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">€{{ number_format($summary['value'], 0, ',', '.') }}</strong> <span style="color: var(--kr-muted);">Pipeline</span></div>
+                    </div>
+                </div>
+
+                <div class="text-right text-sm" style="color: var(--kr-muted);">
+                    <div class="kr-green-text text-2xl tracking-[.12em]">★★★★★</div>
+                    <div>Referenze qualificate dalla rete Kommunity</div>
+                </div>
             </div>
+        </header>
 
-            {{-- STATS --}}
-            <div class="mt-4 flex flex-wrap gap-3">
-                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
-                    <span class="font-semibold text-stone-950">{{ $summary['sent'] }}</span>
-                    <span class="text-stone-500">inviate</span>
-                </div>
-                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
-                    <span class="font-semibold text-stone-950">{{ $summary['received'] }}</span>
-                    <span class="text-stone-500">ricevute</span>
-                </div>
-                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
-                    <span class="font-semibold text-stone-950">{{ $summary['open'] }}</span>
-                    <span class="text-stone-500">aperte</span>
-                </div>
-                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
-                    <span class="font-semibold text-stone-950">€ {{ number_format($summary['value'], 0, ',', '.') }}</span>
-                    <span class="text-stone-500">pipeline</span>
-                </div>
-            </div>
-        </div>
-    </x-slot>
+        @if (session('status') === 'referral-created')
+            <div class="mb-5 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">Referenza inviata correttamente.</div>
+        @elseif (session('status') === 'referral-updated')
+            <div class="mb-5 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">Stato referenza aggiornato.</div>
+        @endif
 
-    <div class="km-portal-bg km-portal-page pb-16 pt-6">
-        <div class="km-shell mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+        <main class="kr-layout">
+            <aside class="kr-card p-5">
+                <h2 class="text-xl font-semibold text-white">Nuova referenza</h2>
+                <p class="mt-3 text-sm leading-6" style="color: var(--kr-muted);">Puoi inviare una referenza solo a membri con cui hai un one-to-one completato e confermato da entrambi.</p>
 
-            {{-- SIDEBAR: NUOVA REFERENZA --}}
-            <aside class="space-y-4">
-                <div class="km-portal-panel p-6">
-                    <h2 class="text-lg font-semibold text-white">Nuova referenza</h2>
-                    <p class="mt-1 text-sm leading-6 text-white/60">
-                        Puoi inviare una referenza solo a membri con cui hai un one-to-one completato e confermato da entrambi.
-                    </p>
+                @if ($errors->any())
+                    <div class="mt-5 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
+                        <p class="font-semibold">Controlla i dati inseriti.</p>
+                        <ul class="mt-2 list-disc space-y-1 pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-                    {{-- FLASH --}}
-                    @if (session('status') === 'referral-created')
-                        <div class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                            ✓ Referenza inviata correttamente.
+                @if ($members->isEmpty())
+                    <div class="mt-5 flex min-h-[250px] flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/[.025] px-6 text-center">
+                        <svg class="kr-green-text" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                        <h3 class="mt-4 font-semibold text-white">Nessun membro idoneo</h3>
+                        <p class="mt-3 text-sm leading-6" style="color: var(--kr-muted);">Completa e conferma un one-to-one da entrambe le parti per poter inviare una referenza.</p>
+                    </div>
+                @else
+                    <form method="POST" action="{{ route('referrals.store') }}" class="mt-6 space-y-4">
+                        @csrf
+                        <select name="recipient_id" class="kr-input h-12 w-full rounded-xl px-4" required>
+                            <option value="">Seleziona destinatario</option>
+                            @foreach ($members as $member)
+                                <option value="{{ $member->id }}" @selected((string) old('recipient_id') === (string) $member->id)>{{ $member->name }}</option>
+                            @endforeach
+                        </select>
+                        <input type="text" name="title" value="{{ old('title') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Titolo opportunità" required>
+                        <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità" required>{{ old('description') }}</textarea>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="text" name="company_name" value="{{ old('company_name') }}" class="kr-input h-12 rounded-xl px-4" placeholder="Azienda">
+                            <input type="text" name="contact_name" value="{{ old('contact_name') }}" class="kr-input h-12 rounded-xl px-4" placeholder="Referente">
                         </div>
-                    @elseif (session('status') === 'referral-updated')
-                        <div class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                            ✓ Stato referenza aggiornato.
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="number" step="0.01" min="0" name="estimated_value" value="{{ old('estimated_value') }}" class="kr-input h-12 rounded-xl px-4" placeholder="Valore">
+                            <select name="priority" class="kr-input h-12 rounded-xl px-4">
+                                <option value="low" @selected(old('priority') === 'low')>Bassa</option>
+                                <option value="medium" @selected(old('priority', 'medium') === 'medium')>Media</option>
+                                <option value="high" @selected(old('priority') === 'high')>Alta</option>
+                            </select>
                         </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                            <p class="font-semibold text-rose-900">Controlla i dati inseriti.</p>
-                            <ul class="mt-2 list-disc pl-5 space-y-1">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    @if ($members->isEmpty())
-                        <div class="mt-4 rounded-2xl border border-white/10 bg-white/[.045] px-4 py-4 text-sm text-white/75">
-                            <p class="font-medium text-white/90">Nessun membro idoneo</p>
-                            <p class="mt-1">Completa e conferma un one-to-one da entrambe le parti per poter inviare una referenza.</p>
-                        </div>
-                    @else
-                        <form method="POST" action="{{ route('referrals.store') }}" class="mt-5 space-y-3">
-                            @csrf
-
-                            <div>
-                                <label class="mb-1.5 block text-xs font-medium text-white/75">Destinatario *</label>
-                                <select name="recipient_id" class="km-portal-input" required>
-                                    <option value="">Seleziona destinatario…</option>
-                                    @foreach ($members as $member)
-                                        <option value="{{ $member->id }}" @selected((string) old('recipient_id') === (string) $member->id)>
-                                            {{ $member->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="mb-1.5 block text-xs font-medium text-white/75">Titolo opportunità *</label>
-                                <input type="text" name="title" value="{{ old('title') }}" class="km-portal-input" placeholder="Es. Progetto sito web e-commerce" required>
-                            </div>
-
-                            <div>
-                                <label class="mb-1.5 block text-xs font-medium text-white/75">Descrizione *</label>
-                                <textarea name="description" rows="4" class="km-portal-input" placeholder="Descrivi l'opportunità, il contesto e cosa si cerca…" required>{{ old('description') }}</textarea>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Azienda</label>
-                                    <input type="text" name="company_name" value="{{ old('company_name') }}" class="km-portal-input" placeholder="Nome azienda">
-                                </div>
-                                <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Referente</label>
-                                    <input type="text" name="contact_name" value="{{ old('contact_name') }}" class="km-portal-input" placeholder="Nome contatto">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Valore stimato (€)</label>
-                                    <input type="number" step="0.01" min="0" name="estimated_value" value="{{ old('estimated_value') }}" class="km-portal-input" placeholder="0">
-                                </div>
-                                <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Priorità</label>
-                                    <select name="priority" class="km-portal-input">
-                                        <option value="low" @selected(old('priority') === 'low')>🟢 Bassa</option>
-                                        <option value="medium" @selected(old('priority', 'medium') === 'medium')>🟡 Media</option>
-                                        <option value="high" @selected(old('priority') === 'high')>🔴 Alta</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="mb-1.5 block text-xs font-medium text-white/75">Note interne <span class="font-normal text-white/45">(opzionale)</span></label>
-                                <textarea name="notes" rows="2" class="km-portal-input" placeholder="Contesto o info riservate per il destinatario">{{ old('notes') }}</textarea>
-                            </div>
-
-                            <button type="submit" class="km-button-primary w-full">Invia referenza</button>
-                        </form>
-                    @endif
-                </div>
+                        <textarea name="notes" rows="2" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Note interne">{{ old('notes') }}</textarea>
+                        <button type="submit" class="kr-primary h-12 w-full rounded-xl font-semibold">Invia referenza</button>
+                    </form>
+                @endif
             </aside>
 
-            {{-- MAIN --}}
             <section class="min-w-0 space-y-5">
+                <section class="kr-card p-5">
+                    <form method="GET" action="{{ route('referrals.index') }}" class="kr-filter-grid">
+                        <label>
+                            <span class="mb-2 block text-sm text-white">Cerca</span>
+                            <span class="relative block">
+                                <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="kr-input h-14 w-full rounded-xl px-4 pr-12" placeholder="Titolo, azienda, contatto...">
+                                <svg class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            </span>
+                        </label>
 
-                {{-- FILTRI --}}
-                <div class="km-portal-panel p-5">
-                    <form method="GET" action="{{ route('referrals.index') }}" class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-                        <div class="flex-1 min-w-[180px]">
-                            <label class="mb-1.5 block text-xs font-medium text-white/75">Cerca</label>
-                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-portal-input" placeholder="Titolo, azienda, contatto…">
-                        </div>
-                        <div class="min-w-[160px]">
-                            <label class="mb-1.5 block text-xs font-medium text-white/75">Stato</label>
-                            <select name="status" class="km-portal-input">
+                        <label>
+                            <span class="mb-2 block text-sm text-white">Stato</span>
+                            <select name="status" class="kr-input h-14 w-full rounded-xl px-4">
                                 <option value="">Tutti gli stati</option>
                                 @foreach ($statusOptions as $value => $label)
                                     <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
-                        </div>
-                        <div class="min-w-[140px]">
-                            <label class="mb-1.5 block text-xs font-medium text-white/75">Priorità</label>
-                            <select name="priority" class="km-portal-input">
-                                <option value="">Tutte</option>
-                                <option value="high" @selected(($filters['priority'] ?? '') === 'high')>🔴 Alta</option>
-                                <option value="medium" @selected(($filters['priority'] ?? '') === 'medium')>🟡 Media</option>
-                                <option value="low" @selected(($filters['priority'] ?? '') === 'low')>🟢 Bassa</option>
-                            </select>
-                        </div>
-                        <div class="flex gap-2">
-                            <button type="submit" class="km-button-primary">Filtra</button>
-                            @if (array_filter($filters))
-                                <a href="{{ route('referrals.index') }}" class="km-button-secondary">Reset</a>
-                            @endif
-                        </div>
-                    </form>
-                </div>
+                        </label>
 
-                {{-- REFERENZE RICEVUTE --}}
-                <div class="km-portal-panel overflow-hidden p-0">
-                    <div class="border-b px-6 py-4" style="border-color: var(--km-line);">
-                        <p class="text-xs uppercase tracking-[0.22em] text-white/60">Da gestire</p>
-                        <h2 class="mt-1 text-xl font-semibold text-white">Referenze ricevute</h2>
+                        <label>
+                            <span class="mb-2 block text-sm text-white">Priorità</span>
+                            <select name="priority" class="kr-input h-14 w-full rounded-xl px-4">
+                                <option value="">Tutte</option>
+                                <option value="high" @selected(($filters['priority'] ?? '') === 'high')>Alta</option>
+                                <option value="medium" @selected(($filters['priority'] ?? '') === 'medium')>Media</option>
+                                <option value="low" @selected(($filters['priority'] ?? '') === 'low')>Bassa</option>
+                            </select>
+                        </label>
+
+                        <button type="submit" class="kr-primary h-14 rounded-xl px-6 font-semibold">Filtra</button>
+                    </form>
+                </section>
+
+                <section class="kr-stats-grid">
+                    <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-green">▣</div><div><div class="text-sm text-white">Tutte le referenze</div><div class="text-2xl font-semibold">{{ $summary['sent'] + $summary['received'] }}</div><div style="color: var(--kr-muted);">Totali</div></div></div>
+                    <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-teal">♙</div><div><div class="text-sm text-white">Inviate</div><div class="text-2xl font-semibold">{{ $summary['sent'] }}</div><div style="color: var(--kr-muted);">0%</div></div></div>
+                    <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-teal">♧</div><div><div class="text-sm text-white">Ricevute</div><div class="text-2xl font-semibold">{{ $summary['received'] }}</div><div style="color: var(--kr-muted);">{{ $receivedPercent }}%</div></div></div>
+                    <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-amber">▱</div><div><div class="text-sm text-white">Aperte</div><div class="text-2xl font-semibold">{{ $summary['open'] }}</div><div style="color: var(--kr-muted);">{{ $openPercent }}%</div></div></div>
+                    <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-violet">▤</div><div><div class="text-sm text-white">Pipeline</div><div class="text-2xl font-semibold">€{{ number_format($summary['value'], 0, ',', '.') }}</div><div style="color: var(--kr-muted);">Valore potenziale</div></div></div>
+                </section>
+
+                <section class="kr-card overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-white/10 px-6 py-4">
+                        <h2 class="text-lg font-semibold text-white">Referenze ricevute</h2>
+                        <div class="flex items-center gap-3 text-sm" style="color: var(--kr-muted);">
+                            <span>Ordina per</span>
+                            <button class="rounded-full border border-white/10 px-4 py-2 text-white" type="button">Piu recenti</button>
+                        </div>
                     </div>
 
-                    <div>
-                        @forelse ($receivedReferrals as $referral)
-                            @php
-                                $statusColors = [
-                                    'sent'        => 'bg-blue-50 text-blue-700 border-blue-200',
-                                    'in_charge'   => 'bg-violet-50 text-violet-700 border-violet-200',
-                                    'contacted'   => 'bg-amber-50 text-amber-700 border-amber-200',
-                                    'negotiating' => 'bg-orange-50 text-orange-700 border-orange-200',
-                                    'won'         => 'bg-green-50 text-green-700 border-green-200',
-                                    'lost'        => 'bg-red-50 text-red-700 border-red-200',
-                                    'archived'    => 'bg-white/[.075] text-white/60 border-white/10',
-                                ];
-                                $sc = $statusColors[$referral->status->value] ?? 'bg-white/[.075] text-white/60 border-white/10';
-                                $priorityLabel = match($referral->priority) { 'high' => '🔴 Alta', 'low' => '🟢 Bassa', default => '🟡 Media' };
-                            @endphp
-                            <div class="border-b p-5" style="border-color: var(--km-line);">
-
-                                <div class="flex flex-wrap items-start gap-3">
-                                    {{-- STATO + PRIORITÀ --}}
-                                    <div class="flex flex-wrap gap-1.5">
-                                        <span class="inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] {{ $sc }}">
-                                            {{ $referral->status->label() }}
-                                        </span>
-                                        <span class="inline-block rounded-full border border-white/10 bg-white/[.045] px-2.5 py-0.5 text-[11px] font-medium">
-                                            {{ $priorityLabel }}
-                                        </span>
+                    @forelse ($receivedOpen as $referral)
+                        @php $actor = $referral->sender; @endphp
+                        <div class="kr-referral-row">
+                            <div class="kr-referral-grid">
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
+                                        <span class="kr-status {{ $priorityClass($referral->priority) }}">{{ $priorityLabel($referral->priority) }}</span>
                                     </div>
+                                    <h3 class="mt-3 text-lg font-semibold text-white">{{ $referral->title }}</h3>
+                                    <div class="mt-1 text-sm text-[color:var(--kr-amber)]">★★★★★ <span style="color: var(--kr-muted);">Da {{ $actor?->name ?? 'Utente eliminato' }}</span></div>
+                                    <p class="mt-2 text-sm leading-6" style="color: var(--kr-muted);">{{ $referral->description }}</p>
+                                    <p class="mt-2 text-sm" style="color: var(--kr-soft);">{{ $referral->company_name ?: 'Azienda non indicata' }} · {{ $referral->contact_name ?: 'Contatto non indicato' }} · {{ $referral->created_at->format('d F Y') }}</p>
                                 </div>
 
-                                <p class="mt-2 font-semibold text-white">{{ $referral->title }}</p>
-                                <p class="mt-1 text-xs tracking-[0.2em] text-amber-300" aria-label="Valutazione referenza">★★★★★</p>
-                                <p class="mt-0.5 text-xs text-white/60">Da <span class="font-medium">{{ $referral->sender?->name ?? 'Utente eliminato' }}</span></p>
-                                <p class="mt-2 text-sm leading-6 text-white/80">{{ $referral->description }}</p>
+                                <div class="text-sm" style="color: var(--kr-muted);">
+                                    <div class="flex items-center gap-3"><span>▣</span><span>Ultimo aggiornamento<br>{{ $referral->updated_at->format('d/m/Y H:i') }}</span></div>
+                                </div>
 
-                                @if ($referral->company_name || $referral->contact_name)
-                                    <p class="mt-2 text-xs text-white/60">
-                                        @if ($referral->company_name) {{ $referral->company_name }} @endif
-                                        @if ($referral->company_name && $referral->contact_name) · @endif
-                                        @if ($referral->contact_name) {{ $referral->contact_name }} @endif
-                                    </p>
-                                @endif
-
-                                @if ($referral->notes)
-                                    <p class="mt-2 rounded-xl bg-white/[.045] px-3 py-2 text-xs text-white/75">
-                                        <span class="font-medium">Nota:</span> {{ $referral->notes }}
-                                    </p>
-                                @endif
-                                @if ($referral->outcome)
-                                    <p class="mt-2 text-sm text-emerald-700">
-                                        <span class="font-medium">Esito:</span> {{ $referral->outcome }}
-                                    </p>
-                                @endif
-
-                                {{-- FORM AGGIORNA --}}
-                                <details class="mt-4">
-                                    <summary class="cursor-pointer text-xs font-medium text-white/60 hover:text-white/80 select-none">
-                                        Aggiorna stato →
-                                    </summary>
-                                    <form method="POST" action="{{ route('referrals.status', $referral) }}" class="mt-3 space-y-2">
+                                <details class="kr-referral-action">
+                                    <summary class="list-none rounded-xl border border-white/10 px-6 py-3 text-center text-sm font-semibold text-white">Visualizza</summary>
+                                    <form method="POST" action="{{ route('referrals.status', $referral) }}" class="mt-3 w-[300px] space-y-2 rounded-xl border border-white/10 bg-[#021a23] p-3">
                                         @csrf @method('PATCH')
-                                        <select name="status" class="km-portal-input text-sm">
+                                        <select name="status" class="kr-input h-11 w-full rounded-lg px-3">
                                             @foreach ($statusOptions as $value => $label)
                                                 <option value="{{ $value }}" @selected($referral->status->value === $value)>{{ $label }}</option>
                                             @endforeach
                                         </select>
-                                        <textarea name="outcome" rows="2" class="km-portal-input text-sm" placeholder="Esito o aggiornamento…">{{ $referral->outcome }}</textarea>
-                                        <textarea name="notes" rows="2" class="km-portal-input text-sm" placeholder="Note interne…">{{ $referral->notes }}</textarea>
-                                        <button type="submit" class="km-button-secondary w-full text-sm">Salva aggiornamento</button>
+                                        <textarea name="outcome" rows="2" class="kr-input w-full rounded-lg px-3 py-2" placeholder="Esito">{{ $referral->outcome }}</textarea>
+                                        <textarea name="notes" rows="2" class="kr-input w-full rounded-lg px-3 py-2" placeholder="Note">{{ $referral->notes }}</textarea>
+                                        <button type="submit" class="kr-primary h-10 w-full rounded-lg text-sm font-semibold">Salva</button>
                                     </form>
                                 </details>
                             </div>
-                        @empty
-                            <div class="px-6 py-10 text-center text-sm text-white/45">
-                                Nessuna referenza ricevuta.
-                            </div>
-                        @endforelse
-                    </div>
-
-                    @if ($receivedReferrals->hasPages())
-                        <div class="border-t px-5 py-4" style="border-color: var(--km-line);">
-                            {{ $receivedReferrals->links() }}
                         </div>
-                    @endif
-                </div>
+                    @empty
+                        <div class="px-6 py-10 text-center text-sm" style="color: var(--kr-muted);">Nessuna referenza ricevuta.</div>
+                    @endforelse
+                </section>
 
-                {{-- REFERENZE INVIATE --}}
-                <div class="km-portal-panel overflow-hidden p-0">
-                    <div class="border-b px-6 py-4" style="border-color: var(--km-line);">
-                        <p class="text-xs uppercase tracking-[0.22em] text-white/60">Archivio</p>
-                        <h2 class="mt-1 text-xl font-semibold text-white">Referenze inviate</h2>
+                <section class="kr-card overflow-hidden">
+                    <div class="border-b border-white/10 px-6 py-4">
+                        <h2 class="text-lg font-semibold text-white">Archivio</h2>
                     </div>
 
-                    <div>
-                        @forelse ($sentReferrals as $referral)
-                            @php
-                                $statusColors = [
-                                    'sent'        => 'bg-blue-50 text-blue-700 border-blue-200',
-                                    'in_charge'   => 'bg-violet-50 text-violet-700 border-violet-200',
-                                    'contacted'   => 'bg-amber-50 text-amber-700 border-amber-200',
-                                    'negotiating' => 'bg-orange-50 text-orange-700 border-orange-200',
-                                    'won'         => 'bg-green-50 text-green-700 border-green-200',
-                                    'lost'        => 'bg-red-50 text-red-700 border-red-200',
-                                    'archived'    => 'bg-white/[.075] text-white/60 border-white/10',
-                                ];
-                                $sc = $statusColors[$referral->status->value] ?? 'bg-white/[.075] text-white/60 border-white/10';
-                                $priorityLabel = match($referral->priority) { 'high' => '🔴 Alta', 'low' => '🟢 Bassa', default => '🟡 Media' };
-                            @endphp
-                            <div class="border-b p-5" style="border-color: var(--km-line);">
-
-                                <div class="flex flex-wrap items-start justify-between gap-3">
-                                    <div class="flex flex-wrap gap-1.5">
-                                        <span class="inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] {{ $sc }}">
-                                            {{ $referral->status->label() }}
-                                        </span>
-                                        <span class="inline-block rounded-full border border-white/10 bg-white/[.045] px-2.5 py-0.5 text-[11px] font-medium">
-                                            {{ $priorityLabel }}
-                                        </span>
-                                        @if ($referral->estimated_value)
-                                            <span class="inline-block rounded-full border border-white/10 bg-white/[.045] px-2.5 py-0.5 text-[11px] font-medium text-white/75">
-                                                € {{ number_format((float) $referral->estimated_value, 0, ',', '.') }}
-                                            </span>
-                                        @endif
+                    @forelse ($visibleArchive as $referral)
+                        @php $actor = $referral->sender_id === auth()->id() ? $referral->recipient : $referral->sender; @endphp
+                        <div class="kr-referral-row kr-referral-archive">
+                            <div class="kr-referral-grid">
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
                                     </div>
+                                    <h3 class="mt-3 text-lg font-semibold text-white">{{ $referral->title }}</h3>
+                                    <div class="mt-1 text-sm text-[color:var(--kr-amber)]">★★★★★ <span style="color: var(--kr-muted);">Da {{ $actor?->name ?? 'Utente eliminato' }}</span></div>
+                                    <p class="mt-2 text-sm leading-6" style="color: var(--kr-muted);">{{ $referral->description }}</p>
+                                    <p class="mt-2 text-sm" style="color: var(--kr-soft);">{{ $referral->company_name ?: 'Azienda non indicata' }} · {{ $referral->contact_name ?: 'Contatto non indicato' }} · {{ $referral->created_at->format('d F Y') }}</p>
                                 </div>
-
-                                <p class="mt-2 font-semibold text-white">{{ $referral->title }}</p>
-                                <p class="mt-1 text-xs tracking-[0.2em] text-amber-300" aria-label="Valutazione referenza">★★★★★</p>
-                                <p class="mt-0.5 text-xs text-white/60">Per <span class="font-medium">{{ $referral->recipient?->name ?? 'Utente eliminato' }}</span></p>
-                                <p class="mt-2 text-sm leading-6 text-white/80">{{ $referral->description }}</p>
-
-                                @if ($referral->company_name || $referral->contact_name)
-                                    <p class="mt-2 text-xs text-white/60">
-                                        @if ($referral->company_name) {{ $referral->company_name }} @endif
-                                        @if ($referral->company_name && $referral->contact_name) · @endif
-                                        @if ($referral->contact_name) {{ $referral->contact_name }} @endif
-                                    </p>
-                                @endif
-
-                                @if ($referral->notes)
-                                    <p class="mt-2 rounded-xl bg-white/[.045] px-3 py-2 text-xs text-white/75">
-                                        <span class="font-medium">Nota:</span> {{ $referral->notes }}
-                                    </p>
-                                @endif
-                                @if ($referral->outcome)
-                                    <p class="mt-2 text-sm text-emerald-700">
-                                        <span class="font-medium">Esito:</span> {{ $referral->outcome }}
-                                    </p>
-                                @endif
+                                <div class="text-sm" style="color: var(--kr-muted);">Ultimo aggiornamento<br>{{ $referral->updated_at->format('d/m/Y H:i') }}</div>
+                                <button type="button" class="kr-referral-action rounded-xl border border-white/10 px-6 py-3 text-sm font-semibold text-white">Visualizza</button>
                             </div>
-                        @empty
-                            <div class="px-6 py-10 text-center text-sm text-white/45">
-                                Non hai ancora inviato referenze.
-                            </div>
-                        @endforelse
-                    </div>
-
-                    @if ($sentReferrals->hasPages())
-                        <div class="border-t px-5 py-4" style="border-color: var(--km-line);">
-                            {{ $sentReferrals->links() }}
                         </div>
-                    @endif
-                </div>
-
+                    @empty
+                        <div class="px-6 py-10 text-center text-sm" style="color: var(--kr-muted);">Nessuna referenza in archivio.</div>
+                    @endforelse
+                </section>
             </section>
-        </div>
+        </main>
     </div>
 </x-app-layout>

@@ -25,8 +25,8 @@ class ForumController extends Controller
         $threadsQuery = ForumThread::query()
             ->with([
                 'category',
-                'user',
-                'latestPost.user',
+                'user.memberProfile',
+                'latestPost.user.memberProfile',
             ])
             ->withCount('posts')
             ->orderByDesc('is_pinned')
@@ -36,7 +36,7 @@ class ForumController extends Controller
             ->withCount('threads')
             ->with([
                 'threads' => fn ($query) => $query
-                    ->with(['latestPost.user'])
+                    ->with(['latestPost.user.memberProfile'])
                     ->withCount('posts')
                     ->latest()
                     ->limit(1),
@@ -59,7 +59,16 @@ class ForumController extends Controller
             'threads' => ForumThread::query()->count(),
             'posts' => ForumPost::query()->count(),
             'members' => User::query()->count(),
+            'active_members' => ForumPost::query()->distinct('user_id')->count('user_id'),
         ];
+
+        $featuredThreads = ForumThread::query()
+            ->with(['category', 'user.memberProfile', 'latestPost.user.memberProfile'])
+            ->withCount('posts')
+            ->orderByDesc('is_pinned')
+            ->latest()
+            ->limit(3)
+            ->get();
 
         if (! empty($filters['category'])) {
             $threadsQuery->where('forum_category_id', $filters['category']);
@@ -84,6 +93,7 @@ class ForumController extends Controller
                 ->where('user_id', $request->user()->id)
                 ->count(),
             'stats' => $stats,
+            'featuredThreads' => $featuredThreads,
         ]);
     }
 
