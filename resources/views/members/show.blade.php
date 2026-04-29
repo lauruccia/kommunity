@@ -1,3 +1,4 @@
+{{-- KM-MEMBER-VIEW-v2 --}}
 <x-app-layout>
     @php
         $viewerIsOwner = auth()->check() && auth()->id() === $user->id;
@@ -7,6 +8,17 @@
                          .'?text='.urlencode('Ciao '.$user->name.', ti contatto dalla tua pagina su Kommunity.');
         }
     @endphp
+
+    {{-- Stili critici inline: il grid e il banner non dipendono dal CSS compilato --}}
+    <style>
+        .member-banner{height:200px}
+        @media(min-width:640px){.member-banner{height:260px}}
+        @media(min-width:1024px){.member-banner{height:320px}}
+        @media(min-width:1024px){.member-grid{display:grid;gap:1.5rem;grid-template-columns:320px minmax(0,1fr)}}
+        .member-avatar-wrap{position:relative}
+        .member-avatar-pin{position:absolute;top:-3rem;left:1.25rem;z-index:10}
+        @media(min-width:640px){.member-avatar-pin{left:1.5rem}}
+    </style>
 
     {{-- Alpine: gestisce il drawer mobile della sidebar --}}
     <div x-data="{ drawer: false }" class="pb-12 pt-6">
@@ -118,7 +130,7 @@
              LAYOUT PRINCIPALE: sidebar + corpo
         ══════════════════════════════════════════ --}}
         <div class="w-full px-4 sm:px-6 lg:px-8">
-            <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <div class="member-grid">
 
                 {{-- SIDEBAR — nascosta su mobile, visibile da lg --}}
                 <aside class="hidden space-y-6 lg:block">
@@ -133,7 +145,7 @@
 
                         {{-- Banner / Cover image --}}
                         <div
-                            class="relative h-[200px] bg-[linear-gradient(135deg,#425767_0%,#d7e3d1_100%)] sm:h-[260px] lg:h-[320px]"
+                            class="member-banner relative bg-[linear-gradient(135deg,#425767_0%,#d7e3d1_100%)]"
                             @if($onepage->coverImageUrl())
                                 style="background-image:url('{{ $onepage->coverImageUrl() }}'); background-size:cover; background-position:center;"
                             @endif
@@ -145,8 +157,8 @@
                              Il div ha altezza zero; il cerchio h-24 (96px) è posizionato
                              -top-12 (-48px) → metà nel banner, metà nel corpo bianco.
                         --}}
-                        <div class="relative">
-                            <div class="absolute -top-12 left-5 z-10 sm:left-6">
+                        <div class="member-avatar-wrap">
+                            <div class="member-avatar-pin">
                                 @if ($profile->avatarUrl() || $profile->logoUrl())
                                     <img
                                         src="{{ $profile->avatarUrl() ?: $profile->logoUrl() }}"
