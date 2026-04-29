@@ -20,6 +20,7 @@ class Event extends Model
         'title',
         'slug',
         'description',
+        'cover_image',
         'type',
         'starts_at',
         'ends_at',
@@ -74,5 +75,26 @@ class Event extends Model
         }
 
         return max($this->capacity - $this->attendingRegistrations()->count(), 0);
+    }
+
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(EventInvitation::class);
+    }
+
+    public function coverImageUrl(): ?string
+    {
+        if (! $this->cover_image) {
+            return null;
+        }
+
+        if (
+            str_starts_with($this->cover_image, 'http://')
+            || str_starts_with($this->cover_image, 'https://')
+        ) {
+            return $this->cover_image;
+        }
+
+        return '/media/' . ltrim($this->cover_image, '/');
     }
 }

@@ -61,6 +61,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/register', [EventController::class, 'register'])->name('events.register');
     Route::delete('/events/{event}/register', [EventController::class, 'unregister'])->name('events.unregister');
+    Route::post('/events/{event}/invite', [EventController::class, 'invite'])->name('events.invite');
+    Route::patch('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
 
     Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
     Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');

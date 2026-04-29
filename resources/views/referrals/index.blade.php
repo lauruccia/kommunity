@@ -211,7 +211,7 @@
 
                                 <p class="mt-2 font-semibold text-white">{{ $referral->title }}</p>
                                 <p class="mt-1 text-xs tracking-[0.2em] text-amber-300" aria-label="Valutazione referenza">★★★★★</p>
-                                <p class="mt-0.5 text-xs text-white/60">Da <span class="font-medium">{{ $referral->sender->name }}</span></p>
+                                <p class="mt-0.5 text-xs text-white/60">Da <span class="font-medium">{{ $referral->sender?->name ?? 'Utente eliminato' }}</span></p>
                                 <p class="mt-2 text-sm leading-6 text-white/80">{{ $referral->description }}</p>
 
                                 @if ($referral->company_name || $referral->contact_name)
@@ -307,7 +307,7 @@
 
                                 <p class="mt-2 font-semibold text-white">{{ $referral->title }}</p>
                                 <p class="mt-1 text-xs tracking-[0.2em] text-amber-300" aria-label="Valutazione referenza">★★★★★</p>
-                                <p class="mt-0.5 text-xs text-white/60">Per <span class="font-medium">{{ $referral->recipient->name }}</span></p>
+                                <p class="mt-0.5 text-xs text-white/60">Per <span class="font-medium">{{ $referral->recipient?->name ?? 'Utente eliminato' }}</span></p>
                                 <p class="mt-2 text-sm leading-6 text-white/80">{{ $referral->description }}</p>
 
                                 @if ($referral->company_name || $referral->contact_name)
