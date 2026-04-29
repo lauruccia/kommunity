@@ -22,7 +22,7 @@ class OneToOneStatusChangedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $url   = route('one-to-ones.index', ['request' => $this->oneToOneRequest->id]);
+        $url   = route('one-to-ones.index');
         $label = $this->newStatus->label();
 
         $lines = match ($this->newStatus) {
@@ -50,7 +50,7 @@ class OneToOneStatusChangedNotification extends Notification
             'type'  => 'one_to_one_status_changed',
             'title' => 'One-to-One ' . $label . ' da ' . $this->actorName,
             'body'  => mb_strimwidth($this->oneToOneRequest->goal, 0, 80, '…'),
-            'url'   => route('one-to-ones.index', ['request' => $this->oneToOneRequest->id]),
+            'url'   => route('one-to-ones.index'),
             'icon'  => match ($this->newStatus) {
                 OneToOneStatus::Accepted  => '✅',
                 OneToOneStatus::Declined  => '❌',

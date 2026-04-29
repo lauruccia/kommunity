@@ -20,7 +20,7 @@ class OneToOneReceivedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $requester = $this->oneToOneRequest->requester;
-        $url       = route('one-to-ones.index', ['request' => $this->oneToOneRequest->id]);
+        $url       = route('one-to-ones.index');
 
         return (new MailMessage)
             ->subject('Nuova richiesta One-to-One da ' . $requester->name)
@@ -38,7 +38,7 @@ class OneToOneReceivedNotification extends Notification
             'type'  => 'one_to_one_received',
             'title' => 'Nuova richiesta One-to-One da ' . $this->oneToOneRequest->requester->name,
             'body'  => mb_strimwidth($this->oneToOneRequest->goal, 0, 80, '…'),
-            'url'   => route('one-to-ones.index', ['request' => $this->oneToOneRequest->id]),
+            'url'   => route('one-to-ones.index'),
             'icon'  => '🤝',
             'actor' => $this->oneToOneRequest->requester->name,
         ];

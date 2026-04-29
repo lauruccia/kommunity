@@ -32,7 +32,7 @@
             color: var(--km-msg-text);
         }
 
-        .km-msg-shell { width: min(1840px, calc(100% - 64px)); margin: 0 auto; }
+        .km-msg-shell { width: min(1840px, calc(100% - 48px)); margin: 0 auto; overflow-x: hidden; }
         .km-msg-card {
             background: linear-gradient(145deg, rgba(4, 35, 46, .86), rgba(2, 25, 34, .74));
             border: 1px solid var(--km-msg-line);
@@ -40,7 +40,7 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.18);
             backdrop-filter: blur(16px);
         }
-        .km-msg-layout { display: grid; grid-template-columns: 470px minmax(620px, 1fr) 440px; gap: 18px; align-items: stretch; }
+        .km-msg-layout { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr) minmax(0, 400px); gap: 18px; align-items: stretch; }
         .km-msg-avatar { width: 54px; height: 54px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); object-fit: cover; background: linear-gradient(145deg, #173a47, #071a22); }
         .km-msg-avatar-lg { width: 78px; height: 78px; }
         .km-msg-input {
@@ -58,15 +58,17 @@
         .km-msg-day { display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center; color: var(--km-msg-soft); }
         .km-msg-day::before, .km-msg-day::after { content: ""; height: 1px; background: rgba(153, 194, 202, .12); }
 
-        @media (max-width: 1400px) {
-            .km-msg-layout { grid-template-columns: 380px minmax(520px, 1fr); }
-            .km-msg-detail { grid-column: 1 / -1; }
+        /* Schermi medi: nascondi il pannello dettagli, lista + chat */
+        @media (max-width: 1280px) {
+            .km-msg-layout { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); }
+            .km-msg-detail { display: none; }
         }
 
-        @media (max-width: 980px) {
-            .km-msg-shell { width: min(100% - 28px, 760px); }
-            .km-msg-layout { display: block; }
-            .km-msg-chat, .km-msg-detail { margin-top: 18px; }
+        /* Schermi piccoli: colonna unica */
+        @media (max-width: 860px) {
+            .km-msg-shell { width: calc(100% - 24px); }
+            .km-msg-layout { display: flex; flex-direction: column; }
+            .km-msg-chat { margin-top: 18px; }
             .km-msg-bubble { max-width: 86%; }
         }
     </style>

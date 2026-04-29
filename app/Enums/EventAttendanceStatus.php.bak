@@ -27,21 +27,6 @@ enum EventAttendanceStatus: string
         };
     }
 
-    /**
-     * Stili inline per badge su sfondi scuri (dark-mode).
-     * Usare style="{{ $enum->badgeStyle() }}" invece di class="{{ $enum->badgeClasses() }}"
-     * per evitare problemi di purging Tailwind con classi dinamiche.
-     */
-    public function badgeStyle(): string
-    {
-        return match ($this) {
-            self::Interested    => 'background:rgba(56,189,248,0.18);color:#7dd3fc;border:1px solid rgba(56,189,248,0.25);',
-            self::NotInterested => 'background:rgba(255,255,255,0.10);color:rgba(255,255,255,0.60);border:1px solid rgba(255,255,255,0.18);',
-            self::Attending,
-            self::Registered    => 'background:rgba(52,211,153,0.18);color:#6ee7b7;border:1px solid rgba(52,211,153,0.25);',
-        };
-    }
-
     public static function options(): array
     {
         return collect(self::cases())

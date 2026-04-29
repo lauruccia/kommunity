@@ -53,6 +53,23 @@
 }
 
 /* Avatar centrato che fuoriesce dalla card del 50% in alto */
+.km-directory-1to1-badge{
+    position:absolute;
+    bottom:2px;
+    right:-2px;
+    background:#059669;
+    color:#fff;
+    font-size:0.58rem;
+    font-weight:800;
+    letter-spacing:0.04em;
+    padding:2px 5px;
+    border-radius:999px;
+    border:2px solid #fff;
+    z-index:10;
+    pointer-events:none;
+    line-height:1.3;
+    box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
 .km-directory-avatar-wrap{
     position:absolute!important;
     left:50%!important;
@@ -446,6 +463,9 @@
                                             </div>
                                         </a>
                                     @endif
+                                    @if ($member->has_availability)
+                                        <span class="km-directory-1to1-badge">1:1</span>
+                                    @endif
                                 </div>
 
                             <div class="km-directory-body">
@@ -463,12 +483,7 @@
                                         </p>
                                     @endif
 
-                                    @if ($member->has_availability)
-                                        <span class="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[0.68rem] font-semibold text-emerald-700 ring-1 ring-emerald-200">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                                            Disponibile per 1:1
-                                        </span>
-                                    @endif
+
                                 </div>
 
                                 <div class="my-2 border-t border-stone-100"></div>
@@ -586,3 +601,4 @@
 </div>
 
 </x-app-layout>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
