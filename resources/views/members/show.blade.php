@@ -2,39 +2,74 @@
 <x-app-layout>
     @php
         $viewerIsOwner = auth()->check() && auth()->id() === $user->id;
-        $whatsappUrl   = null;
+
+        $whatsappUrl = null;
+
         if ($profile->show_whatsapp && $profile->allow_whatsapp_contact && $profile->whatsapp_number) {
-            $whatsappUrl = 'https://wa.me/'.preg_replace('/\D+/', '', $profile->whatsapp_number)
-                         .'?text='.urlencode('Ciao '.$user->name.', ti contatto dalla tua pagina su Kommunity.');
+            $whatsappUrl = 'https://wa.me/' . preg_replace('/\D+/', '', $profile->whatsapp_number)
+                . '?text=' . urlencode('Ciao ' . $user->name . ', ti contatto dalla tua pagina su Kommunity.');
         }
     @endphp
 
-    {{-- Stili critici inline: il grid e il banner non dipendono dal CSS compilato --}}
-    @verbatim
     <style>
-        .member-banner{height:200px}
-        @media(min-width:640px){.member-banner{height:260px}}
-        @media(min-width:1024px){.member-banner{height:320px}}
-        @media(min-width:1024px){.member-grid{display:grid;gap:1.5rem;grid-template-columns:320px minmax(0,1fr)}}
-        .member-avatar-wrap{position:relative}
-        .member-avatar-pin{position:absolute;top:-3rem;left:1.25rem;z-index:10}
-        @media(min-width:640px){.member-avatar-pin{left:1.5rem}}
-    </style>
-    @endverbatim
+        .member-banner {
+            height: 200px;
+        }
 
-    {{-- Alpine: gestisce il drawer mobile della sidebar --}}
+        @media (min-width: 640px) {
+            .member-banner {
+                height: 260px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .member-banner {
+                height: 320px;
+            }
+
+            .member-grid {
+                display: grid !important;
+                gap: 1.5rem;
+                grid-template-columns: 320px minmax(0, 1fr) !important;
+                align-items: start;
+            }
+        }
+
+        .member-avatar-wrap {
+            position: relative;
+        }
+
+        .member-avatar-pin {
+            position: absolute;
+            top: -3rem;
+            left: 1.25rem;
+            z-index: 10;
+        }
+
+        @media (min-width: 640px) {
+            .member-avatar-pin {
+                left: 1.5rem;
+            }
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
     <div x-data="{ drawer: false }" class="pb-12 pt-6">
 
-        {{-- ══════════════════════════════════════════
-             MOBILE: barra superiore con trigger drawer
-             Visibile solo < lg
-        ══════════════════════════════════════════ --}}
+        {{-- MOBILE TOP BAR --}}
         <div class="mb-4 flex items-center justify-between px-4 sm:px-6 lg:hidden">
             <div class="min-w-0">
                 <p class="truncate text-sm font-semibold text-stone-900">{{ $user->name }}</p>
-                <p class="truncate text-xs text-stone-500">{{ $profile->company_name ?: 'Attività professionale' }}</p>
+                <p class="truncate text-xs text-stone-500">
+                    {{ $profile->company_name ?: 'Attività professionale' }}
+                </p>
             </div>
+
             <button
+                type="button"
                 @click="drawer = true"
                 class="ms-3 flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50 active:scale-95"
                 aria-label="Apri info membro"
@@ -46,40 +81,25 @@
             </button>
         </div>
 
-        {{-- ══════════════════════════════════════════
-             MOBILE DRAWER — overlay scuro
-        ══════════════════════════════════════════ --}}
+        {{-- MOBILE OVERLAY --}}
         <div
             x-show="drawer"
             x-cloak
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
+            x-transition.opacity
             @click="drawer = false"
             class="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            style="backdrop-filter:blur(2px);"
+            style="backdrop-filter: blur(2px);"
         ></div>
 
-        {{-- ══════════════════════════════════════════
-             MOBILE DRAWER — pannello scorrevole da sinistra
-        ══════════════════════════════════════════ --}}
+        {{-- MOBILE DRAWER --}}
         <div
             x-show="drawer"
             x-cloak
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
+            x-transition
             class="fixed inset-y-0 left-0 z-50 flex w-80 max-w-[88vw] flex-col bg-stone-50 shadow-2xl lg:hidden"
-            style="border-right:1px solid #e7e5e4;"
+            style="border-right: 1px solid #e7e5e4;"
             @click.stop
         >
-            {{-- Intestazione drawer --}}
             <div class="flex shrink-0 items-center justify-between border-b border-stone-200 bg-white px-5 py-4">
                 <div class="min-w-0">
                     <p class="truncate font-semibold text-stone-900">{{ $user->name }}</p>
@@ -91,7 +111,9 @@
                         @endif
                     </p>
                 </div>
+
                 <button
+                    type="button"
                     @click="drawer = false"
                     class="ms-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-stone-500 transition hover:bg-stone-100 hover:text-stone-700"
                     aria-label="Chiudi"
@@ -102,54 +124,55 @@
                 </button>
             </div>
 
-            {{-- Contenuto drawer (scrollabile) --}}
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="flex-1 space-y-4 overflow-y-auto p-4">
                 @include('members._sidebar')
             </div>
 
-            {{-- CTA in fondo al drawer (solo per visitatori) --}}
-            @unless($viewerIsOwner)
-            <div class="shrink-0 border-t border-stone-200 bg-white p-4 space-y-2">
-                <form method="POST" action="{{ route('conversations.start') }}">
-                    @csrf
-                    <input type="hidden" name="recipient_id" value="{{ $user->id }}">
-                    <button type="submit" class="km-button-secondary w-full">Messaggio diretto</button>
-                </form>
-                <form method="POST" action="{{ route('one-to-ones.store') }}">
-                    @csrf
-                    <input type="hidden" name="recipient_id" value="{{ $user->id }}">
-                    <input type="hidden" name="meeting_mode" value="online">
-                    <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
-                    <button type="submit" class="w-full inline-flex items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(66,98,64,0.25)] transition hover:bg-[color:var(--km-accent-strong)]">
-                        Prenota one-to-one
-                    </button>
-                </form>
-            </div>
+            @unless ($viewerIsOwner)
+                <div class="shrink-0 space-y-2 border-t border-stone-200 bg-white p-4">
+                    <form method="POST" action="{{ route('conversations.start') }}">
+                        @csrf
+                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                        <button type="submit" class="km-button-secondary w-full">
+                            Messaggio diretto
+                        </button>
+                    </form>
+
+                    <form method="POST" action="{{ route('one-to-ones.store') }}">
+                        @csrf
+                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                        <input type="hidden" name="meeting_mode" value="online">
+                        <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
+
+                        <button
+                            type="submit"
+                            class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(66,98,64,0.25)] transition hover:bg-[color:var(--km-accent-strong)]"
+                        >
+                            Prenota one-to-one
+                        </button>
+                    </form>
+                </div>
             @endunless
         </div>
 
-        {{-- ══════════════════════════════════════════
-             LAYOUT PRINCIPALE: sidebar + corpo
-        ══════════════════════════════════════════ --}}
+        {{-- MAIN LAYOUT --}}
         <div class="w-full px-4 sm:px-6 lg:px-8">
-            <div class="member-grid">
+            <div id="km-member-grid" class="member-grid grid grid-cols-1 gap-6">
 
-                {{-- SIDEBAR — nascosta su mobile, visibile da lg --}}
+                {{-- SIDEBAR DESKTOP --}}
                 <aside class="hidden space-y-6 lg:block">
                     @include('members._sidebar')
                 </aside>
 
-                {{-- CORPO PAGINA --}}
-                <section class="space-y-6">
+                {{-- CONTENT --}}
+                <section class="min-w-0 space-y-6">
 
-                    {{-- Card principale: banner + avatar a cavallo + info membro --}}
+                    {{-- HERO CARD --}}
                     <div class="km-panel overflow-hidden p-0">
-
-                        {{-- Banner / Cover image --}}
                         <div
                             class="member-banner relative bg-[linear-gradient(135deg,#425767_0%,#d7e3d1_100%)]"
-                            @if($onepage->coverImageUrl())
-                                style="background-image:url('{{ $onepage->coverImageUrl() }}'); background-size:cover; background-position:center;"
+                            @if ($onepage->coverImageUrl())
+                                style="background-image: url('{{ $onepage->coverImageUrl() }}'); background-size: cover; background-position: center;"
                             @endif
                         >
                             <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(22,31,41,0.04),rgba(22,31,41,0.28))]"></div>
@@ -176,32 +199,42 @@
                                 <h1 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
                                     {{ $onepage->hero_title ?: $user->name }}
                                 </h1>
+
                                 <p class="mt-0.5 text-sm text-stone-500">
                                     {{ $onepage->hero_subtitle ?: ($profile->company_name ?: 'Attività professionale') }}
                                 </p>
+
                                 @php
                                     $profsLabel = $profile->professions->isNotEmpty()
                                         ? $profile->professions->pluck('name')->join(', ')
                                         : ($profile->profession?->name ?? null);
                                 @endphp
+
                                 @if ($profsLabel)
                                     <p class="mt-1 text-sm text-stone-600">{{ $profsLabel }}</p>
                                 @endif
                             </div>
 
-                            @unless($viewerIsOwner)
+                            @unless ($viewerIsOwner)
                                 <div class="hidden flex-wrap gap-3 sm:flex">
                                     <form method="POST" action="{{ route('conversations.start') }}">
                                         @csrf
                                         <input type="hidden" name="recipient_id" value="{{ $user->id }}">
-                                        <button type="submit" class="km-button-secondary">Messaggio diretto</button>
+                                        <button type="submit" class="km-button-secondary">
+                                            Messaggio diretto
+                                        </button>
                                     </form>
+
                                     <form method="POST" action="{{ route('one-to-ones.store') }}">
                                         @csrf
                                         <input type="hidden" name="recipient_id" value="{{ $user->id }}">
                                         <input type="hidden" name="meeting_mode" value="online">
                                         <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
-                                        <button type="submit" class="inline-flex items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]">
+
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]"
+                                        >
                                             Prenota one-to-one
                                         </button>
                                     </form>
@@ -210,49 +243,71 @@
                         </div>
                     </div>
 
-                    {{-- Contenuto: Chi sono, Servizi, Networking, Gallery --}}
+                    {{-- DETAILS --}}
                     <div class="km-panel p-5 sm:p-6">
                         <div class="grid gap-8">
 
                             <div>
-                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">Chi sono</h2>
+                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
+                                    Chi sono
+                                </h2>
                                 <p class="mt-2 text-base leading-8 text-stone-700">
                                     {{ $onepage->about_text ?: ($profile->bio ?: 'Profilo professionale in fase di completamento.') }}
                                 </p>
                             </div>
 
                             <div>
-                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">Servizi e competenze</h2>
+                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
+                                    Servizi e competenze
+                                </h2>
                                 <p class="mt-2 text-base leading-8 text-stone-700">
                                     {{ $onepage->services_text ?: ($profile->services ?: 'Questa sezione raccoglierà servizi e competenze professionali del membro.') }}
                                 </p>
+
                                 @if ($profile->skills)
                                     <div class="mt-3 flex flex-wrap gap-2">
                                         @foreach (collect(explode(',', $profile->skills))->map(fn ($item) => trim($item))->filter() as $skill)
-                                            <span class="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">{{ $skill }}</span>
+                                            <span class="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">
+                                                {{ $skill }}
+                                            </span>
                                         @endforeach
                                     </div>
                                 @endif
                             </div>
 
                             <div>
-                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">Obiettivi di networking</h2>
+                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
+                                    Obiettivi di networking
+                                </h2>
                                 <p class="mt-2 text-base leading-8 text-stone-700">
                                     {{ $profile->networking_goals ?: 'Disponibile a creare sinergie, referral qualificati e nuove collaborazioni nella kommunity.' }}
                                 </p>
                             </div>
 
                             <div>
-                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">Gallery</h2>
+                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
+                                    Gallery
+                                </h2>
+
                                 @if ($user->memberGalleryImages->isNotEmpty())
-                                    @php $galleryUrls = $user->memberGalleryImages->map(fn($i) => $i->imageUrl())->values()->all(); @endphp
+                                    @php
+                                        $galleryUrls = $user->memberGalleryImages
+                                            ->map(fn ($image) => $image->imageUrl())
+                                            ->values()
+                                            ->all();
+                                    @endphp
+
                                     <div
                                         x-data="{
                                             open: false,
                                             current: 0,
                                             images: @js($galleryUrls),
-                                            prev() { this.current = (this.current - 1 + this.images.length) % this.images.length; },
-                                            next() { this.current = (this.current + 1) % this.images.length; }
+                                            prev() {
+                                                this.current = (this.current - 1 + this.images.length) % this.images.length;
+                                            },
+                                            next() {
+                                                this.current = (this.current + 1) % this.images.length;
+                                            }
                                         }"
                                         @keydown.escape.window="open && (open = false)"
                                         @keydown.arrow-left.window="open && prev()"
@@ -275,24 +330,24 @@
                                             @endforeach
                                         </div>
 
-                                        {{-- Lightbox --}}
+                                        {{-- LIGHTBOX --}}
                                         <div
                                             x-show="open"
                                             x-cloak
-                                            x-transition:enter="transition ease-out duration-200"
-                                            x-transition:enter-start="opacity-0"
-                                            x-transition:enter-end="opacity-100"
-                                            x-transition:leave="transition ease-in duration-150"
-                                            x-transition:leave-start="opacity-100"
-                                            x-transition:leave-end="opacity-0"
+                                            x-transition.opacity
                                             @click="open = false"
                                             class="fixed inset-0 z-50 flex items-center justify-center bg-black/85"
                                             style="padding: 3.5rem 1rem 1rem;"
                                         >
-                                            <button @click.stop="open = false"
-                                                class="absolute top-3 right-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none focus:ring-2 focus:ring-white/50"
-                                                aria-label="Chiudi">
-                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/></svg>
+                                            <button
+                                                type="button"
+                                                @click.stop="open = false"
+                                                class="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                                aria-label="Chiudi"
+                                            >
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/>
+                                                </svg>
                                             </button>
 
                                             <div class="flex max-h-full max-w-full items-center justify-center" @click.stop>
@@ -300,9 +355,6 @@
                                                     <img
                                                         x-show="current === i"
                                                         :src="url"
-                                                        x-transition:enter="transition ease-out duration-150"
-                                                        x-transition:enter-start="opacity-0 scale-95"
-                                                        x-transition:enter-end="opacity-100 scale-100"
                                                         class="rounded-[1.2rem] object-contain shadow-2xl"
                                                         style="max-height: calc(100vh - 5rem); max-width: min(90vw, 1200px);"
                                                         alt="Gallery"
@@ -310,24 +362,40 @@
                                                 </template>
                                             </div>
 
-                                            <button @click.stop="prev()" x-show="images.length > 1"
-                                                    class="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none">
-                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 010 1.06L8.06 10l3.72 3.72a.75.75 0 11-1.06 1.06l-4.25-4.25a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0z" clip-rule="evenodd"/></svg>
+                                            <button
+                                                type="button"
+                                                @click.stop="prev()"
+                                                x-show="images.length > 1"
+                                                class="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none"
+                                            >
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 010 1.06L8.06 10l3.72 3.72a.75.75 0 11-1.06 1.06l-4.25-4.25a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0z" clip-rule="evenodd"/>
+                                                </svg>
                                             </button>
 
-                                            <button @click.stop="next()" x-show="images.length > 1"
-                                                    class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none">
-                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 010-1.06z" clip-rule="evenodd"/></svg>
+                                            <button
+                                                type="button"
+                                                @click.stop="next()"
+                                                x-show="images.length > 1"
+                                                class="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/40 focus:outline-none"
+                                            >
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 010-1.06z" clip-rule="evenodd"/>
+                                                </svg>
                                             </button>
 
-                                            <div x-show="images.length > 1"
-                                                 class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5"
-                                                 @click.stop>
+                                            <div
+                                                x-show="images.length > 1"
+                                                class="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5"
+                                                @click.stop
+                                            >
                                                 <template x-for="(url, i) in images" :key="i">
-                                                    <button @click="current = i"
-                                                            :class="current === i ? 'bg-white w-4' : 'bg-white/40 w-2'"
-                                                            class="h-2 rounded-full transition-all duration-200">
-                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        @click="current = i"
+                                                        :class="current === i ? 'bg-white w-4' : 'bg-white/40 w-2'"
+                                                        class="h-2 rounded-full transition-all duration-200"
+                                                    ></button>
                                                 </template>
                                             </div>
                                         </div>
@@ -342,15 +410,8 @@
                         </div>
                     </div>
 
-                </section>{{-- fine corpo --}}
-
+                </section>
             </div>
         </div>
-    </div>{{-- fine x-data drawer --}}
-
-    @push('modals')
-    @endpush
-</x-app-layout>
-
-    @endpush
+    </div>
 </x-app-layout>
