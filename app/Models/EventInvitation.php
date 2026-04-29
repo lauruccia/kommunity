@@ -24,9 +24,9 @@ class EventInvitation extends Model
     protected function casts(): array
     {
         return [
-            'notified_at'  => 'datetime',
-            'accepted_at'  => 'datetime',
-            'declined_at'  => 'datetime',
+            'notified_at' => 'datetime',
+            'accepted_at' => 'datetime',
+            'declined_at' => 'datetime',
         ];
     }
 
@@ -43,20 +43,5 @@ class EventInvitation extends Model
     public function inviter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'invited_by');
-    }
-
-    public function isPending(): bool
-    {
-        return $this->status === 'pending';
-    }
-
-    public function isAccepted(): bool
-    {
-        return $this->status === 'accepted';
-    }
-
-    public function isDeclined(): bool
-    {
-        return $this->status === 'declined';
     }
 }

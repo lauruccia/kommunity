@@ -10,8 +10,8 @@ use Illuminate\Notifications\Notification;
 class EventInvitationNotification extends Notification
 {
     public function __construct(
-        private readonly Event $event,
-        private readonly User $inviter,
+        protected Event $event,
+        protected User  $inviter,
     ) {}
 
     public function via(object $notifiable): array
@@ -21,19 +21,14 @@ class EventInvitationNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $dateLabel = $this->event->starts_at->translatedFormat('l d F Y') . ' alle ' . $this->event->starts_at->format('H:i');
-        $location  = $this->event->location ?: 'Online';
-
         return (new MailMessage)
-            ->subject('Sei invitato: ' . $this->event->title)
+            ->subject('Sei stato invitato: ' . $this->event->title)
             ->greeting('Ciao ' . $notifiable->name . '!')
-            ->line($this->inviter->name . ' ti ha invitato all\'evento:')
-            ->line('**' . $this->event->title . '**')
-            ->line('📅 ' . $dateLabel)
-            ->line('📍 ' . $location)
-            ->action('Vedi evento e rispondi', route('events.show', $this->event))
-            ->line('Accedi alla piattaforma Kommunity per confermare la tua partecipazione.')
-            ->salutation('Il team Kommunity');
+            ->line($this->inviter->name . ' ti ha invitato all\'evento: **' . $this->event->title . '**')
+            ->line('📅 ' . $this->event->starts_at->translatedFormat('d F Y') . ' — ' . $this->event->starts_at->format('H:i'))
+            ->line('📍 ' . ($this->event->location ?: 'Online'))
+            ->action('Vedi l\'evento', route('events.show', $this->event))
+            ->line('Puoi rispondere all\'invito direttamente dalla pagina dell\'evento.');
     }
 
     public function toDatabase(object $notifiable): array
@@ -47,5 +42,10 @@ class EventInvitationNotification extends Notification
             'starts_at'    => $this->event->starts_at->toIso8601String(),
             'location'     => $this->event->location ?: 'Online',
         ];
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return $this->toDatabase($notifiable);
     }
 }
