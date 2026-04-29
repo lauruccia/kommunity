@@ -15,14 +15,12 @@ class EventRegistration extends Model
         'user_id',
         'status',
         'registered_at',
-        'reminder_sent_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'registered_at'   => 'datetime',
-            'reminder_sent_at' => 'datetime',
+            'registered_at' => 'datetime',
         ];
     }
 

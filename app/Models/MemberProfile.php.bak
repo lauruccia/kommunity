@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
 
 class MemberProfile extends Model
@@ -182,15 +181,6 @@ class MemberProfile extends Model
     public function companyInterestTypes(): BelongsToMany
     {
         return $this->belongsToMany(CompanyInterestType::class);
-    }
-
-    /**
-     * Slot di disponibilità per One-to-One del membro.
-     * Usa user_id come FK su entrambi i lati (member_profiles.user_id = availability_slots.user_id).
-     */
-    public function availabilitySlots(): HasMany
-    {
-        return $this->hasMany(AvailabilitySlot::class, 'user_id', 'user_id');
     }
 
     // ── Media ────────────────────────────────────────────────────────────────

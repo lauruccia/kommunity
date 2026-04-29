@@ -388,4 +388,6 @@
             </section>
         </div>
     </div>
+
+    @include('onboarding._wizard')
 </x-app-layout>

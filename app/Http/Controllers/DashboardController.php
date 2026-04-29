@@ -20,8 +20,11 @@ class DashboardController extends Controller
             ->whereHas('participants', fn ($query) => $query->where('users.id', $user->id))
             ->pluck('id');
 
+        $showOnboarding = ! optional($user->memberProfile)->onboarding_completed;
+
         return view('dashboard', [
-            'user' => $user,
+            'user'           => $user,
+            'showOnboarding' => $showOnboarding,
             'upcomingEvents' => Event::query()
                 ->where('is_published', true)
                 ->where('starts_at', '>=', now())

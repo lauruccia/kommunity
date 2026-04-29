@@ -14,6 +14,7 @@ use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,13 @@ Route::get('/media/{path}', [MediaController::class, 'show'])
     ->where('path', '.*')
     ->name('media.show');
 
+// ── Dashboard e onboarding: accessibili senza onboarding completato ─────────
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::post('/onboarding/step', [OnboardingController::class, 'saveStep'])->name('onboarding.step');
+    Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+});
+
 // ── Profilo: accessibile anche senza onboarding completato ───────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -52,7 +60,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // ── Sezioni riservate: richiede onboarding completato ────────────────────────
 Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/directory', DirectoryController::class)->name('directory.index');
     Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
 
