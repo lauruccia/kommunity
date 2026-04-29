@@ -97,7 +97,7 @@
                                 @php $statusEnum = \App\Enums\EventAttendanceStatus::tryFrom($registration->status); @endphp
                                 <tr>
                                     <td class="px-5 py-4 font-medium text-white">{{ $registration->user?->name ?? 'Utente eliminato' }}</td>
-                                    <td class="px-5 py-4 text-white/75">{{ $registration->user->memberProfile?->company_name ?? 'Non indicata' }}</td>
+                                    <td class="px-5 py-4 text-white/75">{{ $registration->user?->memberProfile?->company_name ?? 'Non indicata' }}</td>
                                     <td class="px-5 py-4">
                                         <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $statusEnum?->badgeClasses() ?? 'bg-white/[.075] text-white/80' }}">
                                             {{ $statusEnum?->label() ?? $registration->status }}
@@ -120,7 +120,7 @@
             <aside class="space-y-6">
 
                 {{-- Flash --}}
-                @foreach (['event-full' => ['amber','Posti esauriti per questo evento.'], 'event-response-updated' => ['emerald','La tua risposta è stata aggiornata.'], 'event-unregistered' => ['stone','Partecipazione annullata.']] as $key => [$color, $msg])
+                @foreach (['event-full' => ['amber','Posti esauriti per questo evento.'], 'event-response-updated' => ['emerald','La tua risposta è stata aggiornata.'], 'event-unregistered' => ['stone','Partecipazione annullata.'], 'event-cancelled' => ['red','Evento annullato.']] as $key => [$color, $msg])
                 @if (session('status') === $key)
                 <div class="rounded-[1.75rem] border border-{{ $color }}-200 bg-{{ $color }}-50 px-5 py-4 text-sm text-{{ $color }}-800">{{ $msg }}</div>
                 @endif
@@ -148,4 +148,103 @@
                     @if ($currentRegistration)
                     <form method="POST" action="{{ route('events.unregister', $event) }}" class="mt-3">
                         @csrf
-            
+                        @method('DELETE')
+                        <button type="submit" class="w-full rounded-full border border-white/10 px-4 py-3 text-sm font-semibold text-white/50 transition hover:border-red-400/40 hover:text-red-300">
+                            Rimuovi partecipazione
+                        </button>
+                    </form>
+                    @endif
+                </div>
+
+                {{-- Gestione evento (solo manager) --}}
+                @if ($canManageEvent)
+                <div class="km-portal-panel p-6">
+                    <p class="text-xs uppercase tracking-[0.24em] text-white/60">Gestione</p>
+                    <div class="mt-4 grid gap-2">
+                        <a href="{{ url('/admin/events/' . $event->id . '/edit') }}"
+                           class="block w-full rounded-full border border-white/10 bg-white/10 px-4 py-3 text-center text-sm font-semibold text-white/80 transition hover:bg-white/15">
+                            Modifica evento
+                        </a>
+
+                        @if ($event->status !== 'cancelled')
+                        <form method="POST" action="{{ route('events.cancel', $event) }}"
+                              onsubmit="return confirm('Sei sicuro di voler annullare questo evento?')">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                    class="w-full rounded-full border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20">
+                                Annulla evento
+                            </button>
+                        </form>
+                        @else
+                        <p class="rounded-full border border-red-400/30 bg-red-500/10 px-4 py-3 text-center text-sm font-semibold text-red-300">
+                            Evento annullato
+                        </p>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Inviti (solo manager) --}}
+                @if ($allUsers->isNotEmpty())
+                <div class="km-portal-panel p-6" x-data="{
+                    open: false,
+                    userSearch: '',
+                    selectedUserIds: [],
+                    get filteredUsers() {
+                        const q = this.userSearch.toLowerCase();
+                        return {{ Js::from($allUsers) }}.filter(u =>
+                            !q || u.label.toLowerCase().includes(q)
+                        );
+                    },
+                    toggle(id) {
+                        const idx = this.selectedUserIds.indexOf(id);
+                        if (idx === -1) this.selectedUserIds.push(id);
+                        else this.selectedUserIds.splice(idx, 1);
+                    }
+                }">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs uppercase tracking-[0.24em] text-white/60">Inviti</p>
+                        <span class="rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">{{ $invitationCount }} inviati</span>
+                    </div>
+
+                    <button @click="open = !open" class="mt-4 w-full rounded-full border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/15">
+                        <span x-text="open ? 'Chiudi' : 'Invita membri'"></span>
+                    </button>
+
+                    <div x-show="open" x-transition class="mt-4 space-y-3">
+                        <input type="text" x-model.debounce.200ms="userSearch"
+                               placeholder="Cerca membro..."
+                               class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+
+                        <div class="max-h-48 space-y-1 overflow-y-auto">
+                            <template x-for="user in filteredUsers" :key="user.id">
+                                <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/5">
+                                    <input type="checkbox" :value="user.id"
+                                           @change="toggle(user.id)"
+                                           :checked="selectedUserIds.includes(user.id)"
+                                           class="rounded border-white/20 bg-white/10 text-emerald-500">
+                                    <span class="text-sm text-white/80" x-text="user.label"></span>
+                                </label>
+                            </template>
+                        </div>
+
+                        <form method="POST" action="{{ route('events.invite', $event) }}">
+                            @csrf
+                            <template x-for="id in selectedUserIds" :key="id">
+                                <input type="hidden" name="user_ids[]" :value="id">
+                            </template>
+                            <button type="submit"
+                                    :disabled="selectedUserIds.length === 0"
+                                    class="w-full rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-40">
+                                Invia inviti (<span x-text="selectedUserIds.length"></span>)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                @endif
+                @endif
+
+            </aside>
+        </div>
+    </div>
+</x-app-layout>
