@@ -10,6 +10,18 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('name') && (! $this->filled('first_name') || ! $this->filled('last_name'))) {
+            $parts = preg_split('/\s+/', trim((string) $this->input('name')), 2);
+
+            $this->merge([
+                'first_name' => $this->input('first_name') ?: ($parts[0] ?? ''),
+                'last_name' => $this->input('last_name') ?: ($parts[1] ?? ''),
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -20,7 +32,9 @@ class ProfileUpdateRequest extends FormRequest
         $videoLimits = app(VideoUploadLimits::class);
 
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:120'],
+            'last_name' => ['required', 'string', 'max:120'],
+            'name' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -32,11 +46,11 @@ class ProfileUpdateRequest extends FormRequest
             'company_name' => ['nullable', 'string', 'max:255'],
             'profession_id' => ['nullable', 'exists:professions,id'],
             'profession_other' => ['nullable', 'string', 'max:255'],
-            'profession_ids' => ['nullable', 'array'],
+            'profession_ids' => ['required', 'array', 'min:1'],
             'profession_ids.*' => ['integer', 'exists:professions,id'],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['integer', 'exists:categories,id'],
-            'city_id' => ['nullable', 'exists:cities,id'],
+            'city_id' => ['required', 'exists:cities,id'],
             'region_id' => ['nullable', 'exists:regions,id'],
             'company_interest_type_ids' => ['nullable', 'array'],
             'company_interest_type_ids.*' => ['integer', 'exists:company_interest_types,id'],
@@ -49,7 +63,7 @@ class ProfileUpdateRequest extends FormRequest
             'linkedin_url' => ['nullable', 'string', 'max:255'],
             'facebook_url' => ['nullable', 'string', 'max:255'],
             'instagram_url' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30'],
             'whatsapp_number' => ['nullable', 'string', 'max:30'],
             'avatar' => ['nullable', 'image', 'max:4096'],
             'logo' => ['nullable', 'image', 'max:4096'],

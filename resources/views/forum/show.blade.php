@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="km-panel overflow-hidden p-0">
-            <div class="px-6 py-5" style="background: linear-gradient(180deg, rgba(232,239,247,0.96) 0%, rgba(214,226,238,0.96) 100%); color: #1f3445;">
+        <div class="km-portal-panel overflow-hidden p-0">
+            <div class="px-6 py-5">
                 <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div>
-                        <div class="text-xs uppercase tracking-[0.22em]" style="color: #6a8599;">Board index / {{ $thread->category?->name ?? 'Community' }}</div>
+                        <div class="text-xs uppercase tracking-[0.22em]" style="color: rgba(248,250,252,.55);">Board index / {{ $thread->category?->name ?? 'Community' }}</div>
                         <h1 class="mt-2 text-3xl font-semibold">{{ $thread->title }}</h1>
-                        <div class="mt-2 flex flex-wrap items-center gap-2 text-sm" style="color: #5f778b;">
+                        <div class="mt-2 flex flex-wrap items-center gap-2 text-sm" style="color: rgba(248,250,252,.62);">
                             <span>Topic aperto da {{ $thread->user->name }}</span>
                             <span>·</span>
                             <span>{{ $thread->created_at->format('d/m/Y H:i') }}</span>
@@ -19,24 +19,24 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-[#35526b]" style="background: #ffffff; border-color: #c8d7e2;">Torna al forum</a>
+                        <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: #ffffff; border-color: #c8d7e2;">Torna al forum</a>
                         @unless($thread->is_locked)
                             <a href="#reply-box" class="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold text-white" style="background: #4f7d4a;">Rispondi</a>
                         @endunless
                     </div>
                 </div>
             </div>
-            <div class="bg-[#e7f0f7] px-5 py-3 text-sm font-semibold text-[#35526b]">
-                <a href="{{ route('forum.index') }}" class="hover:text-[#0f76b0]">Board index</a>
+            <div class="bg-white/[.045] px-5 py-3 text-sm font-semibold text-white/80">
+                <a href="{{ route('forum.index') }}" class="hover:text-[color:#9AD84A]">Board index</a>
                 <span class="mx-2 text-[#7a93a5]">/</span>
-                <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="hover:text-[#0f76b0]">{{ $thread->category?->name ?? 'Community' }}</a>
+                <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="hover:text-[color:#9AD84A]">{{ $thread->category?->name ?? 'Community' }}</a>
                 <span class="mx-2 text-[#7a93a5]">/</span>
                 <span>{{ $thread->title }}</span>
             </div>
         </div>
     </x-slot>
 
-    <div class="pb-12">
+    <div class="km-portal-bg km-portal-page pb-12 pt-6">
         <div class="km-shell space-y-5">
             @if (session('status') === 'thread-replied')
                 <div class="rounded-[0.9rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
@@ -44,19 +44,19 @@
                 </div>
             @endif
 
-            <div class="flex items-center justify-between rounded-[1rem] border border-[#cadce9] bg-[#eef5fb] px-5 py-3 text-sm text-[#4f6a7d]">
+            <div class="flex items-center justify-between rounded-[1rem] border border-white/10 bg-white/[.045] px-5 py-3 text-sm text-white/70">
                 <div>{{ $thread->posts->count() }} messaggi nella discussione</div>
                 <div>{{ now()->format('d/m/Y H:i') }}</div>
             </div>
 
             @foreach ($thread->posts as $index => $post)
-                <article id="post-{{ $post->id }}" class="overflow-hidden rounded-[1rem] border border-[#9fc2da] bg-white shadow-[0_12px_28px_rgba(60,79,94,0.10)]">
+                <article id="post-{{ $post->id }}" class="overflow-hidden rounded-[1rem] border border-white/10 bg-white/10 shadow-[0_12px_28px_rgba(60,79,94,0.10)]">
                     <div class="grid lg:grid-cols-[230px_minmax(0,1fr)]">
-                        <aside class="border-b border-[#d9e8f2] bg-[#eef5fb] px-5 py-5 lg:border-b-0 lg:border-r">
-                            <div class="text-lg font-semibold text-[#224159]">{{ $post->user->name }}</div>
-                            <div class="mt-2 text-sm text-[#597487]">{{ $post->user->memberProfile?->company_name ?: 'Membro community' }}</div>
+                        <aside class="border-b border-white/10 bg-white/[.045] px-5 py-5 lg:border-b-0 lg:border-r">
+                            <div class="text-lg font-semibold text-white">{{ $post->user->name }}</div>
+                            <div class="mt-2 text-sm text-white/60">{{ $post->user->memberProfile?->company_name ?: 'Membro community' }}</div>
                             @if ($post->user->memberProfile?->city?->name)
-                                <div class="mt-1 text-xs uppercase tracking-[0.14em] text-[#728ba0]">{{ $post->user->memberProfile->city->name }}</div>
+                                <div class="mt-1 text-xs uppercase tracking-[0.14em] text-white/45">{{ $post->user->memberProfile->city->name }}</div>
                             @endif
                             <div class="mt-5 space-y-2 text-xs text-[#6c869a]">
                                 <div>Messaggio #{{ $index + 1 }}</div>
@@ -85,18 +85,18 @@
                                 </div>
                             </div>
 
-                            <div class="bg-[#f9fcfe] px-5 py-5">
-                                <div class="prose prose-stone max-w-none text-sm leading-7 text-[#294256]">
+                            <div class="bg-white/[.035] px-5 py-5">
+                                <div class="prose prose-stone max-w-none text-sm leading-7 text-white">
                                     {!! nl2br(e($post->content)) !!}
                                 </div>
 
                                 @foreach ($post->replies as $reply)
-                                    <div class="mt-5 rounded-[0.95rem] border border-[#cfe0ec] bg-white px-4 py-4">
-                                        <div class="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.14em] text-[#6f879a]">
+                                    <div class="mt-5 rounded-[0.95rem] border border-white/10 bg-white/10 px-4 py-4">
+                                        <div class="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.14em] text-white/55">
                                             <span>Replica di {{ $reply->user->name }}</span>
                                             <span>{{ $reply->created_at->format('d/m/Y H:i') }}</span>
                                         </div>
-                                        <div class="mt-3 text-sm leading-7 text-[#35526b]">{!! nl2br(e($reply->content)) !!}</div>
+                                        <div class="mt-3 text-sm leading-7 text-white/80">{!! nl2br(e($reply->content)) !!}</div>
                                     </div>
                                 @endforeach
                             </div>
@@ -105,11 +105,11 @@
                 </article>
             @endforeach
 
-            <div id="reply-box" class="km-panel overflow-hidden p-0">
+            <div id="reply-box" class="km-portal-panel overflow-hidden p-0">
                 <div class="px-5 py-3 text-white" style="background: linear-gradient(180deg, #7ea1b8 0%, #607b8f 100%);">
                     <h2 class="text-xl font-semibold">Post reply</h2>
                 </div>
-                <form method="POST" action="{{ route('forum.reply', $thread) }}" class="space-y-4 bg-[#f7fbff] px-5 py-5">
+                <form method="POST" action="{{ route('forum.reply', $thread) }}" class="space-y-4 bg-white/[.035] px-5 py-5">
                     @csrf
                     <input type="hidden" name="parent_id" id="forum-parent-id" value="">
                     <div id="forum-reply-context" class="hidden rounded-[0.9rem] border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
@@ -123,7 +123,7 @@
                             Questa discussione e chiusa. Non puoi aggiungere altre risposte.
                         </div>
                     @else
-                        <textarea name="content" id="forum-reply-textarea" rows="6" class="w-full rounded-[1rem] border border-[#cad8e4] bg-white px-4 py-3 text-[15px] text-[#294256] outline-none" placeholder="Scrivi la tua risposta o quota un messaggio sopra" required>{{ old('content') }}</textarea>
+                        <textarea name="content" id="forum-reply-textarea" rows="6" class="w-full rounded-[1rem] border border-white/15 bg-white/10 px-4 py-3 text-[15px] text-white outline-none" placeholder="Scrivi la tua risposta o quota un messaggio sopra" required>{{ old('content') }}</textarea>
                         <div class="flex justify-end">
                             <button type="submit" class="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold text-white" style="background: #4f7d4a;">Pubblica risposta</button>
                         </div>

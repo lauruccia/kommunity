@@ -132,6 +132,8 @@ class ReferralController extends Controller
     {
         return OneToOneRequest::query()
             ->where('status', OneToOneStatus::Completed->value)
+            ->whereNotNull('requester_completed_at')
+            ->whereNotNull('recipient_completed_at')
             ->where(function ($query) use ($userId): void {
                 $query
                     ->where('requester_id', $userId)

@@ -8,38 +8,42 @@
             <p class="mt-2 text-sm leading-7 text-stone-600">
                 Invia opportunità, traccia lo stato e tieni ordinata la pipeline relazionale della community.
             </p>
+            <div class="mt-3 flex items-center gap-2 text-sm text-amber-500">
+                <span class="tracking-[0.2em]" aria-label="Valutazione recensione">★★★★★</span>
+                <span class="text-stone-600">Referenze qualificate dalla rete Kommunity</span>
+            </div>
 
             {{-- STATS --}}
             <div class="mt-4 flex flex-wrap gap-3">
-                <div class="flex items-center gap-2 rounded-2xl bg-white/60 px-4 py-2 text-sm border" style="border-color: var(--km-line);">
-                    <span class="font-semibold text-stone-800">{{ $summary['sent'] }}</span>
+                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
+                    <span class="font-semibold text-stone-950">{{ $summary['sent'] }}</span>
                     <span class="text-stone-500">inviate</span>
                 </div>
-                <div class="flex items-center gap-2 rounded-2xl bg-white/60 px-4 py-2 text-sm border" style="border-color: var(--km-line);">
-                    <span class="font-semibold text-stone-800">{{ $summary['received'] }}</span>
+                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
+                    <span class="font-semibold text-stone-950">{{ $summary['received'] }}</span>
                     <span class="text-stone-500">ricevute</span>
                 </div>
-                <div class="flex items-center gap-2 rounded-2xl bg-white/60 px-4 py-2 text-sm border" style="border-color: var(--km-line);">
-                    <span class="font-semibold text-stone-800">{{ $summary['open'] }}</span>
+                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
+                    <span class="font-semibold text-stone-950">{{ $summary['open'] }}</span>
                     <span class="text-stone-500">aperte</span>
                 </div>
-                <div class="flex items-center gap-2 rounded-2xl bg-white/60 px-4 py-2 text-sm border" style="border-color: var(--km-line);">
-                    <span class="font-semibold text-stone-800">€ {{ number_format($summary['value'], 0, ',', '.') }}</span>
+                <div class="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white/70 px-4 py-2 text-sm">
+                    <span class="font-semibold text-stone-950">€ {{ number_format($summary['value'], 0, ',', '.') }}</span>
                     <span class="text-stone-500">pipeline</span>
                 </div>
             </div>
         </div>
     </x-slot>
 
-    <div class="pb-16">
+    <div class="km-portal-bg km-portal-page pb-16 pt-6">
         <div class="km-shell mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
 
             {{-- SIDEBAR: NUOVA REFERENZA --}}
             <aside class="space-y-4">
-                <div class="km-panel p-6">
-                    <h2 class="text-lg font-semibold text-stone-950">Nuova referenza</h2>
-                    <p class="mt-1 text-sm leading-6 text-stone-500">
-                        Puoi inviare una referenza solo a membri con cui hai già completato almeno un one-to-one.
+                <div class="km-portal-panel p-6">
+                    <h2 class="text-lg font-semibold text-white">Nuova referenza</h2>
+                    <p class="mt-1 text-sm leading-6 text-white/60">
+                        Puoi inviare una referenza solo a membri con cui hai un one-to-one completato e confermato da entrambi.
                     </p>
 
                     {{-- FLASH --}}
@@ -65,17 +69,17 @@
                     @endif
 
                     @if ($members->isEmpty())
-                        <div class="mt-4 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4 text-sm text-stone-600">
-                            <p class="font-medium text-stone-800">Nessun membro idoneo</p>
-                            <p class="mt-1">Completa prima un one-to-one per poter inviare una referenza.</p>
+                        <div class="mt-4 rounded-2xl border border-white/10 bg-white/[.045] px-4 py-4 text-sm text-white/75">
+                            <p class="font-medium text-white/90">Nessun membro idoneo</p>
+                            <p class="mt-1">Completa e conferma un one-to-one da entrambe le parti per poter inviare una referenza.</p>
                         </div>
                     @else
                         <form method="POST" action="{{ route('referrals.store') }}" class="mt-5 space-y-3">
                             @csrf
 
                             <div>
-                                <label class="mb-1.5 block text-xs font-medium text-stone-600">Destinatario *</label>
-                                <select name="recipient_id" class="km-input" required>
+                                <label class="mb-1.5 block text-xs font-medium text-white/75">Destinatario *</label>
+                                <select name="recipient_id" class="km-portal-input" required>
                                     <option value="">Seleziona destinatario…</option>
                                     @foreach ($members as $member)
                                         <option value="{{ $member->id }}" @selected((string) old('recipient_id') === (string) $member->id)>
@@ -86,34 +90,34 @@
                             </div>
 
                             <div>
-                                <label class="mb-1.5 block text-xs font-medium text-stone-600">Titolo opportunità *</label>
-                                <input type="text" name="title" value="{{ old('title') }}" class="km-input" placeholder="Es. Progetto sito web e-commerce" required>
+                                <label class="mb-1.5 block text-xs font-medium text-white/75">Titolo opportunità *</label>
+                                <input type="text" name="title" value="{{ old('title') }}" class="km-portal-input" placeholder="Es. Progetto sito web e-commerce" required>
                             </div>
 
                             <div>
-                                <label class="mb-1.5 block text-xs font-medium text-stone-600">Descrizione *</label>
-                                <textarea name="description" rows="4" class="km-input" placeholder="Descrivi l'opportunità, il contesto e cosa si cerca…" required>{{ old('description') }}</textarea>
+                                <label class="mb-1.5 block text-xs font-medium text-white/75">Descrizione *</label>
+                                <textarea name="description" rows="4" class="km-portal-input" placeholder="Descrivi l'opportunità, il contesto e cosa si cerca…" required>{{ old('description') }}</textarea>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-stone-600">Azienda</label>
-                                    <input type="text" name="company_name" value="{{ old('company_name') }}" class="km-input" placeholder="Nome azienda">
+                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Azienda</label>
+                                    <input type="text" name="company_name" value="{{ old('company_name') }}" class="km-portal-input" placeholder="Nome azienda">
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-stone-600">Referente</label>
-                                    <input type="text" name="contact_name" value="{{ old('contact_name') }}" class="km-input" placeholder="Nome contatto">
+                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Referente</label>
+                                    <input type="text" name="contact_name" value="{{ old('contact_name') }}" class="km-portal-input" placeholder="Nome contatto">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-stone-600">Valore stimato (€)</label>
-                                    <input type="number" step="0.01" min="0" name="estimated_value" value="{{ old('estimated_value') }}" class="km-input" placeholder="0">
+                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Valore stimato (€)</label>
+                                    <input type="number" step="0.01" min="0" name="estimated_value" value="{{ old('estimated_value') }}" class="km-portal-input" placeholder="0">
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-xs font-medium text-stone-600">Priorità</label>
-                                    <select name="priority" class="km-input">
+                                    <label class="mb-1.5 block text-xs font-medium text-white/75">Priorità</label>
+                                    <select name="priority" class="km-portal-input">
                                         <option value="low" @selected(old('priority') === 'low')>🟢 Bassa</option>
                                         <option value="medium" @selected(old('priority', 'medium') === 'medium')>🟡 Media</option>
                                         <option value="high" @selected(old('priority') === 'high')>🔴 Alta</option>
@@ -122,8 +126,8 @@
                             </div>
 
                             <div>
-                                <label class="mb-1.5 block text-xs font-medium text-stone-600">Note interne <span class="font-normal text-stone-400">(opzionale)</span></label>
-                                <textarea name="notes" rows="2" class="km-input" placeholder="Contesto o info riservate per il destinatario">{{ old('notes') }}</textarea>
+                                <label class="mb-1.5 block text-xs font-medium text-white/75">Note interne <span class="font-normal text-white/45">(opzionale)</span></label>
+                                <textarea name="notes" rows="2" class="km-portal-input" placeholder="Contesto o info riservate per il destinatario">{{ old('notes') }}</textarea>
                             </div>
 
                             <button type="submit" class="km-button-primary w-full">Invia referenza</button>
@@ -136,15 +140,15 @@
             <section class="min-w-0 space-y-5">
 
                 {{-- FILTRI --}}
-                <div class="km-panel p-5">
+                <div class="km-portal-panel p-5">
                     <form method="GET" action="{{ route('referrals.index') }}" class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
                         <div class="flex-1 min-w-[180px]">
-                            <label class="mb-1.5 block text-xs font-medium text-stone-600">Cerca</label>
-                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-input" placeholder="Titolo, azienda, contatto…">
+                            <label class="mb-1.5 block text-xs font-medium text-white/75">Cerca</label>
+                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-portal-input" placeholder="Titolo, azienda, contatto…">
                         </div>
                         <div class="min-w-[160px]">
-                            <label class="mb-1.5 block text-xs font-medium text-stone-600">Stato</label>
-                            <select name="status" class="km-input">
+                            <label class="mb-1.5 block text-xs font-medium text-white/75">Stato</label>
+                            <select name="status" class="km-portal-input">
                                 <option value="">Tutti gli stati</option>
                                 @foreach ($statusOptions as $value => $label)
                                     <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
@@ -152,8 +156,8 @@
                             </select>
                         </div>
                         <div class="min-w-[140px]">
-                            <label class="mb-1.5 block text-xs font-medium text-stone-600">Priorità</label>
-                            <select name="priority" class="km-input">
+                            <label class="mb-1.5 block text-xs font-medium text-white/75">Priorità</label>
+                            <select name="priority" class="km-portal-input">
                                 <option value="">Tutte</option>
                                 <option value="high" @selected(($filters['priority'] ?? '') === 'high')>🔴 Alta</option>
                                 <option value="medium" @selected(($filters['priority'] ?? '') === 'medium')>🟡 Media</option>
@@ -170,10 +174,10 @@
                 </div>
 
                 {{-- REFERENZE RICEVUTE --}}
-                <div class="km-panel overflow-hidden p-0">
+                <div class="km-portal-panel overflow-hidden p-0">
                     <div class="border-b px-6 py-4" style="border-color: var(--km-line);">
-                        <p class="text-xs uppercase tracking-[0.22em] text-stone-500">Da gestire</p>
-                        <h2 class="mt-1 text-xl font-semibold text-stone-950">Referenze ricevute</h2>
+                        <p class="text-xs uppercase tracking-[0.22em] text-white/60">Da gestire</p>
+                        <h2 class="mt-1 text-xl font-semibold text-white">Referenze ricevute</h2>
                     </div>
 
                     <div>
@@ -186,9 +190,9 @@
                                     'negotiating' => 'bg-orange-50 text-orange-700 border-orange-200',
                                     'won'         => 'bg-green-50 text-green-700 border-green-200',
                                     'lost'        => 'bg-red-50 text-red-700 border-red-200',
-                                    'archived'    => 'bg-stone-100 text-stone-500 border-stone-200',
+                                    'archived'    => 'bg-white/[.075] text-white/60 border-white/10',
                                 ];
-                                $sc = $statusColors[$referral->status->value] ?? 'bg-stone-100 text-stone-500 border-stone-200';
+                                $sc = $statusColors[$referral->status->value] ?? 'bg-white/[.075] text-white/60 border-white/10';
                                 $priorityLabel = match($referral->priority) { 'high' => '🔴 Alta', 'low' => '🟢 Bassa', default => '🟡 Media' };
                             @endphp
                             <div class="border-b p-5" style="border-color: var(--km-line);">
@@ -199,18 +203,19 @@
                                         <span class="inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] {{ $sc }}">
                                             {{ $referral->status->label() }}
                                         </span>
-                                        <span class="inline-block rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-[11px] font-medium">
+                                        <span class="inline-block rounded-full border border-white/10 bg-white/[.045] px-2.5 py-0.5 text-[11px] font-medium">
                                             {{ $priorityLabel }}
                                         </span>
                                     </div>
                                 </div>
 
-                                <p class="mt-2 font-semibold text-stone-950">{{ $referral->title }}</p>
-                                <p class="mt-0.5 text-xs text-stone-500">Da <span class="font-medium">{{ $referral->sender->name }}</span></p>
-                                <p class="mt-2 text-sm leading-6 text-stone-700">{{ $referral->description }}</p>
+                                <p class="mt-2 font-semibold text-white">{{ $referral->title }}</p>
+                                <p class="mt-1 text-xs tracking-[0.2em] text-amber-300" aria-label="Valutazione referenza">★★★★★</p>
+                                <p class="mt-0.5 text-xs text-white/60">Da <span class="font-medium">{{ $referral->sender->name }}</span></p>
+                                <p class="mt-2 text-sm leading-6 text-white/80">{{ $referral->description }}</p>
 
                                 @if ($referral->company_name || $referral->contact_name)
-                                    <p class="mt-2 text-xs text-stone-500">
+                                    <p class="mt-2 text-xs text-white/60">
                                         @if ($referral->company_name) {{ $referral->company_name }} @endif
                                         @if ($referral->company_name && $referral->contact_name) · @endif
                                         @if ($referral->contact_name) {{ $referral->contact_name }} @endif
@@ -218,7 +223,7 @@
                                 @endif
 
                                 @if ($referral->notes)
-                                    <p class="mt-2 rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-600">
+                                    <p class="mt-2 rounded-xl bg-white/[.045] px-3 py-2 text-xs text-white/75">
                                         <span class="font-medium">Nota:</span> {{ $referral->notes }}
                                     </p>
                                 @endif
@@ -230,24 +235,24 @@
 
                                 {{-- FORM AGGIORNA --}}
                                 <details class="mt-4">
-                                    <summary class="cursor-pointer text-xs font-medium text-stone-500 hover:text-stone-700 select-none">
+                                    <summary class="cursor-pointer text-xs font-medium text-white/60 hover:text-white/80 select-none">
                                         Aggiorna stato →
                                     </summary>
                                     <form method="POST" action="{{ route('referrals.status', $referral) }}" class="mt-3 space-y-2">
                                         @csrf @method('PATCH')
-                                        <select name="status" class="km-input text-sm">
+                                        <select name="status" class="km-portal-input text-sm">
                                             @foreach ($statusOptions as $value => $label)
                                                 <option value="{{ $value }}" @selected($referral->status->value === $value)>{{ $label }}</option>
                                             @endforeach
                                         </select>
-                                        <textarea name="outcome" rows="2" class="km-input text-sm" placeholder="Esito o aggiornamento…">{{ $referral->outcome }}</textarea>
-                                        <textarea name="notes" rows="2" class="km-input text-sm" placeholder="Note interne…">{{ $referral->notes }}</textarea>
+                                        <textarea name="outcome" rows="2" class="km-portal-input text-sm" placeholder="Esito o aggiornamento…">{{ $referral->outcome }}</textarea>
+                                        <textarea name="notes" rows="2" class="km-portal-input text-sm" placeholder="Note interne…">{{ $referral->notes }}</textarea>
                                         <button type="submit" class="km-button-secondary w-full text-sm">Salva aggiornamento</button>
                                     </form>
                                 </details>
                             </div>
                         @empty
-                            <div class="px-6 py-10 text-center text-sm text-stone-400">
+                            <div class="px-6 py-10 text-center text-sm text-white/45">
                                 Nessuna referenza ricevuta.
                             </div>
                         @endforelse
@@ -261,10 +266,10 @@
                 </div>
 
                 {{-- REFERENZE INVIATE --}}
-                <div class="km-panel overflow-hidden p-0">
+                <div class="km-portal-panel overflow-hidden p-0">
                     <div class="border-b px-6 py-4" style="border-color: var(--km-line);">
-                        <p class="text-xs uppercase tracking-[0.22em] text-stone-500">Archivio</p>
-                        <h2 class="mt-1 text-xl font-semibold text-stone-950">Referenze inviate</h2>
+                        <p class="text-xs uppercase tracking-[0.22em] text-white/60">Archivio</p>
+                        <h2 class="mt-1 text-xl font-semibold text-white">Referenze inviate</h2>
                     </div>
 
                     <div>
@@ -277,9 +282,9 @@
                                     'negotiating' => 'bg-orange-50 text-orange-700 border-orange-200',
                                     'won'         => 'bg-green-50 text-green-700 border-green-200',
                                     'lost'        => 'bg-red-50 text-red-700 border-red-200',
-                                    'archived'    => 'bg-stone-100 text-stone-500 border-stone-200',
+                                    'archived'    => 'bg-white/[.075] text-white/60 border-white/10',
                                 ];
-                                $sc = $statusColors[$referral->status->value] ?? 'bg-stone-100 text-stone-500 border-stone-200';
+                                $sc = $statusColors[$referral->status->value] ?? 'bg-white/[.075] text-white/60 border-white/10';
                                 $priorityLabel = match($referral->priority) { 'high' => '🔴 Alta', 'low' => '🟢 Bassa', default => '🟡 Media' };
                             @endphp
                             <div class="border-b p-5" style="border-color: var(--km-line);">
@@ -289,23 +294,24 @@
                                         <span class="inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] {{ $sc }}">
                                             {{ $referral->status->label() }}
                                         </span>
-                                        <span class="inline-block rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-[11px] font-medium">
+                                        <span class="inline-block rounded-full border border-white/10 bg-white/[.045] px-2.5 py-0.5 text-[11px] font-medium">
                                             {{ $priorityLabel }}
                                         </span>
                                         @if ($referral->estimated_value)
-                                            <span class="inline-block rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-[11px] font-medium text-stone-600">
+                                            <span class="inline-block rounded-full border border-white/10 bg-white/[.045] px-2.5 py-0.5 text-[11px] font-medium text-white/75">
                                                 € {{ number_format((float) $referral->estimated_value, 0, ',', '.') }}
                                             </span>
                                         @endif
                                     </div>
                                 </div>
 
-                                <p class="mt-2 font-semibold text-stone-950">{{ $referral->title }}</p>
-                                <p class="mt-0.5 text-xs text-stone-500">Per <span class="font-medium">{{ $referral->recipient->name }}</span></p>
-                                <p class="mt-2 text-sm leading-6 text-stone-700">{{ $referral->description }}</p>
+                                <p class="mt-2 font-semibold text-white">{{ $referral->title }}</p>
+                                <p class="mt-1 text-xs tracking-[0.2em] text-amber-300" aria-label="Valutazione referenza">★★★★★</p>
+                                <p class="mt-0.5 text-xs text-white/60">Per <span class="font-medium">{{ $referral->recipient->name }}</span></p>
+                                <p class="mt-2 text-sm leading-6 text-white/80">{{ $referral->description }}</p>
 
                                 @if ($referral->company_name || $referral->contact_name)
-                                    <p class="mt-2 text-xs text-stone-500">
+                                    <p class="mt-2 text-xs text-white/60">
                                         @if ($referral->company_name) {{ $referral->company_name }} @endif
                                         @if ($referral->company_name && $referral->contact_name) · @endif
                                         @if ($referral->contact_name) {{ $referral->contact_name }} @endif
@@ -313,7 +319,7 @@
                                 @endif
 
                                 @if ($referral->notes)
-                                    <p class="mt-2 rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-600">
+                                    <p class="mt-2 rounded-xl bg-white/[.045] px-3 py-2 text-xs text-white/75">
                                         <span class="font-medium">Nota:</span> {{ $referral->notes }}
                                     </p>
                                 @endif
@@ -324,7 +330,7 @@
                                 @endif
                             </div>
                         @empty
-                            <div class="px-6 py-10 text-center text-sm text-stone-400">
+                            <div class="px-6 py-10 text-center text-sm text-white/45">
                                 Non hai ancora inviato referenze.
                             </div>
                         @endforelse

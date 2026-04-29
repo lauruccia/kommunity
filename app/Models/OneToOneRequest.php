@@ -23,6 +23,9 @@ class OneToOneRequest extends Model
         'goal',
         'pre_notes',
         'post_notes',
+        'requester_completed_at',
+        'recipient_completed_at',
+        'completed_at',
         'follow_up_notes',
         'status',
     ];
@@ -31,8 +34,37 @@ class OneToOneRequest extends Model
     {
         return [
             'requested_at' => 'datetime',
+            'requester_completed_at' => 'datetime',
+            'recipient_completed_at' => 'datetime',
+            'completed_at' => 'datetime',
             'status' => OneToOneStatus::class,
         ];
+    }
+
+    public function completionConfirmedBy(int $userId): bool
+    {
+        if ($this->requester_id === $userId) {
+            return $this->requester_completed_at !== null;
+        }
+
+        if ($this->recipient_id === $userId) {
+            return $this->recipient_completed_at !== null;
+        }
+
+        return false;
+    }
+
+    public function canBeConfirmedBy(int $userId): bool
+    {
+        return in_array($userId, [$this->requester_id, $this->recipient_id], true)
+            && $this->status === OneToOneStatus::Accepted
+            && ! $this->completionConfirmedBy($userId);
+    }
+
+    public function isFullyConfirmed(): bool
+    {
+        return $this->requester_completed_at !== null
+            && $this->recipient_completed_at !== null;
     }
 
     public function requester(): BelongsTo

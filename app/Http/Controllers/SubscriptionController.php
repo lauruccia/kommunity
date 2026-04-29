@@ -9,6 +9,7 @@ use App\Models\SubscriptionPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 class SubscriptionController extends Controller
 {
@@ -16,6 +17,9 @@ class SubscriptionController extends Controller
     public function index(): View
     {
         $plans = SubscriptionPlan::active()->get();
+
+        abort_if($plans->isEmpty(), 404);
+
         $user  = auth()->user();
 
         $currentSubscription = $user->activeSubscription()
@@ -28,7 +32,10 @@ class SubscriptionController extends Controller
     public function request(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'plan_id'          => ['required', 'exists:subscription_plans,id'],
+            'plan_id'          => [
+                'required',
+                Rule::exists('subscription_plans', 'id')->where('is_active', true),
+            ],
             'payment_method'   => ['required', 'in:' . implode(',', array_column(PaymentMethod::cases(), 'value'))],
             'payment_reference'=> ['nullable', 'string', 'max:255'],
             'payment_notes'    => ['nullable', 'string', 'max:1000'],
@@ -44,7 +51,9 @@ class SubscriptionController extends Controller
             return back()->with('error', 'Hai già una richiesta in attesa di approvazione.');
         }
 
-        $plan = SubscriptionPlan::findOrFail($validated['plan_id']);
+        $plan = SubscriptionPlan::query()
+            ->where('is_active', true)
+            ->findOrFail($validated['plan_id']);
 
         $subscription = MemberSubscription::create([
             'user_id'           => $user->id,

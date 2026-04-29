@@ -86,6 +86,12 @@
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 8px 20px rgba(28,39,51,0.08);
         }
+        .brand-mark img {
+            width: 1.55rem;
+            height: 2.35rem;
+            object-fit: contain;
+            display: block;
+        }
         .brand-name { font-size: 1rem; font-weight: 600; color: #18222b; }
     </style>
 </head>
@@ -93,9 +99,7 @@
     <div class="card">
         <a href="{{ url('/') }}" class="brand">
             <div class="brand-mark">
-                <svg width="20" height="28" viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M28 0C12.536 0 0 12.536 0 28c0 10.634 5.908 19.88 14.6 24.64L28 80l13.4-27.36C50.092 47.88 56 38.634 56 28 56 12.536 43.464 0 28 0z" fill="#55794f"/>
-                </svg>
+                <img src="{{ asset('brand/kommunity-logo.png') }}" alt="Kommunity">
             </div>
             <span class="brand-name">Kommunity</span>
         </a>

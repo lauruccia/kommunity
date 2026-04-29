@@ -46,27 +46,46 @@
     position:relative!important;
     display:flex!important;
     flex-direction:column!important;
-    overflow:visible!important;
+    overflow:hidden!important;
     border-radius:1.75rem;
     background:#fff;
-    box-shadow:0 8px 28px rgba(66,87,103,0.10);
 }
 
-/* Avatar centrato che fuoriesce dalla card del 50% in alto */
+/* Altezza zona header = banner + metà avatar */
+.km-directory-header-zone{
+    position:relative!important;
+    height:150px!important;
+    flex-shrink:0!important;
+}
+
+/* Banner */
+.km-directory-banner{
+    position:absolute!important;
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    width:100%!important;
+    height:110px!important;
+    background-size:cover!important;
+    background-position:center!important;
+}
+
+/* Avatar a sinistra e a cavallo */
 .km-directory-avatar-wrap{
     position:absolute!important;
-    left:50%!important;
-    top:0!important;
-    transform:translate(-50%, -50%)!important;
+    left:0.75rem!important;
+    top:110px!important;
+    transform:translateY(-50%)!important;
     z-index:5!important;
 }
 
+/* LOGO PIÙ GRANDE */
 .km-directory-avatar{
-    width:6rem!important;
-    height:6rem!important;
+    width:8rem!important;
+    height:8rem!important;
     border-radius:9999px!important;
-    border:4px solid #fff!important;
-    box-shadow:0 8px 24px rgba(0,0,0,.15);
+    border:5px solid #fff!important;
+    box-shadow:0 18px 40px rgba(0,0,0,.18);
     overflow:hidden!important;
     display:flex!important;
     align-items:center;
@@ -80,10 +99,10 @@
     object-fit:cover!important;
 }
 
-/* Spazio in alto per l'avatar che esce dalla card (metà avatar = 3rem + gap) */
+/* Spazio sotto il logo → evita sovrapposizione */
 .km-directory-body{
-    padding:3.75rem 1rem .9rem 1rem!important;
-    margin-top:0!important;
+    padding:1.2rem 1rem .9rem 1.5rem!important;
+    margin-top: 1rem !important;
     flex:1!important;
     display:flex!important;
     flex-direction:column!important;
@@ -92,13 +111,27 @@
 /* MOBILE */
 @media(max-width:639px){
 
+    .km-directory-header-zone{
+        height:170px!important;
+    }
+
+    .km-directory-banner{
+        height:90px!important;
+    }
+
+    .km-directory-avatar-wrap{
+        left:1rem!important;
+        top:90px!important;
+    }
+
     .km-directory-avatar{
-        width:5rem!important;
-        height:5rem!important;
+        width:7rem!important;
+        height:7rem!important;
     }
 
     .km-directory-body{
-        padding:3.25rem .75rem .75rem .75rem!important;
+        margin-top:2.2rem!important;
+        padding:1rem .75rem .75rem 1rem!important;
     }
 }
 </style>
@@ -339,7 +372,7 @@
                     </template>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style="column-gap:1rem; row-gap:4.5rem; margin-top:3.5rem;">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
                     @forelse ($members as $member)
                         @php
@@ -384,6 +417,14 @@
                         @endphp
 
                         <article class="km-directory-card group transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_rgba(39,54,67,0.14)]">
+
+                            <div class="km-directory-header-zone">
+
+                                <div class="km-directory-banner"
+                                     @if($coverImage)
+                                         style="background-image:linear-gradient(180deg,rgba(16,24,32,0.05),rgba(16,24,32,0.32)),url('{{ e($coverImage) }}');"
+                                     @endif>
+                                </div>
 
                                 <div class="km-directory-avatar-wrap">
                                     @if ($hasVideo)
@@ -448,9 +489,11 @@
                                     @endif
                                 </div>
 
+                            </div>
+
                             <div class="km-directory-body">
 
-                                <div class="min-w-0 text-center">
+                                <div class="min-w-0">
                                     <h2 class="text-[0.93rem] font-semibold leading-snug text-stone-950 truncate">
                                         <a href="{{ $profileUrl }}" class="transition hover:text-[color:var(--km-accent-strong)]">
                                             {{ $displayName }}

@@ -3,6 +3,12 @@
         @csrf
     </form>
 
+    @php
+        $nameParts = preg_split('/\s+/', trim((string) $user->name), 2);
+        $firstName = $nameParts[0] ?? '';
+        $lastName = $nameParts[1] ?? '';
+    @endphp
+
     <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-8">
         @csrf
         @method('patch')
@@ -13,14 +19,19 @@
                 <p class="mt-2 text-sm leading-7 text-stone-600">Dati base del membro e canali di contatto da usare nelle schede directory.</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
-                <div class="md:col-span-2">
-                    <x-input-label for="name" :value="'Nome e cognome'" />
-                    <x-text-input id="name" name="name" type="text" class="mt-2 block w-full" :value="old('name', $user->name)" required autofocus />
-                    <x-input-error class="mt-2" :messages="$errors->get('name')" />
+                <div>
+                    <x-input-label for="first_name" :value="'Nome *'" />
+                    <x-text-input id="first_name" name="first_name" type="text" class="mt-2 block w-full" :value="old('first_name', $firstName)" required autofocus />
+                    <x-input-error class="mt-2" :messages="$errors->get('first_name')" />
+                </div>
+                <div>
+                    <x-input-label for="last_name" :value="'Cognome *'" />
+                    <x-text-input id="last_name" name="last_name" type="text" class="mt-2 block w-full" :value="old('last_name', $lastName)" required />
+                    <x-input-error class="mt-2" :messages="$errors->get('last_name')" />
                 </div>
 
                 <div class="md:col-span-2">
-                    <x-input-label for="email" :value="'Email'" />
+                    <x-input-label for="email" :value="'Email *'" />
                     <x-text-input id="email" name="email" type="email" class="mt-2 block w-full" :value="old('email', $user->email)" required />
                     <x-input-error class="mt-2" :messages="$errors->get('email')" />
                     @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
@@ -32,8 +43,8 @@
                 </div>
 
                 <div>
-                    <x-input-label for="phone" :value="'Telefono'" />
-                    <x-text-input id="phone" name="phone" type="text" class="mt-2 block w-full" :value="old('phone', $profile->phone)" />
+                    <x-input-label for="phone" :value="'Telefono *'" />
+                    <x-text-input id="phone" name="phone" type="text" class="mt-2 block w-full" :value="old('phone', $profile->phone)" required />
                     <x-input-error class="mt-2" :messages="$errors->get('phone')" />
                 </div>
                 <div>
@@ -102,7 +113,7 @@
                 @endphp
                 <div class="md:col-span-2"
                      x-data="kmMultiSelect(@js($professionOptions), @js($selectedProfIds), 'profession_ids')">
-                    <x-input-label :value="'Professioni'" />
+                    <x-input-label :value="'Professioni *'" />
                     @include('profile.partials._multiselect')
                     <x-input-error class="mt-2" :messages="$errors->get('profession_ids')" />
                 </div>
@@ -177,9 +188,9 @@
                             </select>
                         </div>
                         <div>
-                            <x-input-label for="city_id" :value="'Città'" />
+                            <x-input-label for="city_id" :value="'Città *'" />
                             <select id="city_id" name="city_id" class="km-input mt-2"
-                                    x-model="cityId">
+                                    x-model="cityId" required>
                                 <option value="">Seleziona città</option>
                                 <template x-for="c in filteredCities" :key="c.id">
                                     <option :value="c.id" x-text="c.name" :selected="cityId == c.id"></option>
@@ -549,6 +560,46 @@
             @endif
         </div>
     </form>
+
+    <div class="mt-8 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div>
+                <h2 class="font-serif text-2xl font-semibold text-stone-950">Suggerisci un campo</h2>
+                <p class="mt-2 text-sm leading-7 text-stone-600">Se non trovi professione, categoria, citta' o altra voce corretta, invia un suggerimento all'admin.</p>
+                @if (session('status') === 'suggestion-created')
+                    <p class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Suggerimento inviato all'admin.</p>
+                @endif
+            </div>
+            <form method="POST" action="{{ route('profile.suggestions.store') }}" class="grid gap-4 md:grid-cols-2">
+                @csrf
+                <div>
+                    <x-input-label for="suggestion_type" :value="'Tipo suggerimento *'" />
+                    <select id="suggestion_type" name="type" class="km-input mt-2" required>
+                        <option value="">Seleziona...</option>
+                        <option value="profession" @selected(old('type') === 'profession')>Professione</option>
+                        <option value="category" @selected(old('type') === 'category')>Categoria</option>
+                        <option value="city" @selected(old('type') === 'city')>Citta'</option>
+                        <option value="company_interest_type" @selected(old('type') === 'company_interest_type')>Tipologia azienda/gruppo</option>
+                        <option value="other" @selected(old('type') === 'other')>Altro</option>
+                    </select>
+                    <x-input-error class="mt-2" :messages="$errors->get('type')" />
+                </div>
+                <div>
+                    <x-input-label for="suggestion_value" :value="'Voce proposta *'" />
+                    <x-text-input id="suggestion_value" name="value" type="text" class="mt-2 block w-full" :value="old('value')" required />
+                    <x-input-error class="mt-2" :messages="$errors->get('value')" />
+                </div>
+                <div class="md:col-span-2">
+                    <x-input-label for="suggestion_notes" :value="'Note per admin'" />
+                    <textarea id="suggestion_notes" name="notes" rows="3" class="km-input mt-2" placeholder="Aggiungi contesto utile per valutarla">{{ old('notes') }}</textarea>
+                    <x-input-error class="mt-2" :messages="$errors->get('notes')" />
+                </div>
+                <div class="md:col-span-2">
+                    <x-primary-button>Invia suggerimento</x-primary-button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {{-- ── Gallery esistente — FUORI dal form principale ──────────────────────
          I <form> di eliminazione devono essere a livello top, non annidati

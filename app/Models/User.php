@@ -155,6 +155,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->hasMany(ForumCategoryProposal::class);
     }
 
+    public function profileSuggestions(): HasMany
+    {
+        return $this->hasMany(ProfileSuggestion::class);
+    }
+
     public function conversations(): BelongsToMany
     {
         return $this->belongsToMany(Conversation::class, 'conversation_participants')

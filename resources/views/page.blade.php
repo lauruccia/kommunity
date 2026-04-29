@@ -35,7 +35,7 @@
             font-weight: 800; font-size: 1.15rem; letter-spacing: -.03em; color: var(--text); }
         .brand-mark { width: 2.1rem; height: 2.1rem; display: flex; align-items: center;
             justify-content: center; filter: drop-shadow(0 0 10px rgba(85,121,79,.35)); }
-        .brand-mark svg { width: 1.25rem; height: 2rem; }
+        .brand-mark img { width: 1.25rem; height: 2rem; object-fit: contain; display: block; }
         .btn { display: inline-flex; align-items: center; justify-content: center;
             gap: .5rem; border-radius: .45rem; padding: .7rem 1.2rem;
             font-size: .82rem; font-weight: 800; cursor: pointer; border: none;

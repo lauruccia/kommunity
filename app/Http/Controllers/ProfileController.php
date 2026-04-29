@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\City;
 use App\Models\CompanyInterestType;
 use App\Models\MemberGalleryImage;
+use App\Models\ProfileSuggestion;
 use App\Models\Profession;
 use App\Models\Province;
 use App\Models\Region;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -73,9 +75,10 @@ class ProfileController extends Controller
         $logo = $this->storePublicFile($request->file('logo'), $profile->logo, 'members/logos') ?? $profile->logo;
         $coverImage = $this->storePublicFile($request->file('cover_image'), $onepage->cover_image, 'members/covers') ?? $onepage->cover_image;
         $introVideo = $this->storePublicVideo($request->file('intro_video'), $profile->intro_video, 'members/videos', $videoCompressor) ?? $profile->intro_video;
+        $fullName = trim($validated['first_name'].' '.$validated['last_name']);
 
         $request->user()->fill([
-            'name' => $validated['name'],
+            'name' => $fullName,
             'email' => $validated['email'],
         ]);
 
@@ -108,6 +111,8 @@ class ProfileController extends Controller
         $profileData = collect($validated)
             ->except([
                 'name',
+                'first_name',
+                'last_name',
                 'email',
                 'avatar',
                 'logo',
@@ -129,6 +134,7 @@ class ProfileController extends Controller
                 'onboarding_completed' => $request->boolean('onboarding_completed'),
                 'is_active' => true,
                 'status' => $request->boolean('onboarding_completed') ? 'active' : 'pending_approval',
+                'profession_id' => collect($validated['profession_ids'] ?? [])->first(),
                 'avatar' => $avatar,
                 'logo' => $logo,
                 'intro_video' => $introVideo,
@@ -176,6 +182,25 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    public function storeSuggestion(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'type' => ['required', Rule::in(['profession', 'category', 'city', 'company_interest_type', 'other'])],
+            'value' => ['required', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        ProfileSuggestion::query()->create([
+            'user_id' => $request->user()->id,
+            'type' => $validated['type'],
+            'value' => $validated['value'],
+            'notes' => $validated['notes'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'suggestion-created');
     }
 
     public function destroyGalleryImage(Request $request, MemberGalleryImage $memberGalleryImage): RedirectResponse

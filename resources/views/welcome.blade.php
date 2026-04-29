@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kommunity — Le relazioni giuste. Le opportunità reali.</title>
+    <title>Kommunity - Relazioni giuste. Opportunità reali.</title>
     <meta name="description" content="Kommunity è l'ecosistema dove professionisti e aziende di Roma e del Lazio si connettono, collaborano e crescono insieme.">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -47,7 +47,7 @@
         .btn-ghost:hover{border-color:rgba(111,163,103,.45);background:rgba(111,163,103,.08)}
         .btn-sm{padding:.58rem .95rem;font-size:.76rem}.btn-lg{padding:1rem 1.62rem;font-size:.9rem}
         .brand-lockup{display:inline-flex;align-items:center;gap:.55rem;font-weight:800;font-size:1.14rem;letter-spacing:-.04em;color:var(--text)}
-        .brand-mark{width:2.2rem;height:2.2rem;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 12px rgba(111,163,103,.30))}.brand-mark svg{width:1.35rem;height:2.05rem}
+        .brand-mark{width:2.2rem;height:2.2rem;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 12px rgba(111,163,103,.30))}.brand-mark img{width:1.35rem;height:2.05rem;object-fit:contain;display:block}
         .badge{display:inline-flex;align-items:center;gap:.45rem;padding:.34rem .82rem;border-radius:999px;font-size:.70rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.badge-dot{width:.42rem;height:.42rem;border-radius:999px;background:currentColor;box-shadow:0 0 9px currentColor}.badge-green{background:rgba(85,121,79,.13);border:1px solid rgba(85,121,79,.34);color:var(--brand4)}.badge-teal{background:rgba(70,93,112,.15);border:1px solid rgba(70,93,112,.38);color:var(--teal2)}
 
         /* HEADER */
@@ -132,7 +132,7 @@
 <section class="hero" aria-labelledby="hero-heading">
     <div class="km-wrap hero-grid">
         <div>
-            <h1 id="hero-heading"><span class="title-line">Le relazioni giuste.</span><span class="title-line accent">Le opportunità reali.</span></h1>
+            <h1 id="hero-heading"><span class="title-line">Relazioni giuste.</span><span class="title-line accent">Opportunità reali.</span></h1>
             <p class="hero-body">Kommunity è l'ecosistema dove professionisti e aziende si connettono, collaborano e crescono insieme.</p>
             <div class="hero-actions">
                 <a href="{{ route('register') }}" class="btn btn-primary btn-lg">Entra nella community <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>

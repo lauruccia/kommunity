@@ -1,3 +1,7 @@
+@php
+    $hasActiveSubscriptionPlans = \App\Models\SubscriptionPlan::query()->where('is_active', true)->exists();
+@endphp
+
 <nav x-data="{ open: false }" class="relative z-50 overflow-visible pt-5">
     <div class="km-shell overflow-visible">
         <div class="km-panel relative overflow-visible border-stone-300/80 bg-white/85 px-3 backdrop-blur sm:px-6">
@@ -37,12 +41,9 @@
                         <x-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
                             {{ __('nav.referrals') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
-                            {{ __('nav.subscription') }}
-                        </x-nav-link>
-                        @if (auth()->user()?->can('gestire-utenti'))
-                            <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
-                                {{ __('nav.admin') }}
+                        @if ($hasActiveSubscriptionPlans)
+                            <x-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
+                                {{ __('nav.subscription') }}
                             </x-nav-link>
                         @endif
                     </div>
@@ -66,12 +67,6 @@
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('nav.profile') }}
                             </x-dropdown-link>
-
-                            @if (auth()->user()?->can('gestire-utenti'))
-                                <x-dropdown-link href="/admin/users">
-                                    {{ __('nav.admin') }}
-                                </x-dropdown-link>
-                            @endif
 
                             <button @click="$dispatch('km:open-password-modal')"
                                 class="block w-full px-4 py-2 text-start text-sm leading-5 text-stone-700 transition hover:bg-stone-100 focus:outline-none">
@@ -145,12 +140,9 @@
                     <x-responsive-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
                         {{ __('nav.referrals') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
-                        {{ __('nav.subscription') }}
-                    </x-responsive-nav-link>
-                    @if (auth()->user()?->can('gestire-utenti'))
-                        <x-responsive-nav-link href="/admin/users" :active="request()->is('admin/users*')">
-                            {{ __('nav.admin') }}
+                    @if ($hasActiveSubscriptionPlans)
+                        <x-responsive-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
+                            {{ __('nav.subscription') }}
                         </x-responsive-nav-link>
                     @endif
                 </div>
@@ -165,12 +157,6 @@
                         <x-responsive-nav-link :href="route('profile.edit')">
                             {{ __('nav.profile') }}
                         </x-responsive-nav-link>
-
-                        @if (auth()->user()?->can('gestire-utenti'))
-                            <x-responsive-nav-link href="/admin/users">
-                                {{ __('nav.admin') }}
-                            </x-responsive-nav-link>
-                        @endif
 
                         <button @click="$dispatch('km:open-password-modal'); open = false"
                             class="block min-h-[44px] w-full px-4 py-2 text-start text-base font-medium text-stone-600 transition hover:bg-stone-50 hover:text-stone-800">

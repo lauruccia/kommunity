@@ -247,6 +247,7 @@ class OneToOneController extends Controller
 
         $data = $request->validate([
             'status' => ['nullable', Rule::in(array_column(OneToOneStatus::cases(), 'value'))],
+            'confirm_completed' => ['nullable', 'boolean'],
             'post_notes' => ['nullable', 'string', 'max:2000'],
             'follow_up_notes' => ['nullable', 'string', 'max:2000'],
             'private_note' => ['nullable', 'string', 'max:2000'],
@@ -255,15 +256,49 @@ class OneToOneController extends Controller
         $user = $request->user();
         $isRecipient = $oneToOneRequest->recipient_id === $user->id;
         $isRequester = $oneToOneRequest->requester_id === $user->id;
+        $statusMessage = 'one-to-one-updated';
 
-        if ($isRecipient) {
-            $oneToOneRequest->fill([
-                'status' => $data['status'] ?? $oneToOneRequest->status->value,
-                'post_notes' => $data['post_notes'] ?? null,
-            ])->save();
+        if ($request->boolean('confirm_completed')) {
+            abort_unless($oneToOneRequest->canBeConfirmedBy($user->id), 422);
+
+            if ($isRequester) {
+                $oneToOneRequest->requester_completed_at = now();
+            }
+
+            if ($isRecipient) {
+                $oneToOneRequest->recipient_completed_at = now();
+            }
+
+            if ($oneToOneRequest->isFullyConfirmed()) {
+                $oneToOneRequest->status = OneToOneStatus::Completed;
+                $oneToOneRequest->completed_at ??= now();
+                $statusMessage = 'one-to-one-completed';
+            } else {
+                $statusMessage = 'one-to-one-completion-confirmed';
+            }
+
+            $oneToOneRequest->save();
+        }
+
+        if ($isRecipient && isset($data['status']) && in_array($data['status'], [
+            OneToOneStatus::Accepted->value,
+            OneToOneStatus::Declined->value,
+            OneToOneStatus::Rescheduled->value,
+        ], true)) {
+            abort_unless(in_array($oneToOneRequest->status, [OneToOneStatus::Pending, OneToOneStatus::Rescheduled], true), 422);
+
+            $oneToOneRequest->status = OneToOneStatus::from($data['status']);
+            $oneToOneRequest->save();
+        }
+
+        if ($isRecipient && array_key_exists('post_notes', $data)) {
+            $oneToOneRequest->post_notes = $data['post_notes'];
+            $oneToOneRequest->save();
         }
 
         if ($isRequester && ($data['status'] ?? null) === OneToOneStatus::Cancelled->value) {
+            abort_unless($oneToOneRequest->status !== OneToOneStatus::Completed, 422);
+
             $oneToOneRequest->fill(['status' => OneToOneStatus::Cancelled])->save();
         }
 
@@ -301,7 +336,7 @@ class OneToOneController extends Controller
             }
         }
 
-        return back()->with('status', 'one-to-one-updated');
+        return back()->with('status', $statusMessage);
     }
 
     public function storeAvailability(Request $request): RedirectResponse

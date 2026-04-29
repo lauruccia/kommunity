@@ -22,16 +22,17 @@ class EventController extends Controller
     {
         $user = $request->user();
         $managedChapterIds = $this->managedChapterIds($user);
-        $viewMode = in_array($request->string('view')->toString(), ['month', 'week', 'day'], true)
-            ? $request->string('view')->toString()
+        $viewModeParam = $request->string('view')->toString();
+        $viewMode = in_array($viewModeParam, ['month', 'week', 'day'], true)
+            ? $viewModeParam
             : 'month';
         $selectedDayParam = $request->string('day')->toString();
         $focusDate = $selectedDayParam !== ''
-            ? Carbon::createFromFormat('Y-m-d', $selectedDayParam, config('app.timezone'))
+            ? $this->parseDateParam($selectedDayParam, 'Y-m-d', now())
             : now();
         $selectedMonth = $request->string('month')->toString();
         $monthDate = $selectedMonth !== ''
-            ? Carbon::createFromFormat('Y-m', $selectedMonth, config('app.timezone'))
+            ? $this->parseDateParam($selectedMonth, 'Y-m', $focusDate->copy()->startOfMonth())
             : $focusDate->copy()->startOfMonth();
         $monthStart = $monthDate->copy()->startOfMonth();
         $monthEnd = $monthDate->copy()->endOfMonth();
@@ -216,35 +217,42 @@ class EventController extends Controller
 
         $status = $validated['status'];
 
-        if (
-            $status === EventAttendanceStatus::Attending->value
-            && $event->capacity !== null
-            && ! $event->registrations()->where('user_id', $request->user()->id)->exists()
-            && $event->attendingRegistrations()->count() >= $event->capacity
-        ) {
-            return back()->with('status', 'event-full');
-        }
+        $flashStatus = DB::transaction(function () use ($event, $request, $status): string {
+            $lockedEvent = Event::query()
+                ->whereKey($event->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $existing = $event->registrations()->where('user_id', $request->user()->id)->first();
+            abort_unless($lockedEvent->is_published, 404);
 
-        if (
-            $status === EventAttendanceStatus::Attending->value
-            && $event->capacity !== null
-            && $existing?->status !== EventAttendanceStatus::Attending->value
-            && $existing?->status !== EventAttendanceStatus::Registered->value
-            && $event->attendingRegistrations()->count() >= $event->capacity
-        ) {
-            return back()->with('status', 'event-full');
-        }
+            $existing = $lockedEvent->registrations()
+                ->where('user_id', $request->user()->id)
+                ->lockForUpdate()
+                ->first();
 
-        $event->attendees()->syncWithoutDetaching([
-            $request->user()->id => [
-                'status' => $status,
-                'registered_at' => now(),
-            ],
-        ]);
+            $isAttendingStatus = in_array($status, EventAttendanceStatus::attendingValues(), true);
+            $wasAttending = $existing && in_array($existing->status, EventAttendanceStatus::attendingValues(), true);
 
-        return back()->with('status', 'event-response-updated');
+            if (
+                $isAttendingStatus
+                && ! $wasAttending
+                && $lockedEvent->capacity !== null
+                && $lockedEvent->attendingRegistrations()->count() >= $lockedEvent->capacity
+            ) {
+                return 'event-full';
+            }
+
+            $lockedEvent->attendees()->syncWithoutDetaching([
+                $request->user()->id => [
+                    'status' => $status,
+                    'registered_at' => now(),
+                ],
+            ]);
+
+            return 'event-response-updated';
+        });
+
+        return back()->with('status', $flashStatus);
     }
 
     public function unregister(Request $request, Event $event): RedirectResponse
@@ -289,5 +297,16 @@ class EventController extends Controller
             ->where('leader_id', $user->id)
             ->pluck('id')
             ->all();
+    }
+
+    private function parseDateParam(string $value, string $format, Carbon $fallback): Carbon
+    {
+        try {
+            $date = Carbon::createFromFormat($format, $value, config('app.timezone'));
+
+            return $date->format($format) === $value ? $date : $fallback;
+        } catch (\Throwable) {
+            return $fallback;
+        }
     }
 }

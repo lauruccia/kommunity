@@ -139,14 +139,18 @@
         border-radius: 1.15rem;
     }
 
-    .km-brand-mark svg {
+    .km-brand-mark img {
         width: 2rem;
         height: 3rem;
+        object-fit: contain;
+        display: block;
     }
 
-    .km-brand-mark-sm svg {
+    .km-brand-mark-sm img {
         width: 1.55rem;
         height: 2.35rem;
+        object-fit: contain;
+        display: block;
     }
 
     .km-brand-kicker {
@@ -320,6 +324,94 @@
         background: linear-gradient(135deg, #4f704b 0%, #39563a 100%);
         color: #fff;
     }
+
+    .km-portal-page {
+        min-height: calc(100vh - 7rem);
+        padding-bottom: 3rem;
+        color: #f8fafc;
+    }
+
+    .km-portal-bg {
+        background:
+            radial-gradient(circle at 82% 0%, rgba(139, 197, 63, 0.18), transparent 30%),
+            radial-gradient(circle at 12% 22%, rgba(45, 212, 191, 0.12), transparent 36%),
+            linear-gradient(135deg, #020b12 0%, #031822 48%, #06111a 100%);
+    }
+
+    .km-portal-panel {
+        @apply rounded-[1.6rem] border backdrop-blur;
+        border-color: rgba(255, 255, 255, 0.12);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.045));
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+        color: #f8fafc;
+    }
+
+    .km-portal-card {
+        @apply rounded-[1.25rem] border backdrop-blur transition duration-200;
+        border-color: rgba(255, 255, 255, 0.11);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.035));
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+        color: #f8fafc;
+    }
+
+    .km-portal-card:hover {
+        border-color: rgba(139, 197, 63, 0.35);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32), 0 0 34px rgba(139, 197, 63, 0.08);
+    }
+
+    .km-portal-eyebrow {
+        @apply text-xs font-black uppercase;
+        color: #9ad84a;
+        letter-spacing: 0.24em;
+    }
+
+    .km-portal-muted {
+        color: #aab7c4;
+    }
+
+    .km-portal-title {
+        @apply font-black text-white;
+        letter-spacing: -0.055em;
+        line-height: 1.04;
+    }
+
+    .km-portal-input {
+        @apply w-full rounded-2xl border px-4 py-3 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2;
+        border-color: rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+        --tw-ring-color: rgba(139, 197, 63, 0.20);
+    }
+
+    .km-portal-input option {
+        color: #18222b;
+    }
+
+    .km-portal-stat {
+        @apply rounded-2xl border px-4 py-3;
+        border-color: rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.055);
+    }
+
+    .km-portal-badge {
+        @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase;
+        border-color: rgba(139, 197, 63, 0.28);
+        background: rgba(139, 197, 63, 0.12);
+        color: #9ad84a;
+        letter-spacing: 0.14em;
+    }
+
+    .km-portal-modal {
+        @apply rounded-[1.6rem] border bg-[#07111a] text-white shadow-2xl;
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .km-portal-panel label,
+    .km-portal-panel .text-gray-700,
+    .km-portal-panel .text-stone-700,
+    .km-portal-panel .text-stone-600 {
+        color: rgba(248, 250, 252, 0.78) !important;
+    }
 }
 
 @media (max-width: 639px) {
@@ -355,14 +447,18 @@
         border-radius: 0.95rem;
     }
 
-    .km-brand-mark svg {
+    .km-brand-mark img {
         width: 1.7rem;
         height: 2.5rem;
+        object-fit: contain;
+        display: block;
     }
 
-    .km-brand-mark-sm svg {
+    .km-brand-mark-sm img {
         width: 1.35rem;
         height: 2rem;
+        object-fit: contain;
+        display: block;
     }
 
     .km-brand-kicker {
