@@ -319,3 +319,5 @@
     100% { transform: scale(1); opacity: 1; }
 }
 [x-cloak] { display: none !important; }
+</style>
+@endif

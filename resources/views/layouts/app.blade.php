@@ -14,6 +14,7 @@
     <body class="font-sans antialiased text-stone-900">
         <div class="min-h-screen">
             @include('layouts.navigation')
+
             {{-- Flash messages globali --}}
             @if(session('warning'))
                 <div x-data="{ show: true }" x-show="show" x-transition
