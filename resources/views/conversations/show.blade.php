@@ -17,7 +17,7 @@
                     @endphp
                     <div class="rounded-[1.6rem] {{ $isOwnMessage ? 'bg-amber-50' : 'bg-white/[.075]' }} p-4">
                         <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                            <p class="text-sm font-semibold {{ $isOwnMessage ? 'text-stone-950' : 'text-white' }}">{{ $message->user->name }}</p>
+                            <p class="text-sm font-semibold {{ $isOwnMessage ? 'text-stone-950' : 'text-white' }}">{{ $message->user?->name ?? 'Utente eliminato' }}</p>
                             <p class="text-xs {{ $isOwnMessage ? 'text-stone-500' : 'text-white/60' }} sm:whitespace-nowrap">{{ $message->created_at->format('d/m H:i') }}</p>
                         </div>
                         <p class="mt-2 text-sm leading-7 {{ $isOwnMessage ? 'text-stone-700' : 'text-white/80' }}">{{ $message->body }}</p>

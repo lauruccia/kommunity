@@ -15,7 +15,7 @@
                     <path fill-rule="evenodd" d="M5.05 8.05a4.95 4.95 0 119.9 0c0 3.39-3.34 6.63-4.39 7.56a.85.85 0 01-1.12 0c-1.05-.93-4.39-4.17-4.39-7.56zM10 10.5A2.45 2.45 0 1010 5.6a2.45 2.45 0 000 4.9z" clip-rule="evenodd"/>
                 </svg>
             </span>
-            <span class="min-w-0 break-words">{{ $profile->city?->name ?? 'Città n.d.' }}{{ $profile->region?->name ? ', '.$profile->region->name : '' }}</span>
+            <span class="min-w-0 break-words">{{ $profile->city?->name ?? 'Città n.d.' }}{{ $profile->region?->name ? ', '.$profile->region?->name : '' }}</span>
         </div>
 
         @if ($profile->show_email)

@@ -48,7 +48,7 @@
                                 {{ $currentSubscription->status->label() }}
                             </span>
                             <span class="{{ $subscriptionCardIsLight ? 'text-stone-400' : 'text-white/45' }}">·</span>
-                            <span class="text-sm {{ $subscriptionCardIsLight ? 'text-stone-700' : 'text-white/75' }}">{{ $currentSubscription->plan->name }}</span>
+                            <span class="text-sm {{ $subscriptionCardIsLight ? 'text-stone-700' : 'text-white/75' }}">{{ $currentSubscription->plan?->name ?? 'Piano non disponibile' }}</span>
                         </div>
                         @if($currentSubscription->status->value === 'pending')
                             <p class="mt-1 text-xs text-amber-600">La tua richiesta è in attesa di approvazione. Ti avviseremo non appena verificheremo il pagamento.</p>

@@ -318,7 +318,7 @@
                     <div style="margin-top:.4rem;display:flex;flex-wrap:wrap;gap:1.25rem;">
                         <span class="km-muted" style="font-size:.8rem;">{{ optional($selectedRequest->requested_at)->format('d/m/Y H:i') ?: 'Data da confermare' }}</span>
                         @if ($counterpart?->memberProfile?->city?->name)
-                            <span class="km-muted" style="font-size:.8rem;">{{ $counterpart->memberProfile->city->name }}</span>
+                            <span class="km-muted" style="font-size:.8rem;">{{ $counterpart->memberProfile?->city?->name ?? '' }}</span>
                         @endif
                     </div>
                 </div>
@@ -572,7 +572,4 @@
             document.addEventListener('keydown', (e) => { if (e.key==='Escape' && modal.style.display!=='none') closeModal(); });
             queryInput.addEventListener('input', renderMembers);
 
-            renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState();
-        })();
-    </script>
-</x-app-layout>
+            renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateS

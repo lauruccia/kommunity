@@ -7,7 +7,7 @@
                         <div class="text-xs uppercase tracking-[0.22em]" style="color: rgba(248,250,252,.55);">Board index / {{ $thread->category?->name ?? 'Community' }}</div>
                         <h1 class="mt-2 text-3xl font-semibold">{{ $thread->title }}</h1>
                         <div class="mt-2 flex flex-wrap items-center gap-2 text-sm" style="color: rgba(248,250,252,.62);">
-                            <span>Topic aperto da {{ $thread->user->name }}</span>
+                            <span>Topic aperto da {{ $thread->user?->name ?? 'Utente eliminato' }}</span>
                             <span>·</span>
                             <span>{{ $thread->created_at->format('d/m/Y H:i') }}</span>
                             @if ($thread->is_pinned)
@@ -53,10 +53,10 @@
                 <article id="post-{{ $post->id }}" class="overflow-hidden rounded-[1rem] border border-white/10 bg-white/10 shadow-[0_12px_28px_rgba(60,79,94,0.10)]">
                     <div class="grid lg:grid-cols-[230px_minmax(0,1fr)]">
                         <aside class="border-b border-white/10 bg-white/[.045] px-5 py-5 lg:border-b-0 lg:border-r">
-                            <div class="text-lg font-semibold text-white">{{ $post->user->name }}</div>
+                            <div class="text-lg font-semibold text-white">{{ $post->user?->name ?? 'Utente eliminato' }}</div>
                             <div class="mt-2 text-sm text-white/60">{{ $post->user->memberProfile?->company_name ?: 'Membro community' }}</div>
                             @if ($post->user->memberProfile?->city?->name)
-                                <div class="mt-1 text-xs uppercase tracking-[0.14em] text-white/45">{{ $post->user->memberProfile->city->name }}</div>
+                                <div class="mt-1 text-xs uppercase tracking-[0.14em] text-white/45">{{ $post->user?->memberProfile?->city?->name ?? '' }}</div>
                             @endif
                             <div class="mt-5 space-y-2 text-xs text-[#6c869a]">
                                 <div>Messaggio #{{ $index + 1 }}</div>
@@ -76,7 +76,7 @@
                                             style="background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.30);"
                                             data-quote-post
                                             data-post-id="{{ $post->id }}"
-                                            data-post-author="{{ $post->user->name }}"
+                                            data-post-author="{{ $post->user?->name ?? '' }}"
                                             data-post-content="{{ trim($post->content) }}"
                                         >
                                             Quota
@@ -93,7 +93,7 @@
                                 @foreach ($post->replies as $reply)
                                     <div class="mt-5 rounded-[0.95rem] border border-white/10 bg-white/10 px-4 py-4">
                                         <div class="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.14em] text-white/55">
-                                            <span>Replica di {{ $reply->user->name }}</span>
+                                            <span>Replica di {{ $reply->user?->name ?? 'Utente eliminato' }}</span>
                                             <span>{{ $reply->created_at->format('d/m/Y H:i') }}</span>
                                         </div>
                                         <div class="mt-3 text-sm leading-7 text-white/80">{!! nl2br(e($reply->content)) !!}</div>
