@@ -164,7 +164,7 @@
 
                 <div class="flex-1 space-y-5 overflow-y-auto px-6 py-5">
                     @php $lastDay = null; @endphp
-                    @foreach ($conversation->messages as $message)
+                    @foreach ($messages as $message)
                         @php
                             $isOwnMessage = $message->user_id === $currentUserId;
                             $dayLabel = $message->created_at->isToday() ? 'Oggi' : $message->created_at->translatedFormat('d F Y');

@@ -56,13 +56,13 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
 
     Route::get('/one-to-one', [OneToOneController::class, 'index'])->name('one-to-ones.index');
-    Route::post('/one-to-one', [OneToOneController::class, 'store'])->name('one-to-ones.store');
+    Route::post('/one-to-one', [OneToOneController::class, 'store'])->middleware('throttle:10,1')->name('one-to-ones.store');
     Route::patch('/one-to-one/{oneToOneRequest}/status', [OneToOneController::class, 'updateStatus'])->name('one-to-ones.status');
     Route::post('/one-to-one/availability', [OneToOneController::class, 'storeAvailability'])->name('one-to-ones.availability.store');
     Route::delete('/one-to-one/availability/{availabilitySlot}', [OneToOneController::class, 'destroyAvailability'])->name('one-to-ones.availability.destroy');
 
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
-    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::post('/events', [EventController::class, 'store'])->middleware('throttle:10,1')->name('events.store');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/register', [EventController::class, 'register'])->name('events.register');
     Route::delete('/events/{event}/register', [EventController::class, 'unregister'])->name('events.unregister');
@@ -70,18 +70,18 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::patch('/events/{event}/cancel', [EventController::class, 'cancel'])->name('events.cancel');
 
     Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
-    Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
+    Route::post('/forum', [ForumController::class, 'store'])->middleware('throttle:10,1')->name('forum.store');
     Route::post('/forum/category-proposals', [ForumController::class, 'storeCategoryProposal'])->name('forum.category-proposals.store');
     Route::get('/forum/{thread}', [ForumController::class, 'show'])->name('forum.show');
-    Route::post('/forum/{thread}/reply', [ForumController::class, 'reply'])->name('forum.reply');
+    Route::post('/forum/{thread}/reply', [ForumController::class, 'reply'])->middleware('throttle:20,1')->name('forum.reply');
 
     Route::get('/conversations', [ConversationController::class, 'index'])->name('conversations.index');
-    Route::post('/conversations', [ConversationController::class, 'start'])->name('conversations.start');
+    Route::post('/conversations', [ConversationController::class, 'start'])->middleware('throttle:20,1')->name('conversations.start');
     Route::get('/conversations/{conversation}', [ConversationController::class, 'show'])->name('conversations.show');
-    Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'storeMessage'])->name('conversations.messages.store');
+    Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'storeMessage'])->middleware('throttle:30,1')->name('conversations.messages.store');
 
     Route::get('/referenze', [ReferralController::class, 'index'])->name('referrals.index');
-    Route::post('/referenze', [ReferralController::class, 'store'])->name('referrals.store');
+    Route::post('/referenze', [ReferralController::class, 'store'])->middleware('throttle:10,1')->name('referrals.store');
     Route::patch('/referenze/{referral}/status', [ReferralController::class, 'updateStatus'])->name('referrals.status');
 
     // ── Abbonamenti ──────────────────────────────────────────────────────────

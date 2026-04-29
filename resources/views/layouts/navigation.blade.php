@@ -1,5 +1,9 @@
 @php
-    $hasActiveSubscriptionPlans = \App\Models\SubscriptionPlan::query()->where('is_active', true)->exists();
+    $hasActiveSubscriptionPlans = \Illuminate\Support\Facades\Cache::remember(
+        'subscription_plans_exist',
+        now()->addMinutes(30),
+        fn () => \App\Models\SubscriptionPlan::query()->where('is_active', true)->exists()
+    );
 @endphp
 
 <nav x-data="{ open: false }" class="relative z-50 overflow-visible pt-5">

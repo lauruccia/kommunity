@@ -1,8 +1,8 @@
 <x-guest-layout>
     @php
-        $headline    = \App\Models\SiteSetting::get('registration_headline', 'Entra in Kommunity');
-        $subheadline = \App\Models\SiteSetting::get('registration_subheadline', 'La community professionale che fa crescere il tuo business');
-        $body        = \App\Models\SiteSetting::get('registration_body');
+        $headline    = \App\Models\SiteSetting::getCached('registration_headline', 'Entra in Kommunity');
+        $subheadline = \App\Models\SiteSetting::getCached('registration_subheadline', 'La community professionale che fa crescere il tuo business');
+        $body        = \App\Models\SiteSetting::getCached('registration_body');
     @endphp
 
     <div class="grid gap-10 lg:grid-cols-2 lg:gap-16">

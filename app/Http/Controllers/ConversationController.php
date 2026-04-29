@@ -38,7 +38,17 @@ class ConversationController extends Controller
             'filter' => ['nullable', 'in:all,unread,favorites'],
         ]);
 
-        $conversation->load(['participants.memberProfile', 'messages.user.memberProfile']);
+        $conversation->load(['participants.memberProfile']);
+
+        // Carica solo gli ultimi 100 messaggi — evita crash su conversazioni lunghe
+        $messages = $conversation->messages()
+            ->with('user.memberProfile')
+            ->latest()
+            ->take(100)
+            ->get()
+            ->reverse()
+            ->values();
+
         $conversation->participants()->updateExistingPivot($request->user()->id, [
             'last_read_at' => now(),
         ]);
@@ -48,6 +58,7 @@ class ConversationController extends Controller
         return view('conversations.show', [
             'conversation' => $conversation,
             'conversations' => $conversations,
+            'messages'      => $messages,
             'members' => $this->availableMembers($request->user()),
             'filters' => $filters,
             'unreadCount' => $conversations->where('has_unread', true)->count(),

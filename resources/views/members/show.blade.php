@@ -200,9 +200,10 @@
                                     {{ $onepage->hero_title ?: $user->name }}
                                 </h1>
 
-                                <p class="mt-0.5 text-sm text-stone-500">
-                                    {{ $onepage->hero_subtitle ?: ($profile->company_name ?: 'Attività professionale') }}
-                                </p>
+                                @php $heroSub = $onepage->hero_subtitle ?: $profile->company_name; @endphp
+                                @if ($heroSub)
+                                    <p class="mt-0.5 text-sm text-stone-500">{{ $heroSub }}</p>
+                                @endif
 
                                 @php
                                     $profsLabel = $profile->professions->isNotEmpty()
@@ -247,26 +248,34 @@
                     <div class="km-panel p-5 sm:p-6">
                         <div class="grid gap-8">
 
+                            @php $aboutText = $onepage->about_text ?: $profile->bio; @endphp
+                            @if ($aboutText)
                             <div>
                                 <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
                                     Chi sono
                                 </h2>
-                                <p class="mt-2 text-base leading-8 text-stone-700">
-                                    {{ $onepage->about_text ?: ($profile->bio ?: 'Profilo professionale in fase di completamento.') }}
-                                </p>
+                                <p class="mt-2 text-base leading-8 text-stone-700">{{ $aboutText }}</p>
                             </div>
+                            @endif
 
+                            @php
+                                $servicesText = $onepage->services_text ?: $profile->services;
+                                $skillsList   = $profile->skills
+                                    ? collect(explode(',', $profile->skills))->map(fn ($s) => trim($s))->filter()
+                                    : collect();
+                            @endphp
+                            @if ($servicesText || $skillsList->isNotEmpty())
                             <div>
                                 <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
                                     Servizi e competenze
                                 </h2>
-                                <p class="mt-2 text-base leading-8 text-stone-700">
-                                    {{ $onepage->services_text ?: ($profile->services ?: 'Questa sezione raccoglierà servizi e competenze professionali del membro.') }}
-                                </p>
+                                @if ($servicesText)
+                                    <p class="mt-2 text-base leading-8 text-stone-700">{{ $servicesText }}</p>
+                                @endif
 
-                                @if ($profile->skills)
+                                @if ($skillsList->isNotEmpty())
                                     <div class="mt-3 flex flex-wrap gap-2">
-                                        @foreach (collect(explode(',', $profile->skills))->map(fn ($item) => trim($item))->filter() as $skill)
+                                        @foreach ($skillsList as $skill)
                                             <span class="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">
                                                 {{ $skill }}
                                             </span>
@@ -274,6 +283,7 @@
                                     </div>
                                 @endif
                             </div>
+                            @endif
 
                             <div>
                                 <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
