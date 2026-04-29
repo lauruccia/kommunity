@@ -10,6 +10,7 @@
     @endphp
 
     {{-- Stili critici inline: il grid e il banner non dipendono dal CSS compilato --}}
+    @verbatim
     <style>
         .member-banner{height:200px}
         @media(min-width:640px){.member-banner{height:260px}}
@@ -19,6 +20,7 @@
         .member-avatar-pin{position:absolute;top:-3rem;left:1.25rem;z-index:10}
         @media(min-width:640px){.member-avatar-pin{left:1.5rem}}
     </style>
+    @endverbatim
 
     {{-- Alpine: gestisce il drawer mobile della sidebar --}}
     <div x-data="{ drawer: false }" class="pb-12 pt-6">
@@ -153,10 +155,6 @@
                             <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(22,31,41,0.04),rgba(22,31,41,0.28))]"></div>
                         </div>
 
-                        {{-- ── Avatar a cavallo ──
-                             Il div ha altezza zero; il cerchio h-24 (96px) è posizionato
-                             -top-12 (-48px) → metà nel banner, metà nel corpo bianco.
-                        --}}
                         <div class="member-avatar-wrap">
                             <div class="member-avatar-pin">
                                 @if ($profile->avatarUrl() || $profile->logoUrl())
@@ -173,9 +171,6 @@
                             </div>
                         </div>
 
-                        {{-- Nome, ruolo, CTA
-                             pt-16 (64px) = 48px avatar sporgente + 16px respiro
-                        --}}
                         <div class="flex flex-col gap-4 px-5 pb-6 pt-16 sm:flex-row sm:items-end sm:justify-between sm:px-6">
                             <div class="min-w-0">
                                 <h1 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
@@ -194,7 +189,6 @@
                                 @endif
                             </div>
 
-                            {{-- Pulsanti CTA — solo per visitatori, nascosti su mobile (ci sono nel drawer) --}}
                             @unless($viewerIsOwner)
                                 <div class="hidden flex-wrap gap-3 sm:flex">
                                     <form method="POST" action="{{ route('conversations.start') }}">
@@ -355,5 +349,8 @@
     </div>{{-- fine x-data drawer --}}
 
     @push('modals')
+    @endpush
+</x-app-layout>
+
     @endpush
 </x-app-layout>
