@@ -51,6 +51,20 @@ class EventController extends Controller
             ? $this->parseDateParam($selectedMonth, 'Y-m', $focusDate->copy()->startOfMonth())
             : $focusDate->copy()->startOfMonth();
 
+        if ($selectedDayParam === '' && $selectedMonth === '') {
+            $nextUpcomingFocusEvent = Event::query()
+                ->where('is_published', true)
+                ->where('status', '!=', 'cancelled')
+                ->where('starts_at', '>=', now())
+                ->orderBy('starts_at')
+                ->first(['id', 'starts_at']);
+
+            if ($nextUpcomingFocusEvent) {
+                $focusDate = $nextUpcomingFocusEvent->starts_at->copy();
+                $monthDate = $focusDate->copy()->startOfMonth();
+            }
+        }
+
         // Range calendario
         $monthStart    = $monthDate->copy()->startOfMonth();
         $monthEnd      = $monthDate->copy()->endOfMonth();

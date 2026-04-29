@@ -1,8 +1,29 @@
 <x-app-layout>
+    <style>
+        body {
+            background:
+                radial-gradient(circle at 82% 0%, rgba(139,197,63,.18), transparent 30%),
+                radial-gradient(circle at 10% 25%, rgba(45,212,191,.12), transparent 35%),
+                linear-gradient(135deg, #020b12, #031822 48%, #06111a) !important;
+            color: #f8fafc;
+        }
+    </style>
+
     <x-slot name="header">
-        <div class="km-portal-panel p-6">
-            <p class="text-xs uppercase tracking-[0.24em] text-white/60">Messaggistica privata</p>
-            <h1 class="mt-3 font-serif text-2xl font-semibold text-white sm:text-3xl lg:text-4xl">Conversazioni tra membri</h1>
+        <div class="km-portal-panel overflow-hidden p-0">
+            <div class="px-6 py-5">
+                <div class="flex items-center gap-4">
+                    <div class="km-portal-card rounded-[0.85rem] px-4 py-3">
+                        <div style="font-size: 2rem; line-height: 1; font-weight: 700; letter-spacing: -0.04em; color: #9AD84A;">msg</div>
+                        <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.22em; color: rgba(248,250,252,.62);">Kommunity</div>
+                    </div>
+                    <div>
+                        <p class="km-portal-eyebrow">Messaggistica privata</p>
+                        <h1 class="mt-1 text-3xl font-semibold text-white">Conversazioni tra membri</h1>
+                        <p class="mt-1 text-sm" style="color: rgba(248,250,252,.62);">Messaggi diretti e privati con gli altri membri.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </x-slot>
 
@@ -50,7 +71,7 @@
                         $lastMessage = $conversation->getAttribute('last_message');
                         $hasUnread = $conversation->getAttribute('has_unread');
                     @endphp
-                    <a href="{{ route('conversations.show', $conversation) }}" class="block km-panel p-6">
+                    <a href="{{ route('conversations.show', $conversation) }}" class="block km-portal-card p-6">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                             <div class="min-w-0">
                                 <div class="flex items-center gap-3">

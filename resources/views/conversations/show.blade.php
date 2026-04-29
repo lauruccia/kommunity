@@ -1,10 +1,27 @@
 <x-app-layout>
+    <style>
+        body {
+            background:
+                radial-gradient(circle at 82% 0%, rgba(139,197,63,.18), transparent 30%),
+                radial-gradient(circle at 10% 25%, rgba(45,212,191,.12), transparent 35%),
+                linear-gradient(135deg, #020b12, #031822 48%, #06111a) !important;
+            color: #f8fafc;
+        }
+    </style>
+
     <x-slot name="header">
-        <div class="km-portal-panel p-6">
-            <p class="text-xs uppercase tracking-[0.24em] text-white/60">Conversazione</p>
-            <h1 class="mt-3 font-serif text-2xl font-semibold sm:text-3xl lg:text-4xl text-white">
-                {{ $conversation->participants->firstWhere('id', '!=', auth()->id())?->name ?? $conversation->subject }}
-            </h1>
+        <div class="km-portal-panel overflow-hidden p-0">
+            <div class="px-6 py-5">
+                <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                    <div>
+                        <p class="km-portal-eyebrow">Conversazione privata</p>
+                        <h1 class="mt-1 text-3xl font-semibold text-white">
+                            {{ $conversation->participants->firstWhere('id', '!=', auth()->id())?->name ?? $conversation->subject }}
+                        </h1>
+                    </div>
+                    <a href="{{ route('conversations.index') }}" class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18);">← Tutte le conversazioni</a>
+                </div>
+            </div>
         </div>
     </x-slot>
 
@@ -15,12 +32,12 @@
                     @php
                         $isOwnMessage = $message->user_id === auth()->id();
                     @endphp
-                    <div class="rounded-[1.6rem] {{ $isOwnMessage ? 'bg-amber-50' : 'bg-white/[.075]' }} p-4">
+                    <div class="rounded-[1.6rem] p-4 {{ $isOwnMessage ? 'border border-[rgba(154,216,74,0.25)]' : 'border border-white/10' }}" style="{{ $isOwnMessage ? 'background: rgba(154,216,74,0.12);' : 'background: rgba(255,255,255,0.06);' }}">
                         <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                            <p class="text-sm font-semibold {{ $isOwnMessage ? 'text-stone-950' : 'text-white' }}">{{ $message->user?->name ?? 'Utente eliminato' }}</p>
-                            <p class="text-xs {{ $isOwnMessage ? 'text-stone-500' : 'text-white/60' }} sm:whitespace-nowrap">{{ $message->created_at->format('d/m H:i') }}</p>
+                            <p class="text-sm font-semibold {{ $isOwnMessage ? 'text-[#9AD84A]' : 'text-white' }}">{{ $message->user?->name ?? 'Utente eliminato' }}</p>
+                            <p class="text-xs text-white/55 sm:whitespace-nowrap">{{ $message->created_at->format('d/m H:i') }}</p>
                         </div>
-                        <p class="mt-2 text-sm leading-7 {{ $isOwnMessage ? 'text-stone-700' : 'text-white/80' }}">{{ $message->body }}</p>
+                        <p class="mt-2 text-sm leading-7 text-white/85">{{ $message->body }}</p>
                     </div>
                 @endforeach
             </div>
