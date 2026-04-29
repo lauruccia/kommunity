@@ -130,10 +130,13 @@ class ProfileController extends Controller
                 'show_phone' => $request->boolean('show_phone'),
                 'show_whatsapp' => $request->boolean('show_whatsapp'),
                 'allow_whatsapp_contact' => $request->boolean('allow_whatsapp_contact'),
-                'is_visible_in_directory' => true, // sempre visibile, gestito dall'admin
+                // is_visible_in_directory: gestito solo dall'admin, non sovrascriviamo mai
                 'onboarding_completed' => $request->boolean('onboarding_completed'),
                 'is_active' => true,
-                'status' => $request->boolean('onboarding_completed') ? 'active' : 'pending_approval',
+                // Non sovrascrivere status se già gestito dall'admin (active/suspended)
+                'status' => in_array($profile->status?->value, ['active', 'suspended'])
+                    ? $profile->status->value
+                    : ($request->boolean('onboarding_completed') ? 'pending_approval' : $profile->status?->value),
                 'profession_id' => collect($validated['profession_ids'] ?? [])->first(),
                 'avatar' => $avatar,
                 'logo' => $logo,

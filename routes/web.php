@@ -40,16 +40,20 @@ Route::get('/media/{path}', [MediaController::class, 'show'])
     ->where('path', '.*')
     ->name('media.show');
 
+// ── Profilo: accessibile anche senza onboarding completato ───────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
-    Route::get('/directory', DirectoryController::class)->name('directory.index');
-    Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
-
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/suggestions', [ProfileController::class, 'storeSuggestion'])->name('profile.suggestions.store');
     Route::delete('/profile/gallery/{memberGalleryImage}', [ProfileController::class, 'destroyGalleryImage'])->name('profile.gallery.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// ── Sezioni riservate: richiede onboarding completato ────────────────────────
+Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/directory', DirectoryController::class)->name('directory.index');
+    Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
 
     Route::get('/one-to-one', [OneToOneController::class, 'index'])->name('one-to-ones.index');
     Route::post('/one-to-one', [OneToOneController::class, 'store'])->name('one-to-ones.store');

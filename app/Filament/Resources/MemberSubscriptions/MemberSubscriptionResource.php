@@ -19,6 +19,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use App\Notifications\SubscriptionApprovedNotification;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -180,6 +181,9 @@ class MemberSubscriptionResource extends Resource
                             'approved_by' => auth()->id(),
                             'approved_at' => now(),
                         ]);
+                        // Notifica il membro via email
+                        $record->refresh();
+                        $record->user?->notify(new SubscriptionApprovedNotification($record));
                         Notification::make()->title('Abbonamento approvato')->success()->send();
                     }),
 

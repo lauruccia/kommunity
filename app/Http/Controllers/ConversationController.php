@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Conversation;
 use App\Models\User;
+use App\Notifications\NewMessageNotification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -145,6 +146,11 @@ class ConversationController extends Controller
             ]);
 
             $conversation->touch();
+
+            // Notifica il destinatario
+            $sender = $request->user();
+            $recipient = User::find($recipientId);
+            $recipient?->notify(new NewMessageNotification($conversation, $sender, $message));
         }
 
         return redirect()->route('conversations.show', $conversation);
@@ -168,6 +174,15 @@ class ConversationController extends Controller
         $conversation->participants()->updateExistingPivot($request->user()->id, [
             'last_read_at' => now(),
         ]);
+
+        // Notifica gli altri partecipanti
+        $sender = $request->user();
+        $conversation->participants()
+            ->where('users.id', '!=', $sender->id)
+            ->get()
+            ->each(fn (User $participant) => $participant->notify(
+                new NewMessageNotification($conversation, $sender, $data['body'])
+            ));
 
         return back()->with('status', 'message-sent');
     }

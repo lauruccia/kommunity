@@ -8,6 +8,7 @@ use App\Models\OneToOneFollowup;
 use App\Models\OneToOneNote;
 use App\Models\OneToOneRequest;
 use App\Models\User;
+use App\Notifications\OneToOneReceivedNotification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -215,7 +216,7 @@ class OneToOneController extends Controller
             $isBookable = $matchingSlot !== null && ! $hasConflict;
         }
 
-        OneToOneRequest::query()->create([
+        $oneToOneRequest = OneToOneRequest::query()->create([
             'requester_id' => $request->user()->id,
             'recipient_id' => $data['recipient_id'],
             'availability_slot_id' => $matchingSlot?->id,
@@ -227,6 +228,11 @@ class OneToOneController extends Controller
             'pre_notes' => $data['pre_notes'] ?? null,
             'status' => $isBookable ? OneToOneStatus::Accepted : OneToOneStatus::Pending,
         ]);
+
+        // Notifica il destinatario
+        $recipient = User::find($data['recipient_id']);
+        $oneToOneRequest->load('requester');
+        $recipient?->notify(new OneToOneReceivedNotification($oneToOneRequest));
 
         $redirectTo = $request->input('redirect_to', 'back');
 
