@@ -12,6 +12,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/abbonamento', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::post('/abbonamento', [SubscriptionController::class, 'request'])->name('subscriptions.request');
     Route::delete('/abbonamento/{subscription}', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+});
+
+// ── Admin: gestione cache ─────────────────────────────────────────────────────
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/cache', [CacheController::class, 'index'])->name('cache.index');
+    Route::post('/cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
 });
 
 require __DIR__.'/auth.php';
