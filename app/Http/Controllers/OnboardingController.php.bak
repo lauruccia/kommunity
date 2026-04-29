@@ -17,21 +17,13 @@ class OnboardingController extends Controller
      */
     public function saveStep(Request $request): JsonResponse
     {
-        // Normalizza URL prima della validazione: aggiunge https:// se manca il protocollo
-        foreach (['website', 'linkedin_url'] as $field) {
-            $val = $request->input($field);
-            if (filled($val) && !preg_match('#^https?://#i', $val)) {
-                $request->merge([$field => 'https://' . ltrim($val, '/')]);
-            }
-        }
-
         $data = $request->validate([
             'company_name'             => ['nullable', 'string', 'max:255'],
             'short_bio'                => ['nullable', 'string', 'max:500'],
             'networking_goals'         => ['nullable', 'string', 'max:2000'],
             'services'                 => ['nullable', 'string', 'max:2000'],
-            'website'                  => ['nullable', 'string', 'max:255'],
-            'linkedin_url'             => ['nullable', 'string', 'max:255'],
+            'website'                  => ['nullable', 'url', 'max:255'],
+            'linkedin_url'             => ['nullable', 'url', 'max:255'],
             'phone'                    => ['nullable', 'string', 'max:30'],
             'preferred_contact_method' => ['nullable', Rule::in(array_column(ContactMethod::cases(), 'value'))],
         ]);
