@@ -505,3 +505,19 @@
         height: 2.65rem;
     }
 }
+
+/* ── Member profile page — classi arbitrarie Tailwind non sempre compilate dal JIT ── */
+/* Banner altezze */
+.h-\[200px\] { height: 200px; }
+@media (min-width: 640px)  { .sm\:h-\[260px\] { height: 260px; } }
+@media (min-width: 1024px) { .lg\:h-\[320px\] { height: 320px; } }
+
+/* Grid sidebar + corpo */
+@media (min-width: 1024px) {
+    .lg\:grid-cols-\[320px_minmax\(0\,1fr\)\] {
+        grid-template-columns: 320px minmax(0, 1fr);
+    }
+}
+
+/* Avatar a cavallo del banner */
+.-top-12 { top: -3rem; }
