@@ -572,4 +572,11 @@
             document.addEventListener('keydown', (e) => { if (e.key==='Escape' && modal.style.display!=='none') closeModal(); });
             queryInput.addEventListener('input', renderMembers);
 
-            renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateS
+            renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState();
+
+            @if (session('status') === 'one-to-one-booked' || session('status') === 'one-to-one-created')
+                openModal();
+            @endif
+        })();
+    </script>
+</x-app-layout>
