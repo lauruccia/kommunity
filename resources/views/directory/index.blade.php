@@ -53,22 +53,7 @@
 }
 
 /* Avatar centrato che fuoriesce dalla card del 50% in alto */
-.km-directory-1to1-badge{
-    position:absolute;
-    bottom:12px;
-    right:12px;
-    background:#059669;
-    color:#fff;
-    font-size:0.6rem;
-    font-weight:800;
-    letter-spacing:0.06em;
-    padding:3px 8px;
-    border-radius:999px;
-    z-index:10;
-    pointer-events:none;
-    line-height:1.4;
-    box-shadow:0 2px 8px rgba(5,150,105,.35);
-}
+
 .km-directory-avatar-wrap{
     position:absolute!important;
     left:50%!important;
@@ -577,9 +562,6 @@
                                 @endif
                             </div>
 
-                            @if ($member->has_availability)
-                                <span class="km-directory-1to1-badge">1:1</span>
-                            @endif
                         </article>
                     @empty
                         <div class="km-panel p-8 col-span-full">
