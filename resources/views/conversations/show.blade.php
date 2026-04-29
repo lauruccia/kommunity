@@ -197,7 +197,7 @@
                         <div class="flex gap-4 pb-2 text-white/65">
                             <span>⌘</span><span>☺</span><span class="rounded border border-white/30 px-1 text-xs">GIF</span>
                         </div>
-                        <textarea name="body" rows="2" class="min-h-[44px] flex-1 resize-none bg-transparent py-2 text-white outline-none" placeholder="Scrivi un messaggio..." required></textarea>
+                        <textarea name="body" rows="2" class="min-h-[44px] flex-1 resize-none py-2 outline-none" style="background:transparent;color:#f5fbfd;" placeholder="Scrivi un messaggio..." required></textarea>
                         <button type="submit" class="km-msg-primary flex h-12 w-12 items-center justify-center rounded-lg">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                         </button>
