@@ -3,7 +3,7 @@
     $weekdayLabels     = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
     $miniWeekdayLabels = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
     $calendarEventsList = $calendarWeeks
-        ->flatMap(fn ($week) => $week->flatMap(fn ($day) => $day['events']))
+    ->flatMap(fn ($week) => $week->flatMap(fn ($day) => $day['events'] ?? collect()))
         ->unique('id')
         ->sortBy('starts_at')
         ->values();
@@ -1006,7 +1006,7 @@
                     <select name="chapter_id" class="km-portal-input w-full" required>
                         <option value="">Seleziona pianeta *</option>
                         @foreach ($managedChapters as $chapter)
-                        <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
+                        <option value="{{ $chapter->id }}">{{ $chapter?->name ?? 'Pianeta eliminato' }}</option>
                         @endforeach
                     </select>
 
