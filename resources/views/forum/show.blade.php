@@ -1,4 +1,14 @@
 <x-app-layout>
+    <style>
+        body {
+            background:
+                radial-gradient(circle at 82% 0%, rgba(139,197,63,.18), transparent 30%),
+                radial-gradient(circle at 10% 25%, rgba(45,212,191,.12), transparent 35%),
+                linear-gradient(135deg, #020b12, #031822 48%, #06111a) !important;
+            color: #f8fafc;
+        }
+    </style>
+
     <x-slot name="header">
         <div class="km-portal-panel overflow-hidden p-0">
             <div class="px-6 py-5">
@@ -11,15 +21,15 @@
                             <span>·</span>
                             <span>{{ $thread->created_at->format('d/m/Y H:i') }}</span>
                             @if ($thread->is_pinned)
-                                <span class="rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style="background: #fef3c7; border-color: #f3d388; color: #9a6700;">Announcement</span>
+                                <span class="rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style="background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.35); color: #fbbf24;">Announcement</span>
                             @endif
                             @if ($thread->is_locked)
-                                <span class="rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style="background: #e7eaee; border-color: #cfd7df; color: #51616f;">Locked</span>
+                                <span class="rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style="background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.22); color: rgba(248,250,252,0.70);">Locked</span>
                             @endif
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: #ffffff; border-color: #c8d7e2;">Torna al forum</a>
+                        <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18);">Torna al forum</a>
                         @unless($thread->is_locked)
                             <a href="#reply-box" class="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold text-white" style="background: #4f7d4a;">Rispondi</a>
                         @endunless
@@ -39,7 +49,7 @@
     <div class="km-portal-bg km-portal-page pb-12 pt-6">
         <div class="km-shell space-y-5">
             @if (session('status') === 'thread-replied')
-                <div class="rounded-[0.9rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                <div class="rounded-[0.9rem] border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">
                     Risposta pubblicata correttamente.
                 </div>
             @endif
@@ -65,7 +75,7 @@
                         </aside>
 
                         <div class="min-w-0">
-                            <div class="flex items-center justify-between gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]" style="background: linear-gradient(180deg, #1794d3 0%, #0f76b0 100%); color: #ffffff;">
+                            <div class="flex items-center justify-between gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]" style="background: rgba(154,216,74,0.10); border-bottom: 1px solid rgba(154,216,74,0.18); color: #9AD84A;">
                                 <div>{{ $thread->title }}</div>
                                 <div class="flex items-center gap-2">
                                     <a href="#post-{{ $post->id }}" class="rounded-full border px-3 py-1 text-white" style="background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.30);">Link</a>
@@ -106,21 +116,21 @@
             @endforeach
 
             <div id="reply-box" class="km-portal-panel overflow-hidden p-0">
-                <div class="px-5 py-3 text-white" style="background: linear-gradient(180deg, #7ea1b8 0%, #607b8f 100%);">
+                <div class="px-5 py-4 text-white" style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.10);">
                     <h2 class="text-xl font-semibold">Post reply</h2>
                 </div>
                 <form method="POST" action="{{ route('forum.reply', $thread) }}" class="space-y-4 bg-white/[.035] px-5 py-5">
                     @csrf
                     <input type="hidden" name="parent_id" id="forum-parent-id" value="">
-                    <div id="forum-reply-context" class="hidden rounded-[0.9rem] border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                    <div id="forum-reply-context" class="hidden rounded-[0.9rem] border border-white/20 bg-white/[.06] px-4 py-3 text-sm text-white/80">
                         <div class="flex items-center justify-between gap-3">
                             <span id="forum-reply-context-text"></span>
-                            <button type="button" id="forum-clear-reply-context" class="font-semibold text-sky-900">Annulla risposta</button>
+                            <button type="button" id="forum-clear-reply-context" class="font-semibold text-[#9AD84A]">Annulla risposta</button>
                         </div>
                     </div>
                     @if ($thread->is_locked)
-                        <div class="rounded-[0.9rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                            Questa discussione e chiusa. Non puoi aggiungere altre risposte.
+                        <div class="rounded-[0.9rem] border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-300">
+                            Questa discussione è chiusa. Non puoi aggiungere altre risposte.
                         </div>
                     @else
                         <textarea name="content" id="forum-reply-textarea" rows="6" class="w-full rounded-[1rem] border border-white/15 bg-white/10 px-4 py-3 text-[15px] text-white outline-none" placeholder="Scrivi la tua risposta o quota un messaggio sopra" required>{{ old('content') }}</textarea>

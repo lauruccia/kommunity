@@ -1,4 +1,14 @@
 <x-app-layout>
+    <style>
+        body {
+            background:
+                radial-gradient(circle at 82% 0%, rgba(139,197,63,.18), transparent 30%),
+                radial-gradient(circle at 10% 25%, rgba(45,212,191,.12), transparent 35%),
+                linear-gradient(135deg, #020b12, #031822 48%, #06111a) !important;
+            color: #f8fafc;
+        }
+    </style>
+
     <x-slot name="header">
         @php
             $activeCategory = !empty($filters['category']) ? $categories->firstWhere('id', (int) $filters['category']) : null;
@@ -8,7 +18,7 @@
             <div class="px-6 py-5">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="rounded-[0.85rem] border px-4 py-3" style="background: rgba(255,255,255,0.70); border-color: rgba(120,150,175,0.28);">
+                        <div class="km-portal-card rounded-[0.85rem] px-4 py-3">
                             <div style="font-size: 2rem; line-height: 1; font-weight: 700; letter-spacing: -0.04em; color: #9AD84A;">forum</div>
                             <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.22em; color: rgba(248,250,252,.62);">Kommunity Board</div>
                         </div>
@@ -19,15 +29,15 @@
                     </div>
 
                     <div class="grid w-full gap-3 sm:w-auto sm:grid-cols-3">
-                        <div class="rounded-[0.85rem] border px-4 py-3" style="background: rgba(255,255,255,0.72); border-color: rgba(120,150,175,0.28);">
+                        <div class="km-portal-card rounded-[0.85rem] px-4 py-3">
                             <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: rgba(248,250,252,.55);">Discussioni</div>
                             <div class="mt-1 text-2xl font-semibold text-white">{{ $stats['threads'] ?? 0 }}</div>
                         </div>
-                        <div class="rounded-[0.85rem] border px-4 py-3" style="background: rgba(255,255,255,0.72); border-color: rgba(120,150,175,0.28);">
+                        <div class="km-portal-card rounded-[0.85rem] px-4 py-3">
                             <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: rgba(248,250,252,.55);">Messaggi</div>
                             <div class="mt-1 text-2xl font-semibold text-white">{{ $stats['posts'] ?? 0 }}</div>
                         </div>
-                        <div class="rounded-[0.85rem] border px-4 py-3" style="background: rgba(255,255,255,0.72); border-color: rgba(120,150,175,0.28);">
+                        <div class="km-portal-card rounded-[0.85rem] px-4 py-3">
                             <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: rgba(248,250,252,.55);">Membri</div>
                             <div class="mt-1 text-2xl font-semibold text-white">{{ $stats['members'] ?? 0 }}</div>
                         </div>
@@ -46,7 +56,7 @@
 
                 <div class="grid w-full gap-3 sm:flex sm:w-auto sm:flex-wrap">
                     <button type="button" id="open-forum-thread-modal" class="inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-semibold text-white" style="background: #4f7d4a;">Nuovo topic</button>
-                    <button type="button" id="open-forum-category-modal" class="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-semibold text-white/80" style="background: #ffffff; border-color: #c8d7e2;">Proponi categoria</button>
+                    <button type="button" id="open-forum-category-modal" class="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-semibold text-white/80" style="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18);">Proponi categoria</button>
                 </div>
             </div>
         </div>
@@ -55,11 +65,11 @@
     <div class="km-portal-bg km-portal-page pb-12 pt-6">
         <div class="km-shell space-y-5">
             @if (session('status') === 'thread-created')
-                <div class="rounded-[0.9rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                <div class="rounded-[0.9rem] border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">
                     Thread pubblicato correttamente.
                 </div>
             @elseif (session('status') === 'forum-category-proposed')
-                <div class="rounded-[0.9rem] border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                <div class="rounded-[0.9rem] border border-sky-400/30 bg-sky-400/10 px-4 py-3 text-sm text-sky-300">
                     Proposta categoria inviata all'amministrazione.
                 </div>
             @endif
@@ -84,13 +94,13 @@
                         </select>
 
                         <button type="submit" class="inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold text-white" style="background: #4f7d4a;">Filtra</button>
-                        <a href="{{ route('forum.index') }}" class="inline-flex h-12 items-center justify-center rounded-full border px-6 text-sm font-semibold text-white/80" style="background: #ffffff; border-color: #c8d7e2;">Reset</a>
+                        <a href="{{ route('forum.index') }}" class="inline-flex h-12 items-center justify-center rounded-full border px-6 text-sm font-semibold text-white/80" style="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18);">Reset</a>
                     </form>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="min-w-[48rem] text-sm xl:min-w-full">
-                        <thead style="background: linear-gradient(180deg, #7ea1b8 0%, #607b8f 100%); color: #ffffff;">
+                        <thead style="background: rgba(255,255,255,0.05); color: #9AD84A;">
                             <tr class="text-left text-[11px] font-semibold uppercase tracking-[0.18em]">
                                 <th class="px-5 py-3">Forum</th>
                                 <th class="w-[110px] px-4 py-3 text-center">Topics</th>
@@ -158,7 +168,7 @@
                     <div class="text-sm text-[#587287]">{{ $threads->total() }} topic</div>
                 </div>
 
-                <div class="hidden grid-cols-[minmax(0,1fr)_96px_96px_250px] gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] md:grid" style="background: linear-gradient(180deg, #7ea1b8 0%, #607b8f 100%); color: #ffffff;">
+                <div class="hidden grid-cols-[minmax(0,1fr)_96px_96px_250px] gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] md:grid" style="background: rgba(255,255,255,0.05); color: #9AD84A;">
                     <div>Topics</div>
                     <div class="text-center">Replies</div>
                     <div class="text-center">Views</div>
@@ -253,7 +263,7 @@
 
         <div id="forum-thread-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-950/45 p-4">
             <div class="w-full max-w-2xl overflow-hidden rounded-[1rem] border border-white/10 bg-white/10 shadow-[0_30px_80px_rgba(17,24,39,0.22)]">
-                <div class="px-5 py-4" style="background: linear-gradient(180deg, #1a91cd 0%, #0f76b0 100%); color: #ffffff;">
+                <div class="px-5 py-4" style="background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.12); color: #f8fafc;">
                     <div class="flex items-center justify-between gap-4">
                         <h2 class="text-xl font-semibold">Nuovo topic</h2>
                         <button type="button" data-close-forum-modal class="rounded-full border px-4 py-2 text-sm font-semibold text-white" style="background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.30);">Chiudi</button>
@@ -277,7 +287,7 @@
                     <textarea name="content" rows="5" class="w-full rounded-[1rem] border border-white/15 bg-white/10 px-4 py-3 text-[15px] text-white outline-none" placeholder="Scrivi il primo messaggio" required>{{ old('content') }}</textarea>
 
                     <div class="flex justify-end gap-3">
-                        <button type="button" data-close-forum-modal class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: #ffffff; border-color: #c8d7e2;">Annulla</button>
+                        <button type="button" data-close-forum-modal class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18);">Annulla</button>
                         <button type="submit" class="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold text-white" style="background: #4f7d4a;">Pubblica thread</button>
                     </div>
                 </form>
@@ -286,7 +296,7 @@
 
         <div id="forum-category-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-950/45 p-4">
             <div class="w-full max-w-2xl overflow-hidden rounded-[1rem] border border-white/10 bg-white/10 shadow-[0_30px_80px_rgba(17,24,39,0.22)]">
-                <div class="px-5 py-4" style="background: linear-gradient(180deg, #1a91cd 0%, #0f76b0 100%); color: #ffffff;">
+                <div class="px-5 py-4" style="background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.12); color: #f8fafc;">
                     <div class="flex items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
                             <h2 class="text-xl font-semibold">Proponi categoria</h2>
@@ -304,7 +314,7 @@
                     <textarea name="description" rows="4" class="w-full rounded-[1rem] border border-white/15 bg-white/10 px-4 py-3 text-[15px] text-white outline-none" placeholder="Perché serve e quali discussioni dovrebbe ospitare"></textarea>
 
                     <div class="flex justify-end gap-3">
-                        <button type="button" data-close-forum-modal class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: #ffffff; border-color: #c8d7e2;">Annulla</button>
+                        <button type="button" data-close-forum-modal class="inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-semibold text-white/80" style="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18);">Annulla</button>
                         <button type="submit" class="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold text-white" style="background: #4f7d4a;">Invia proposta</button>
                     </div>
                 </form>

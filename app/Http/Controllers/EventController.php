@@ -81,22 +81,30 @@ class EventController extends Controller
             ->orderBy('starts_at')
             ->get();
 
+        $futureCalendarEvents = $calendarEvents
+            ->filter(fn (Event $event) => ! $event->starts_at->isPast() && $event->status !== 'cancelled')
+            ->values();
+
+        $visibleCalendarEvents = $futureCalendarEvents->isNotEmpty()
+            ? $futureCalendarEvents
+            : $calendarEvents;
+
         // Griglia mese
         $calendarDays = collect(CarbonPeriod::create($calendarStart, $calendarEnd))
             ->map(fn (Carbon $day) => [
                 'date'   => $day->copy(),
-                'events' => $calendarEvents->filter(fn (Event $e) => $e->starts_at->isSameDay($day))->values(),
+                'events' => $visibleCalendarEvents->filter(fn (Event $e) => $e->starts_at->isSameDay($day))->values(),
             ])->values();
 
         $calendarWeeks     = $calendarDays->chunk(7)->values();
         $selectedDay       = $focusDate->copy();
-        $selectedDayEvents = $calendarEvents->filter(fn (Event $e) => $e->starts_at->isSameDay($selectedDay))->values();
+        $selectedDayEvents = $visibleCalendarEvents->filter(fn (Event $e) => $e->starts_at->isSameDay($selectedDay))->values();
 
         // Vista settimana
         $weekDays = collect(CarbonPeriod::create($weekStart, $weekEnd))
             ->map(fn (Carbon $day) => [
                 'date'   => $day->copy(),
-                'events' => $calendarEvents->filter(fn (Event $e) => $e->starts_at->isSameDay($day))->values(),
+                'events' => $visibleCalendarEvents->filter(fn (Event $e) => $e->starts_at->isSameDay($day))->values(),
             ])->values();
 
         // Stato partecipazione utente
@@ -133,22 +141,66 @@ class EventController extends Controller
                 ])
             : collect();
 
-        $futureDetailEvents = $calendarEvents
-            ->filter(fn (Event $event) => ! $event->starts_at->isPast() && $event->status !== 'cancelled')
-            ->sortBy('starts_at')
-            ->values();
+        $detailEvents = $visibleCalendarEvents;
 
-        $defaultDetailEventId = $futureDetailEvents
-            ->first(fn (Event $event) => in_array($eventStatuses[$event->id] ?? null, EventAttendanceStatus::attendingValues(), true))
-            ?->id
-            ?? $futureDetailEvents
-                ->first(fn (Event $event) => $pendingInvitationEventIds->contains($event->id))
-                ?->id
-            ?? $futureDetailEvents->first()?->id
-            ?? $calendarEvents->first()?->id;
+        $futureRegisteredEvent = Event::query()
+            ->with(['chapter', 'organizer', 'attendees' => fn ($q) => $q->select('users.id', 'users.name', 'users.email')])
+            ->withCount([
+                'registrations as attending_count'      => fn ($q) => $q->whereIn('status', EventAttendanceStatus::attendingValues()),
+                'registrations as interested_count'     => fn ($q) => $q->where('status', EventAttendanceStatus::Interested->value),
+                'registrations as not_interested_count' => fn ($q) => $q->where('status', EventAttendanceStatus::NotInterested->value),
+            ])
+            ->where('is_published', true)
+            ->where('status', '!=', 'cancelled')
+            ->where('starts_at', '>=', now())
+            ->whereHas('registrations', fn ($q) => $q
+                ->where('user_id', $user->id)
+                ->whereIn('status', EventAttendanceStatus::attendingValues()))
+            ->orderBy('starts_at')
+            ->first();
+
+        $futureInvitedEvent = $pendingInvitationEventIds->isNotEmpty()
+            ? Event::query()
+                ->with(['chapter', 'organizer', 'attendees' => fn ($q) => $q->select('users.id', 'users.name', 'users.email')])
+                ->withCount([
+                    'registrations as attending_count'      => fn ($q) => $q->whereIn('status', EventAttendanceStatus::attendingValues()),
+                    'registrations as interested_count'     => fn ($q) => $q->where('status', EventAttendanceStatus::Interested->value),
+                    'registrations as not_interested_count' => fn ($q) => $q->where('status', EventAttendanceStatus::NotInterested->value),
+                ])
+                ->whereIn('id', $pendingInvitationEventIds)
+                ->where('is_published', true)
+                ->where('status', '!=', 'cancelled')
+                ->where('starts_at', '>=', now())
+                ->orderBy('starts_at')
+                ->first()
+            : null;
+
+        $nextFutureEvent = Event::query()
+            ->with(['chapter', 'organizer', 'attendees' => fn ($q) => $q->select('users.id', 'users.name', 'users.email')])
+            ->withCount([
+                'registrations as attending_count'      => fn ($q) => $q->whereIn('status', EventAttendanceStatus::attendingValues()),
+                'registrations as interested_count'     => fn ($q) => $q->where('status', EventAttendanceStatus::Interested->value),
+                'registrations as not_interested_count' => fn ($q) => $q->where('status', EventAttendanceStatus::NotInterested->value),
+            ])
+            ->where('is_published', true)
+            ->where('status', '!=', 'cancelled')
+            ->where('starts_at', '>=', now())
+            ->orderBy('starts_at')
+            ->first();
+
+        $defaultDetailEvent = $futureRegisteredEvent
+            ?? $futureInvitedEvent
+            ?? $nextFutureEvent
+            ?? $detailEvents->sortByDesc('starts_at')->first();
+
+        if ($defaultDetailEvent && ! $detailEvents->contains('id', $defaultDetailEvent->id)) {
+            $detailEvents = $detailEvents->push($defaultDetailEvent)->unique('id')->values();
+        }
+
+        $defaultDetailEventId = $defaultDetailEvent?->id;
 
         // Quick-events JSON per pannello dettaglio
-        $quickEvents = $calendarEvents->mapWithKeys(function (Event $event) use ($eventStatuses, $pendingInvitationEventIds, $user, $managedChapterIds) {
+        $quickEvents = $detailEvents->mapWithKeys(function (Event $event) use ($eventStatuses, $pendingInvitationEventIds, $user, $managedChapterIds) {
             $canManageThis = $this->isAdmin($user)
                 || $user->can('gestire-eventi')
                 || in_array($event->chapter_id, $managedChapterIds, true);
@@ -159,7 +211,7 @@ class EventController extends Controller
                     'title'                => $event->title,
                     'description'          => Str::limit((string) $event->description, 240),
                     'date_label'           => $event->starts_at->translatedFormat('d F Y'),
-                    'time_label'           => $event->starts_at->format('H:i') . ($event->ends_at ? ' – ' . $event->ends_at->format('H:i') : ''),
+                    'time_label'           => $event->starts_at->format('H:i') . ($event->ends_at ? ' - ' . $event->ends_at->format('H:i') : ''),
                     'location'             => $event->location ?: 'Online',
                     'meeting_url'          => $event->meeting_url,
                     'chapter'              => $event->chapter?->name ?? 'Evento community',

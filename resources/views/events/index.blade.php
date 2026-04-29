@@ -39,9 +39,11 @@
 
     .km-events-topbar,
     .km-events-card {
-        border: 1px solid var(--km-events-line);
-        background: var(--km-events-panel);
-        box-shadow: 0 20px 70px rgba(0, 0, 0, .18);
+        border: 1px solid rgba(123, 180, 168, .18);
+        background:
+            radial-gradient(circle at 55% 18%, rgba(73, 209, 196, .08), transparent 38%),
+            rgba(2, 27, 38, .74);
+        box-shadow: 0 20px 70px rgba(0, 0, 0, .16);
         backdrop-filter: blur(16px);
     }
 
@@ -109,6 +111,29 @@
         height: 10px;
         width: 10px;
         border-radius: 999px;
+    }
+
+    .km-events-filter-row {
+        border: 1px solid rgba(130, 190, 177, .15);
+        background: rgba(5, 41, 53, .52);
+        color: rgba(226, 240, 243, .68);
+    }
+
+    .km-events-filter-row:hover {
+        border-color: rgba(139, 197, 63, .22);
+        background: rgba(12, 66, 58, .48);
+        color: #fff;
+    }
+
+    .km-events-filter-row-active {
+        border-color: rgba(139, 197, 63, .32);
+        background: linear-gradient(90deg, rgba(139, 197, 63, .18), rgba(45, 120, 99, .12));
+        color: #fff;
+    }
+
+    .km-events-count-pill {
+        background: rgba(172, 217, 203, .13);
+        color: rgba(241, 248, 250, .78);
     }
 
     .km-events-day {
@@ -185,6 +210,7 @@
 
             switch (this.activeFilter) {
                 case 'confirmed': return ev.user_status === 'attending' || ev.user_status === 'registered';
+                case 'pending': return ev.is_invited || ev.user_status === 'interested';
                 case 'past': return ev.is_past && !ev.is_cancelled;
                 case 'cancelled': return ev.is_cancelled;
                 case 'mine_org': return ev.is_mine;
@@ -198,6 +224,7 @@
             return {
                 all: evs.length,
                 confirmed: evs.filter(e => e.user_status === 'attending' || e.user_status === 'registered').length,
+                pending: evs.filter(e => e.is_invited || e.user_status === 'interested').length,
                 past: evs.filter(e => e.is_past && !e.is_cancelled).length,
                 cancelled: evs.filter(e => e.is_cancelled).length,
                 mine_org: evs.filter(e => e.is_mine).length,
@@ -440,17 +467,18 @@
 
             <div class="space-y-2">
                 @foreach ([
-                    'all'       => ['label' => 'Tutti gli eventi',  'count_key' => 'all',       'dot' => 'bg-white/45'],
+                    'all'       => ['label' => 'Tutti gli eventi',  'count_key' => 'all',       'dot' => 'bg-white/35'],
+                    'pending'   => ['label' => 'In attesa',         'count_key' => 'pending',   'dot' => 'bg-amber-400'],
                     'confirmed' => ['label' => 'Confermati',        'count_key' => 'confirmed', 'dot' => 'bg-[color:var(--km-events-green)]'],
                     'past'      => ['label' => 'Completati',        'count_key' => 'past',      'dot' => 'bg-sky-400'],
-                    'cancelled' => ['label' => 'Annullati',         'count_key' => 'cancelled', 'dot' => 'bg-red-400'],
+                    'cancelled' => ['label' => 'Cancellati',        'count_key' => 'cancelled', 'dot' => 'bg-red-400'],
                 ] as $filterKey => $filterDef)
                     <button
                         @click="activeFilter = '{{ $filterKey }}'"
-                        class="flex w-full items-center justify-between rounded-md border px-3 py-3 text-left text-sm transition"
+                        class="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition"
                         :class="activeFilter === '{{ $filterKey }}'
-                            ? 'border-[color:var(--km-events-green)]/25 bg-[color:var(--km-events-green)]/13 text-white font-semibold'
-                            : 'border-white/10 bg-white/[.025] text-white/62 hover:bg-white/[.05] hover:text-white'"
+                            ? 'km-events-filter-row-active font-semibold'
+                            : 'km-events-filter-row'"
                     >
                         <span class="flex items-center gap-3">
                             <span class="km-events-filter-dot {{ $filterDef['dot'] }}"></span>
@@ -458,8 +486,7 @@
                         </span>
 
                         <span
-                            class="ml-2 rounded-full px-2 py-0.5 text-xs font-bold"
-                            :class="activeFilter === '{{ $filterKey }}' ? 'bg-[color:var(--km-events-green)]/25 text-white/90' : 'bg-white/[.08] text-white/45'"
+                            class="km-events-count-pill ml-2 rounded-full px-2 py-0.5 text-xs font-bold"
                             x-text="filterCounts['{{ $filterDef['count_key'] }}']"
                         ></span>
                     </button>
@@ -477,16 +504,15 @@
                 ] as $filterKey => $filterDef)
                     <button
                         @click="activeFilter = '{{ $filterKey }}'"
-                        class="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[.025] px-3 py-3 text-left text-sm transition"
+                        class="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition"
                         :class="activeFilter === '{{ $filterKey }}'
-                            ? 'bg-[color:var(--km-events-green)]/13 text-white font-semibold'
-                            : 'text-white/62 hover:bg-white/[.05] hover:text-white'"
+                            ? 'km-events-filter-row-active font-semibold'
+                            : 'km-events-filter-row'"
                     >
                         <span>{{ $filterDef['label'] }}</span>
 
                         <span
-                            class="ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
-                            :class="activeFilter === '{{ $filterKey }}' ? 'bg-[color:var(--km-events-green)]/30 text-white/80' : 'bg-white/[.07] text-white/40'"
+                            class="km-events-count-pill ml-2 rounded-full px-2 py-0.5 text-xs font-bold"
                             x-text="filterCounts['{{ $filterDef['count_key'] }}']"
                         ></span>
                     </button>
