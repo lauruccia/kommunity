@@ -284,6 +284,7 @@
                                 </p>
                             </div>
 
+                            @if ($user->memberGalleryImages->isNotEmpty())
                             <div>
                                 <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
                                     Gallery
@@ -400,12 +401,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                @else
-                                    <div class="mt-4 rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-5 text-sm text-stone-500">
-                                        La gallery verrà popolata dal membro con immagini dei propri progetti e attività.
-                                    </div>
                                 @endif
                             </div>
+                            @endif
 
                         </div>
                     </div>
