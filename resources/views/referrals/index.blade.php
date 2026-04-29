@@ -381,20 +381,21 @@
                                     <div class="flex items-center gap-3"><span>▣</span><span>Ultimo aggiornamento<br>{{ $referral->updated_at->format('d/m/Y H:i') }}</span></div>
                                 </div>
 
-                                <details class="kr-referral-action">
-                                    <summary class="list-none rounded-xl border border-white/10 px-6 py-3 text-center text-sm font-semibold text-white">Visualizza</summary>
-                                    <form method="POST" action="{{ route('referrals.status', $referral) }}" class="mt-3 w-[300px] space-y-2 rounded-xl border border-white/10 bg-[#021a23] p-3">
-                                        @csrf @method('PATCH')
-                                        <select name="status" class="kr-input h-11 w-full rounded-lg px-3">
-                                            @foreach ($statusOptions as $value => $label)
-                                                <option value="{{ $value }}" @selected($referral->status->value === $value)>{{ $label }}</option>
-                                            @endforeach
-                                        </select>
-                                        <textarea name="outcome" rows="2" class="kr-input w-full rounded-lg px-3 py-2" placeholder="Esito">{{ $referral->outcome }}</textarea>
-                                        <textarea name="notes" rows="2" class="kr-input w-full rounded-lg px-3 py-2" placeholder="Note">{{ $referral->notes }}</textarea>
-                                        <button type="submit" class="kr-primary h-10 w-full rounded-lg text-sm font-semibold">Salva</button>
-                                    </form>
-                                </details>
+                                <button type="button"
+                                    class="kr-referral-action rounded-xl border border-white/10 px-6 py-3 text-sm font-semibold text-white"
+                                    data-action="{{ route('referrals.status', $referral) }}"
+                                    data-title="{{ e($referral->title) }}"
+                                    data-status="{{ $referral->status->value }}"
+                                    data-outcome="{{ e($referral->outcome) }}"
+                                    data-notes="{{ e($referral->notes) }}"
+                                    data-description="{{ e($referral->description) }}"
+                                    data-company="{{ e($referral->company_name) }}"
+                                    data-contact="{{ e($referral->contact_name) }}"
+                                    data-sender="{{ e($referral->sender?->name ?? 'Utente eliminato') }}"
+                                    data-date="{{ $referral->created_at->format('d F Y') }}"
+                                    onclick="openReferralModal(this)">
+                                    ▶ Visualizza
+                                </button>
                             </div>
                         </div>
                     @empty
@@ -431,4 +432,74 @@
             </section>
         </main>
     </div>
+
+    {{-- ── MODAL REFERENZA ─────────────────────────────────────── --}}
+    <div id="kr-modal-backdrop" style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.65); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px;">
+        <div class="kr-card w-full p-7" style="max-width:520px; max-height:90vh; overflow-y:auto; position:relative;">
+            <button type="button" onclick="closeReferralModal()" style="position:absolute; top:16px; right:18px; background:none; border:none; color:rgba(255,255,255,.45); font-size:22px; cursor:pointer; line-height:1;" title="Chiudi">✕</button>
+
+            <p id="kr-modal-sender" class="text-xs font-semibold uppercase tracking-widest" style="color: var(--kr-green);"></p>
+            <h2 id="kr-modal-title" class="mt-2 text-xl font-semibold text-white" style="padding-right:32px;"></h2>
+            <p id="kr-modal-meta" class="mt-1 text-sm" style="color: var(--kr-soft);"></p>
+            <p id="kr-modal-desc" class="mt-3 text-sm leading-6" style="color: var(--kr-muted);"></p>
+
+            <div style="border-top:1px solid rgba(153,194,202,.18); margin:20px 0;"></div>
+
+            <form id="kr-modal-form" method="POST" class="space-y-3">
+                @csrf
+                @method('PATCH')
+                <div>
+                    <label class="mb-1 block text-sm text-white">Stato</label>
+                    <select id="kr-modal-status" name="status" class="kr-input h-11 w-full rounded-lg px-3">
+                        @foreach ($statusOptions as $value => $label)
+                            <option value="{{ $value }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm text-white">Esito</label>
+                    <textarea id="kr-modal-outcome" name="outcome" rows="2" class="kr-input w-full rounded-lg px-3 py-2" placeholder="Esito dell'opportunità..."></textarea>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm text-white">Note</label>
+                    <textarea id="kr-modal-notes" name="notes" rows="2" class="kr-input w-full rounded-lg px-3 py-2" placeholder="Note interne..."></textarea>
+                </div>
+                <button type="submit" class="kr-primary h-11 w-full rounded-xl text-sm font-semibold">Salva modifiche</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function decodeHtml(str) {
+            const el = document.createElement('textarea');
+            el.innerHTML = str;
+            return el.value;
+        }
+        function openReferralModal(btn) {
+            document.getElementById('kr-modal-form').action = btn.dataset.action;
+            document.getElementById('kr-modal-title').textContent = decodeHtml(btn.dataset.title);
+            document.getElementById('kr-modal-sender').textContent = 'Da ' + decodeHtml(btn.dataset.sender);
+            document.getElementById('kr-modal-desc').textContent = decodeHtml(btn.dataset.description || '');
+            document.getElementById('kr-modal-meta').textContent =
+                (btn.dataset.company || 'Azienda non indicata') + ' · ' +
+                (btn.dataset.contact || 'Contatto non indicato') + ' · ' +
+                btn.dataset.date;
+            document.getElementById('kr-modal-status').value = btn.dataset.status;
+            document.getElementById('kr-modal-outcome').value = btn.dataset.outcome || '';
+            document.getElementById('kr-modal-notes').value = btn.dataset.notes || '';
+            const bd = document.getElementById('kr-modal-backdrop');
+            bd.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeReferralModal() {
+            document.getElementById('kr-modal-backdrop').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        document.getElementById('kr-modal-backdrop').addEventListener('click', function(e) {
+            if (e.target === this) closeReferralModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeReferralModal();
+        });
+    </script>
 </x-app-layout>
