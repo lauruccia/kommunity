@@ -241,7 +241,9 @@
                                         <tr style="{{ $isOpen ? 'background:rgba(139,197,63,.05);' : '' }}">
                                             <td><span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--km-muted);">{{ $requestItem->requester_id === auth()->id() ? 'Inviata' : 'Ricevuta' }}</span></td>
                                             <td>
-                                                <div style="font-weight:700;color:var(--km-text);">{{ $requestItem->requester_id === auth()->id() ? $requestItem->recipient->name : $requestItem->requester->name }}</div>
+                                                <div style="font-weight:700;color:var(--km-text);">{{ $requestItem->requester_id === auth()->id()
+    ? ($requestItem->recipient?->name ?? 'Utente eliminato')
+    : ($requestItem->requester?->name ?? 'Utente eliminato') }}</div>
                                                 <div class="km-muted" style="font-size:.73rem;">{{ $requestItem->requester_id === auth()->id() ? 'Con' : 'Da' }}</div>
                                             </td>
                                             <td class="km-muted" style="font-size:.8rem;">{{ optional($requestItem->requested_at)->format('d/m/Y H:i') ?: 'Da confermare' }}</td>
