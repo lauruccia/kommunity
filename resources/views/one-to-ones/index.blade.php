@@ -136,6 +136,12 @@
                 background:#102832;
                 color:var(--km-text);
             }
+            .km-oto-filter-form{
+                display:grid;
+                grid-template-columns:repeat(6,minmax(0,1fr));
+                gap:.85rem;
+                align-items:end;
+            }
             .km-oto-mobile-list{display:none;}
             .km-dark-modal{
                 background:linear-gradient(135deg,#031822,#052532);
@@ -179,6 +185,7 @@
                 .km-oto-mobile-list{display:grid;gap:.75rem;}
                 .km-oto-hero::before{top:-1.8rem;right:.75rem;}
                 .km-oto-filter-menu{position:static;width:100%;margin-top:.75rem;}
+                .km-oto-filter-form{grid-template-columns:1fr;}
             }
             @media (max-width:640px){
                 .km-oto-modal-grid{grid-template-columns:1fr!important;}
@@ -260,12 +267,12 @@
                                     Filtri
                                 </summary>
                                 <div class="km-oto-filter-menu rounded-2xl p-4">
-                                    <form method="GET" class="grid gap-3 lg:grid-cols-12">
-                                        <label class="lg:col-span-3">
+                                    <form method="GET" class="km-oto-filter-form">
+                                        <label class="col-span-6 md:col-span-3">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Cerca</span>
                                             <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input" placeholder="Membro o obiettivo">
                                         </label>
-                                        <label class="lg:col-span-3">
+                                        <label class="col-span-6 md:col-span-3">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Membro</span>
                                             <select name="member" class="km-dark-input">
                                                 <option value="">Tutti</option>
@@ -274,7 +281,7 @@
                                                 @endforeach
                                             </select>
                                         </label>
-                                        <label class="lg:col-span-2">
+                                        <label class="col-span-6 md:col-span-2">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Tipo</span>
                                             <select name="type" class="km-dark-input">
                                                 <option value="">Tutti</option>
@@ -283,7 +290,7 @@
                                                 @endforeach
                                             </select>
                                         </label>
-                                        <label class="lg:col-span-2">
+                                        <label class="col-span-6 md:col-span-2">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Stato</span>
                                             <select name="status" class="km-dark-input">
                                                 <option value="">Tutti</option>
@@ -292,7 +299,7 @@
                                                 @endforeach
                                             </select>
                                         </label>
-                                        <label class="lg:col-span-2">
+                                        <label class="col-span-6 md:col-span-2">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Modalita'</span>
                                             <select name="meeting_mode" class="km-dark-input">
                                                 <option value="">Tutte</option>
@@ -301,15 +308,15 @@
                                                 @endforeach
                                             </select>
                                         </label>
-                                        <label class="lg:col-span-3">
+                                        <label class="col-span-6 md:col-span-2">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Da</span>
                                             <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" class="km-dark-input">
                                         </label>
-                                        <label class="lg:col-span-3">
+                                        <label class="col-span-6 md:col-span-2">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">A</span>
                                             <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" class="km-dark-input">
                                         </label>
-                                        <div class="flex items-end gap-2 lg:col-span-6">
+                                        <div class="col-span-6 flex items-end gap-2 md:col-span-2">
                                             <button type="submit" class="km-button-primary flex-1">Applica filtri</button>
                                             <a href="{{ route('one-to-ones.index') }}" class="km-button-secondary">Reset</a>
                                         </div>
