@@ -14,10 +14,17 @@ class MediaController extends Controller
             return response()->file(Storage::disk('public')->path($path));
         }
 
-        // Fallback: file già esistenti nel vecchio storage/app/public/ (prima della migrazione)
-        $legacyPath = storage_path('app/public/' . ltrim($path, '/'));
+        // Fallback 1: vecchio path con prefisso members/ in storage/app/public/
+        // (file caricati prima della migrazione a public_html/media/)
+        $legacyPath = storage_path('app/public/members/' . ltrim($path, '/'));
         if (file_exists($legacyPath) && is_file($legacyPath)) {
             return response()->file($legacyPath);
+        }
+
+        // Fallback 2: storage/app/public/ senza prefisso members/
+        $legacyPath2 = storage_path('app/public/' . ltrim($path, '/'));
+        if (file_exists($legacyPath2) && is_file($legacyPath2)) {
+            return response()->file($legacyPath2);
         }
 
         abort(404);

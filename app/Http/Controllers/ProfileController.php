@@ -81,10 +81,10 @@ class ProfileController extends Controller
             ]
         );
 
-        $avatar = $this->storePublicFile($request->file('avatar'), $profile->avatar, 'members/avatars') ?? $profile->avatar;
-        $logo = $this->storePublicFile($request->file('logo'), $profile->logo, 'members/logos') ?? $profile->logo;
-        $coverImage = $this->storePublicFile($request->file('cover_image'), $onepage->cover_image, 'members/covers') ?? $onepage->cover_image;
-        $introVideo = $this->storePublicVideo($request->file('intro_video'), $profile->intro_video, 'members/videos', $videoCompressor) ?? $profile->intro_video;
+        $avatar = $this->storePublicFile($request->file('avatar'), $profile->avatar, 'avatars') ?? $profile->avatar;
+        $logo = $this->storePublicFile($request->file('logo'), $profile->logo, 'logos') ?? $profile->logo;
+        $coverImage = $this->storePublicFile($request->file('cover_image'), $onepage->cover_image, 'covers') ?? $onepage->cover_image;
+        $introVideo = $this->storePublicVideo($request->file('intro_video'), $profile->intro_video, 'videos', $videoCompressor) ?? $profile->intro_video;
         $fullName = trim($validated['first_name'].' '.$validated['last_name']);
 
         $request->user()->fill([
@@ -175,7 +175,7 @@ class ProfileController extends Controller
         ]);
 
         // Assicura che la directory esista sul disco public
-        Storage::disk('public')->makeDirectory('members/gallery');
+        Storage::disk('public')->makeDirectory('gallery');
 
         $galleryFiles = $request->file('gallery_images') ?? [];
         foreach ((array) $galleryFiles as $galleryImage) {
@@ -184,7 +184,7 @@ class ProfileController extends Controller
                 continue;
             }
             try {
-                $path = $galleryImage->store('members/gallery', 'public');
+                $path = $galleryImage->store('gallery', 'public');
                 if ($path) {
                     $request->user()->memberGalleryImages()->create([
                         'image_path' => $path,
