@@ -40,8 +40,11 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // In locale usa storage/app/public (default Laravel).
+            // Su cPanel imposta MEDIA_DISK_ROOT=/home2/kommunity/public_html/media
+            // così i file sono serviti direttamente da Apache senza passare per PHP.
+            'root' => env('MEDIA_DISK_ROOT', storage_path('app/public')),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/media',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
