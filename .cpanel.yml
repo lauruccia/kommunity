@@ -39,6 +39,16 @@ deployment:
     - /bin/cp public/sw.js          $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/.user.ini      $DEPLOYPATH/ 2>/dev/null || true
 
+    # ── Directory media upload: crea le sottocartelle se non esistono ──────
+    # I file caricati dagli utenti vanno in public_html/media/ e sono serviti
+    # direttamente da Apache come file statici (nessun passaggio PHP).
+    - /bin/mkdir -p $DEPLOYPATH/media/members/avatars
+    - /bin/mkdir -p $DEPLOYPATH/media/members/logos
+    - /bin/mkdir -p $DEPLOYPATH/media/members/covers
+    - /bin/mkdir -p $DEPLOYPATH/media/members/gallery
+    - /bin/mkdir -p $DEPLOYPATH/media/members/videos
+    - /bin/chmod -R 755 $DEPLOYPATH/media
+
     # ── Permessi corretti per Apache ───────────────────────────────────────
     - /bin/find $DEPLOYPATH/css    -type f -exec /bin/chmod 644 {} \;
     - /bin/find $DEPLOYPATH/js     -type f -exec /bin/chmod 644 {} \;
