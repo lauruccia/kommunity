@@ -16,11 +16,18 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        {{-- Design system Kommunity (file STATICO in public/css/, modificabile via cPanel)
-             Cache-busting via filemtime: ogni volta che modifichi il file, cambia il param ?v= --}}
+        {{-- Design system Kommunity (file STATICO modificabile via cPanel File Manager).
+             Cache-busting cross-environment: in locale Laragon il file vive in public/css/,
+             su cPanel produzione vive in ../public_html/css/ (web root del dominio). --}}
         @php
-            $kmCssPath = public_path('css/kommunity.css');
-            $kmCssVer = file_exists($kmCssPath) ? filemtime($kmCssPath) : '1';
+            $kmCssCandidates = [
+                public_path('css/kommunity.css'),                  // locale (Laragon serve public/ come web root)
+                base_path('../public_html/css/kommunity.css'),     // produzione cPanel (web root = public_html/)
+            ];
+            $kmCssVer = '1';
+            foreach ($kmCssCandidates as $kmCssPath) {
+                if (file_exists($kmCssPath)) { $kmCssVer = filemtime($kmCssPath); break; }
+            }
         @endphp
         <link rel="stylesheet" href="{{ asset('css/kommunity.css') }}?v={{ $kmCssVer }}">
 

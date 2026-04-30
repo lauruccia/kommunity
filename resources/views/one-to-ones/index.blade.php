@@ -1,86 +1,140 @@
 <x-app-layout>
-    <style>
-        :root{
-            --km-dark:#020b12;
-            --km-dark-2:#031822;
-            --km-dark-3:#052532;
-            --km-green:#8BC53F;
-            --km-green-2:#9AD84A;
-            --km-teal:#2DD4BF;
-            --km-text:#F8FAFC;
-            --km-muted:#AAB7C4;
-            --km-line:rgba(255,255,255,.12);
-            --km-glass:rgba(255,255,255,.075);
-        }
-        body{
-            background:
-                radial-gradient(circle at 80% 0%,rgba(139,197,63,.18),transparent 30%),
-                radial-gradient(circle at 10% 25%,rgba(45,212,191,.12),transparent 35%),
-                linear-gradient(135deg,var(--km-dark),var(--km-dark-2) 48%,#06111a)!important;
-        }
-        .km-shell{width:min(1480px,calc(100% - 48px));margin:0 auto;}
-        .km-dark-panel{position:relative;overflow:hidden;border:1px solid var(--km-line);background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.045));box-shadow:0 24px 80px rgba(0,0,0,.35);backdrop-filter:blur(18px);border-radius:2rem;color:var(--km-text);}
-        .km-dark-card{border:1px solid var(--km-line);background:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.035));box-shadow:0 18px 60px rgba(0,0,0,.22);backdrop-filter:blur(18px);border-radius:1.8rem;color:var(--km-text);}
-        .km-eyebrow{color:var(--km-green-2);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;font-weight:800;}
-        .km-muted{color:var(--km-muted);}
-        .km-glass-box{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:1.4rem;}
-        .km-hero::before{content:"↔";position:absolute;right:6%;top:-30px;font-size:260px;font-weight:900;line-height:1;color:rgba(255,255,255,.04);pointer-events:none;}
-        .km-button-primary{background:linear-gradient(135deg,var(--km-green),#5f9d42)!important;color:#061018!important;border:0!important;box-shadow:0 16px 42px rgba(139,197,63,.22);}
-        .km-button-secondary{background:rgba(255,255,255,.08)!important;color:var(--km-text)!important;border:1px solid rgba(255,255,255,.14)!important;}
-        .km-button-primary,.km-button-secondary{border-radius:1rem!important;min-height:42px;padding:.65rem 1.2rem!important;font-weight:700!important;font-size:.82rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:.22s ease;white-space:nowrap;text-decoration:none;}
-        .km-button-primary:hover,.km-button-secondary:hover{transform:translateY(-2px);}
-        .km-dark-input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:1rem;color:var(--km-text);padding:.65rem 1rem;width:100%;font-size:.875rem;font-family:inherit;outline:none;transition:border-color .2s;}
-        .km-dark-input::placeholder{color:var(--km-muted);}
-        .km-dark-input:focus{border-color:rgba(139,197,63,.5);}
-        .km-dark-input option{background:#052532;color:var(--km-text);}
-        .km-dark-table{width:100%;border-collapse:collapse;}
-        .km-dark-table th{text-align:left;padding:.875rem 1.25rem;color:var(--km-muted);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--km-line);}
-        .km-dark-table td{padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.06);color:var(--km-text);font-size:.875rem;vertical-align:middle;}
-        .km-dark-table tbody tr:last-child td{border-bottom:none;}
-        .km-dark-table tbody tr:hover td{background:rgba(255,255,255,.04);}
-        .km-two-col{display:flex;gap:1.5rem;align-items:flex-start;}
-        .km-sidebar{width:340px;min-width:340px;flex-shrink:0;}
-        .km-main-col{flex:1;min-width:0;}
-        @media(max-width:1023px){.km-two-col{flex-direction:column;}.km-sidebar{width:100%;min-width:0;}}
-        .km-dark-modal{background:linear-gradient(135deg,#031822,#052532);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 80px rgba(0,0,0,.65);}
-    </style>
+    @push('body-class') km-bg-dark @endpush
+
+    @push('styles')
+        <style>
+            .km-oto-hero::before{
+                content:"1:1";
+                position:absolute;
+                right:clamp(1rem,4vw,4rem);
+                top:-3.4rem;
+                color:rgba(255,255,255,.035);
+                font-size:clamp(5.5rem,13vw,12rem);
+                font-weight:900;
+                letter-spacing:-.08em;
+                pointer-events:none;
+            }
+            .km-oto-layout{
+                display:grid;
+                grid-template-columns:minmax(0,1fr) 23rem;
+                gap:1rem;
+                align-items:start;
+            }
+            .km-oto-status{
+                display:inline-flex;
+                align-items:center;
+                gap:.35rem;
+                border-radius:999px;
+                border:1px solid var(--status-border);
+                background:var(--status-bg);
+                color:var(--status-color);
+                padding:.28rem .68rem;
+                font-size:.66rem;
+                font-weight:900;
+                letter-spacing:.12em;
+                line-height:1;
+                text-transform:uppercase;
+                white-space:nowrap;
+            }
+            .km-oto-status::before{
+                content:"";
+                width:.38rem;
+                height:.38rem;
+                border-radius:999px;
+                background:currentColor;
+                box-shadow:0 0 12px currentColor;
+            }
+            .km-oto-table{
+                width:100%;
+                border-collapse:separate;
+                border-spacing:0 .55rem;
+            }
+            .km-oto-table th{
+                padding:.2rem 1rem .45rem;
+                color:rgba(255,255,255,.45);
+                font-size:.64rem;
+                font-weight:900;
+                letter-spacing:.18em;
+                text-align:left;
+                text-transform:uppercase;
+            }
+            .km-oto-table td{
+                padding:1rem;
+                background:rgba(255,255,255,.035);
+                border-top:1px solid rgba(255,255,255,.07);
+                border-bottom:1px solid rgba(255,255,255,.07);
+                color:var(--km-text);
+                vertical-align:middle;
+            }
+            .km-oto-table td:first-child{
+                border-left:1px solid rgba(255,255,255,.07);
+                border-radius:1.05rem 0 0 1.05rem;
+            }
+            .km-oto-table td:last-child{
+                border-right:1px solid rgba(255,255,255,.07);
+                border-radius:0 1.05rem 1.05rem 0;
+            }
+            .km-oto-table tr:hover td{
+                background:rgba(255,255,255,.06);
+                border-color:rgba(139,197,63,.22);
+            }
+            .km-oto-mobile-list{display:none;}
+            .km-dark-modal{
+                background:linear-gradient(135deg,#031822,#052532);
+                border:1px solid rgba(255,255,255,.12);
+                box-shadow:0 30px 80px rgba(0,0,0,.65);
+            }
+            @media (max-width:1180px){
+                .km-oto-layout{grid-template-columns:1fr;}
+                .km-oto-availability{position:static!important;}
+            }
+            @media (max-width:767px){
+                .km-oto-table-wrap{display:none;}
+                .km-oto-mobile-list{display:grid;gap:.75rem;}
+                .km-oto-hero::before{top:-1.8rem;right:.75rem;}
+            }
+            @media (max-width:640px){
+                .km-oto-modal-grid{grid-template-columns:1fr!important;}
+                .km-oto-modal-sidebar{border-right:0!important;border-bottom:1px solid var(--km-line-dark);}
+            }
+        </style>
+    @endpush
 
     <x-slot name="header">
-        <div class="km-dark-panel km-hero" style="padding:2rem 2.5rem;">
-            <div class="relative z-10" style="display:grid;gap:2rem;grid-template-columns:1.3fr 0.7fr;align-items:center;">
-                <div>
-                    <p class="km-eyebrow">Agenda relazionale · {{ auth()->user()->memberProfile?->chapter?->name ?? 'Kommunity' }}</p>
-                    <h1 style="margin-top:1rem;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;line-height:1.08;letter-spacing:-.04em;color:var(--km-text);">
-                        Incontri <span style="color:var(--km-green);">one-to-one</span><br>tra professionisti
-                    </h1>
-                    <p class="km-muted" style="margin-top:1rem;font-size:.9rem;line-height:1.7;max-width:480px;">
-                        Se l'orario rientra in uno slot attivo del destinatario e non ci sono conflitti, la prenotazione e' immediata. Altrimenti parte come richiesta da confermare.
-                    </p>
-                    <div style="margin-top:1.5rem;">
-                        <button type="button" id="open-one-to-one-create-modal" class="km-button-primary" style="font-size:.9rem;padding:.8rem 1.6rem!important;">
-                            + Nuova richiesta
+        <section class="km-dark-panel km-oto-hero px-5 py-5 sm:px-7">
+            <div class="relative z-[1] grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                <div class="min-w-0">
+                    <p class="km-eyebrow">One-to-one · {{ auth()->user()->memberProfile?->chapter?->name ?? 'Kommunity' }}</p>
+                    <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:block">
+                        <div>
+                            <h1 class="km-display text-2xl text-white sm:text-3xl">Agenda relazionale</h1>
+                            <p class="mt-2 max-w-2xl text-sm leading-6 text-white/60">
+                                Gestisci richieste, conferme e disponibilita' in un unico spazio operativo.
+                            </p>
+                        </div>
+                        <button type="button" id="open-one-to-one-create-modal" class="km-cta-primary shrink-0 text-sm">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                            Nuova richiesta
                         </button>
                     </div>
                 </div>
-                <div class="km-dark-card" style="padding:1.5rem;">
-                    <p class="km-eyebrow">Statistiche</p>
-                    <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.6rem;">
-                        <div class="km-glass-box" style="padding:.875rem 1.1rem;display:flex;align-items:center;justify-content:space-between;">
-                            <span class="km-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.18em;font-weight:700;">Totale</span>
-                            <span style="font-size:1.6rem;font-weight:900;color:var(--km-text);">{{ $summary['total'] }}</span>
-                        </div>
-                        <div class="km-glass-box" style="padding:.875rem 1.1rem;display:flex;align-items:center;justify-content:space-between;">
-                            <span class="km-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.18em;font-weight:700;">Ricevuti</span>
-                            <span style="font-size:1.6rem;font-weight:900;color:var(--km-green);">{{ $summary['received'] }}</span>
-                        </div>
-                        <div class="km-glass-box" style="padding:.875rem 1.1rem;display:flex;align-items:center;justify-content:space-between;">
-                            <span class="km-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.18em;font-weight:700;">Inviati</span>
-                            <span style="font-size:1.6rem;font-weight:900;color:var(--km-teal);">{{ $summary['sent'] }}</span>
-                        </div>
+
+                <div class="grid grid-cols-3 gap-2 sm:min-w-[25rem]">
+                    <div class="rounded-2xl border border-white/[.08] bg-white/[.045] p-3">
+                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-white/45">Totale</p>
+                        <p class="mt-1 text-2xl font-black text-white">{{ $summary['total'] }}</p>
+                    </div>
+                    <div class="rounded-2xl border border-[rgba(139,197,63,.18)] bg-[rgba(139,197,63,.07)] p-3">
+                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-white/45">Ricevuti</p>
+                        <p class="mt-1 text-2xl font-black text-[color:var(--km-green-2)]">{{ $summary['received'] }}</p>
+                    </div>
+                    <div class="rounded-2xl border border-[rgba(45,212,191,.18)] bg-[rgba(45,212,191,.07)] p-3">
+                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-white/45">Inviati</p>
+                        <p class="mt-1 text-2xl font-black text-[#5EEAD4]">{{ $summary['sent'] }}</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </x-slot>
 
     @php
@@ -101,210 +155,286 @@
         ])->values();
     @endphp
 
-    <div style="padding-bottom:3rem;">
-        <div class="km-shell" style="padding-top:2rem;">
-            <div class="km-two-col">
-
-                {{-- SIDEBAR --}}
-                <aside class="km-sidebar" style="position:sticky;top:1.5rem;">
-                    <div class="km-dark-card" style="padding:1.5rem;">
-                        <p class="km-eyebrow">Le mie disponibilita'</p>
-                        <p class="km-muted" style="margin-top:.5rem;font-size:.8rem;line-height:1.6;">Slot settimanali prenotabili dagli altri membri, solo senza conflitti.</p>
-                        <form method="POST" action="{{ route('one-to-ones.availability.store') }}" style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.65rem;">
-                            @csrf
-                            <select name="weekday" class="km-dark-input" required>
-                                <option value="">Giorno della settimana</option>
-                                @foreach ($weekdayOptions as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;">
-                                <input type="time" name="starts_at" class="km-dark-input" required>
-                                <input type="time" name="ends_at" class="km-dark-input" required>
-                            </div>
-                            <select name="meeting_mode" class="km-dark-input">
-                                <option value="online">Online</option>
-                                <option value="in_person">In presenza</option>
-                            </select>
-                            <input type="text" name="location" class="km-dark-input" placeholder="Luogo o nota logistica">
-                            <button type="submit" class="km-button-secondary" style="width:100%;">Aggiungi disponibilita'</button>
-                        </form>
-
-                        <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.5rem;">
-                            @forelse ($availabilitySlots as $slot)
-                                <div class="km-glass-box" style="padding:.875rem 1rem;">
-                                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;">
-                                        <div>
-                                            <p style="font-size:.85rem;font-weight:700;color:var(--km-text);">{{ $weekdayOptions[$slot->weekday] ?? 'Giorno' }}</p>
-                                            <p class="km-muted" style="margin-top:.2rem;font-size:.78rem;">{{ substr($slot->starts_at, 0, 5) }} – {{ substr($slot->ends_at, 0, 5) }} · {{ $slot->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</p>
-                                            @if ($slot->location)
-                                                <p class="km-muted" style="margin-top:.15rem;font-size:.73rem;">{{ $slot->location }}</p>
-                                            @endif
-                                        </div>
-                                        <form method="POST" action="{{ route('one-to-ones.availability.destroy', $slot) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" style="background:none;border:none;cursor:pointer;font-size:.73rem;font-weight:700;color:#F87171;padding:0;">Elimina</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="km-muted" style="font-size:.8rem;">Non hai ancora definito fasce disponibili.</p>
-                            @endforelse
-                        </div>
+    <main class="km-shell-wide py-5 sm:py-6">
+        <div class="km-oto-layout">
+            <section class="min-w-0 space-y-4">
+                @if ($selectedMember)
+                    <div class="km-glass-box flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                        <span class="text-white/80">Vista filtrata tra te e <strong class="text-white">{{ $selectedMember->name }}</strong>.</span>
+                        <a href="{{ route('one-to-ones.index') }}" class="text-xs font-black uppercase tracking-[.14em] text-[color:var(--km-green-2)] hover:underline">Rimuovi filtro</a>
                     </div>
-                </aside>
+                @endif
 
-                {{-- MAIN --}}
-                <section class="km-main-col" style="display:flex;flex-direction:column;gap:1.25rem;">
-
-                    <div>
-                        <p class="km-eyebrow">Richieste</p>
-                        <h2 style="margin-top:.4rem;font-size:1.5rem;font-weight:900;color:var(--km-text);">One-to-one ricevuti e inviati</h2>
-                        @if ($selectedMember)
-                            <p class="km-muted" style="margin-top:.3rem;font-size:.82rem;">Vista filtrata tra te e {{ $selectedMember->name }}.</p>
-                        @else
-                            <p class="km-muted" style="margin-top:.3rem;font-size:.82rem;">Filtra per membro, stato, modalita' o intervallo date.</p>
-                        @endif
-                    </div>
-
-                    @if ($selectedMember)
-                        <div class="km-glass-box" style="padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;font-size:.875rem;">
-                            <span style="color:var(--km-text);">Vista con {{ $selectedMember->name }}</span>
-                            <a href="{{ route('one-to-ones.index') }}" style="font-weight:700;color:var(--km-green);text-decoration:none;">Rimuovi filtro</a>
+                <section class="km-dark-card p-4 sm:p-5">
+                    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p class="km-eyebrow">Ricerca richieste</p>
+                            <h2 class="mt-1 text-xl font-black tracking-tight text-white">Trova il prossimo follow-up</h2>
                         </div>
-                    @endif
-
-                    {{-- Filtri --}}
-                    <div class="km-dark-card" style="padding:1.25rem;">
-                        <form method="GET" style="display:grid;gap:.65rem;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));">
-                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input" placeholder="Cerca membro o obiettivo" style="grid-column:span 2;">
+                        <a href="{{ route('one-to-ones.index') }}" class="km-cta-secondary justify-center text-xs">Reset filtri</a>
+                    </div>
+                    <form method="GET" class="grid gap-3 lg:grid-cols-12">
+                        <label class="lg:col-span-4">
+                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Cerca</span>
+                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input" placeholder="Membro, obiettivo o nota">
+                        </label>
+                        <label class="lg:col-span-2">
+                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Membro</span>
                             <select name="member" class="km-dark-input">
-                                <option value="">Tutti i membri</option>
+                                <option value="">Tutti</option>
                                 @foreach ($members as $member)
                                     <option value="{{ $member->id }}" @selected((string)($filters['member'] ?? '') === (string)$member->id)>{{ $member->name }}</option>
                                 @endforeach
                             </select>
+                        </label>
+                        <label class="lg:col-span-2">
+                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Tipo</span>
                             <select name="type" class="km-dark-input">
-                                <option value="">Tutti i tipi</option>
+                                <option value="">Tutti</option>
                                 @foreach ($typeOptions as $value => $label)
                                     <option value="{{ $value }}" @selected(($filters['type'] ?? null) === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
+                        </label>
+                        <label class="lg:col-span-2">
+                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Stato</span>
                             <select name="status" class="km-dark-input">
-                                <option value="">Tutti gli stati</option>
+                                <option value="">Tutti</option>
                                 @foreach ($statusOptions as $value => $label)
                                     <option value="{{ $value }}" @selected(($filters['status'] ?? null) === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" class="km-dark-input">
-                            <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" class="km-dark-input">
+                        </label>
+                        <label class="lg:col-span-2">
+                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Modalita'</span>
                             <select name="meeting_mode" class="km-dark-input">
-                                <option value="">Modalita'</option>
+                                <option value="">Tutte</option>
                                 @foreach ($modeOptions as $value => $label)
                                     <option value="{{ $value }}" @selected(($filters['meeting_mode'] ?? null) === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;grid-column:span 2;">
-                                <button type="submit" class="km-button-primary">Filtra</button>
-                                <a href="{{ route('one-to-ones.index') }}" class="km-button-secondary">Reset</a>
-                            </div>
-                        </form>
-                    </div>
-
-                    {{-- Tabella --}}
-                    <div class="km-dark-card" style="overflow:hidden;padding:0;">
-                        <div style="overflow-x:auto;">
-                            <table class="km-dark-table" style="min-width:580px;">
-                                <thead>
-                                    <tr>
-                                        <th>Tipo</th>
-                                        <th>Membro</th>
-                                        <th>Data</th>
-                                        <th>Modalita'</th>
-                                        <th>Stato</th>
-                                        <th style="text-align:right;">Azioni</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($requests as $requestItem)
-                                        @php
-                                            $sv = $requestItem->status->value;
-                                            $bBg = match($sv) { 'pending'=>'rgba(245,158,11,.15)', 'accepted'=>'rgba(139,197,63,.15)', 'declined'=>'rgba(244,63,94,.15)', 'cancelled'=>'rgba(148,163,184,.10)', 'completed'=>'rgba(45,212,191,.15)', default=>'rgba(96,165,250,.15)' };
-                                            $bCol = match($sv) { 'pending'=>'#FCD34D', 'accepted'=>'#9AD84A', 'declined'=>'#FDA4AF', 'cancelled'=>'#94A3B8', 'completed'=>'#5EEAD4', default=>'#93C5FD' };
-                                            $bBor = match($sv) { 'pending'=>'rgba(245,158,11,.30)', 'accepted'=>'rgba(139,197,63,.30)', 'declined'=>'rgba(244,63,94,.30)', 'cancelled'=>'rgba(148,163,184,.20)', 'completed'=>'rgba(45,212,191,.25)', default=>'rgba(96,165,250,.25)' };
-                                            $isOpen = (int)($filters['request'] ?? 0) === $requestItem->id;
-                                            $detailUrl = $isOpen
-                                                ? route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id]))
-                                                : route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id,'request'=>$requestItem->id]));
-                                        @endphp
-                                        <tr style="{{ $isOpen ? 'background:rgba(139,197,63,.05);' : '' }}">
-                                            <td><span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--km-muted);">{{ $requestItem->requester_id === auth()->id() ? 'Inviata' : 'Ricevuta' }}</span></td>
-                                            <td>
-                                                <div style="font-weight:700;color:var(--km-text);">{{ $requestItem->requester_id === auth()->id()
-    ? ($requestItem->recipient?->name ?? 'Utente eliminato')
-    : ($requestItem->requester?->name ?? 'Utente eliminato') }}</div>
-                                                <div class="km-muted" style="font-size:.73rem;">{{ $requestItem->requester_id === auth()->id() ? 'Con' : 'Da' }}</div>
-                                            </td>
-                                            <td class="km-muted" style="font-size:.8rem;">{{ optional($requestItem->requested_at)->format('d/m/Y H:i') ?: 'Da confermare' }}</td>
-                                            <td class="km-muted" style="font-size:.8rem;">{{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</td>
-                                            <td>
-                                                <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:{{ $bBg }};color:{{ $bCol }};border:1px solid {{ $bBor }};">
-                                                    {{ $requestItem->status->label() }}
-                                                </span>
-                                            </td>
-                                            <td style="text-align:right;">
-                                                @php
-                                                    $isReceived = $requestItem->recipient_id === auth()->id();
-                                                    $isPending  = in_array($requestItem->status->value, ['pending','rescheduled'], true);
-                                                @endphp
-                                                <div style="display:inline-flex;gap:.4rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-                                                    @if ($isReceived && $isPending)
-                                                        {{-- CTA immediate sulla riga: Accetta / Rifiuta senza aprire dettaglio --}}
-                                                        <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" style="margin:0;">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="status" value="accepted">
-                                                            <button type="submit" title="Accetta richiesta" style="padding:.3rem .75rem;border-radius:999px;border:1px solid rgba(139,197,63,.45);background:rgba(139,197,63,.12);color:var(--km-green-2);font-size:.72rem;font-weight:800;letter-spacing:.04em;cursor:pointer;">
-                                                                Accetta
-                                                            </button>
-                                                        </form>
-                                                        <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" style="margin:0;" onsubmit="return confirm('Rifiutare la richiesta da {{ addslashes($requestItem->requester?->name ?? 'questo membro') }}?');">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="status" value="declined">
-                                                            <button type="submit" title="Rifiuta richiesta" style="padding:.3rem .75rem;border-radius:999px;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.72rem;font-weight:700;cursor:pointer;">
-                                                                Rifiuta
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                    <a href="{{ $detailUrl }}" style="display:inline-block;padding:.3rem .85rem;border-radius:999px;font-size:.73rem;font-weight:700;text-decoration:none;border:1px solid;transition:.2s;{{ $isOpen ? 'border-color:rgba(139,197,63,.5);color:var(--km-green);background:rgba(139,197,63,.08);' : 'border-color:rgba(255,255,255,.18);color:var(--km-text);' }}">
-                                                        {{ $isOpen ? 'Chiudi' : 'Dettagli' }}
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" style="text-align:center;padding:2.5rem 1.25rem;color:var(--km-muted);font-size:.875rem;">
-                                                Nessuna richiesta. Usa il pulsante in alto per inviare il primo invito.
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                        </label>
+                        <label class="lg:col-span-3">
+                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Da</span>
+                            <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" class="km-dark-input">
+                        </label>
+                        <label class="lg:col-span-3">
+                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">A</span>
+                            <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" class="km-dark-input">
+                        </label>
+                        <div class="flex items-end lg:col-span-6">
+                            <button type="submit" class="km-button-primary w-full">
+                                Applica filtri
+                            </button>
                         </div>
-                    </div>
-
-                    {{-- Paginazione --}}
-                    <div class="km-dark-card" style="padding:1rem 1.25rem;">
-                        {{ $requests->links() }}
-                    </div>
-
+                    </form>
                 </section>
-            </div>
+
+                <section class="km-dark-card p-4 sm:p-5">
+                    <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p class="km-eyebrow">Richieste one-to-one</p>
+                            <h2 class="mt-1 text-xl font-black tracking-tight text-white">Ricevute e inviate</h2>
+                        </div>
+                        <p class="text-xs text-white/45">Mostra {{ $requests->firstItem() ?? 0 }}-{{ $requests->lastItem() ?? 0 }} di {{ $requests->total() }} risultati</p>
+                    </div>
+
+                    <div class="km-oto-table-wrap overflow-x-auto">
+                        <table class="km-oto-table min-w-[860px]">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Membro</th>
+                                    <th>Obiettivo</th>
+                                    <th>Data</th>
+                                    <th>Modalita'</th>
+                                    <th>Stato</th>
+                                    <th class="text-right">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($requests as $requestItem)
+                                    @php
+                                        $sv = $requestItem->status->value;
+                                        $statusVars = match($sv) {
+                                            'pending', 'rescheduled' => '--status-bg:rgba(245,158,11,.14);--status-color:#FCD34D;--status-border:rgba(245,158,11,.32);',
+                                            'accepted' => '--status-bg:rgba(139,197,63,.14);--status-color:#9AD84A;--status-border:rgba(139,197,63,.32);',
+                                            'declined' => '--status-bg:rgba(244,63,94,.14);--status-color:#FDA4AF;--status-border:rgba(244,63,94,.32);',
+                                            'cancelled' => '--status-bg:rgba(148,163,184,.10);--status-color:#94A3B8;--status-border:rgba(148,163,184,.22);',
+                                            'completed' => '--status-bg:rgba(45,212,191,.14);--status-color:#5EEAD4;--status-border:rgba(45,212,191,.30);',
+                                            default => '--status-bg:rgba(96,165,250,.14);--status-color:#93C5FD;--status-border:rgba(96,165,250,.30);',
+                                        };
+                                        $isOpen = (int)($filters['request'] ?? 0) === $requestItem->id;
+                                        $isReceived = $requestItem->recipient_id === auth()->id();
+                                        $isPending  = in_array($requestItem->status->value, ['pending','rescheduled'], true);
+                                        $counterpartName = $requestItem->requester_id === auth()->id()
+                                            ? ($requestItem->recipient?->name ?? 'Utente eliminato')
+                                            : ($requestItem->requester?->name ?? 'Utente eliminato');
+                                        $detailUrl = $isOpen
+                                            ? route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id]))
+                                            : route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id,'request'=>$requestItem->id]));
+                                    @endphp
+                                    <tr>
+                                        <td><span class="text-[10px] font-black uppercase tracking-[.16em] {{ $isReceived ? 'text-[color:var(--km-green-2)]' : 'text-[#5EEAD4]' }}">{{ $isReceived ? 'Ricevuta' : 'Inviata' }}</span></td>
+                                        <td>
+                                            <p class="text-sm font-black text-white">{{ $counterpartName }}</p>
+                                            <p class="mt-0.5 text-xs text-white/45">{{ $isReceived ? 'Da gestire' : 'In attesa di risposta' }}</p>
+                                        </td>
+                                        <td><p class="max-w-[15rem] truncate text-sm text-white/75">{{ $requestItem->goal ?: 'Obiettivo non indicato' }}</p></td>
+                                        <td><p class="text-sm text-white/65">{{ optional($requestItem->requested_at)->format('d/m/Y') ?: 'Da confermare' }}</p><p class="text-xs text-white/40">{{ optional($requestItem->requested_at)->format('H:i') }}</p></td>
+                                        <td><span class="rounded-full border border-white/[.10] bg-white/[.04] px-2.5 py-1 text-xs font-bold text-white/70">{{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</span></td>
+                                        <td><span class="km-oto-status" style="{{ $statusVars }}">{{ $requestItem->status->label() }}</span></td>
+                                        <td>
+                                            <div class="flex justify-end gap-2">
+                                                @if ($isReceived && $isPending)
+                                                    <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" class="m-0">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="accepted">
+                                                        <button type="submit" class="rounded-full border border-[rgba(139,197,63,.42)] bg-[rgba(139,197,63,.12)] px-3 py-1.5 text-xs font-black text-[color:var(--km-green-2)]">Accetta</button>
+                                                    </form>
+                                                @endif
+                                                <a href="{{ $detailUrl }}" class="rounded-full border px-3 py-1.5 text-xs font-black transition {{ $isOpen ? 'border-[rgba(139,197,63,.5)] bg-[rgba(139,197,63,.10)] text-[color:var(--km-green-2)]' : 'border-white/[.12] bg-white/[.04] text-white/80 hover:border-[rgba(139,197,63,.35)]' }}">
+                                                    {{ $isOpen ? 'Chiudi' : 'Dettagli' }}
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="rounded-2xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-10 text-center text-sm text-white/55">
+                                            Nessuna richiesta trovata. Crea un nuovo one-to-one o rimuovi i filtri.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="km-oto-mobile-list">
+                        @forelse ($requests as $requestItem)
+                            @php
+                                $sv = $requestItem->status->value;
+                                $statusVars = match($sv) {
+                                    'pending', 'rescheduled' => '--status-bg:rgba(245,158,11,.14);--status-color:#FCD34D;--status-border:rgba(245,158,11,.32);',
+                                    'accepted' => '--status-bg:rgba(139,197,63,.14);--status-color:#9AD84A;--status-border:rgba(139,197,63,.32);',
+                                    'declined' => '--status-bg:rgba(244,63,94,.14);--status-color:#FDA4AF;--status-border:rgba(244,63,94,.32);',
+                                    'cancelled' => '--status-bg:rgba(148,163,184,.10);--status-color:#94A3B8;--status-border:rgba(148,163,184,.22);',
+                                    'completed' => '--status-bg:rgba(45,212,191,.14);--status-color:#5EEAD4;--status-border:rgba(45,212,191,.30);',
+                                    default => '--status-bg:rgba(96,165,250,.14);--status-color:#93C5FD;--status-border:rgba(96,165,250,.30);',
+                                };
+                                $isOpen = (int)($filters['request'] ?? 0) === $requestItem->id;
+                                $isReceived = $requestItem->recipient_id === auth()->id();
+                                $isPending  = in_array($requestItem->status->value, ['pending','rescheduled'], true);
+                                $counterpartName = $requestItem->requester_id === auth()->id()
+                                    ? ($requestItem->recipient?->name ?? 'Utente eliminato')
+                                    : ($requestItem->requester?->name ?? 'Utente eliminato');
+                                $detailUrl = $isOpen
+                                    ? route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id]))
+                                    : route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id,'request'=>$requestItem->id]));
+                            @endphp
+                            <article class="rounded-2xl border border-white/[.08] bg-white/[.04] p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        <p class="text-[10px] font-black uppercase tracking-[.16em] {{ $isReceived ? 'text-[color:var(--km-green-2)]' : 'text-[#5EEAD4]' }}">{{ $isReceived ? 'Ricevuta' : 'Inviata' }}</p>
+                                        <h3 class="mt-1 truncate text-base font-black text-white">{{ $counterpartName }}</h3>
+                                    </div>
+                                    <span class="km-oto-status" style="{{ $statusVars }}">{{ $requestItem->status->label() }}</span>
+                                </div>
+                                <p class="mt-3 text-sm leading-6 text-white/70">{{ $requestItem->goal ?: 'Obiettivo non indicato' }}</p>
+                                <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
+                                    <span>{{ optional($requestItem->requested_at)->format('d/m/Y H:i') ?: 'Da confermare' }}</span>
+                                    <span class="text-right">{{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</span>
+                                </div>
+                                <div class="mt-4 flex flex-wrap justify-end gap-2">
+                                    @if ($isReceived && $isPending)
+                                        <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" class="m-0">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="accepted">
+                                            <button type="submit" class="rounded-full border border-[rgba(139,197,63,.42)] bg-[rgba(139,197,63,.12)] px-3 py-1.5 text-xs font-black text-[color:var(--km-green-2)]">Accetta</button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ $detailUrl }}" class="rounded-full border border-white/[.12] bg-white/[.04] px-3 py-1.5 text-xs font-black text-white/80">
+                                        Dettagli
+                                    </a>
+                                </div>
+                            </article>
+                        @empty
+                            <div class="rounded-2xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-8 text-center text-sm text-white/55">
+                                Nessuna richiesta trovata.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    @if ($requests->hasPages())
+                        <div class="mt-4 rounded-2xl border border-white/[.06] bg-white/[.025] px-4 py-3">
+                            {{ $requests->links() }}
+                        </div>
+                    @endif
+                </section>
+            </section>
+
+            <aside class="km-oto-availability sticky top-5 space-y-4">
+                <section class="km-dark-card p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="km-eyebrow">Le mie disponibilita'</p>
+                            <h2 class="mt-1 text-lg font-black tracking-tight text-white">Slot prenotabili</h2>
+                        </div>
+                        <span class="rounded-full border border-[rgba(139,197,63,.22)] bg-[rgba(139,197,63,.09)] px-2.5 py-1 text-xs font-black text-[color:var(--km-green-2)]">{{ $availabilitySlots->count() }}</span>
+                    </div>
+                    <p class="mt-2 text-sm leading-6 text-white/55">Gli slot attivi rendono piu' immediata la prenotazione e riducono richieste fuori agenda.</p>
+
+                    <div class="mt-4 space-y-2">
+                        @forelse ($availabilitySlots as $slot)
+                            <div class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-black text-white">{{ $weekdayOptions[$slot->weekday] ?? 'Giorno' }}</p>
+                                        <p class="mt-1 text-sm text-white/65">{{ substr($slot->starts_at, 0, 5) }} - {{ substr($slot->ends_at, 0, 5) }}</p>
+                                        <p class="mt-0.5 text-xs text-white/40">{{ $slot->meeting_mode === 'online' ? 'Online' : 'In presenza' }}{{ $slot->location ? ' · '.$slot->location : '' }}</p>
+                                    </div>
+                                    <form method="POST" action="{{ route('one-to-ones.availability.destroy', $slot) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-xs font-bold text-[#FDA4AF]">Elimina</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="rounded-2xl border border-dashed border-white/[.12] bg-white/[.02] p-4 text-sm leading-6 text-white/55">
+                                Nessuna disponibilita' pubblicata. Aggiungi almeno uno slot settimanale.
+                            </div>
+                        @endforelse
+                    </div>
+                </section>
+
+                <section class="km-dark-card p-5">
+                    <p class="km-eyebrow">Nuovo slot</p>
+                    <form method="POST" action="{{ route('one-to-ones.availability.store') }}" class="mt-4 space-y-3">
+                        @csrf
+                        <select name="weekday" class="km-dark-input" required>
+                            <option value="">Giorno della settimana</option>
+                            @foreach ($weekdayOptions as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="time" name="starts_at" class="km-dark-input" required>
+                            <input type="time" name="ends_at" class="km-dark-input" required>
+                        </div>
+                        <select name="meeting_mode" class="km-dark-input">
+                            <option value="online">Online</option>
+                            <option value="in_person">In presenza</option>
+                        </select>
+                        <input type="text" name="location" class="km-dark-input" placeholder="Luogo o nota logistica">
+                        <button type="submit" class="km-button-secondary w-full">Aggiungi disponibilita'</button>
+                    </form>
+                </section>
+            </aside>
         </div>
-    </div>
+    </main>
 
     {{-- DETAIL PANEL --}}
     @if ($selectedRequest)
@@ -323,7 +453,7 @@
             <a href="{{ route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id])) }}" style="position:absolute;inset:0;" aria-label="Chiudi"></a>
         </div>
         <div class="km-dark-modal" style="position:fixed;inset-inline:0;bottom:0;top:1.5rem;z-index:50;margin:auto;width:min(1180px,calc(100% - 2rem));overflow-y:auto;border-radius:2rem 2rem 0 0;">
-            <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.2rem 1.5rem;border-bottom:1px solid var(--km-line);background:rgba(3,24,34,.92);backdrop-filter:blur(20px);">
+            <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.2rem 1.5rem;border-bottom:1px solid var(--km-line-dark);background:rgba(3,24,34,.92);backdrop-filter:blur(20px);">
                 <div>
                     <p class="km-eyebrow">Dettaglio richiesta</p>
                     <h3 style="margin-top:.35rem;font-size:1.15rem;font-weight:800;color:var(--km-text);">Gestione one-to-one</h3>
@@ -335,8 +465,8 @@
             <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
                 <div>
                     <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
-                        <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.08);color:var(--km-muted);border:1px solid var(--km-line);">{{ $isRequester ? 'Inviata' : 'Ricevuta' }}</span>
-                        <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.08);color:var(--km-muted);border:1px solid var(--km-line);">{{ $selectedRequest->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</span>
+                        <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.08);color:var(--km-text-muted);border:1px solid var(--km-line-dark);">{{ $isRequester ? 'Inviata' : 'Ricevuta' }}</span>
+                        <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.08);color:var(--km-text-muted);border:1px solid var(--km-line-dark);">{{ $selectedRequest->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</span>
                         <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:{{ $dBg }};color:{{ $dCol }};border:1px solid {{ $dBor }};">{{ $selectedRequest->status->label() }}</span>
                     </div>
                     <h3 style="margin-top:.875rem;font-size:1.4rem;font-weight:800;color:var(--km-text);">{{ $isRequester ? 'Richiesta a '.$counterpart->name : 'Richiesta da '.$counterpart->name }}</h3>
@@ -456,7 +586,7 @@
     <div id="one-to-one-create-modal" style="display:none;position:fixed;inset:0;z-index:50;overflow-y:auto;background:rgba(2,11,18,.8);backdrop-filter:blur(4px);padding:1.5rem;">
         <div style="margin:auto;display:flex;min-height:100%;width:100%;max-width:72rem;align-items:center;justify-content:center;">
             <div class="km-dark-modal" style="display:flex;flex-direction:column;max-height:calc(100vh - 3rem);width:100%;overflow:hidden;border-radius:1.75rem;">
-                <div style="display:flex;flex-shrink:0;align-items:center;justify-content:space-between;gap:1rem;padding:1.1rem 1.5rem;border-bottom:1px solid var(--km-line);">
+                <div style="display:flex;flex-shrink:0;align-items:center;justify-content:space-between;gap:1rem;padding:1.1rem 1.5rem;border-bottom:1px solid var(--km-line-dark);">
                     <div>
                         <p class="km-eyebrow">Nuova richiesta</p>
                         <h2 style="margin-top:.3rem;font-size:1.3rem;font-weight:800;color:var(--km-text);">Cerca membro e invia one-to-one</h2>
@@ -464,14 +594,14 @@
                     <button type="button" data-close-one-to-one-modal class="km-button-secondary">Chiudi</button>
                 </div>
 
-                <div style="display:grid;min-height:0;flex:1;grid-template-columns:300px 1fr;overflow:hidden;">
-                    <div style="display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--km-line);padding:1.25rem;">
-                        <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-muted);">Ricerca membro</label>
+                <div class="km-oto-modal-grid" style="display:grid;min-height:0;flex:1;grid-template-columns:300px 1fr;overflow:hidden;">
+                    <div class="km-oto-modal-sidebar" style="display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--km-line-dark);padding:1.25rem;">
+                        <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-text-muted);">Ricerca membro</label>
                         <input id="one-to-one-member-query" type="text" class="km-dark-input" style="margin-top:.6rem;" placeholder="Nome, email, azienda, citta'">
                         <p class="km-muted" style="margin-top:.4rem;font-size:.73rem;">Almeno 2 caratteri per cercare.</p>
                         <div id="one-to-one-member-results" style="margin-top:.75rem;flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.35rem;"></div>
-                        <p id="one-to-one-member-empty" style="display:none;margin-top:.75rem;padding:1rem;border-radius:1.2rem;border:1px dashed rgba(255,255,255,.15);font-size:.8rem;color:var(--km-muted);">Nessun membro trovato.</p>
-                        <p id="one-to-one-member-idle" style="margin-top:.75rem;padding:1rem;border-radius:1.2rem;border:1px dashed rgba(255,255,255,.15);font-size:.8rem;color:var(--km-muted);">Scrivi almeno 2 caratteri.</p>
+                        <p id="one-to-one-member-empty" style="display:none;margin-top:.75rem;padding:1rem;border-radius:1.2rem;border:1px dashed rgba(255,255,255,.15);font-size:.8rem;color:var(--km-text-muted);">Nessun membro trovato.</p>
+                        <p id="one-to-one-member-idle" style="margin-top:.75rem;padding:1rem;border-radius:1.2rem;border:1px dashed rgba(255,255,255,.15);font-size:.8rem;color:var(--km-text-muted);">Scrivi almeno 2 caratteri.</p>
                     </div>
 
                     <div style="display:flex;flex-direction:column;padding:1.25rem;min-height:0;overflow:hidden;">
@@ -486,11 +616,11 @@
                             <input type="hidden" id="one-to-one-recipient-id" name="recipient_id" value="{{ old('recipient_id', optional($selectedMember)->id) }}">
                             <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.7rem;padding-right:.2rem;">
                                 <div id="one-to-one-selected-member" style="display:none;padding:.75rem 1rem;border-radius:1.1rem;border:1px solid rgba(139,197,63,.35);background:rgba(139,197,63,.08);font-size:.82rem;color:var(--km-text);"></div>
-                                <div style="padding:.7rem 1rem;border-radius:1.1rem;border:1px solid var(--km-line);background:rgba(255,255,255,.04);font-size:.78rem;color:var(--km-muted);">
+                                <div style="padding:.7rem 1rem;border-radius:1.1rem;border:1px solid var(--km-line-dark);background:rgba(255,255,255,.04);font-size:.78rem;color:var(--km-text-muted);">
                                     Slot libero = prenotazione immediata. Fuori slot = richiesta da confermare.
                                 </div>
-                                <div style="padding:.875rem 1rem;border-radius:1.1rem;border:1px solid var(--km-line);background:rgba(255,255,255,.03);">
-                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-muted);">Disponibilita' del membro</p>
+                                <div style="padding:.875rem 1rem;border-radius:1.1rem;border:1px solid var(--km-line-dark);background:rgba(255,255,255,.03);">
+                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-text-muted);">Disponibilita' del membro</p>
                                     <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Scegli uno slot o proponi un orario libero.</p>
                                     <div id="one-to-one-availability" style="margin-top:.75rem;"></div>
                                 </div>
@@ -510,7 +640,7 @@
                                     <textarea name="pre_notes" rows="2" class="km-dark-input" placeholder="Note pre-incontro" style="resize:vertical;">{{ old('pre_notes') }}</textarea>
                                 </div>
                             </div>
-                            <div style="margin-top:1rem;flex-shrink:0;display:flex;justify-content:flex-end;gap:.75rem;border-top:1px solid var(--km-line);padding-top:1rem;">
+                            <div style="margin-top:1rem;flex-shrink:0;display:flex;justify-content:flex-end;gap:.75rem;border-top:1px solid var(--km-line-dark);padding-top:1rem;">
                                 <button type="button" data-close-one-to-one-modal class="km-button-secondary">Annulla</button>
                                 <button type="submit" id="one-to-one-submit" class="km-button-primary" disabled>Invia richiesta</button>
                             </div>
@@ -568,18 +698,18 @@
                 const m = selectedMember();
                 if (!m) { selectedMemberSummary.style.display='none'; selectedMemberSummary.innerHTML=''; return; }
                 selectedMemberSummary.style.display='block';
-                selectedMemberSummary.innerHTML=`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-muted);">Membro selezionato</div><div style="margin-top:.3rem;font-weight:700;color:var(--km-text);">${m.name}</div><div style="font-size:.78rem;color:var(--km-muted);">${m.email}</div><div style="font-size:.73rem;color:var(--km-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>`;
+                selectedMemberSummary.innerHTML=`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);">Membro selezionato</div><div style="margin-top:.3rem;font-weight:700;color:var(--km-text);">${m.name}</div><div style="font-size:.78rem;color:var(--km-text-muted);">${m.email}</div><div style="font-size:.73rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>`;
             };
 
             const renderAvailability = () => {
                 const m = selectedMember();
-                if (!m) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-muted);">Seleziona un membro per vedere gli slot.</div>'; return; }
-                if (!m.availability_slots.length) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-muted);">Nessuna disponibilita\' pubblicata. Proponi un altro orario.</div>'; return; }
+                if (!m) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Seleziona un membro per vedere gli slot.</div>'; return; }
+                if (!m.availability_slots.length) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Nessuna disponibilita\' pubblicata. Proponi un altro orario.</div>'; return; }
                 availabilityContainer.innerHTML = m.availability_slots.map((slot) => `
                     <button type="button" data-slot-id="${slot.id}" style="display:flex;width:100%;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-radius:1.1rem;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:.2s;margin-bottom:.35rem;">
                         <div>
                             <div style="font-weight:700;font-size:.82rem;color:var(--km-text);">${weekdayLabels[slot.weekday]||'Giorno'} · ${slot.starts_at} - ${slot.ends_at}</div>
-                            <div style="margin-top:.15rem;font-size:.75rem;color:var(--km-muted);">${slot.meeting_mode==='online'?'Online':'In presenza'}${slot.location?' · '+slot.location:''}</div>
+                            <div style="margin-top:.15rem;font-size:.75rem;color:var(--km-text-muted);">${slot.meeting_mode==='online'?'Online':'In presenza'}${slot.location?' · '+slot.location:''}</div>
                         </div>
                         <span style="flex-shrink:0;padding:.2rem .65rem;border-radius:999px;background:rgba(139,197,63,.15);color:var(--km-green-2);border:1px solid rgba(139,197,63,.3);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;">Prenota</span>
                     </button>
@@ -602,8 +732,8 @@
                 resultsContainer.innerHTML = filtered.map((m) => `
                     <button type="button" data-member-id="${m.id}" style="display:block;width:100%;padding:.6rem .875rem;border-radius:1.1rem;border:1px solid ${cur===String(m.id)?'rgba(139,197,63,.45)':'rgba(255,255,255,.12)'};background:${cur===String(m.id)?'rgba(139,197,63,.1)':'rgba(255,255,255,.04)'};cursor:pointer;text-align:left;transition:.15s;">
                         <div style="font-weight:700;font-size:.83rem;color:var(--km-text);">${m.name}</div>
-                        <div style="font-size:.76rem;color:var(--km-muted);">${m.email}</div>
-                        <div style="font-size:.72rem;color:var(--km-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>
+                        <div style="font-size:.76rem;color:var(--km-text-muted);">${m.email}</div>
+                        <div style="font-size:.72rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>
                     </button>
                 `).join('');
                 idleState.style.display='none';
