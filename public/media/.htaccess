@@ -1,0 +1,15 @@
+# Questo file va in public_html/media/.htaccess
+# Instrada le richieste a file non esistenti verso Laravel (MediaController)
+# così le immagini old (path members/avatars/...) vengono servite dal fallback PHP.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /media/
+
+    # Se il file fisico esiste (nuovi upload in public_html/media/) → servilo direttamente
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Altrimenti (file vecchio in storage/) → passa a Laravel
+    RewriteRule ^ /index.php [L]
+</IfModule>
