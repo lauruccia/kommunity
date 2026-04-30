@@ -62,17 +62,21 @@ class WebPushEncoder
         //    PRK_key = HMAC-SHA-256(auth_secret, shared_secret)
         $prkKey = hash_hmac('sha256', $sharedSecret, $authSecret, true);
 
-        // 4) HKDF Expand per derivare l'IKM "Web Push" (RFC 8291 §3.4)
+        // 4) HKDF Expand-only per derivare l'IKM "Web Push" (RFC 8291 §3.4)
+        //
+        // NOTA IMPORTANTE: PHP hash_hkdf() fa Extract+Expand insieme — non si
+        // può ottenere solo Expand passando un PRK già calcolato. Per questo
+        // implementiamo Expand manualmente (RFC 5869 §2.3) qui sotto.
         $keyInfo = 'WebPush: info' . "\x00" . $uaPublicRaw . $ephemeral['public'];
-        $ikm     = hash_hkdf('sha256', $prkKey, 32, $keyInfo);
+        $ikm     = self::hkdfExpand($prkKey, $keyInfo, 32);
 
         // 5) HKDF Extract con salt random e IKM appena calcolato
         $salt = random_bytes(16);
         $prk  = hash_hmac('sha256', $ikm, $salt, true);
 
-        // 6) Deriva CEK (16 byte) e NONCE (12 byte)
-        $cek   = hash_hkdf('sha256', $prk, 16, 'Content-Encoding: aes128gcm' . "\x00");
-        $nonce = hash_hkdf('sha256', $prk, 12, 'Content-Encoding: nonce' . "\x00");
+        // 6) Deriva CEK (16 byte) e NONCE (12 byte) — Expand only
+        $cek   = self::hkdfExpand($prk, 'Content-Encoding: aes128gcm' . "\x00", 16);
+        $nonce = self::hkdfExpand($prk, 'Content-Encoding: nonce' . "\x00", 12);
 
         // 7) Plaintext = payload || 0x02 (delimiter di fine record, no padding)
         $plaintext = $payload . "\x02";
@@ -176,6 +180,40 @@ class WebPushEncoder
         $b64 = chunk_split(base64_encode($der), 64, "\n");
 
         return "-----BEGIN PUBLIC KEY-----\n{$b64}-----END PUBLIC KEY-----\n";
+    }
+
+    /**
+     * HKDF-Expand SOLO Expand (RFC 5869 §2.3).
+     *
+     * PHP `hash_hkdf()` esegue Extract+Expand insieme: non si può ottenere
+     * solo la fase Expand passando un PRK già calcolato. Per WebPush ci serve
+     * derivare CEK / NONCE / IKM partendo da PRK già estratti, quindi
+     * implementiamo Expand a mano.
+     *
+     *     T(0) = empty
+     *     T(i) = HMAC-SHA256(PRK, T(i-1) || info || i)
+     *     OKM  = T(1) || T(2) || ... troncato a $length byte
+     *
+     * @param  string  $prk     PRK già estratto (32 byte per SHA-256)
+     * @param  string  $info    Info string (incluso eventuale \x00 di chiusura)
+     * @param  int     $length  Lunghezza desiderata (≤ 255 * hash_size)
+     */
+    public static function hkdfExpand(string $prk, string $info, int $length): string
+    {
+        $hashLen = 32; // SHA-256
+        if ($length > 255 * $hashLen) {
+            throw new \InvalidArgumentException('HKDF expand: length troppo grande.');
+        }
+
+        $n      = (int) ceil($length / $hashLen);
+        $t      = '';
+        $output = '';
+        for ($i = 1; $i <= $n; $i++) {
+            $t = hash_hmac('sha256', $t . $info . chr($i), $prk, true);
+            $output .= $t;
+        }
+
+        return substr($output, 0, $length);
     }
 
     /**
