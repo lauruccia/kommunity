@@ -16,10 +16,10 @@
             $lastReadAt = optional($other?->pivot)->last_read_at;
 
             if ($lastReadAt && $message->created_at && $message->created_at->lte(\Illuminate\Support\Carbon::parse($lastReadAt))) {
-                return ['label' => 'Letto', 'icon' => '✓✓', 'class' => 'text-[color:var(--km-green-2)]'];
+                return ['label' => 'Letto', 'icon' => '✓✓', 'class' => 'km-chat-check-read'];
             }
 
-            return ['label' => 'Consegnato', 'icon' => '✓', 'class' => 'text-white/45'];
+            return ['label' => 'Consegnato', 'icon' => '✓', 'class' => 'km-chat-check-delivered'];
         };
     @endphp
 
@@ -72,6 +72,8 @@
                     radial-gradient(circle at 50% 50%,rgba(139,197,63,.22),transparent 9%),
                     repeating-radial-gradient(circle at 50% 50%,transparent 0 22px,rgba(139,197,63,.10) 24px 25px,transparent 27px 52px);
             }
+            .km-chat-check-delivered{color:rgba(255,255,255,.42);}
+            .km-chat-check-read{color:var(--km-green-2);font-weight:900;text-shadow:0 0 10px rgba(154,216,74,.45);}
             @media (max-width:1280px){
                 .km-chat-layout{grid-template-columns:minmax(18rem,22rem) minmax(0,1fr);}
                 .km-chat-detail{display:none;}

@@ -29,10 +29,10 @@
             $lastReadAt = optional($other?->pivot)->last_read_at;
 
             if ($lastReadAt && $message->created_at && $message->created_at->lte(\Illuminate\Support\Carbon::parse($lastReadAt))) {
-                return ['label' => 'Letto', 'icon' => '✓✓', 'class' => 'text-[color:var(--km-green-2)]'];
+                return ['label' => 'Letto', 'icon' => '✓✓', 'class' => 'km-chat-check-read'];
             }
 
-            return ['label' => 'Consegnato', 'icon' => '✓', 'class' => 'text-white/45'];
+            return ['label' => 'Consegnato', 'icon' => '✓', 'class' => 'km-chat-check-delivered'];
         };
     @endphp
 
@@ -97,6 +97,8 @@
                 transition:border-color .2s ease,color .2s ease,background .2s ease;
             }
             .km-chat-action:hover{border-color:rgba(139,197,63,.35);color:var(--km-green-2);background:rgba(139,197,63,.08);}
+            .km-chat-check-delivered{color:rgba(255,255,255,.42);}
+            .km-chat-check-read{color:var(--km-green-2);font-weight:900;text-shadow:0 0 10px rgba(154,216,74,.45);}
             @media (max-width:1280px){
                 .km-chat-layout{grid-template-columns:minmax(18rem,22rem) minmax(0,1fr);}
                 .km-chat-detail{display:none;}
@@ -202,7 +204,7 @@
                     </div>
                 </header>
 
-                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
+                <div id="chat-message-list" class="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
                     @php $lastDay = null; @endphp
                     @forelse ($messages as $message)
                         @php
@@ -248,9 +250,10 @@
                             </div>
                         </div>
                     @endforelse
+                    <div id="chat-bottom-anchor" aria-hidden="true"></div>
                 </div>
 
-                <form method="POST" action="{{ route('conversations.messages.store', $conversation) }}" class="km-chat-composer border-t border-white/[.08] p-4">
+                <form id="chat-composer-form" method="POST" action="{{ route('conversations.messages.store', $conversation) }}" class="km-chat-composer border-t border-white/[.08] p-4">
                     @csrf
                     <div class="flex items-end gap-3 rounded-2xl border border-white/[.12] bg-white/[.045] px-3 py-2">
                         <button type="button" class="km-chat-action h-10 w-10" aria-label="Allega file"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 1 1 5.66 5.66l-9.2 9.19a2 2 0 1 1-2.82-2.83l8.48-8.48"/></svg></button>
@@ -348,6 +351,28 @@
             document.querySelectorAll('[data-close-message-modal]').forEach((button) => button.addEventListener('click', close));
             modal?.addEventListener('click', (event) => { if (event.target === modal) close(); });
             document.addEventListener('keydown', (event) => { if (event.key === 'Escape') close(); });
+
+            const messageList = document.getElementById('chat-message-list');
+            const bottomAnchor = document.getElementById('chat-bottom-anchor');
+            const scrollToBottom = () => {
+                if (!messageList) return;
+                messageList.scrollTop = messageList.scrollHeight;
+                bottomAnchor?.scrollIntoView({ block: 'end' });
+            };
+
+            window.addEventListener('load', () => {
+                requestAnimationFrame(scrollToBottom);
+                setTimeout(scrollToBottom, 80);
+            });
+
+            document.getElementById('chat-composer-form')?.addEventListener('submit', () => {
+                sessionStorage.setItem('km-scroll-chat-bottom', '1');
+            });
+
+            if (sessionStorage.getItem('km-scroll-chat-bottom') === '1') {
+                sessionStorage.removeItem('km-scroll-chat-bottom');
+                requestAnimationFrame(scrollToBottom);
+            }
         })();
     </script>
 </x-app-layout>
