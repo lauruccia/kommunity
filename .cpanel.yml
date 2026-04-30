@@ -1,0 +1,47 @@
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# cPanel Git Version Control — Deploy automation per kommunity.it
+#
+# STRUTTURA SUL SERVER:
+#   /home2/kommunity/kommunity/    ← repo Laravel (questo file vive qui)
+#   /home2/kommunity/public_html/  ← web root del dominio kommunity.it
+#
+# COSA FA:
+#   Quando clicchi "Deploy HEAD" da cPanel → Git Version Control,
+#   le tasks qui sotto copiano le sottocartelle pubbliche dentro public_html/.
+#
+# COSA NON TOCCA:
+#   - public_html/index.php  (customizzato per puntare a ../kommunity/vendor/)
+#   - public_html/.htaccess  (eventuali regole specifiche del dominio)
+#   - kommunity/.env, kommunity/vendor/, storage/  (gestiti separatamente)
+#
+# COME USARLO:
+#   1. git push origin main   (da locale)
+#   2. cPanel → Git Version Control → Update from Remote
+#   3. cPanel → Git Version Control → Deploy HEAD
+# ─────────────────────────────────────────────────────────────────────────────
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home2/kommunity/public_html
+
+    # ── Asset statici (cartelle complete) ──────────────────────────────────
+    - /bin/cp -R public/css     $DEPLOYPATH/
+    - /bin/cp -R public/js      $DEPLOYPATH/
+    - /bin/cp -R public/images  $DEPLOYPATH/
+    - /bin/cp -R public/fonts   $DEPLOYPATH/
+    - /bin/cp -R public/build   $DEPLOYPATH/
+    - /bin/cp -R public/brand   $DEPLOYPATH/
+
+    # ── File pubblici singoli (skip silenzioso se non esistono) ───────────
+    - /bin/cp public/favicon.ico    $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/robots.txt     $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/manifest.json  $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/sw.js          $DEPLOYPATH/ 2>/dev/null || true
+
+    # ── Permessi corretti per Apache ───────────────────────────────────────
+    - /bin/find $DEPLOYPATH/css    -type f -exec /bin/chmod 644 {} \;
+    - /bin/find $DEPLOYPATH/js     -type f -exec /bin/chmod 644 {} \;
+    - /bin/find $DEPLOYPATH/images -type f -exec /bin/chmod 644 {} \;
+    - /bin/find $DEPLOYPATH/fonts  -type f -exec /bin/chmod 644 {} \;
+    - /bin/find $DEPLOYPATH/build  -type f -exec /bin/chmod 644 {} \;
+    - /bin/find $DEPLOYPATH/brand  -type f -exec /bin/chmod 644 {} \;
