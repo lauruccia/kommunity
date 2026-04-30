@@ -17,7 +17,18 @@ class NewMessageNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'web_push'];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        return [
+            'title' => '💬 ' . $this->sender->name,
+            'body'  => mb_strimwidth($this->messagePreview, 0, 100, '…'),
+            'url'   => route('conversations.show', $this->conversation),
+            'tag'   => 'conversation-' . $this->conversation->id, // dedup messaggi in stessa conversazione
+            'renotify' => true,
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

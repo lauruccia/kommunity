@@ -14,7 +14,17 @@ class ReferralReceivedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'web_push'];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        return [
+            'title' => '🔗 Nuovo referral da ' . $this->referral->sender->name,
+            'body'  => mb_strimwidth($this->referral->title, 0, 100, '…'),
+            'url'   => route('referrals.index'),
+            'tag'   => 'referral-' . $this->referral->id,
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

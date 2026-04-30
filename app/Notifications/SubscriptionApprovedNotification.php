@@ -14,7 +14,18 @@ class SubscriptionApprovedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'web_push'];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        return [
+            'title' => '🎉 Abbonamento approvato',
+            'body'  => 'Il tuo abbonamento ' . ($this->subscription->plan?->name ?? 'Kommunity') . ' è stato approvato.',
+            'url'   => route('subscriptions.index'),
+            'tag'   => 'subscription-' . $this->subscription->id,
+            'requireInteraction' => true,
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

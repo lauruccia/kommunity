@@ -28,7 +28,23 @@ class OneToOneReminderNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'web_push'];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        $other = $notifiable->id === $this->request->requester_id
+            ? $this->request->recipient
+            : $this->request->requester;
+        $when = $this->request->requested_at?->locale('it')->isoFormat('HH:mm');
+
+        return [
+            'title' => $this->window === '1h' ? '⏰ 1:1 fra un\'ora' : '📅 1:1 domani',
+            'body'  => 'Con ' . ($other?->name ?? '...') . ($when ? ' alle ' . $when : ''),
+            'url'   => route('one-to-ones.index', ['request' => $this->request->id]),
+            'tag'   => 'one-to-one-reminder-' . $this->request->id . '-' . $this->window,
+            'requireInteraction' => $this->window === '1h',
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

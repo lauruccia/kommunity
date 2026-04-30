@@ -1,0 +1,44 @@
+{
+  "name": "Kommunity",
+  "short_name": "Kommunity",
+  "description": "La community professionale italiana — incontri 1:1, referral, eventi.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0d12",
+  "theme_color": "#0b0d12",
+  "lang": "it",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Directory membri",
+      "url": "/directory",
+      "description": "Sfoglia i membri della community"
+    },
+    {
+      "name": "I miei 1:1",
+      "url": "/one-to-one",
+      "description": "Apri l'agenda relazionale"
+    },
+    {
+      "name": "Conversazioni",
+      "url": "/conversations",
+      "description": "Apri la chat"
+    }
+  ]
+}

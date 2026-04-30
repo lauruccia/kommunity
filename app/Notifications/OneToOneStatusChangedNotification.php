@@ -17,7 +17,25 @@ class OneToOneStatusChangedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'web_push'];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        $icon = match ($this->newStatus) {
+            OneToOneStatus::Accepted  => '✅',
+            OneToOneStatus::Declined  => '❌',
+            OneToOneStatus::Cancelled => '🚫',
+            OneToOneStatus::Completed => '🏆',
+            default                   => '🔄',
+        };
+
+        return [
+            'title' => $icon . ' 1:1 ' . $this->newStatus->label(),
+            'body'  => $this->actorName . ' — ' . mb_strimwidth($this->oneToOneRequest->goal, 0, 80, '…'),
+            'url'   => route('one-to-ones.index', ['request' => $this->oneToOneRequest->id]),
+            'tag'   => 'one-to-one-status-' . $this->oneToOneRequest->id,
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

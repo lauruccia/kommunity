@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    // ── Web Push (PWA) ────────────────────────────────────────────────────────
+    // Le chiavi VAPID si generano UNA SOLA VOLTA con:
+    //   php artisan kommunity:generate-vapid-keys
+    // Poi vanno incollate in .env e queste righe le leggono.
+    'webpush' => [
+        'public_key'  => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject'     => env('VAPID_SUBJECT', 'mailto:info@kommunity.it'),
+    ],
+
 ];

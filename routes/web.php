@@ -15,6 +15,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -95,6 +96,12 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     // ── Notifiche in-app ─────────────────────────────────────────────────────
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+
+    // ── Push subscriptions (PWA) ─────────────────────────────────────────────
+    Route::get('/push/vapid-public-key', [PushSubscriptionController::class, 'vapidPublicKey'])->name('push.vapid');
+    Route::post('/push/subscribe',     [PushSubscriptionController::class, 'subscribe'])->middleware('throttle:30,1')->name('push.subscribe');
+    Route::post('/push/unsubscribe',   [PushSubscriptionController::class, 'unsubscribe'])->middleware('throttle:30,1')->name('push.unsubscribe');
+    Route::post('/push/test',          [PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
 
     // ── Abbonamenti ──────────────────────────────────────────────────────────
     Route::get('/abbonamento', [SubscriptionController::class, 'index'])->name('subscriptions.index');

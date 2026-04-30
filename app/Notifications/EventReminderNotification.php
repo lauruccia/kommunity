@@ -14,7 +14,17 @@ class EventReminderNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'web_push'];
+    }
+
+    public function toWebPush(object $notifiable): array
+    {
+        return [
+            'title' => '📅 Domani: ' . $this->event->title,
+            'body'  => $this->event->starts_at->format('d/m/Y H:i') . ' · ' . ($this->event->location ?: 'Online'),
+            'url'   => route('events.show', $this->event),
+            'tag'   => 'event-reminder-' . $this->event->id,
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

@@ -8,6 +8,12 @@
         <title>{{ config('app.name', 'Kommunity') }}</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700&display=swap" rel="stylesheet" />
+
+        {{-- PWA: manifest + icone (Feature #6) --}}
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0b0d12">
+        <link rel="apple-touch-icon" href="/images/icon-192.png">
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('styles')
     </head>
@@ -74,5 +80,10 @@
 
         {{-- Cookie banner GDPR (sempre presente) --}}
         @include('partials.cookie-banner')
+
+        {{-- Push notification consent banner (Feature #6, gated) --}}
+        @auth
+            @include('partials.push-consent-banner')
+        @endauth
     </body>
 </html>
