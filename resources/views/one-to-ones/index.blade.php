@@ -78,6 +78,14 @@
                 background:rgba(255,255,255,.06);
                 border-color:rgba(139,197,63,.22);
             }
+            .km-oto-filter-menu{
+                position:absolute;
+                right:0;
+                top:calc(100% + .65rem);
+                z-index:30;
+                width:min(58rem, calc(100vw - 2rem));
+            }
+            .km-oto-filter-summary::-webkit-details-marker{display:none;}
             .km-oto-mobile-list{display:none;}
             .km-dark-modal{
                 background:linear-gradient(135deg,#031822,#052532);
@@ -92,6 +100,7 @@
                 .km-oto-table-wrap{display:none;}
                 .km-oto-mobile-list{display:grid;gap:.75rem;}
                 .km-oto-hero::before{top:-1.8rem;right:.75rem;}
+                .km-oto-filter-menu{position:static;width:100%;margin-top:.75rem;}
             }
             @media (max-width:640px){
                 .km-oto-modal-grid{grid-template-columns:1fr!important;}
@@ -99,43 +108,6 @@
             }
         </style>
     @endpush
-
-    <x-slot name="header">
-        <section class="km-dark-panel km-oto-hero px-5 py-5 sm:px-7">
-            <div class="relative z-[1] grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                <div class="min-w-0">
-                    <p class="km-eyebrow">One-to-one · {{ auth()->user()->memberProfile?->chapter?->name ?? 'Kommunity' }}</p>
-                    <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:block">
-                        <div>
-                            <h1 class="km-display text-2xl text-white sm:text-3xl">Agenda relazionale</h1>
-                            <p class="mt-2 max-w-2xl text-sm leading-6 text-white/60">
-                                Gestisci richieste, conferme e disponibilita' in un unico spazio operativo.
-                            </p>
-                        </div>
-                        <button type="button" id="open-one-to-one-create-modal" class="km-cta-primary shrink-0 text-sm">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                            Nuova richiesta
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 sm:min-w-[25rem]">
-                    <div class="rounded-2xl border border-white/[.08] bg-white/[.045] p-3">
-                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-white/45">Totale</p>
-                        <p class="mt-1 text-2xl font-black text-white">{{ $summary['total'] }}</p>
-                    </div>
-                    <div class="rounded-2xl border border-[rgba(139,197,63,.18)] bg-[rgba(139,197,63,.07)] p-3">
-                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-white/45">Ricevuti</p>
-                        <p class="mt-1 text-2xl font-black text-[color:var(--km-green-2)]">{{ $summary['received'] }}</p>
-                    </div>
-                    <div class="rounded-2xl border border-[rgba(45,212,191,.18)] bg-[rgba(45,212,191,.07)] p-3">
-                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-white/45">Inviati</p>
-                        <p class="mt-1 text-2xl font-black text-[#5EEAD4]">{{ $summary['sent'] }}</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </x-slot>
 
     @php
         $memberSearchItems = $members->map(fn ($member) => [
@@ -155,7 +127,37 @@
         ])->values();
     @endphp
 
-    <main class="km-shell-wide py-5 sm:py-6">
+    <main class="km-shell-wide space-y-4 py-5 sm:py-6">
+        <section class="km-dark-panel km-oto-hero px-5 py-4 sm:px-6">
+            <div class="relative z-[1] flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div class="min-w-0">
+                    <p class="km-eyebrow">One-to-one · {{ auth()->user()->memberProfile?->chapter?->name ?? 'Kommunity' }}</p>
+                    <h1 class="km-display mt-1 text-2xl text-white sm:text-3xl">Agenda relazionale</h1>
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                    <div class="grid grid-cols-3 gap-2 sm:min-w-[23rem]">
+                        <div class="rounded-2xl border border-white/[.08] bg-white/[.045] px-3 py-2">
+                            <p class="text-[9px] font-black uppercase tracking-[.16em] text-white/45">Totale</p>
+                            <p class="mt-0.5 text-xl font-black text-white">{{ $summary['total'] }}</p>
+                        </div>
+                        <div class="rounded-2xl border border-[rgba(139,197,63,.18)] bg-[rgba(139,197,63,.07)] px-3 py-2">
+                            <p class="text-[9px] font-black uppercase tracking-[.16em] text-white/45">Ricevuti</p>
+                            <p class="mt-0.5 text-xl font-black text-[color:var(--km-green-2)]">{{ $summary['received'] }}</p>
+                        </div>
+                        <div class="rounded-2xl border border-[rgba(45,212,191,.18)] bg-[rgba(45,212,191,.07)] px-3 py-2">
+                            <p class="text-[9px] font-black uppercase tracking-[.16em] text-white/45">Inviati</p>
+                            <p class="mt-0.5 text-xl font-black text-[#5EEAD4]">{{ $summary['sent'] }}</p>
+                        </div>
+                    </div>
+                    <button type="button" id="open-one-to-one-create-modal" class="km-cta-primary justify-center text-sm">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                        Nuova richiesta
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <div class="km-oto-layout">
             <section class="min-w-0 space-y-4">
                 @if ($selectedMember)
@@ -166,77 +168,77 @@
                 @endif
 
                 <section class="km-dark-card p-4 sm:p-5">
-                    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                            <p class="km-eyebrow">Ricerca richieste</p>
-                            <h2 class="mt-1 text-xl font-black tracking-tight text-white">Trova il prossimo follow-up</h2>
-                        </div>
-                        <a href="{{ route('one-to-ones.index') }}" class="km-cta-secondary justify-center text-xs">Reset filtri</a>
-                    </div>
-                    <form method="GET" class="grid gap-3 lg:grid-cols-12">
-                        <label class="lg:col-span-4">
-                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Cerca</span>
-                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input" placeholder="Membro, obiettivo o nota">
-                        </label>
-                        <label class="lg:col-span-2">
-                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Membro</span>
-                            <select name="member" class="km-dark-input">
-                                <option value="">Tutti</option>
-                                @foreach ($members as $member)
-                                    <option value="{{ $member->id }}" @selected((string)($filters['member'] ?? '') === (string)$member->id)>{{ $member->name }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label class="lg:col-span-2">
-                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Tipo</span>
-                            <select name="type" class="km-dark-input">
-                                <option value="">Tutti</option>
-                                @foreach ($typeOptions as $value => $label)
-                                    <option value="{{ $value }}" @selected(($filters['type'] ?? null) === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label class="lg:col-span-2">
-                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Stato</span>
-                            <select name="status" class="km-dark-input">
-                                <option value="">Tutti</option>
-                                @foreach ($statusOptions as $value => $label)
-                                    <option value="{{ $value }}" @selected(($filters['status'] ?? null) === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label class="lg:col-span-2">
-                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Modalita'</span>
-                            <select name="meeting_mode" class="km-dark-input">
-                                <option value="">Tutte</option>
-                                @foreach ($modeOptions as $value => $label)
-                                    <option value="{{ $value }}" @selected(($filters['meeting_mode'] ?? null) === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label class="lg:col-span-3">
-                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Da</span>
-                            <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" class="km-dark-input">
-                        </label>
-                        <label class="lg:col-span-3">
-                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">A</span>
-                            <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" class="km-dark-input">
-                        </label>
-                        <div class="flex items-end lg:col-span-6">
-                            <button type="submit" class="km-button-primary w-full">
-                                Applica filtri
-                            </button>
-                        </div>
-                    </form>
-                </section>
-
-                <section class="km-dark-card p-4 sm:p-5">
                     <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p class="km-eyebrow">Richieste one-to-one</p>
                             <h2 class="mt-1 text-xl font-black tracking-tight text-white">Ricevute e inviate</h2>
                         </div>
-                        <p class="text-xs text-white/45">Mostra {{ $requests->firstItem() ?? 0 }}-{{ $requests->lastItem() ?? 0 }} di {{ $requests->total() }} risultati</p>
+                        <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                            <p class="text-xs text-white/45">Mostra {{ $requests->firstItem() ?? 0 }}-{{ $requests->lastItem() ?? 0 }} di {{ $requests->total() }}</p>
+                            <a href="{{ route('one-to-ones.index') }}" class="rounded-full border border-white/[.10] bg-white/[.04] px-3 py-2 text-xs font-bold text-white/70 transition hover:border-[rgba(139,197,63,.35)]">Reset</a>
+                            <details class="relative">
+                                <summary class="km-oto-filter-summary inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-[rgba(139,197,63,.28)] bg-[rgba(139,197,63,.09)] px-3 py-2 text-xs font-black text-[color:var(--km-green-2)] transition hover:border-[rgba(139,197,63,.46)]">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                                    Filtri
+                                </summary>
+                                <div class="km-oto-filter-menu rounded-2xl border border-white/[.10] bg-[#031822]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,.45)] backdrop-blur-xl">
+                                    <form method="GET" class="grid gap-3 lg:grid-cols-12">
+                                        <label class="lg:col-span-3">
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Cerca</span>
+                                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input" placeholder="Membro o obiettivo">
+                                        </label>
+                                        <label class="lg:col-span-3">
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Membro</span>
+                                            <select name="member" class="km-dark-input">
+                                                <option value="">Tutti</option>
+                                                @foreach ($members as $member)
+                                                    <option value="{{ $member->id }}" @selected((string)($filters['member'] ?? '') === (string)$member->id)>{{ $member->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </label>
+                                        <label class="lg:col-span-2">
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Tipo</span>
+                                            <select name="type" class="km-dark-input">
+                                                <option value="">Tutti</option>
+                                                @foreach ($typeOptions as $value => $label)
+                                                    <option value="{{ $value }}" @selected(($filters['type'] ?? null) === $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </label>
+                                        <label class="lg:col-span-2">
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Stato</span>
+                                            <select name="status" class="km-dark-input">
+                                                <option value="">Tutti</option>
+                                                @foreach ($statusOptions as $value => $label)
+                                                    <option value="{{ $value }}" @selected(($filters['status'] ?? null) === $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </label>
+                                        <label class="lg:col-span-2">
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Modalita'</span>
+                                            <select name="meeting_mode" class="km-dark-input">
+                                                <option value="">Tutte</option>
+                                                @foreach ($modeOptions as $value => $label)
+                                                    <option value="{{ $value }}" @selected(($filters['meeting_mode'] ?? null) === $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </label>
+                                        <label class="lg:col-span-3">
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Da</span>
+                                            <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" class="km-dark-input">
+                                        </label>
+                                        <label class="lg:col-span-3">
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">A</span>
+                                            <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" class="km-dark-input">
+                                        </label>
+                                        <div class="flex items-end gap-2 lg:col-span-6">
+                                            <button type="submit" class="km-button-primary flex-1">Applica filtri</button>
+                                            <a href="{{ route('one-to-ones.index') }}" class="km-button-secondary">Reset</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </details>
+                        </div>
                     </div>
 
                     <div class="km-oto-table-wrap overflow-x-auto">
