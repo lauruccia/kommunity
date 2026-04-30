@@ -31,8 +31,8 @@
                 display:grid;
                 grid-template-columns:minmax(19rem,23rem) minmax(0,1fr) minmax(18rem,22rem);
                 gap:1rem;
-                height:calc(100vh - 7.5rem);
-                min-height:42rem;
+                height:calc(100vh - 10.25rem);
+                min-height:34rem;
             }
             .km-chat-panel{
                 border:1px solid var(--km-line-dark);
@@ -83,7 +83,7 @@
         </style>
     @endpush
 
-    <main class="km-shell-wide py-5">
+    <main class="km-shell-wide py-3">
         <section class="km-chat-layout">
             <aside class="km-chat-panel flex min-h-0 flex-col">
                 <div class="border-b border-white/[.08] p-4">
