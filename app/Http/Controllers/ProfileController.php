@@ -132,6 +132,8 @@ class ProfileController extends Controller
                 'intro_video',
                 'intro_video_url',
                 'gallery_images',
+                'show_online_status',
+                'show_read_receipts',
                 'province_id',
                 'company_interest_type_ids',
                 'category_ids',
