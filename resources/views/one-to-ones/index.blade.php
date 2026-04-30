@@ -46,6 +46,7 @@
             }
             .km-oto-table{
                 width:100%;
+                table-layout:fixed;
                 border-collapse:separate;
                 border-spacing:0 .55rem;
             }
@@ -59,7 +60,7 @@
                 text-transform:uppercase;
             }
             .km-oto-table td{
-                padding:1rem;
+                padding:.9rem .8rem;
                 background:rgba(255,255,255,.035);
                 border-top:1px solid rgba(255,255,255,.07);
                 border-bottom:1px solid rgba(255,255,255,.07);
@@ -78,6 +79,40 @@
                 background:rgba(255,255,255,.06);
                 border-color:rgba(139,197,63,.22);
             }
+            .km-oto-goal{
+                display:-webkit-box;
+                -webkit-line-clamp:2;
+                -webkit-box-orient:vertical;
+                overflow:hidden;
+                white-space:normal;
+                word-break:break-word;
+                line-height:1.45;
+            }
+            .km-oto-avatar{
+                width:2.25rem;
+                height:2.25rem;
+                flex-shrink:0;
+                overflow:hidden;
+                border-radius:999px;
+                border:1px solid rgba(255,255,255,.18);
+                background:linear-gradient(145deg, rgba(139,197,63,.18), rgba(45,212,191,.10));
+                box-shadow:0 0 22px rgba(139,197,63,.10);
+            }
+            .km-oto-avatar img{
+                width:100%;
+                height:100%;
+                object-fit:cover;
+            }
+            .km-oto-avatar-fallback{
+                display:flex;
+                width:100%;
+                height:100%;
+                align-items:center;
+                justify-content:center;
+                color:var(--km-green-2);
+                font-size:.82rem;
+                font-weight:900;
+            }
             .km-oto-filter-menu{
                 position:absolute;
                 right:0;
@@ -91,6 +126,34 @@
                 background:linear-gradient(135deg,#031822,#052532);
                 border:1px solid rgba(255,255,255,.12);
                 box-shadow:0 30px 80px rgba(0,0,0,.65);
+            }
+            .km-oto-detail-modal{
+                position:fixed;
+                inset:1rem;
+                z-index:50;
+                margin:auto;
+                width:min(980px, calc(100% - 2rem));
+                max-height:calc(100vh - 2rem);
+                overflow:hidden;
+                border-radius:1.5rem;
+                display:flex;
+                flex-direction:column;
+            }
+            .km-oto-detail-body{
+                padding:1rem;
+                overflow-y:auto;
+                display:flex;
+                flex-direction:column;
+                gap:.8rem;
+            }
+            .km-oto-detail-grid{
+                display:grid;
+                gap:.7rem;
+                grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+            }
+            .km-oto-detail-form{
+                padding:1rem!important;
+                gap:.65rem!important;
             }
             @media (max-width:1180px){
                 .km-oto-layout{grid-template-columns:1fr;}
@@ -241,8 +304,17 @@
                         </div>
                     </div>
 
-                    <div class="km-oto-table-wrap overflow-x-auto">
-                        <table class="km-oto-table min-w-[860px]">
+                    <div class="km-oto-table-wrap">
+                        <table class="km-oto-table">
+                            <colgroup>
+                                <col style="width:8%">
+                                <col style="width:13%">
+                                <col style="width:27%">
+                                <col style="width:12%">
+                                <col style="width:10%">
+                                <col style="width:13%">
+                                <col style="width:17%">
+                            </colgroup>
                             <thead>
                                 <tr>
                                     <th>Tipo</th>
@@ -269,9 +341,12 @@
                                         $isOpen = (int)($filters['request'] ?? 0) === $requestItem->id;
                                         $isReceived = $requestItem->recipient_id === auth()->id();
                                         $isPending  = in_array($requestItem->status->value, ['pending','rescheduled'], true);
-                                        $counterpartName = $requestItem->requester_id === auth()->id()
-                                            ? ($requestItem->recipient?->name ?? 'Utente eliminato')
-                                            : ($requestItem->requester?->name ?? 'Utente eliminato');
+                                        $counterpartUser = $requestItem->requester_id === auth()->id()
+                                            ? $requestItem->recipient
+                                            : $requestItem->requester;
+                                        $counterpartName = $counterpartUser?->name ?? 'Utente eliminato';
+                                        $counterpartAvatar = $counterpartUser?->memberProfile?->avatarUrl();
+                                        $counterpartInitial = \Illuminate\Support\Str::of($counterpartName)->substr(0, 1)->upper();
                                         $detailUrl = $isOpen
                                             ? route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id]))
                                             : route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id,'request'=>$requestItem->id]));
@@ -279,24 +354,35 @@
                                     <tr>
                                         <td><span class="text-[10px] font-black uppercase tracking-[.16em] {{ $isReceived ? 'text-[color:var(--km-green-2)]' : 'text-[#5EEAD4]' }}">{{ $isReceived ? 'Ricevuta' : 'Inviata' }}</span></td>
                                         <td>
-                                            <p class="text-sm font-black text-white">{{ $counterpartName }}</p>
-                                            <p class="mt-0.5 text-xs text-white/45">{{ $isReceived ? 'Da gestire' : 'In attesa di risposta' }}</p>
+                                            <div class="flex items-center gap-3">
+                                                <div class="km-oto-avatar">
+                                                    @if ($counterpartAvatar)
+                                                        <img src="{{ $counterpartAvatar }}" alt="{{ $counterpartName }}">
+                                                    @else
+                                                        <span class="km-oto-avatar-fallback">{{ $counterpartInitial }}</span>
+                                                    @endif
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="truncate text-sm font-black text-white">{{ $counterpartName }}</p>
+                                                    <p class="mt-0.5 text-xs text-white/45">{{ $isReceived ? 'Da gestire' : 'In attesa di risposta' }}</p>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td><p class="max-w-[15rem] truncate text-sm text-white/75">{{ $requestItem->goal ?: 'Obiettivo non indicato' }}</p></td>
+                                        <td><p class="km-oto-goal text-sm text-white/75">{{ $requestItem->goal ?: 'Obiettivo non indicato' }}</p></td>
                                         <td><p class="text-sm text-white/65">{{ optional($requestItem->requested_at)->format('d/m/Y') ?: 'Da confermare' }}</p><p class="text-xs text-white/40">{{ optional($requestItem->requested_at)->format('H:i') }}</p></td>
                                         <td><span class="rounded-full border border-white/[.10] bg-white/[.04] px-2.5 py-1 text-xs font-bold text-white/70">{{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</span></td>
                                         <td><span class="km-oto-status" style="{{ $statusVars }}">{{ $requestItem->status->label() }}</span></td>
                                         <td>
-                                            <div class="flex justify-end gap-2">
+                                            <div class="flex flex-wrap justify-end gap-1.5">
                                                 @if ($isReceived && $isPending)
                                                     <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" class="m-0">
                                                         @csrf
                                                         @method('PATCH')
                                                         <input type="hidden" name="status" value="accepted">
-                                                        <button type="submit" class="rounded-full border border-[rgba(139,197,63,.42)] bg-[rgba(139,197,63,.12)] px-3 py-1.5 text-xs font-black text-[color:var(--km-green-2)]">Accetta</button>
+                                                        <button type="submit" class="rounded-full border border-[rgba(139,197,63,.42)] bg-[rgba(139,197,63,.12)] px-2.5 py-1.5 text-xs font-black text-[color:var(--km-green-2)]">Accetta</button>
                                                     </form>
                                                 @endif
-                                                <a href="{{ $detailUrl }}" class="rounded-full border px-3 py-1.5 text-xs font-black transition {{ $isOpen ? 'border-[rgba(139,197,63,.5)] bg-[rgba(139,197,63,.10)] text-[color:var(--km-green-2)]' : 'border-white/[.12] bg-white/[.04] text-white/80 hover:border-[rgba(139,197,63,.35)]' }}">
+                                                <a href="{{ $detailUrl }}" class="rounded-full border px-2.5 py-1.5 text-xs font-black transition {{ $isOpen ? 'border-[rgba(139,197,63,.5)] bg-[rgba(139,197,63,.10)] text-[color:var(--km-green-2)]' : 'border-white/[.12] bg-white/[.04] text-white/80 hover:border-[rgba(139,197,63,.35)]' }}">
                                                     {{ $isOpen ? 'Chiudi' : 'Dettagli' }}
                                                 </a>
                                             </div>
@@ -328,18 +414,30 @@
                                 $isOpen = (int)($filters['request'] ?? 0) === $requestItem->id;
                                 $isReceived = $requestItem->recipient_id === auth()->id();
                                 $isPending  = in_array($requestItem->status->value, ['pending','rescheduled'], true);
-                                $counterpartName = $requestItem->requester_id === auth()->id()
-                                    ? ($requestItem->recipient?->name ?? 'Utente eliminato')
-                                    : ($requestItem->requester?->name ?? 'Utente eliminato');
+                                $counterpartUser = $requestItem->requester_id === auth()->id()
+                                    ? $requestItem->recipient
+                                    : $requestItem->requester;
+                                $counterpartName = $counterpartUser?->name ?? 'Utente eliminato';
+                                $counterpartAvatar = $counterpartUser?->memberProfile?->avatarUrl();
+                                $counterpartInitial = \Illuminate\Support\Str::of($counterpartName)->substr(0, 1)->upper();
                                 $detailUrl = $isOpen
                                     ? route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id]))
                                     : route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id,'request'=>$requestItem->id]));
                             @endphp
                             <article class="rounded-2xl border border-white/[.08] bg-white/[.04] p-4">
                                 <div class="flex items-start justify-between gap-3">
-                                    <div class="min-w-0">
-                                        <p class="text-[10px] font-black uppercase tracking-[.16em] {{ $isReceived ? 'text-[color:var(--km-green-2)]' : 'text-[#5EEAD4]' }}">{{ $isReceived ? 'Ricevuta' : 'Inviata' }}</p>
-                                        <h3 class="mt-1 truncate text-base font-black text-white">{{ $counterpartName }}</h3>
+                                    <div class="flex min-w-0 items-center gap-3">
+                                        <div class="km-oto-avatar">
+                                            @if ($counterpartAvatar)
+                                                <img src="{{ $counterpartAvatar }}" alt="{{ $counterpartName }}">
+                                            @else
+                                                <span class="km-oto-avatar-fallback">{{ $counterpartInitial }}</span>
+                                            @endif
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-[10px] font-black uppercase tracking-[.16em] {{ $isReceived ? 'text-[color:var(--km-green-2)]' : 'text-[#5EEAD4]' }}">{{ $isReceived ? 'Ricevuta' : 'Inviata' }}</p>
+                                            <h3 class="mt-1 truncate text-base font-black text-white">{{ $counterpartName }}</h3>
+                                        </div>
                                     </div>
                                     <span class="km-oto-status" style="{{ $statusVars }}">{{ $requestItem->status->label() }}</span>
                                 </div>
@@ -454,24 +552,23 @@
         <div style="position:fixed;inset:0;z-index:40;background:rgba(2,11,18,.75);backdrop-filter:blur(4px);">
             <a href="{{ route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id])) }}" style="position:absolute;inset:0;" aria-label="Chiudi"></a>
         </div>
-        <div class="km-dark-modal" style="position:fixed;inset-inline:0;bottom:0;top:1.5rem;z-index:50;margin:auto;width:min(1180px,calc(100% - 2rem));overflow-y:auto;border-radius:2rem 2rem 0 0;">
-            <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.2rem 1.5rem;border-bottom:1px solid var(--km-line-dark);background:rgba(3,24,34,.92);backdrop-filter:blur(20px);">
+        <div class="km-dark-modal km-oto-detail-modal">
+            <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.1rem;border-bottom:1px solid var(--km-line-dark);background:rgba(3,24,34,.92);backdrop-filter:blur(20px);">
                 <div>
                     <p class="km-eyebrow">Dettaglio richiesta</p>
-                    <h3 style="margin-top:.35rem;font-size:1.15rem;font-weight:800;color:var(--km-text);">Gestione one-to-one</h3>
-                    <p class="km-muted" style="margin-top:.25rem;font-size:.78rem;line-height:1.5;">Stato e resoconto aggiornati dal destinatario. Follow-up dal mittente. Nota privata solo per te.</p>
+                    <h3 style="margin-top:.25rem;font-size:1.05rem;font-weight:800;color:var(--km-text);">Gestione one-to-one</h3>
                 </div>
                 <a href="{{ route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id])) }}" class="km-button-secondary" style="text-decoration:none;">Chiudi</a>
             </div>
 
-            <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="km-oto-detail-body">
                 <div>
                     <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
                         <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.08);color:var(--km-text-muted);border:1px solid var(--km-line-dark);">{{ $isRequester ? 'Inviata' : 'Ricevuta' }}</span>
                         <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.08);color:var(--km-text-muted);border:1px solid var(--km-line-dark);">{{ $selectedRequest->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</span>
                         <span style="display:inline-block;padding:.2rem .7rem;border-radius:999px;font-size:.67rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:{{ $dBg }};color:{{ $dCol }};border:1px solid {{ $dBor }};">{{ $selectedRequest->status->label() }}</span>
                     </div>
-                    <h3 style="margin-top:.875rem;font-size:1.4rem;font-weight:800;color:var(--km-text);">{{ $isRequester ? 'Richiesta a '.$counterpart->name : 'Richiesta da '.$counterpart->name }}</h3>
+                    <h3 style="margin-top:.65rem;font-size:1.25rem;font-weight:800;color:var(--km-text);">{{ $isRequester ? 'Richiesta a '.$counterpart->name : 'Richiesta da '.$counterpart->name }}</h3>
                     <div style="margin-top:.4rem;display:flex;flex-wrap:wrap;gap:1.25rem;">
                         <span class="km-muted" style="font-size:.8rem;">{{ optional($selectedRequest->requested_at)->format('d/m/Y H:i') ?: 'Data da confermare' }}</span>
                         @if ($counterpart?->memberProfile?->city?->name)
@@ -480,7 +577,7 @@
                     </div>
                 </div>
 
-                <div style="display:flex;flex-direction:column;gap:1rem;">
+                <div style="display:flex;flex-direction:column;gap:.8rem;">
                     @if ($isRecipient && in_array($selectedRequest->status->value, ['pending','rescheduled'], true))
                         {{-- CTA immediata: Accetta / Rifiuta in evidenza per il destinatario --}}
                         <div class="km-glass-box" style="padding:1rem 1.25rem;border-color:rgba(139,197,63,.30);background:rgba(139,197,63,.06);">
@@ -509,31 +606,31 @@
                         </div>
                     @endif
 
-                    <div style="display:grid;gap:.875rem;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
-                        <div class="km-glass-box" style="padding:1rem;">
+                    <div class="km-oto-detail-grid">
+                        <div class="km-glass-box" style="padding:.85rem;">
                             <p class="km-eyebrow">Obiettivo incontro</p>
-                            <p style="margin-top:.5rem;font-size:.875rem;line-height:1.6;color:var(--km-text);">{{ $selectedRequest->goal }}</p>
+                            <p style="margin-top:.4rem;font-size:.86rem;line-height:1.5;color:var(--km-text);">{{ $selectedRequest->goal }}</p>
                         </div>
                         @if ($selectedRequest->pre_notes)
-                            <div class="km-glass-box" style="padding:1rem;">
+                            <div class="km-glass-box" style="padding:.85rem;">
                                 <p class="km-eyebrow">Note pre-incontro</p>
-                                <p style="margin-top:.5rem;font-size:.875rem;line-height:1.6;color:var(--km-text);">{{ $selectedRequest->pre_notes }}</p>
+                                <p style="margin-top:.4rem;font-size:.86rem;line-height:1.5;color:var(--km-text);">{{ $selectedRequest->pre_notes }}</p>
                             </div>
                         @endif
                         @if ($selectedRequest->post_notes)
-                            <div class="km-glass-box" style="padding:1rem;">
+                            <div class="km-glass-box" style="padding:.85rem;">
                                 <p class="km-eyebrow">Resoconto condiviso</p>
-                                <p style="margin-top:.5rem;font-size:.875rem;line-height:1.6;color:var(--km-text);">{{ $selectedRequest->post_notes }}</p>
+                                <p style="margin-top:.4rem;font-size:.86rem;line-height:1.5;color:var(--km-text);">{{ $selectedRequest->post_notes }}</p>
                             </div>
                         @endif
                         @if ($sharedFollowUp)
-                            <div class="km-glass-box" style="padding:1rem;">
+                            <div class="km-glass-box" style="padding:.85rem;">
                                 <p class="km-eyebrow">Follow-up condiviso</p>
-                                <p style="margin-top:.5rem;font-size:.875rem;line-height:1.6;color:var(--km-text);">{{ $sharedFollowUp }}</p>
+                                <p style="margin-top:.4rem;font-size:.86rem;line-height:1.5;color:var(--km-text);">{{ $sharedFollowUp }}</p>
                             </div>
                         @endif
                         @if ($privateNote)
-                            <div class="km-glass-box" style="padding:1rem;border-color:rgba(139,197,63,.2);">
+                            <div class="km-glass-box" style="padding:.85rem;border-color:rgba(139,197,63,.2);">
                                 <p class="km-eyebrow">Nota privata</p>
                                 <p class="km-muted" style="margin-top:.25rem;font-size:.72rem;">Visibile solo a te.</p>
                                 <p style="margin-top:.4rem;font-size:.875rem;line-height:1.6;color:var(--km-text);">{{ $privateNote }}</p>
@@ -541,7 +638,7 @@
                         @endif
                     </div>
 
-                    <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" class="km-dark-card" style="padding:1.25rem;display:flex;flex-direction:column;gap:.75rem;">
+                    <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" class="km-dark-card km-oto-detail-form" style="display:flex;flex-direction:column;">
                         @csrf
                         @method('PATCH')
                         @if ($isRecipient)
@@ -554,16 +651,16 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <textarea name="post_notes" rows="3" class="km-dark-input" placeholder="Resoconto condiviso visibile a entrambi" style="resize:vertical;">{{ $selectedRequest->post_notes }}</textarea>
+                            <textarea name="post_notes" rows="2" class="km-dark-input" placeholder="Resoconto condiviso visibile a entrambi" style="resize:vertical;">{{ $selectedRequest->post_notes }}</textarea>
                         @endif
                         @if ($isRequester)
                             <div>
                                 <p class="km-eyebrow">Follow-up condiviso</p>
                                 <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Prossima azione concordata dopo il contatto.</p>
                             </div>
-                            <textarea name="follow_up_notes" rows="3" class="km-dark-input" placeholder="Es. invio proposta entro venerdi, richiamo lunedi" style="resize:vertical;">{{ $sharedFollowUp }}</textarea>
+                            <textarea name="follow_up_notes" rows="2" class="km-dark-input" placeholder="Es. invio proposta entro venerdi, richiamo lunedi" style="resize:vertical;">{{ $sharedFollowUp }}</textarea>
                             @if (!in_array($selectedRequest->status->value, ['completed','cancelled']))
-                                <div style="background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:1.2rem;padding:1rem;">
+                                <div style="background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:1.2rem;padding:.8rem;">
                                     <p style="font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#FDA4AF;">Annulla richiesta</p>
                                     <p style="margin-top:.25rem;font-size:.75rem;color:rgba(253,164,175,.7);line-height:1.5;">Puoi annullare finche' non e' completata.</p>
                                     <button type="submit" name="status" value="cancelled" onclick="return confirm('Sei sicuro di voler annullare questa richiesta?')" style="margin-top:.65rem;display:inline-block;padding:.35rem .9rem;border-radius:999px;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.73rem;font-weight:700;cursor:pointer;">
@@ -576,7 +673,7 @@
                             <p class="km-eyebrow">Nota privata</p>
                             <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Promemoria personale, visibile solo a te.</p>
                         </div>
-                        <textarea name="private_note" rows="3" class="km-dark-input" placeholder="Nota privata solo per te" style="resize:vertical;">{{ $privateNote }}</textarea>
+                        <textarea name="private_note" rows="2" class="km-dark-input" placeholder="Nota privata solo per te" style="resize:vertical;">{{ $privateNote }}</textarea>
                         <button type="submit" class="km-button-primary" style="width:100%;">Aggiorna</button>
                     </form>
                 </div>
