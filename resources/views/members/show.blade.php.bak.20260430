@@ -130,17 +130,27 @@
 
             @unless ($viewerIsOwner)
                 <div class="shrink-0 space-y-2 border-t border-stone-200 bg-white p-4">
-                    {{-- Apre la pagina messaggi con il destinatario precompilato. NESSUN invio automatico. --}}
-                    <a href="{{ route('conversations.index', ['to' => $user->id]) }}"
-                       class="km-button-secondary inline-flex w-full items-center justify-center">
-                        Messaggio diretto
-                    </a>
+                    <form method="POST" action="{{ route('conversations.start') }}">
+                        @csrf
+                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                        <button type="submit" class="km-button-secondary w-full">
+                            Messaggio diretto
+                        </button>
+                    </form>
 
-                    {{-- Apre il form one-to-one con il destinatario precompilato. NESSUN invio automatico. --}}
-                    <a href="{{ route('one-to-ones.index', ['member' => $user->id, 'compose' => 1]) }}"
-                       class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(66,98,64,0.25)] transition hover:bg-[color:var(--km-accent-strong)]">
-                        Prenota one-to-one
-                    </a>
+                    <form method="POST" action="{{ route('one-to-ones.store') }}">
+                        @csrf
+                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                        <input type="hidden" name="meeting_mode" value="online">
+                        <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
+
+                        <button
+                            type="submit"
+                            class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(66,98,64,0.25)] transition hover:bg-[color:var(--km-accent-strong)]"
+                        >
+                            Prenota one-to-one
+                        </button>
+                    </form>
                 </div>
             @endunless
         </div>
@@ -208,17 +218,27 @@
 
                             @unless ($viewerIsOwner)
                                 <div class="hidden flex-wrap gap-3 sm:flex">
-                                    {{-- Apre la pagina messaggi con il destinatario precompilato. NESSUN invio automatico. --}}
-                                    <a href="{{ route('conversations.index', ['to' => $user->id]) }}"
-                                       class="km-button-secondary inline-flex items-center justify-center">
-                                        Messaggio diretto
-                                    </a>
+                                    <form method="POST" action="{{ route('conversations.start') }}">
+                                        @csrf
+                                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                                        <button type="submit" class="km-button-secondary">
+                                            Messaggio diretto
+                                        </button>
+                                    </form>
 
-                                    {{-- Apre il form one-to-one con il destinatario precompilato. NESSUN invio automatico. --}}
-                                    <a href="{{ route('one-to-ones.index', ['member' => $user->id, 'compose' => 1]) }}"
-                                       class="inline-flex items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]">
-                                        Prenota one-to-one
-                                    </a>
+                                    <form method="POST" action="{{ route('one-to-ones.store') }}">
+                                        @csrf
+                                        <input type="hidden" name="recipient_id" value="{{ $user->id }}">
+                                        <input type="hidden" name="meeting_mode" value="online">
+                                        <input type="hidden" name="goal" value="Vorrei approfondire il tuo profilo e valutare una collaborazione.">
+
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]"
+                                        >
+                                            Prenota one-to-one
+                                        </button>
+                                    </form>
                                 </div>
                             @endunless
                         </div>

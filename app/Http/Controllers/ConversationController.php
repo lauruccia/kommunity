@@ -20,15 +20,24 @@ class ConversationController extends Controller
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'filter' => ['nullable', 'in:all,unread,favorites'],
+            'to'     => ['nullable', 'integer', 'exists:users,id'],
         ]);
 
         $conversations = $this->conversationList($user, $filters);
+
+        // Se è stato passato ?to=ID dal profilo membro, apri il modale "Nuovo messaggio"
+        // con il destinatario precompilato. NIENTE invio automatico.
+        $prefillRecipientId = null;
+        if (! empty($filters['to']) && (int) $filters['to'] !== $user->id) {
+            $prefillRecipientId = (int) $filters['to'];
+        }
 
         return view('conversations.index', [
             'conversations' => $conversations,
             'members' => $this->availableMembers($user),
             'filters' => $filters,
             'unreadCount' => $conversations->where('has_unread', true)->count(),
+            'prefillRecipientId' => $prefillRecipientId,
         ]);
     }
 
@@ -41,7 +50,7 @@ class ConversationController extends Controller
             'filter' => ['nullable', 'in:all,unread,favorites'],
         ]);
 
-        $conversation->load(['participants.memberProfile']);
+        $conversation->load(['participants.memberProfile', 'participants.memberOnepage']);
 
         // Carica solo gli ultimi 100 messaggi — evita crash su conversazioni lunghe
         $messages = $conversation->messages()

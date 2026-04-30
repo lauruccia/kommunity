@@ -254,34 +254,9 @@
                                                 </span>
                                             </td>
                                             <td style="text-align:right;">
-                                                @php
-                                                    $isReceived = $requestItem->recipient_id === auth()->id();
-                                                    $isPending  = in_array($requestItem->status->value, ['pending','rescheduled'], true);
-                                                @endphp
-                                                <div style="display:inline-flex;gap:.4rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-                                                    @if ($isReceived && $isPending)
-                                                        {{-- CTA immediate sulla riga: Accetta / Rifiuta senza aprire dettaglio --}}
-                                                        <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" style="margin:0;">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="status" value="accepted">
-                                                            <button type="submit" title="Accetta richiesta" style="padding:.3rem .75rem;border-radius:999px;border:1px solid rgba(139,197,63,.45);background:rgba(139,197,63,.12);color:var(--km-green-2);font-size:.72rem;font-weight:800;letter-spacing:.04em;cursor:pointer;">
-                                                                Accetta
-                                                            </button>
-                                                        </form>
-                                                        <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" style="margin:0;" onsubmit="return confirm('Rifiutare la richiesta da {{ addslashes($requestItem->requester?->name ?? 'questo membro') }}?');">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="status" value="declined">
-                                                            <button type="submit" title="Rifiuta richiesta" style="padding:.3rem .75rem;border-radius:999px;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.72rem;font-weight:700;cursor:pointer;">
-                                                                Rifiuta
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                    <a href="{{ $detailUrl }}" style="display:inline-block;padding:.3rem .85rem;border-radius:999px;font-size:.73rem;font-weight:700;text-decoration:none;border:1px solid;transition:.2s;{{ $isOpen ? 'border-color:rgba(139,197,63,.5);color:var(--km-green);background:rgba(139,197,63,.08);' : 'border-color:rgba(255,255,255,.18);color:var(--km-text);' }}">
-                                                        {{ $isOpen ? 'Chiudi' : 'Dettagli' }}
-                                                    </a>
-                                                </div>
+                                                <a href="{{ $detailUrl }}" style="display:inline-block;padding:.3rem .85rem;border-radius:999px;font-size:.73rem;font-weight:700;text-decoration:none;border:1px solid;transition:.2s;{{ $isOpen ? 'border-color:rgba(139,197,63,.5);color:var(--km-green);background:rgba(139,197,63,.08);' : 'border-color:rgba(255,255,255,.18);color:var(--km-text);' }}">
+                                                    {{ $isOpen ? 'Chiudi' : 'Dettagli' }}
+                                                </a>
                                             </td>
                                         </tr>
                                     @empty
@@ -349,34 +324,6 @@
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:1rem;">
-                    @if ($isRecipient && in_array($selectedRequest->status->value, ['pending','rescheduled'], true))
-                        {{-- CTA immediata: Accetta / Rifiuta in evidenza per il destinatario --}}
-                        <div class="km-glass-box" style="padding:1rem 1.25rem;border-color:rgba(139,197,63,.30);background:rgba(139,197,63,.06);">
-                            <p class="km-eyebrow" style="color:var(--km-green-2);">Azione richiesta</p>
-                            <p style="margin-top:.4rem;font-size:.9rem;line-height:1.5;color:var(--km-text);">
-                                {{ $counterpart?->name }} ha proposto un one-to-one. Conferma o rifiuta per liberare l'agenda.
-                            </p>
-                            <div style="margin-top:.85rem;display:flex;flex-wrap:wrap;gap:.6rem;">
-                                <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin:0;">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="accepted">
-                                    <button type="submit" class="km-button-primary" style="padding:.55rem 1.2rem!important;">
-                                        Accetta richiesta
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin:0;" onsubmit="return confirm('Rifiutare la richiesta?');">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="declined">
-                                    <button type="submit" style="padding:.55rem 1.2rem;border-radius:1rem;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.82rem;font-weight:700;cursor:pointer;">
-                                        Rifiuta
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @endif
-
                     <div style="display:grid;gap:.875rem;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));">
                         <div class="km-glass-box" style="padding:1rem;">
                             <p class="km-eyebrow">Obiettivo incontro</p>
@@ -627,13 +574,6 @@
 
             renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState();
 
-            // Apri modale in base al contesto:
-            // - ?compose=1 (arrivo dal profilo membro): apri SUBITO con destinatario precompilato.
-            // - Solo se NON e' presente ?request=ID (cioe' quando vogliamo vedere il dettaglio della richiesta appena creata)
-            //   non riapriamo il modale dopo un invio: cosi' UX e' chiusura+toast+dettaglio.
-            @if ((int) request('compose'))
+            @if (session('status') === 'one-to-one-booked' || session('status') === 'one-to-one-created')
                 openModal();
-            @endif
-        })();
-    </script>
-</x-app-layout>
+       

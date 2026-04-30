@@ -117,8 +117,8 @@
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 scale-95 translate-y-1"
                          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                         class="absolute right-0 top-full mt-2 origin-top-right overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl"
-                         style="z-index:9999; width: min(20rem, calc(100vw - 1.5rem)); max-width: 100vw;">
+                         class="absolute right-0 top-full mt-2 w-80 origin-top-right overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl"
+                         style="z-index:9999;">
 
                         <div class="flex items-center justify-between border-b border-stone-100 px-4 py-3">
                             <span class="text-sm font-semibold text-stone-900">Notifiche</span>

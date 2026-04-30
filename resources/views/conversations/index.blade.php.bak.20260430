@@ -21,7 +21,7 @@
             color: var(--km-msg-text);
         }
 
-        .km-msg-shell { width: min(1840px, calc(100% - 64px)); margin: 0 auto; overflow-x: hidden; }
+        .km-msg-shell { width: min(1840px, calc(100% - 64px)); margin: 0 auto; }
         .km-msg-card {
             background: linear-gradient(145deg, rgba(4, 35, 46, .86), rgba(2, 25, 34, .74));
             border: 1px solid var(--km-msg-line);
@@ -29,7 +29,7 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.18);
             backdrop-filter: blur(16px);
         }
-        .km-msg-layout { display: grid; grid-template-columns: minmax(0, 470px) minmax(0, 1fr) minmax(0, 440px); gap: 18px; align-items: stretch; }
+        .km-msg-layout { display: grid; grid-template-columns: 470px minmax(620px, 1fr) 440px; gap: 18px; align-items: stretch; }
         .km-msg-avatar { width: 54px; height: 54px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); object-fit: cover; background: linear-gradient(145deg, #173a47, #071a22); }
         .km-msg-input { border: 1px solid var(--km-msg-line); background: rgba(2, 24, 33, .72); color: var(--km-msg-text); outline: none; }
         .km-msg-input:focus { border-color: rgba(121, 200, 67, .42); box-shadow: 0 0 0 3px rgba(121, 200, 67, .08); }
@@ -38,12 +38,12 @@
         .km-msg-thread:hover { background: linear-gradient(90deg, rgba(121, 200, 67, .22), rgba(54, 122, 84, .12)); }
 
         @media (max-width: 1400px) {
-            .km-msg-layout { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); }
+            .km-msg-layout { grid-template-columns: 380px minmax(520px, 1fr); }
             .km-msg-detail { grid-column: 1 / -1; }
         }
 
         @media (max-width: 980px) {
-            .km-msg-shell { width: calc(100% - 28px); max-width: 760px; }
+            .km-msg-shell { width: min(100% - 28px, 760px); }
             .km-msg-layout { display: block; }
             .km-msg-chat, .km-msg-detail { margin-top: 18px; }
         }
@@ -154,11 +154,10 @@
                 <select name="recipient_id" class="km-msg-input h-12 w-full rounded-xl px-4" required>
                     <option value="">Seleziona membro</option>
                     @foreach ($members as $member)
-                        <option value="{{ $member->id }}" @selected((int) ($prefillRecipientId ?? 0) === $member->id)>{{ $member->name }}</option>
+                        <option value="{{ $member->id }}">{{ $member->name }}</option>
                     @endforeach
                 </select>
-                <textarea name="message" rows="5" class="km-msg-input w-full rounded-xl px-4 py-3" placeholder="Scrivi il primo messaggio (obbligatorio)" required minlength="2"></textarea>
-                <p class="text-xs" style="color: var(--km-msg-soft);">Premi "Apri conversazione" solo quando hai scritto il messaggio. Niente viene inviato finche' non confermi.</p>
+                <textarea name="message" rows="5" class="km-msg-input w-full rounded-xl px-4 py-3" placeholder="Scrivi il primo messaggio" required></textarea>
                 <button type="submit" class="km-msg-primary h-12 w-full rounded-lg font-semibold">Apri conversazione</button>
             </form>
         </div>
@@ -173,14 +172,6 @@
             document.querySelectorAll('[data-close-message-modal]').forEach((button) => button.addEventListener('click', close));
             modal?.addEventListener('click', (event) => { if (event.target === modal) close(); });
             document.addEventListener('keydown', (event) => { if (event.key === 'Escape') close(); });
-
-            // Apri il modale automaticamente se siamo arrivati da un profilo membro (prefill recipient)
-            @if (! empty($prefillRecipientId))
-                open();
-                setTimeout(() => {
-                    document.querySelector('#message-modal textarea[name="message"]')?.focus();
-                }, 50);
-            @endif
         })();
     </script>
 </x-app-layout>

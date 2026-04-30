@@ -32,7 +32,6 @@ class OneToOneController extends Controller
             'meeting_mode' => ['nullable', Rule::in(['online', 'in_person'])],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date'],
-            'compose' => ['nullable', 'boolean'], // arrivo da profilo membro: apre modale di nuova richiesta
         ]);
 
         $selectedMemberId = $filters['member'] ?? null;
@@ -248,15 +247,8 @@ class OneToOneController extends Controller
                     : 'Richiesta One-to-one inviata! Trovala nella sezione One-to-one.');
         }
 
-        // Apre il pannello dettaglio sulla richiesta appena creata e mostra toast successo.
-        $successMessage = $isBookable
-            ? 'One-to-one prenotato! Lo slot e\' disponibile e senza conflitti.'
-            : 'Richiesta one-to-one inviata. Il destinatario ricevera\' una notifica.';
-
-        return redirect()
-            ->route('one-to-ones.index', ['request' => $oneToOneRequest->id])
-            ->with('status', $isBookable ? 'one-to-one-booked' : 'one-to-one-created')
-            ->with('success', $successMessage);
+        return redirect()->route('one-to-ones.index')
+            ->with('status', $isBookable ? 'one-to-one-booked' : 'one-to-one-created');
     }
 
     public function updateStatus(Request $request, OneToOneRequest $oneToOneRequest): RedirectResponse
@@ -400,6 +392,4 @@ class OneToOneController extends Controller
 
         $availabilitySlot->delete();
 
-        return back()->with('status', 'availability-deleted');
-    }
-}
+        return back
