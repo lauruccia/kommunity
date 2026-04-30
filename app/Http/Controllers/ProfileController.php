@@ -234,7 +234,21 @@ class ProfileController extends Controller
             return null;
         }
 
+        // Assicura che la directory esista prima di salvare
+        Storage::disk('public')->makeDirectory($folder);
+
         $path = $file->store($folder, 'public');
+
+        // Se lo store fallisce (disco non scrivibile, permessi cPanel, ecc.)
+        // ritorna null così l'operatore ?? mantiene il valore esistente nel DB.
+        // Non cancellare la vecchia immagine se il salvataggio è fallito.
+        if (! $path) {
+            Log::warning('storePublicFile: salvataggio fallito', [
+                'folder' => $folder,
+                'user'   => request()->user()?->id,
+            ]);
+            return null;
+        }
 
         $this->deletePublicImage($currentUrl);
 
@@ -291,7 +305,17 @@ class ProfileController extends Controller
             return null;
         }
 
+        Storage::disk('public')->makeDirectory($folder);
+
         $path = $videoCompressor->storeOptimized($file, $folder);
+
+        if (! $path) {
+            Log::warning('storePublicVideo: salvataggio fallito', [
+                'folder' => $folder,
+                'user'   => request()->user()?->id,
+            ]);
+            return null;
+        }
 
         $this->deletePublicImage($currentUrl);
 
