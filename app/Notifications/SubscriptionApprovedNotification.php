@@ -3,11 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\MemberSubscription;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SubscriptionApprovedNotification extends Notification
+class SubscriptionApprovedNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(
         private readonly MemberSubscription $subscription,
     ) {}

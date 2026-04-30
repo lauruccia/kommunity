@@ -3,11 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\Referral;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ReferralReceivedNotification extends Notification
+class ReferralReceivedNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(
         private readonly Referral $referral,
     ) {}

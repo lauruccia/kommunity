@@ -4,11 +4,15 @@ namespace App\Notifications;
 
 use App\Enums\OneToOneStatus;
 use App\Models\OneToOneRequest;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OneToOneStatusChangedNotification extends Notification
+class OneToOneStatusChangedNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(
         private readonly OneToOneRequest $oneToOneRequest,
         private readonly OneToOneStatus $newStatus,

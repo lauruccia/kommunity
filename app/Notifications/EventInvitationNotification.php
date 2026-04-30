@@ -4,11 +4,15 @@ namespace App\Notifications;
 
 use App\Models\Event;
 use App\Models\User;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class EventInvitationNotification extends Notification
+class EventInvitationNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(
         protected Event $event,
         protected User  $inviter,
