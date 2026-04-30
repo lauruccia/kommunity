@@ -78,6 +78,8 @@ class ProfileUpdateRequest extends FormRequest
             'show_phone' => ['sometimes', 'boolean'],
             'show_whatsapp' => ['sometimes', 'boolean'],
             'allow_whatsapp_contact' => ['sometimes', 'boolean'],
+            'show_online_status' => ['sometimes', 'boolean'],
+            'show_read_receipts' => ['sometimes', 'boolean'],
             'is_visible_in_directory' => ['sometimes', 'boolean'],
             'onboarding_completed' => ['sometimes', 'boolean'],
         ];

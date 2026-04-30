@@ -18,6 +18,7 @@ class ConversationController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
+        $this->markUserSeen($user);
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'filter' => ['nullable', 'in:all,unread,favorites'],
@@ -45,6 +46,7 @@ class ConversationController extends Controller
     public function show(Request $request, Conversation $conversation): View
     {
         $this->authorize('view', $conversation);
+        $this->markUserSeen($request->user());
 
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
@@ -148,6 +150,8 @@ class ConversationController extends Controller
 
     public function start(Request $request): RedirectResponse
     {
+        $this->markUserSeen($request->user());
+
         $data = $request->validate([
             'recipient_id' => ['required', 'exists:users,id'],
             'message' => ['nullable', 'string', 'max:3000'],
@@ -197,6 +201,7 @@ class ConversationController extends Controller
     public function storeMessage(Request $request, Conversation $conversation): RedirectResponse
     {
         $this->authorize('sendMessage', $conversation);
+        $this->markUserSeen($request->user());
 
         $data = $request->validate([
             'body' => ['required', 'string', 'max:3000'],
@@ -223,5 +228,10 @@ class ConversationController extends Controller
             ));
 
         return back()->with('status', 'message-sent');
+    }
+
+    private function markUserSeen(User $user): void
+    {
+        $user->forceFill(['last_seen_at' => now()])->saveQuietly();
     }
 }

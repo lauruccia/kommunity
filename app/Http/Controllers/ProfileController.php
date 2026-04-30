@@ -84,6 +84,8 @@ class ProfileController extends Controller
         $request->user()->fill([
             'name' => $fullName,
             'email' => $validated['email'],
+            'show_online_status' => $request->boolean('show_online_status'),
+            'show_read_receipts' => $request->boolean('show_read_receipts'),
         ]);
 
         if ($request->user()->isDirty('email')) {

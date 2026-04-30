@@ -531,6 +531,14 @@
                     <input type="checkbox" name="allow_whatsapp_contact" value="1" class="rounded border-stone-300 text-[color:var(--km-accent)] focus:ring-emerald-300" @checked(old('allow_whatsapp_contact', $profile->allow_whatsapp_contact))>
                     Permetti contatto diretto su WhatsApp
                 </label>
+                <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
+                    <input type="checkbox" name="show_online_status" value="1" class="rounded border-stone-300 text-[color:var(--km-accent)] focus:ring-emerald-300" @checked(old('show_online_status', $user->show_online_status ?? true))>
+                    Mostra agli altri membri quando sono online
+                </label>
+                <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
+                    <input type="checkbox" name="show_read_receipts" value="1" class="rounded border-stone-300 text-[color:var(--km-accent)] focus:ring-emerald-300" @checked(old('show_read_receipts', $user->show_read_receipts ?? true))>
+                    Mostra agli altri membri quando ho letto i messaggi
+                </label>
                 {{-- La visibilità in directory è gestita dall'admin, il membro appare sempre --}}
                 <label class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 md:col-span-2">
                     <input type="checkbox" name="onboarding_completed" value="1" class="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-300" @checked(old('onboarding_completed', $profile->onboarding_completed))>

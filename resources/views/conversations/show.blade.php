@@ -6,8 +6,8 @@
         $detailAvatar = $profile?->avatarUrl();
         $company = $profile?->company_name;
         $role = $profile?->profession?->name ?? $profile?->category?->name ?? null;
-        $phone = $profile?->phone;
-        $email = $otherParticipant?->email;
+        $phone = ($profile?->show_phone ?? false) ? $profile?->phone : null;
+        $email = ($profile?->show_email ?? false) ? $otherParticipant?->email : null;
         $city = $profile?->city?->name;
         $joinedAt = $otherParticipant?->created_at?->translatedFormat('F Y');
         $profileUrl = ($otherParticipant && $otherParticipant->memberOnepage?->slug)
@@ -15,6 +15,13 @@
             : null;
         $activeFilter = $filters['filter'] ?? 'all';
         $otherLastReadAt = optional($otherParticipant?->pivot)->last_read_at;
+        $showOnlineStatus = (bool) ($otherParticipant?->show_online_status ?? true);
+        $isOnline = $showOnlineStatus
+            && $otherParticipant?->last_seen_at
+            && $otherParticipant->last_seen_at->gt(now()->subMinutes(5));
+        $presenceLabel = $showOnlineStatus
+            ? ($isOnline ? 'Online' : 'Offline')
+            : 'Stato nascosto';
 
         $formatMessageTime = fn ($date) => ! $date
             ? ''
@@ -27,8 +34,9 @@
 
             $other = $conversation->participants->firstWhere('id', '!=', $currentUserId);
             $lastReadAt = optional($other?->pivot)->last_read_at;
+            $readReceiptsAllowed = (bool) ($other?->show_read_receipts ?? true);
 
-            if ($lastReadAt && $message->created_at && $message->created_at->lte(\Illuminate\Support\Carbon::parse($lastReadAt))) {
+            if ($readReceiptsAllowed && $lastReadAt && $message->created_at && $message->created_at->lte(\Illuminate\Support\Carbon::parse($lastReadAt))) {
                 return ['label' => 'Letto', 'icon' => '✓✓', 'class' => 'km-chat-check-read'];
             }
 
@@ -189,18 +197,19 @@
                             @else
                                 <div class="km-chat-avatar km-chat-avatar-fallback text-lg">{{ \Illuminate\Support\Str::of($otherParticipant?->name ?? 'K')->substr(0, 1)->upper() }}</div>
                             @endif
-                            <span class="absolute -right-0.5 bottom-0 h-3 w-3 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                            @if ($isOnline)
+                                <span class="absolute -right-0.5 bottom-0 h-3 w-3 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                            @endif
                         </div>
                         <div class="min-w-0">
                             <h1 class="truncate text-base font-black text-white sm:text-lg">{{ $otherParticipant?->name ?? $conversation->subject }}</h1>
-                            <p class="truncate text-xs text-white/55"><span class="text-[color:var(--km-green-2)]">Online</span>{{ $role ? ' · '.$role : '' }}</p>
+                            <p class="truncate text-xs text-white/55"><span class="{{ $isOnline ? 'text-[color:var(--km-green-2)]' : 'text-white/45' }}">{{ $presenceLabel }}</span>{{ $role ? ' · '.$role : '' }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button class="km-chat-action" type="button" aria-label="Cerca nella chat"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
-                        <a class="km-chat-action" href="{{ $phone ? 'tel:'.preg_replace('/\s+/', '', $phone) : '#' }}" aria-label="Chiama"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></a>
-                        <button class="km-chat-action hidden sm:inline-flex" type="button" aria-label="Video"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg></button>
-                        <button class="km-chat-action" type="button" aria-label="Altro"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button>
+                        @if ($profileUrl)
+                            <a class="km-cta-secondary text-sm" href="{{ $profileUrl }}">Profilo</a>
+                        @endif
                     </div>
                 </header>
 
@@ -256,9 +265,7 @@
                 <form id="chat-composer-form" method="POST" action="{{ route('conversations.messages.store', $conversation) }}" class="km-chat-composer border-t border-white/[.08] p-4">
                     @csrf
                     <div class="flex items-end gap-3 rounded-2xl border border-white/[.12] bg-white/[.045] px-3 py-2">
-                        <button type="button" class="km-chat-action h-10 w-10" aria-label="Allega file"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 1 1 5.66 5.66l-9.2 9.19a2 2 0 1 1-2.82-2.83l8.48-8.48"/></svg></button>
                         <textarea name="body" rows="1" class="min-h-[2.5rem] flex-1 resize-none border-0 bg-transparent py-2 text-sm text-white outline-none placeholder:text-white/35 focus:ring-0" placeholder="Scrivi un messaggio..." required></textarea>
-                        <button type="button" class="km-chat-action h-10 w-10" aria-label="Emoji"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
                         <button type="submit" class="km-button-primary h-11 w-11 rounded-xl p-0" aria-label="Invia">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                         </button>
@@ -274,19 +281,20 @@
                         @else
                             <div class="km-chat-avatar km-chat-avatar-lg km-chat-avatar-fallback text-3xl">{{ \Illuminate\Support\Str::of($otherParticipant?->name ?? 'K')->substr(0, 1)->upper() }}</div>
                         @endif
-                        <span class="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                        @if ($isOnline)
+                            <span class="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                        @endif
                     </div>
                     <h2 class="mt-4 text-xl font-black text-white">{{ $otherParticipant?->name ?? $conversation->subject }}</h2>
                     <p class="mt-1 text-sm text-white/55">{{ $role ?: ($company ?: 'Membro Kommunity') }}</p>
-                    <p class="mt-1 text-xs text-[color:var(--km-green-2)]">Online</p>
+                    <p class="mt-1 text-xs {{ $isOnline ? 'text-[color:var(--km-green-2)]' : 'text-white/45' }}">{{ $presenceLabel }}</p>
                 </div>
 
-                <div class="mt-5 grid grid-cols-4 gap-2 text-center text-[11px] text-white/65">
-                    <a href="{{ $profileUrl ?: '#' }}" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Profilo</a>
-                    <a href="{{ $phone ? 'tel:'.preg_replace('/\s+/', '', $phone) : '#' }}" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Chiama</a>
-                    <button type="button" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Video</button>
-                    <button type="button" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Altro</button>
-                </div>
+                @if ($profileUrl)
+                    <div class="mt-5">
+                        <a href="{{ $profileUrl }}" class="km-cta-primary flex justify-center text-sm">Apri profilo</a>
+                    </div>
+                @endif
 
                 <section class="mt-6 border-t border-white/[.08] pt-5">
                     <p class="km-eyebrow">Informazioni</p>
@@ -299,20 +307,9 @@
                 </section>
 
                 <section class="mt-6 border-t border-white/[.08] pt-5">
-                    <p class="km-eyebrow">Media, file e link</p>
-                    <div class="mt-3 grid grid-cols-3 gap-2">
-                        <div class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 text-center text-xs text-white/55">PDF</div>
-                        <div class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 text-center text-xs text-white/55">DOC</div>
-                        <div class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 text-center text-xs text-white/55">Link</div>
-                    </div>
-                </section>
-
-                <section class="mt-6 border-t border-white/[.08] pt-5">
-                    <p class="km-eyebrow">Opzioni</p>
-                    <div class="mt-3 space-y-3 text-sm text-white/70">
-                        <button type="button" class="flex w-full items-center justify-between rounded-xl bg-white/[.035] px-3 py-2 text-left">Silenzia notifiche <span class="text-white/35">Off</span></button>
-                        <button type="button" class="flex w-full items-center justify-between rounded-xl bg-white/[.035] px-3 py-2 text-left">Messaggi temporanei <span class="text-white/35">Disattivati</span></button>
-                        <button type="button" class="w-full rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-left text-red-300">Elimina conversazione</button>
+                    <p class="km-eyebrow">Privacy</p>
+                    <div class="mt-3 rounded-2xl border border-white/[.08] bg-white/[.035] p-4 text-sm leading-6 text-white/60">
+                        Lo stato online e le conferme di lettura sono mostrati solo se l'utente li abilita dal profilo.
                     </div>
                 </section>
             </aside>

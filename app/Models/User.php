@@ -36,6 +36,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'invited_by_user_id',
         'invited_by_name',
         'locale',
+        'last_seen_at',
+        'show_online_status',
+        'show_read_receipts',
         // ── Concierge onboarding (feature: concierge_onboarding) ────────────
         'concierge_assigned_at',
         'concierge_assigned_to',
@@ -65,6 +68,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'password'               => 'hashed',
             'concierge_assigned_at'  => 'datetime',
             'concierge_completed_at' => 'datetime',
+            'last_seen_at'           => 'datetime',
+            'show_online_status'     => 'boolean',
+            'show_read_receipts'     => 'boolean',
         ];
     }
 
