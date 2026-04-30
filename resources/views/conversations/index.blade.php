@@ -1,165 +1,193 @@
 <x-app-layout>
-    @php $activeFilter = $filters['filter'] ?? 'all'; @endphp
+    @php
+        $activeFilter = $filters['filter'] ?? 'all';
+        $currentUserId = auth()->id();
 
-    <style>
-        :root {
-            --km-msg-bg: #001821;
-            --km-msg-panel: rgba(4, 34, 45, .78);
-            --km-msg-line: rgba(153, 194, 202, .17);
-            --km-msg-text: #f5fbfd;
-            --km-msg-muted: rgba(222, 235, 238, .68);
-            --km-msg-soft: rgba(222, 235, 238, .48);
-            --km-msg-green: #79c843;
-            --km-msg-green-2: #55aa54;
-        }
+        $formatMessageTime = fn ($date) => ! $date
+            ? ''
+            : ($date->isToday() ? $date->format('H:i') : ($date->isYesterday() ? 'Ieri' : $date->format('d/m')));
 
-        body {
-            background:
-                radial-gradient(circle at 80% 0%, rgba(121, 200, 67, .16), transparent 28%),
-                radial-gradient(circle at 8% 22%, rgba(45, 212, 191, .10), transparent 30%),
-                linear-gradient(135deg, #00121a, var(--km-msg-bg) 48%, #042d31) !important;
-            color: var(--km-msg-text);
-        }
+        $messageReceipt = function ($message, $conversation) use ($currentUserId) {
+            if (! $message || (int) $message->user_id !== (int) $currentUserId) {
+                return null;
+            }
 
-        .km-msg-shell { width: min(1840px, calc(100% - 64px)); margin: 0 auto; overflow-x: hidden; }
-        .km-msg-card {
-            background: linear-gradient(145deg, rgba(4, 35, 46, .86), rgba(2, 25, 34, .74));
-            border: 1px solid var(--km-msg-line);
-            border-radius: 18px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.18);
-            backdrop-filter: blur(16px);
-        }
-        .km-msg-layout { display: grid; grid-template-columns: minmax(0, 470px) minmax(0, 1fr) minmax(0, 440px); gap: 18px; align-items: stretch; }
-        .km-msg-avatar { width: 54px; height: 54px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); object-fit: cover; background: linear-gradient(145deg, #173a47, #071a22); }
-        .km-msg-input { border: 1px solid var(--km-msg-line); background: rgba(2, 24, 33, .72); color: var(--km-msg-text); outline: none; }
-        .km-msg-input:focus { border-color: rgba(121, 200, 67, .42); box-shadow: 0 0 0 3px rgba(121, 200, 67, .08); }
-        .km-msg-primary { background: linear-gradient(135deg, var(--km-msg-green-2), var(--km-msg-green)); color: #f8fff5; }
-        .km-msg-thread { border-bottom: 1px solid rgba(153, 194, 202, .10); transition: background .16s ease; }
-        .km-msg-thread:hover { background: linear-gradient(90deg, rgba(121, 200, 67, .22), rgba(54, 122, 84, .12)); }
+            $other = $conversation->participants->firstWhere('id', '!=', $currentUserId);
+            $lastReadAt = optional($other?->pivot)->last_read_at;
 
-        @media (max-width: 1400px) {
-            .km-msg-layout { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); }
-            .km-msg-detail { grid-column: 1 / -1; }
-        }
+            if ($lastReadAt && $message->created_at && $message->created_at->lte(\Illuminate\Support\Carbon::parse($lastReadAt))) {
+                return ['label' => 'Letto', 'icon' => '✓✓', 'class' => 'text-[color:var(--km-green-2)]'];
+            }
 
-        @media (max-width: 980px) {
-            .km-msg-shell { width: calc(100% - 28px); max-width: 760px; }
-            .km-msg-layout { display: block; }
-            .km-msg-chat, .km-msg-detail { margin-top: 18px; }
-        }
-    </style>
+            return ['label' => 'Consegnato', 'icon' => '✓', 'class' => 'text-white/45'];
+        };
+    @endphp
 
-    <div class="km-msg-shell py-7">
-        <header class="km-msg-card mb-6 flex items-center gap-5 px-6 py-7">
-            <div class="flex h-24 w-40 items-center justify-center rounded-xl border border-white/10 bg-white/10">
-                <div class="text-center">
-                    <div class="text-4xl font-bold leading-none text-[color:var(--km-msg-green)]">msg</div>
-                    <div class="mt-1 text-xs uppercase tracking-[.28em] text-white">Kommunity</div>
-                </div>
-            </div>
-            <div>
-                <p class="text-sm font-semibold uppercase tracking-[.35em] text-[color:var(--km-msg-green)]">Messaggistica privata</p>
-                <h1 class="mt-3 text-3xl font-semibold text-white">Conversazioni tra membri</h1>
-                <p class="mt-2 text-base" style="color: var(--km-msg-muted);">Messaggi diretti e privati con gli altri membri.</p>
-            </div>
-        </header>
+    @push('body-class') km-bg-dark @endpush
 
-        <main class="km-msg-layout">
-            <aside class="km-msg-card overflow-hidden">
-                <div class="p-6">
-                    <button type="button" data-open-message-modal class="km-msg-primary flex h-14 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold">
-                        <span class="text-2xl leading-none">+</span>
+    @push('styles')
+        <style>
+            .km-chat-layout{
+                display:grid;
+                grid-template-columns:minmax(19rem,23rem) minmax(0,1fr) minmax(18rem,22rem);
+                gap:1rem;
+                height:calc(100vh - 7.5rem);
+                min-height:42rem;
+            }
+            .km-chat-panel{
+                border:1px solid var(--km-line-dark);
+                background:linear-gradient(145deg,rgba(4,35,46,.88),rgba(2,25,34,.78));
+                box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 24px 80px rgba(0,0,0,.20);
+                backdrop-filter:blur(16px);
+                border-radius:var(--km-radius-lg);
+                color:var(--km-text);
+                overflow:hidden;
+            }
+            .km-chat-avatar{
+                width:3rem;
+                height:3rem;
+                border-radius:999px;
+                border:1px solid rgba(255,255,255,.24);
+                object-fit:cover;
+                background:linear-gradient(145deg,#173a47,#071a22);
+                flex-shrink:0;
+            }
+            .km-chat-avatar-fallback{
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:var(--km-green-2);
+                font-weight:900;
+            }
+            .km-chat-thread{
+                border-bottom:1px solid rgba(153,194,202,.10);
+                transition:background .16s ease,border-color .16s ease;
+            }
+            .km-chat-thread:hover,
+            .km-chat-thread-active{
+                background:linear-gradient(90deg,rgba(139,197,63,.18),rgba(45,212,191,.08));
+            }
+            .km-chat-empty-orbit{
+                background:
+                    radial-gradient(circle at 50% 50%,rgba(139,197,63,.22),transparent 9%),
+                    repeating-radial-gradient(circle at 50% 50%,transparent 0 22px,rgba(139,197,63,.10) 24px 25px,transparent 27px 52px);
+            }
+            @media (max-width:1280px){
+                .km-chat-layout{grid-template-columns:minmax(18rem,22rem) minmax(0,1fr);}
+                .km-chat-detail{display:none;}
+            }
+            @media (max-width:860px){
+                .km-chat-layout{display:block;height:auto;min-height:0;}
+                .km-chat-main,.km-chat-detail{display:none;}
+            }
+        </style>
+    @endpush
+
+    <main class="km-shell-wide py-5">
+        <section class="km-chat-layout">
+            <aside class="km-chat-panel flex min-h-0 flex-col">
+                <div class="border-b border-white/[.08] p-4">
+                    <button type="button" data-open-message-modal class="km-cta-primary flex w-full justify-center text-sm">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
                         Nuovo messaggio
                     </button>
 
-                    <form method="GET" action="{{ route('conversations.index') }}" class="mt-5 flex gap-3">
+                    <form method="GET" action="{{ route('conversations.index') }}" class="mt-4 flex gap-2">
                         <label class="relative min-w-0 flex-1">
-                            <input name="search" value="{{ $filters['search'] ?? '' }}" class="km-msg-input h-12 w-full rounded-xl px-4 pr-12" placeholder="Cerca conversazione...">
-                            <svg class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <input name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input h-11 rounded-xl pr-10" placeholder="Cerca conversazione...">
+                            <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                         </label>
-                        <button type="submit" class="km-msg-input flex h-12 w-12 items-center justify-center rounded-xl">
-                            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
+                        <button type="submit" class="km-cta-secondary h-11 w-11 justify-center p-0" aria-label="Cerca">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
                         </button>
                     </form>
 
-                    <div class="mt-5 flex items-center gap-4 text-sm font-semibold">
-                        <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-msg-primary' : 'text-white' }} rounded-full px-4 py-2">Tutte</a>
-                        <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-msg-primary' : 'text-white' }} rounded-full px-4 py-2">Non lette</a>
-                        <span class="rounded-full bg-[rgba(121,200,67,.25)] px-2.5 py-1 text-[color:var(--km-msg-green)]">{{ $unreadCount }}</span>
-                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-msg-primary' : 'text-white' }} rounded-full px-4 py-2">Preferite</a>
+                    <div class="mt-4 flex items-center gap-2 text-xs font-black">
+                        <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Tutte</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Non lette</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Preferite</a>
                     </div>
                 </div>
 
-                <div>
+                <div class="min-h-0 flex-1 overflow-y-auto">
                     @forelse ($conversations as $conversation)
                         @php
                             $participant = $conversation->getAttribute('other_participant');
                             $lastMessage = $conversation->getAttribute('last_message');
                             $hasUnread = $conversation->getAttribute('has_unread');
+                            $unreadMessages = (int) $conversation->getAttribute('unread_count');
                             $avatar = $participant?->memberProfile?->avatarUrl();
+                            $receipt = $messageReceipt($lastMessage, $conversation);
                         @endphp
-                        <a href="{{ route('conversations.show', $conversation) }}" class="km-msg-thread flex items-center gap-4 px-7 py-4 text-white">
-                            @if ($avatar)
-                                <img src="{{ $avatar }}" alt="{{ $participant?->name }}" class="km-msg-avatar">
-                            @else
-                                <div class="km-msg-avatar flex items-center justify-center text-xl font-semibold">{{ \Illuminate\Support\Str::of($participant?->name ?? 'K')->substr(0, 1) }}</div>
-                            @endif
+                        <a href="{{ route('conversations.show', $conversation) }}" class="km-chat-thread flex gap-3 px-4 py-3 text-white">
+                            <div class="relative">
+                                @if ($avatar)
+                                    <img src="{{ $avatar }}" alt="{{ $participant?->name }}" class="km-chat-avatar">
+                                @else
+                                    <div class="km-chat-avatar km-chat-avatar-fallback text-lg">{{ \Illuminate\Support\Str::of($participant?->name ?? 'K')->substr(0, 1)->upper() }}</div>
+                                @endif
+                                <span class="absolute -right-0.5 bottom-0 h-3 w-3 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                            </div>
                             <div class="min-w-0 flex-1">
-                                <div class="flex items-center justify-between gap-3">
-                                    <h3 class="truncate text-lg font-semibold">{{ $participant?->name ?? $conversation->subject }}</h3>
-                                    <span class="text-xs" style="color: var(--km-msg-soft);">{{ optional($lastMessage?->created_at)->isToday() ? optional($lastMessage?->created_at)->format('H:i') : optional($lastMessage?->created_at)->diffForHumans() }}</span>
+                                <div class="flex items-start justify-between gap-2">
+                                    <h3 class="truncate text-sm font-black">{{ $participant?->name ?? $conversation->subject }}</h3>
+                                    <span class="shrink-0 text-[11px] text-white/45">{{ $formatMessageTime($lastMessage?->created_at) }}</span>
                                 </div>
-                                <p class="mt-1 truncate text-sm" style="color: var(--km-msg-muted);">{{ $lastMessage?->body ?: 'Nessun messaggio ancora.' }}</p>
+                                <div class="mt-1 flex items-center gap-1.5">
+                                    @if ($receipt)
+                                        <span class="{{ $receipt['class'] }} text-xs" title="{{ $receipt['label'] }}">{{ $receipt['icon'] }}</span>
+                                    @endif
+                                    <p class="truncate text-xs text-white/55">{{ $lastMessage?->body ?: 'Nessun messaggio ancora.' }}</p>
+                                </div>
                             </div>
                             @if ($hasUnread)
-                                <span class="rounded-full bg-[color:var(--km-msg-green)] px-2 py-1 text-xs font-bold text-white">2</span>
+                                <span class="mt-5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--km-green)] px-1.5 text-[10px] font-black text-[#061018]">{{ max(1, $unreadMessages) }}</span>
                             @endif
                         </a>
                     @empty
-                        <div class="px-7 py-8 text-sm" style="color: var(--km-msg-muted);">Nessuna conversazione attiva.</div>
+                        <div class="p-5 text-sm text-white/55">Nessuna conversazione attiva.</div>
                     @endforelse
                 </div>
             </aside>
 
-            <section class="km-msg-card km-msg-chat flex min-h-[760px] items-center justify-center p-8 text-center">
-                <div>
-                    <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-4xl text-[color:var(--km-msg-green)]">msg</div>
-                    <h2 class="mt-5 text-2xl font-semibold text-white">Seleziona una conversazione</h2>
-                    <p class="mt-2 max-w-md" style="color: var(--km-msg-muted);">Apri una chat dalla lista oppure crea un nuovo messaggio per iniziare una conversazione privata.</p>
-                    <button type="button" data-open-message-modal class="km-msg-primary mt-6 inline-flex h-12 items-center justify-center rounded-lg px-6 font-semibold">Nuovo messaggio</button>
-                </div>
+            <section class="km-chat-panel km-chat-main flex min-h-0 flex-col items-center justify-center p-8 text-center">
+                <div class="km-chat-empty-orbit mx-auto flex h-24 w-24 items-center justify-center rounded-3xl border border-white/[.10] text-3xl font-black text-[color:var(--km-green-2)]">msg</div>
+                <h1 class="mt-5 text-2xl font-black tracking-tight text-white">Seleziona una conversazione</h1>
+                <p class="mt-2 max-w-md text-sm leading-6 text-white/55">Apri una chat dalla lista oppure crea un nuovo messaggio per iniziare una conversazione privata.</p>
+                <button type="button" data-open-message-modal class="km-cta-primary mt-6 text-sm">Nuovo messaggio</button>
             </section>
 
-            <aside class="km-msg-card km-msg-detail p-6">
-                <h2 class="text-lg font-semibold text-white">Dettagli conversazione</h2>
-                <div class="mt-6 space-y-4 text-sm" style="color: var(--km-msg-muted);">
-                    <p>Seleziona una conversazione per visualizzare profilo, contatti, media e opzioni.</p>
-                    <div class="rounded-xl border border-white/10 bg-white/5 p-4">
-                        <div class="flex items-center justify-between"><span>Conversazioni</span><strong class="text-white">{{ $conversations->count() }}</strong></div>
-                        <div class="mt-3 flex items-center justify-between"><span>Non lette</span><strong class="text-white">{{ $unreadCount }}</strong></div>
-                    </div>
+            <aside class="km-chat-panel km-chat-detail p-5">
+                <p class="km-eyebrow">Dettagli</p>
+                <h2 class="mt-1 text-lg font-black text-white">Conversazione</h2>
+                <div class="mt-5 rounded-2xl border border-white/[.08] bg-white/[.035] p-4 text-sm text-white/60">
+                    <div class="flex items-center justify-between"><span>Conversazioni</span><strong class="text-white">{{ $conversations->count() }}</strong></div>
+                    <div class="mt-3 flex items-center justify-between"><span>Non lette</span><strong class="text-white">{{ $unreadCount }}</strong></div>
                 </div>
+                <p class="mt-4 text-sm leading-6 text-white/50">Seleziona una conversazione per visualizzare profilo, contatti, media e opzioni.</p>
             </aside>
-        </main>
-    </div>
+        </section>
+    </main>
 
     <div id="message-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-        <div class="km-msg-card w-full max-w-2xl overflow-hidden">
-            <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
-                <h2 class="text-xl font-semibold text-white">Nuovo messaggio</h2>
-                <button type="button" data-close-message-modal class="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white/80">Chiudi</button>
+        <div class="km-chat-panel w-full max-w-2xl">
+            <div class="flex items-center justify-between border-b border-white/[.10] px-5 py-4">
+                <div>
+                    <p class="km-eyebrow">Nuovo messaggio</p>
+                    <h2 class="mt-1 text-xl font-black text-white">Avvia conversazione</h2>
+                </div>
+                <button type="button" data-close-message-modal class="km-cta-secondary">Chiudi</button>
             </div>
             <form method="POST" action="{{ route('conversations.start') }}" class="space-y-4 px-5 py-5">
                 @csrf
-                <select name="recipient_id" class="km-msg-input h-12 w-full rounded-xl px-4" required>
+                <select name="recipient_id" class="km-dark-input h-12 w-full" required>
                     <option value="">Seleziona membro</option>
                     @foreach ($members as $member)
                         <option value="{{ $member->id }}" @selected((int) ($prefillRecipientId ?? 0) === $member->id)>{{ $member->name }}</option>
                     @endforeach
                 </select>
-                <textarea name="message" rows="5" class="km-msg-input w-full rounded-xl px-4 py-3" placeholder="Scrivi il primo messaggio (obbligatorio)" required minlength="2"></textarea>
-                <p class="text-xs" style="color: var(--km-msg-soft);">Premi "Apri conversazione" solo quando hai scritto il messaggio. Niente viene inviato finche' non confermi.</p>
-                <button type="submit" class="km-msg-primary h-12 w-full rounded-lg font-semibold">Apri conversazione</button>
+                <textarea name="message" rows="5" class="km-dark-input w-full" placeholder="Scrivi il primo messaggio" required minlength="2"></textarea>
+                <button type="submit" class="km-button-primary w-full">Apri conversazione</button>
             </form>
         </div>
     </div>
@@ -174,12 +202,9 @@
             modal?.addEventListener('click', (event) => { if (event.target === modal) close(); });
             document.addEventListener('keydown', (event) => { if (event.key === 'Escape') close(); });
 
-            // Apri il modale automaticamente se siamo arrivati da un profilo membro (prefill recipient)
             @if (! empty($prefillRecipientId))
                 open();
-                setTimeout(() => {
-                    document.querySelector('#message-modal textarea[name="message"]')?.focus();
-                }, 50);
+                setTimeout(() => document.querySelector('#message-modal textarea[name="message"]')?.focus(), 50);
             @endif
         })();
     </script>

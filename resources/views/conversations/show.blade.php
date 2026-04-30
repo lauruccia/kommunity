@@ -2,185 +2,217 @@
     @php
         $currentUserId = auth()->id();
         $otherParticipant = $conversation->participants->firstWhere('id', '!=', $currentUserId);
-        $detailAvatar = $otherParticipant?->memberProfile?->avatarUrl();
-        $company = $otherParticipant?->memberProfile?->company_name;
-        $phone = $otherParticipant?->memberProfile?->phone;
+        $profile = $otherParticipant?->memberProfile;
+        $detailAvatar = $profile?->avatarUrl();
+        $company = $profile?->company_name;
+        $role = $profile?->profession?->name ?? $profile?->category?->name ?? null;
+        $phone = $profile?->phone;
         $email = $otherParticipant?->email;
+        $city = $profile?->city?->name;
+        $joinedAt = $otherParticipant?->created_at?->translatedFormat('F Y');
         $profileUrl = ($otherParticipant && $otherParticipant->memberOnepage?->slug)
             ? route('members.show', $otherParticipant->memberOnepage->slug)
             : null;
         $activeFilter = $filters['filter'] ?? 'all';
+        $otherLastReadAt = optional($otherParticipant?->pivot)->last_read_at;
+
+        $formatMessageTime = fn ($date) => ! $date
+            ? ''
+            : ($date->isToday() ? $date->format('H:i') : ($date->isYesterday() ? 'Ieri' : $date->format('d/m')));
+
+        $messageReceipt = function ($message, $conversation) use ($currentUserId) {
+            if (! $message || (int) $message->user_id !== (int) $currentUserId) {
+                return null;
+            }
+
+            $other = $conversation->participants->firstWhere('id', '!=', $currentUserId);
+            $lastReadAt = optional($other?->pivot)->last_read_at;
+
+            if ($lastReadAt && $message->created_at && $message->created_at->lte(\Illuminate\Support\Carbon::parse($lastReadAt))) {
+                return ['label' => 'Letto', 'icon' => '✓✓', 'class' => 'text-[color:var(--km-green-2)]'];
+            }
+
+            return ['label' => 'Consegnato', 'icon' => '✓', 'class' => 'text-white/45'];
+        };
     @endphp
 
-    <style>
-        :root {
-            --km-msg-bg: #001821;
-            --km-msg-panel: rgba(4, 34, 45, .78);
-            --km-msg-panel-2: rgba(7, 43, 55, .64);
-            --km-msg-line: rgba(153, 194, 202, .17);
-            --km-msg-line-strong: rgba(169, 214, 221, .26);
-            --km-msg-text: #f5fbfd;
-            --km-msg-muted: rgba(222, 235, 238, .68);
-            --km-msg-soft: rgba(222, 235, 238, .48);
-            --km-msg-green: #79c843;
-            --km-msg-green-2: #55aa54;
-            --km-msg-red: #ef6262;
-        }
+    @push('body-class') km-bg-dark @endpush
 
-        body {
-            background:
-                radial-gradient(circle at 80% 0%, rgba(121, 200, 67, .16), transparent 28%),
-                radial-gradient(circle at 8% 22%, rgba(45, 212, 191, .10), transparent 30%),
-                linear-gradient(135deg, #00121a, var(--km-msg-bg) 48%, #042d31) !important;
-            color: var(--km-msg-text);
-        }
+    @push('styles')
+        <style>
+            .km-chat-layout{
+                display:grid;
+                grid-template-columns:minmax(19rem,23rem) minmax(0,1fr) minmax(18rem,22rem);
+                gap:1rem;
+                height:calc(100vh - 7.5rem);
+                min-height:42rem;
+            }
+            .km-chat-panel{
+                border:1px solid var(--km-line-dark);
+                background:linear-gradient(145deg,rgba(4,35,46,.88),rgba(2,25,34,.78));
+                box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 24px 80px rgba(0,0,0,.20);
+                backdrop-filter:blur(16px);
+                border-radius:var(--km-radius-lg);
+                color:var(--km-text);
+                overflow:hidden;
+            }
+            .km-chat-avatar{
+                width:3rem;
+                height:3rem;
+                border-radius:999px;
+                border:1px solid rgba(255,255,255,.24);
+                object-fit:cover;
+                background:linear-gradient(145deg,#173a47,#071a22);
+                flex-shrink:0;
+            }
+            .km-chat-avatar-lg{width:6rem;height:6rem;}
+            .km-chat-avatar-fallback{display:flex;align-items:center;justify-content:center;color:var(--km-green-2);font-weight:900;}
+            .km-chat-thread{border-bottom:1px solid rgba(153,194,202,.10);transition:background .16s ease,border-color .16s ease;}
+            .km-chat-thread:hover,.km-chat-thread-active{background:linear-gradient(90deg,rgba(139,197,63,.18),rgba(45,212,191,.08));}
+            .km-chat-bubble{
+                max-width:min(34rem,72%);
+                border:1px solid rgba(153,194,202,.13);
+                border-radius:1rem;
+                background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.045));
+            }
+            .km-chat-bubble-own{
+                margin-left:auto;
+                border-color:rgba(139,197,63,.22);
+                background:linear-gradient(145deg,rgba(75,132,75,.52),rgba(33,84,60,.46));
+                box-shadow:0 12px 34px rgba(139,197,63,.08);
+            }
+            .km-chat-day{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;color:rgba(255,255,255,.42);font-size:.75rem;}
+            .km-chat-day::before,.km-chat-day::after{content:"";height:1px;background:rgba(153,194,202,.14);}
+            .km-chat-composer{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(3,24,34,.78),rgba(3,24,34,.96));}
+            .km-chat-action{
+                display:inline-flex;
+                width:2.9rem;
+                height:2.9rem;
+                align-items:center;
+                justify-content:center;
+                border-radius:1rem;
+                border:1px solid rgba(255,255,255,.10);
+                background:rgba(255,255,255,.045);
+                color:rgba(255,255,255,.82);
+                transition:border-color .2s ease,color .2s ease,background .2s ease;
+            }
+            .km-chat-action:hover{border-color:rgba(139,197,63,.35);color:var(--km-green-2);background:rgba(139,197,63,.08);}
+            @media (max-width:1280px){
+                .km-chat-layout{grid-template-columns:minmax(18rem,22rem) minmax(0,1fr);}
+                .km-chat-detail{display:none;}
+            }
+            @media (max-width:860px){
+                .km-chat-layout{display:block;height:auto;min-height:0;}
+                .km-chat-list{display:none;}
+                .km-chat-main{height:calc(100vh - 6.5rem);min-height:36rem;}
+                .km-chat-bubble{max-width:86%;}
+            }
+        </style>
+    @endpush
 
-        .km-msg-shell { width: min(1840px, calc(100% - 48px)); margin: 0 auto; max-width: 100%; overflow-x: hidden; }
-        .km-msg-card {
-            background: linear-gradient(145deg, rgba(4, 35, 46, .86), rgba(2, 25, 34, .74));
-            border: 1px solid var(--km-msg-line);
-            border-radius: 18px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 24px 80px rgba(0,0,0,.18);
-            backdrop-filter: blur(16px);
-        }
-        .km-msg-layout { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr) minmax(0, 400px); gap: 18px; align-items: stretch; }
-        .km-msg-avatar { width: 54px; height: 54px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); object-fit: cover; background: linear-gradient(145deg, #173a47, #071a22); }
-        .km-msg-avatar-lg { width: 78px; height: 78px; }
-        .km-msg-input {
-            border: 1px solid var(--km-msg-line);
-            background: rgba(2, 24, 33, .72);
-            color: var(--km-msg-text);
-            outline: none;
-        }
-        .km-msg-input:focus { border-color: rgba(121, 200, 67, .42); box-shadow: 0 0 0 3px rgba(121, 200, 67, .08); }
-        .km-msg-primary { background: linear-gradient(135deg, var(--km-msg-green-2), var(--km-msg-green)); color: #f8fff5; }
-        .km-msg-thread { border-bottom: 1px solid rgba(153, 194, 202, .10); transition: background .16s ease; }
-        .km-msg-thread:hover, .km-msg-thread-active { background: linear-gradient(90deg, rgba(121, 200, 67, .22), rgba(54, 122, 84, .12)); }
-        .km-msg-bubble { max-width: 62%; border-radius: 10px; border: 1px solid rgba(153, 194, 202, .10); background: rgba(255,255,255,.065); }
-        .km-msg-bubble-own { margin-left: auto; background: linear-gradient(145deg, rgba(75, 132, 75, .42), rgba(33, 84, 60, .44)); }
-        .km-msg-day { display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center; color: var(--km-msg-soft); }
-        .km-msg-day::before, .km-msg-day::after { content: ""; height: 1px; background: rgba(153, 194, 202, .12); }
-
-        /* Schermi medi: nascondi il pannello dettagli, lista + chat */
-        @media (max-width: 1280px) {
-            .km-msg-layout { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); }
-            .km-msg-detail { display: none; }
-        }
-
-        /* Schermi piccoli: colonna unica */
-        @media (max-width: 860px) {
-            .km-msg-shell { width: calc(100% - 24px); }
-            .km-msg-layout { display: flex; flex-direction: column; }
-            .km-msg-chat { margin-top: 18px; }
-            .km-msg-bubble { max-width: 86%; }
-        }
-    </style>
-
-    <div class="km-msg-shell py-7">
-        <header class="km-msg-card mb-6 flex items-center gap-5 px-6 py-7">
-            <div class="flex h-24 w-40 items-center justify-center rounded-xl border border-white/10 bg-white/10">
-                <div class="text-center">
-                    <div class="text-4xl font-bold leading-none text-[color:var(--km-msg-green)]">msg</div>
-                    <div class="mt-1 text-xs uppercase tracking-[.28em] text-white">Kommunity</div>
-                </div>
-            </div>
-            <div>
-                <p class="text-sm font-semibold uppercase tracking-[.35em] text-[color:var(--km-msg-green)]">Messaggistica privata</p>
-                <h1 class="mt-3 text-3xl font-semibold text-white">Conversazioni tra membri</h1>
-                <p class="mt-2 text-base" style="color: var(--km-msg-muted);">Messaggi diretti e privati con gli altri membri.</p>
-            </div>
-        </header>
-
-        <main class="km-msg-layout">
-            <aside class="km-msg-card overflow-hidden">
-                <div class="p-6">
-                    <button type="button" data-open-message-modal class="km-msg-primary flex h-14 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold">
-                        <span class="text-2xl leading-none">+</span>
+    <main class="km-shell-wide py-5">
+        <section class="km-chat-layout">
+            <aside class="km-chat-panel km-chat-list flex min-h-0 flex-col">
+                <div class="border-b border-white/[.08] p-4">
+                    <button type="button" data-open-message-modal class="km-cta-primary flex w-full justify-center text-sm">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
                         Nuovo messaggio
                     </button>
-
-                    <form method="GET" action="{{ route('conversations.index') }}" class="mt-5 flex gap-3">
+                    <form method="GET" action="{{ route('conversations.index') }}" class="mt-4 flex gap-2">
                         <label class="relative min-w-0 flex-1">
-                            <input name="search" value="{{ $filters['search'] ?? '' }}" class="km-msg-input h-12 w-full rounded-xl px-4 pr-12" placeholder="Cerca conversazione...">
-                            <svg class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <input name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input h-11 rounded-xl pr-10" placeholder="Cerca conversazione...">
+                            <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                         </label>
-                        <button type="submit" class="km-msg-input flex h-12 w-12 items-center justify-center rounded-xl">
-                            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
+                        <button type="submit" class="km-cta-secondary h-11 w-11 justify-center p-0" aria-label="Cerca">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
                         </button>
                     </form>
-
-                    <div class="mt-5 flex items-center gap-4 text-sm font-semibold">
-                        <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-msg-primary' : 'text-white' }} rounded-full px-4 py-2">Tutte</a>
-                        <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-msg-primary' : 'text-white' }} rounded-full px-4 py-2">Non lette</a>
-                        <span class="rounded-full bg-[rgba(121,200,67,.25)] px-2.5 py-1 text-[color:var(--km-msg-green)]">{{ $unreadCount }}</span>
-                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-msg-primary' : 'text-white' }} rounded-full px-4 py-2">Preferite</a>
+                    <div class="mt-4 flex items-center gap-2 text-xs font-black">
+                        <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Tutte</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Non lette</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Preferite</a>
                     </div>
                 </div>
 
-                <div>
+                <div class="min-h-0 flex-1 overflow-y-auto">
                     @forelse ($conversations as $item)
                         @php
                             $participant = $item->getAttribute('other_participant');
                             $lastMessage = $item->getAttribute('last_message');
                             $hasUnread = $item->getAttribute('has_unread');
+                            $unreadMessages = (int) $item->getAttribute('unread_count');
                             $avatar = $participant?->memberProfile?->avatarUrl();
+                            $receipt = $messageReceipt($lastMessage, $item);
                         @endphp
-                        <a href="{{ route('conversations.show', $item) }}" class="km-msg-thread {{ $item->id === $conversation->id ? 'km-msg-thread-active' : '' }} flex items-center gap-4 px-7 py-4 text-white">
-                            @if ($avatar)
-                                <img src="{{ $avatar }}" alt="{{ $participant?->name }}" class="km-msg-avatar">
-                            @else
-                                <div class="km-msg-avatar flex items-center justify-center text-xl font-semibold">{{ \Illuminate\Support\Str::of($participant?->name ?? 'K')->substr(0, 1) }}</div>
-                            @endif
+                        <a href="{{ route('conversations.show', $item) }}" class="km-chat-thread {{ $item->id === $conversation->id ? 'km-chat-thread-active' : '' }} flex gap-3 px-4 py-3 text-white">
+                            <div class="relative">
+                                @if ($avatar)
+                                    <img src="{{ $avatar }}" alt="{{ $participant?->name }}" class="km-chat-avatar">
+                                @else
+                                    <div class="km-chat-avatar km-chat-avatar-fallback text-lg">{{ \Illuminate\Support\Str::of($participant?->name ?? 'K')->substr(0, 1)->upper() }}</div>
+                                @endif
+                                <span class="absolute -right-0.5 bottom-0 h-3 w-3 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                            </div>
                             <div class="min-w-0 flex-1">
-                                <div class="flex items-center justify-between gap-3">
-                                    <h3 class="truncate text-lg font-semibold">{{ $participant?->name ?? $item->subject }}</h3>
-                                    <span class="text-xs" style="color: var(--km-msg-soft);">{{ optional($lastMessage?->created_at)->isToday() ? optional($lastMessage?->created_at)->format('H:i') : optional($lastMessage?->created_at)->diffForHumans() }}</span>
+                                <div class="flex items-start justify-between gap-2">
+                                    <h3 class="truncate text-sm font-black">{{ $participant?->name ?? $item->subject }}</h3>
+                                    <span class="shrink-0 text-[11px] text-white/45">{{ $formatMessageTime($lastMessage?->created_at) }}</span>
                                 </div>
-                                <p class="mt-1 truncate text-sm" style="color: var(--km-msg-muted);">{{ $lastMessage?->body ?: 'Nessun messaggio ancora.' }}</p>
+                                <div class="mt-1 flex items-center gap-1.5">
+                                    @if ($receipt)
+                                        <span class="{{ $receipt['class'] }} text-xs" title="{{ $receipt['label'] }}">{{ $receipt['icon'] }}</span>
+                                    @endif
+                                    <p class="truncate text-xs text-white/55">{{ $lastMessage?->body ?: 'Nessun messaggio ancora.' }}</p>
+                                </div>
                             </div>
                             @if ($hasUnread)
-                                <span class="rounded-full bg-[color:var(--km-msg-green)] px-2 py-1 text-xs font-bold text-white">2</span>
+                                <span class="mt-5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--km-green)] px-1.5 text-[10px] font-black text-[#061018]">{{ max(1, $unreadMessages) }}</span>
                             @endif
                         </a>
                     @empty
-                        <div class="px-7 py-8 text-sm" style="color: var(--km-msg-muted);">Nessuna conversazione attiva.</div>
+                        <div class="p-5 text-sm text-white/55">Nessuna conversazione attiva.</div>
                     @endforelse
                 </div>
             </aside>
 
-            <section class="km-msg-card km-msg-chat flex min-h-[760px] flex-col overflow-hidden">
-                <div class="flex items-center justify-between border-b border-white/10 px-6 py-5">
-                    <div class="flex items-center gap-4">
-                        @if ($detailAvatar)
-                            <img src="{{ $detailAvatar }}" alt="{{ $otherParticipant?->name }}" class="km-msg-avatar">
-                        @else
-                            <div class="km-msg-avatar flex items-center justify-center text-xl font-semibold">{{ \Illuminate\Support\Str::of($otherParticipant?->name ?? 'K')->substr(0, 1) }}</div>
-                        @endif
-                        <div class="min-w-0">
-                            <h2 class="truncate text-xl font-semibold text-white">{{ $otherParticipant?->name ?? $conversation->subject }}</h2>
-                            @if ($company)
-                                <p class="truncate text-sm" style="color: var(--km-msg-muted);">{{ $company }}</p>
+            <section class="km-chat-panel km-chat-main flex min-h-0 flex-col">
+                <header class="flex items-center justify-between border-b border-white/[.08] px-4 py-3 sm:px-5">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <a href="{{ route('conversations.index') }}" class="km-chat-action md:hidden" aria-label="Torna alle conversazioni">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+                        </a>
+                        <div class="relative">
+                            @if ($detailAvatar)
+                                <img src="{{ $detailAvatar }}" alt="{{ $otherParticipant?->name }}" class="km-chat-avatar">
+                            @else
+                                <div class="km-chat-avatar km-chat-avatar-fallback text-lg">{{ \Illuminate\Support\Str::of($otherParticipant?->name ?? 'K')->substr(0, 1)->upper() }}</div>
                             @endif
+                            <span class="absolute -right-0.5 bottom-0 h-3 w-3 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                        </div>
+                        <div class="min-w-0">
+                            <h1 class="truncate text-base font-black text-white sm:text-lg">{{ $otherParticipant?->name ?? $conversation->subject }}</h1>
+                            <p class="truncate text-xs text-white/55"><span class="text-[color:var(--km-green-2)]">Online</span>{{ $role ? ' · '.$role : '' }}</p>
                         </div>
                     </div>
-                    @if ($profileUrl)
-                        <a href="{{ $profileUrl }}" class="km-msg-input hidden h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold text-white sm:inline-flex">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-                            Profilo
-                        </a>
-                    @endif
-                </div>
+                    <div class="flex items-center gap-2">
+                        <button class="km-chat-action" type="button" aria-label="Cerca nella chat"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+                        <a class="km-chat-action" href="{{ $phone ? 'tel:'.preg_replace('/\s+/', '', $phone) : '#' }}" aria-label="Chiama"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></a>
+                        <button class="km-chat-action hidden sm:inline-flex" type="button" aria-label="Video"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg></button>
+                        <button class="km-chat-action" type="button" aria-label="Altro"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button>
+                    </div>
+                </header>
 
-                <div class="flex-1 space-y-5 overflow-y-auto px-6 py-5">
+                <div class="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-5 sm:px-6">
                     @php $lastDay = null; @endphp
-                    @foreach ($messages as $message)
+                    @forelse ($messages as $message)
                         @php
-                            $isOwnMessage = $message->user_id === $currentUserId;
+                            $isOwnMessage = (int) $message->user_id === (int) $currentUserId;
                             $dayLabel = $message->created_at->isToday() ? 'Oggi' : $message->created_at->translatedFormat('d F Y');
                             $avatar = $message->user?->memberProfile?->avatarUrl();
+                            $receipt = $messageReceipt($message, $conversation);
                         @endphp
                         @if ($lastDay !== $dayLabel)
-                            <div class="km-msg-day text-sm">{{ $dayLabel }}</div>
+                            <div class="km-chat-day">{{ $dayLabel }}</div>
                             @php $lastDay = $dayLabel; @endphp
                         @endif
 
@@ -189,121 +221,120 @@
                                 @if ($avatar)
                                     <img src="{{ $avatar }}" alt="{{ $message->user?->name }}" class="h-9 w-9 rounded-full object-cover">
                                 @else
-                                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-sm font-semibold">{{ \Illuminate\Support\Str::of($message->user?->name ?? 'U')->substr(0, 1) }}</div>
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white/[.08] text-sm font-black text-[color:var(--km-green-2)]">{{ \Illuminate\Support\Str::of($message->user?->name ?? 'U')->substr(0, 1)->upper() }}</div>
                                 @endif
                             @endunless
-                            <div class="km-msg-bubble {{ $isOwnMessage ? 'km-msg-bubble-own' : '' }} px-4 py-3">
-                                <p class="text-sm leading-6 text-white/90">{{ $message->body }}</p>
-                                <div class="mt-1 text-right text-xs" style="color: var(--km-msg-soft);">{{ $message->created_at->format('H:i') }} @if($isOwnMessage)<span class="text-[color:var(--km-msg-green)]">✓✓</span>@endif</div>
+                            <article class="km-chat-bubble {{ $isOwnMessage ? 'km-chat-bubble-own' : '' }} px-4 py-3">
+                                <p class="whitespace-pre-line text-sm leading-6 text-white/90">{{ $message->body }}</p>
+                                @if ($message->attachment)
+                                    <div class="mt-3 rounded-xl border border-white/[.10] bg-black/10 p-3 text-xs text-white/70">
+                                        <span class="font-bold text-white">Allegato</span>
+                                        <span class="ml-2">{{ basename($message->attachment) }}</span>
+                                    </div>
+                                @endif
+                                <div class="mt-1 flex justify-end gap-1 text-xs text-white/45">
+                                    <span>{{ $message->created_at->format('H:i') }}</span>
+                                    @if ($receipt)
+                                        <span class="{{ $receipt['class'] }}" title="{{ $receipt['label'] }}">{{ $receipt['icon'] }}</span>
+                                    @endif
+                                </div>
+                            </article>
+                        </div>
+                    @empty
+                        <div class="flex h-full items-center justify-center text-center">
+                            <div>
+                                <h2 class="text-xl font-black text-white">Nessun messaggio</h2>
+                                <p class="mt-2 text-sm text-white/55">Scrivi il primo messaggio per iniziare la conversazione.</p>
                             </div>
                         </div>
-                    @endforeach
+                    @endforelse
                 </div>
 
-                <form method="POST" action="{{ route('conversations.messages.store', $conversation) }}" class="border-t border-white/10 p-5">
+                <form method="POST" action="{{ route('conversations.messages.store', $conversation) }}" class="km-chat-composer border-t border-white/[.08] p-4">
                     @csrf
-                    <div class="km-msg-input flex items-end gap-3 rounded-xl px-4 py-3">
-                        <div class="flex gap-4 pb-2 text-white/65">
-                            <span>⌘</span><span>☺</span><span class="rounded border border-white/30 px-1 text-xs">GIF</span>
-                        </div>
-                        <textarea name="body" rows="2" class="min-h-[44px] flex-1 resize-none py-2 outline-none" style="background:transparent;color:#f5fbfd;" placeholder="Scrivi un messaggio..." required></textarea>
-                        <button type="submit" class="km-msg-primary flex h-12 w-12 items-center justify-center rounded-lg">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+                    <div class="flex items-end gap-3 rounded-2xl border border-white/[.12] bg-white/[.045] px-3 py-2">
+                        <button type="button" class="km-chat-action h-10 w-10" aria-label="Allega file"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 1 1 5.66 5.66l-9.2 9.19a2 2 0 1 1-2.82-2.83l8.48-8.48"/></svg></button>
+                        <textarea name="body" rows="1" class="min-h-[2.5rem] flex-1 resize-none border-0 bg-transparent py-2 text-sm text-white outline-none placeholder:text-white/35 focus:ring-0" placeholder="Scrivi un messaggio..." required></textarea>
+                        <button type="button" class="km-chat-action h-10 w-10" aria-label="Emoji"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+                        <button type="submit" class="km-button-primary h-11 w-11 rounded-xl p-0" aria-label="Invia">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                         </button>
                     </div>
                 </form>
             </section>
 
-            <aside class="km-msg-card km-msg-detail overflow-hidden">
-                <div class="border-b border-white/10 px-6 py-5">
-                    <h2 class="text-lg font-semibold text-white">Dettagli conversazione</h2>
-                </div>
-                <div class="space-y-7 p-6">
-                    <div class="flex items-center gap-5">
+            <aside class="km-chat-panel km-chat-detail min-h-0 overflow-y-auto p-5">
+                <div class="text-center">
+                    <div class="relative mx-auto inline-flex">
                         @if ($detailAvatar)
-                            <img src="{{ $detailAvatar }}" alt="{{ $otherParticipant?->name }}" class="km-msg-avatar km-msg-avatar-lg">
+                            <img src="{{ $detailAvatar }}" alt="{{ $otherParticipant?->name }}" class="km-chat-avatar km-chat-avatar-lg">
                         @else
-                            <div class="km-msg-avatar km-msg-avatar-lg flex items-center justify-center text-2xl font-semibold">{{ \Illuminate\Support\Str::of($otherParticipant?->name ?? 'K')->substr(0, 1) }}</div>
+                            <div class="km-chat-avatar km-chat-avatar-lg km-chat-avatar-fallback text-3xl">{{ \Illuminate\Support\Str::of($otherParticipant?->name ?? 'K')->substr(0, 1)->upper() }}</div>
                         @endif
-                        <div class="min-w-0 flex-1">
-                            <h3 class="truncate text-xl font-semibold text-white">{{ $otherParticipant?->name ?? $conversation->subject }}</h3>
-                            @if ($company)
-                                <p class="truncate" style="color: var(--km-msg-muted);">{{ $company }}</p>
-                            @endif
-                        </div>
+                        <span class="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
                     </div>
-
-                    <div class="divide-y divide-white/10 text-sm text-white/90">
-                        @if ($email)
-                            <a href="mailto:{{ $email }}" class="flex items-center gap-4 py-4 transition hover:text-[color:var(--km-msg-green)]">
-                                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16v12H4z"/><path d="m4 6 8 7 8-7"/></svg>
-                                <span class="truncate">{{ $email }}</span>
-                            </a>
-                        @endif
-                        @if ($phone)
-                            <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}" class="flex items-center gap-4 py-4 transition hover:text-[color:var(--km-msg-green)]">
-                                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
-                                <span class="truncate">{{ $phone }}</span>
-                            </a>
-                        @endif
-                        @if ($profileUrl)
-                            <a href="{{ $profileUrl }}" class="flex items-center gap-4 py-4 transition hover:text-[color:var(--km-msg-green)]">
-                                <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-                                <span>Visualizza profilo</span>
-                            </a>
-                        @endif
-                    </div>
-
-                    <div x-data="{
-                            notify: (localStorage.getItem('km-conv-notify-{{ $conversation->id }}') ?? '1') === '1',
-                            fav: (localStorage.getItem('km-conv-fav-{{ $conversation->id }}') ?? '0') === '1',
-                            toggleNotify() {
-                                this.notify = !this.notify;
-                                localStorage.setItem('km-conv-notify-{{ $conversation->id }}', this.notify ? '1' : '0');
-                            },
-                            toggleFav() {
-                                this.fav = !this.fav;
-                                localStorage.setItem('km-conv-fav-{{ $conversation->id }}', this.fav ? '1' : '0');
-                            }
-                         }">
-                        <h3 class="mb-3 font-semibold text-white">Opzioni conversazione</h3>
-                        <div class="divide-y divide-white/10 text-sm">
-                            <button type="button" @click="toggleNotify()" class="flex w-full items-center justify-between py-4 text-left text-white/90">
-                                <span>Notifiche</span>
-                                <span class="h-7 w-12 rounded-full p-1 transition" :class="notify ? 'bg-[color:var(--km-msg-green)]' : 'bg-white/15'">
-                                    <span class="block h-5 w-5 rounded-full bg-white transition" :class="notify ? 'translate-x-5' : ''"></span>
-                                </span>
-                            </button>
-                            <button type="button" @click="toggleFav()" class="flex w-full items-center justify-between py-4 text-left text-white/90">
-                                <span>Aggiungi ai preferiti</span>
-                                <span class="h-7 w-12 rounded-full p-1 transition" :class="fav ? 'bg-[color:var(--km-msg-green)]' : 'bg-white/15'">
-                                    <span class="block h-5 w-5 rounded-full bg-white transition" :class="fav ? 'translate-x-5' : ''"></span>
-                                </span>
-                            </button>
-                        </div>
-                        <p class="mt-3 text-xs" style="color: var(--km-msg-soft);">Le preferenze sono memorizzate localmente sul tuo dispositivo.</p>
-                    </div>
+                    <h2 class="mt-4 text-xl font-black text-white">{{ $otherParticipant?->name ?? $conversation->subject }}</h2>
+                    <p class="mt-1 text-sm text-white/55">{{ $role ?: ($company ?: 'Membro Kommunity') }}</p>
+                    <p class="mt-1 text-xs text-[color:var(--km-green-2)]">Online</p>
                 </div>
+
+                <div class="mt-5 grid grid-cols-4 gap-2 text-center text-[11px] text-white/65">
+                    <a href="{{ $profileUrl ?: '#' }}" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Profilo</a>
+                    <a href="{{ $phone ? 'tel:'.preg_replace('/\s+/', '', $phone) : '#' }}" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Chiama</a>
+                    <button type="button" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Video</button>
+                    <button type="button" class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 hover:border-[rgba(139,197,63,.35)]">Altro</button>
+                </div>
+
+                <section class="mt-6 border-t border-white/[.08] pt-5">
+                    <p class="km-eyebrow">Informazioni</p>
+                    <div class="mt-3 space-y-3 text-sm text-white/70">
+                        @if ($email)<p class="truncate">Email: <a href="mailto:{{ $email }}" class="text-white hover:text-[color:var(--km-green-2)]">{{ $email }}</a></p>@endif
+                        @if ($phone)<p>Telefono: <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}" class="text-white hover:text-[color:var(--km-green-2)]">{{ $phone }}</a></p>@endif
+                        @if ($city)<p>Citta': <span class="text-white">{{ $city }}</span></p>@endif
+                        @if ($joinedAt)<p>Iscritto da: <span class="text-white">{{ $joinedAt }}</span></p>@endif
+                    </div>
+                </section>
+
+                <section class="mt-6 border-t border-white/[.08] pt-5">
+                    <p class="km-eyebrow">Media, file e link</p>
+                    <div class="mt-3 grid grid-cols-3 gap-2">
+                        <div class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 text-center text-xs text-white/55">PDF</div>
+                        <div class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 text-center text-xs text-white/55">DOC</div>
+                        <div class="rounded-2xl border border-white/[.08] bg-white/[.04] p-3 text-center text-xs text-white/55">Link</div>
+                    </div>
+                </section>
+
+                <section class="mt-6 border-t border-white/[.08] pt-5">
+                    <p class="km-eyebrow">Opzioni</p>
+                    <div class="mt-3 space-y-3 text-sm text-white/70">
+                        <button type="button" class="flex w-full items-center justify-between rounded-xl bg-white/[.035] px-3 py-2 text-left">Silenzia notifiche <span class="text-white/35">Off</span></button>
+                        <button type="button" class="flex w-full items-center justify-between rounded-xl bg-white/[.035] px-3 py-2 text-left">Messaggi temporanei <span class="text-white/35">Disattivati</span></button>
+                        <button type="button" class="w-full rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-left text-red-300">Elimina conversazione</button>
+                    </div>
+                </section>
             </aside>
-        </main>
-    </div>
+        </section>
+    </main>
 
     <div id="message-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-        <div class="km-msg-card w-full max-w-2xl overflow-hidden">
-            <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
-                <h2 class="text-xl font-semibold text-white">Nuovo messaggio</h2>
-                <button type="button" data-close-message-modal class="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white/80">Chiudi</button>
+        <div class="km-chat-panel w-full max-w-2xl">
+            <div class="flex items-center justify-between border-b border-white/[.10] px-5 py-4">
+                <div>
+                    <p class="km-eyebrow">Nuovo messaggio</p>
+                    <h2 class="mt-1 text-xl font-black text-white">Avvia conversazione</h2>
+                </div>
+                <button type="button" data-close-message-modal class="km-cta-secondary">Chiudi</button>
             </div>
             <form method="POST" action="{{ route('conversations.start') }}" class="space-y-4 px-5 py-5">
                 @csrf
-                <select name="recipient_id" class="km-msg-input h-12 w-full rounded-xl px-4" required>
+                <select name="recipient_id" class="km-dark-input h-12 w-full" required>
                     <option value="">Seleziona membro</option>
                     @foreach ($members as $member)
                         <option value="{{ $member->id }}">{{ $member->name }}</option>
                     @endforeach
                 </select>
-                <textarea name="message" rows="5" class="km-msg-input w-full rounded-xl px-4 py-3" placeholder="Scrivi il primo messaggio" required></textarea>
-                <button type="submit" class="km-msg-primary h-12 w-full rounded-lg font-semibold">Apri conversazione</button>
+                <textarea name="message" rows="5" class="km-dark-input w-full" placeholder="Scrivi il primo messaggio" required></textarea>
+                <button type="submit" class="km-button-primary w-full">Apri conversazione</button>
             </form>
         </div>
     </div>

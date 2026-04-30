@@ -6,6 +6,7 @@ use App\Models\Conversation;
 use App\Models\User;
 use App\Notifications\NewMessageNotification;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,7 +51,12 @@ class ConversationController extends Controller
             'filter' => ['nullable', 'in:all,unread,favorites'],
         ]);
 
-        $conversation->load(['participants.memberProfile', 'participants.memberOnepage']);
+        $conversation->load([
+            'participants.memberProfile.city',
+            'participants.memberProfile.profession',
+            'participants.memberProfile.category',
+            'participants.memberOnepage',
+        ]);
 
         // Carica solo gli ultimi 100 messaggi — evita crash su conversazioni lunghe
         $messages = $conversation->messages()
@@ -80,7 +86,10 @@ class ConversationController extends Controller
     private function conversationList(User $user, array $filters = [])
     {
         $conversations = Conversation::query()
-            ->with(['participants.memberProfile', 'messages.user'])
+            ->with([
+                'participants.memberProfile',
+                'messages.user',
+            ])
             ->whereHas('participants', fn ($query) => $query->where('users.id', $user->id))
             ->latest('updated_at')
             ->get();
@@ -91,10 +100,16 @@ class ConversationController extends Controller
                 $lastMessage = $conversation->messages->sortByDesc('created_at')->first();
                 $myPivot = $conversation->participants->firstWhere('id', $user->id)?->pivot;
                 $hasUnread = $lastMessage && (! $myPivot?->last_read_at || $lastMessage->created_at->gt($myPivot->last_read_at));
+                $lastReadAt = $myPivot?->last_read_at ? Carbon::parse($myPivot->last_read_at) : null;
+                $unreadCount = $conversation->messages
+                    ->where('user_id', '!=', $user->id)
+                    ->filter(fn ($message) => ! $lastReadAt || $message->created_at->gt($lastReadAt))
+                    ->count();
 
                 $conversation->setAttribute('other_participant', $otherParticipant);
                 $conversation->setAttribute('last_message', $lastMessage);
                 $conversation->setAttribute('has_unread', $hasUnread);
+                $conversation->setAttribute('unread_count', $unreadCount);
 
                 return $conversation;
             })
