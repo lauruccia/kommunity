@@ -15,7 +15,6 @@ class MemberOnepageController extends Controller
         $onepage = MemberOnepage::query()
             ->with([
                 'user.memberProfile.categories',
-                'user.memberProfile.category',
                 'user.memberProfile.professions',
                 'user.memberProfile.profession',
                 'user.memberProfile.city',

@@ -67,25 +67,19 @@
 </div>
 
 {{-- Presenza business --}}
-@php
-    // Fallback: M2M (categories) → legacy FK (category) → "Da definire"
-    $categoryNames = $profile->categories->pluck('name')->filter()->values();
-    if ($categoryNames->isEmpty() && $profile->category) {
-        $categoryNames = collect([$profile->category->name])->filter()->values();
-    }
-@endphp
 <div class="km-panel p-6">
     <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Presenza business</h3>
     <div class="mt-4 space-y-3 text-sm text-stone-700">
         <div>
             <span class="font-semibold">Categorie:</span>
-            @if ($categoryNames->isNotEmpty())
-                {{ $categoryNames->join(', ') }}
+            @if ($profile->categories->isNotEmpty())
+                {{ $profile->categories->pluck('name')->join(', ') }}
             @else
                 Da definire
             @endif
         </div>
         <div><span class="font-semibold">Pianeta:</span> {{ $profile->chapter?->name ?? 'Non assegnato' }}</div>
+        <div><span class="font-semibold">Invitato da:</span> {{ $user->invited_by_name ?: 'Non indicato' }}</div>
         <div><span class="font-semibold">Contatto preferito:</span> {{ $profile->preferred_contact_method?->label() ?? 'Email' }}</div>
     </div>
 </div>
