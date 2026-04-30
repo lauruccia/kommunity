@@ -37,7 +37,6 @@ deployment:
     - /bin/cp public/robots.txt     $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/manifest.json  $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/sw.js          $DEPLOYPATH/ 2>/dev/null || true
-    - /bin/cp public/.user.ini      $DEPLOYPATH/ 2>/dev/null || true
 
     # ── Permessi corretti per Apache ───────────────────────────────────────
     - /bin/find $DEPLOYPATH/css    -type f -exec /bin/chmod 644 {} \;

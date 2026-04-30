@@ -54,12 +54,6 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request, VideoCompressor $videoCompressor): RedirectResponse
     {
-        // Rileva upload bloccati da PHP (upload_max_filesize, post_max_size, ecc.):
-        // senza questo controllo i file rifiutati a livello PHP arrivano come $_FILES
-        // con error != 0 ma Laravel/$request->file() li tratta come "nessun file" e
-        // la regola 'nullable' passa, lasciando l'utente convinto di aver salvato.
-        $this->guardAgainstUploadErrors(['avatar', 'logo', 'cover_image', 'intro_video']);
-
         $validated = $request->validated();
         $profile = $request->user()->memberProfile()->firstOrFail();
         $onepage = $request->user()->memberOnepage()->firstOrCreate(
@@ -241,50 +235,6 @@ class ProfileController extends Controller
         return $path;
     }
 
-    /**
-     * Controlla i campi file di $_FILES e lancia ValidationException
-     * con un messaggio chiaro se PHP ha rifiutato l'upload (file troppo
-     * grande, upload parziale, directory tmp non scrivibile, ecc.).
-     *
-     * @param array<int,string> $fields nomi dei field file da controllare
-     */
-    private function guardAgainstUploadErrors(array $fields): void
-    {
-        $errors = [];
-
-        foreach ($fields as $field) {
-            $entry = $_FILES[$field] ?? null;
-
-            if (! is_array($entry)) {
-                continue;
-            }
-
-            $code = $entry['error'] ?? UPLOAD_ERR_OK;
-
-            // Nessun upload tentato: nulla da segnalare.
-            if ($code === UPLOAD_ERR_OK || $code === UPLOAD_ERR_NO_FILE) {
-                continue;
-            }
-
-            $errors[$field] = match ($code) {
-                UPLOAD_ERR_INI_SIZE,
-                UPLOAD_ERR_FORM_SIZE => 'File troppo grande. Massimo consentito dal server: '
-                    . ini_get('upload_max_filesize')
-                    . ' (post_max_size: ' . ini_get('post_max_size') . ').'
-                    . ' Comprimi l\'immagine o contatta l\'amministratore per aumentare i limiti PHP.',
-                UPLOAD_ERR_PARTIAL    => 'Caricamento interrotto a meta\'. Riprova con una connessione piu\' stabile.',
-                UPLOAD_ERR_NO_TMP_DIR => 'Errore server: directory temporanea non disponibile. Contatta l\'amministratore.',
-                UPLOAD_ERR_CANT_WRITE => 'Errore server: impossibile scrivere il file su disco. Contatta l\'amministratore.',
-                UPLOAD_ERR_EXTENSION  => 'Errore server: estensione PHP ha bloccato l\'upload. Contatta l\'amministratore.',
-                default               => 'Errore di upload (codice ' . $code . '). Riprova.',
-            };
-        }
-
-        if (! empty($errors)) {
-            throw \Illuminate\Validation\ValidationException::withMessages($errors);
-        }
-    }
-
     private function storePublicVideo(?UploadedFile $file, ?string $currentUrl, string $folder, VideoCompressor $videoCompressor): ?string
     {
         if (! $file) {
@@ -334,11 +284,4 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
-}
+      
