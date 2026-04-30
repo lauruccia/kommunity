@@ -14,6 +14,14 @@ Schedule::command('kommunity:send-event-reminders')
     ->withoutOverlapping()
     ->runInBackground();
 
+// ── Promemoria 1:1: 24h e 1h prima ────────────────────────────────────────────
+// Il comando è gated dalla feature flag reminders_one_to_one — se disattivata
+// torna SUCCESS senza inviare nulla.
+Schedule::command('kommunity:send-one-to-one-reminders')
+    ->hourly()
+    ->withoutOverlapping()
+    ->runInBackground();
+
 // ── Backup DB giornaliero (alle 03:15) ─────────────────────────────────────────
 // Mantiene 7 backup in storage/app/backups/. Per cPanel senza scheduler PHP
 // configurato, schedulare direttamente "php artisan app:db-backup" via cron

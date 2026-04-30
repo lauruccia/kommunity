@@ -7,6 +7,8 @@ use App\Models\Event;
 use App\Models\ForumThread;
 use App\Models\OneToOneRequest;
 use App\Models\Referral;
+use App\Services\Features;
+use App\Services\MemberAnalyticsService;
 use App\Services\ProfileCompletionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -24,10 +26,16 @@ class DashboardController extends Controller
         $showOnboarding    = ! optional($user->memberProfile)->onboarding_completed;
         $profileCompletion = (new ProfileCompletionService())->calculate($user);
 
+        // ── Feature: dashboard analytics personale (gated) ───────────────────
+        $analytics = Features::enabled('analytics_personal')
+            ? (new MemberAnalyticsService())->calculate($user)
+            : null;
+
         return view('dashboard', [
             'user'              => $user,
             'showOnboarding'    => $showOnboarding,
             'profileCompletion' => $profileCompletion,
+            'analytics'         => $analytics,
             'upcomingEvents' => Event::query()
                 ->where('is_published', true)
                 ->where('starts_at', '>=', now())

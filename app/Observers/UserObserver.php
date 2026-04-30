@@ -7,6 +7,8 @@ use App\Enums\MemberProfileStatus;
 use App\Enums\OnepageVisibility;
 use App\Models\MemberOnepage;
 use App\Models\User;
+use App\Notifications\NewMemberConciergeAlertNotification;
+use App\Services\Features;
 use Illuminate\Support\Str;
 
 class UserObserver
@@ -41,6 +43,38 @@ class UserObserver
             'seo_title' => $user->name.' | Kommunity',
             'seo_description' => 'Mini sito professionale di '.$user->name.' su Kommunity.',
         ]);
+
+        // ── Feature: Concierge Onboarding ────────────────────────────────────
+        // Notifica gli admin per il follow-up entro 24h, solo se il flag è ON.
+        if (Features::enabled('concierge_onboarding')) {
+            $user->forceFill(['concierge_assigned_at' => now()])->saveQuietly();
+            $this->dispatchConciergeAlert($user);
+        }
+    }
+
+    /**
+     * Invia la notifica concierge a tutti gli utenti con role super-admin
+     * o admin-community. Resiliente: se la tabella roles non c'è ancora
+     * (es. fresh install in test), fallback silenzioso.
+     */
+    protected function dispatchConciergeAlert(User $newMember): void
+    {
+        try {
+            $admins = User::query()
+                ->whereNotNull('email')
+                ->whereKeyNot($newMember->id)
+                ->whereHas('roles', fn ($q) => $q->whereIn('name', ['super-admin', 'admin-community']))
+                ->get();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new NewMemberConciergeAlertNotification($newMember));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning(
+                'Concierge alert non inviato: ' . $e->getMessage(),
+                ['new_member_id' => $newMember->id]
+            );
+        }
     }
 
     protected function uniqueSlug(string $name): string

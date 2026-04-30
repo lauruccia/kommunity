@@ -184,6 +184,11 @@
     <div class="pb-12">
         <div class="km-shell space-y-6">
 
+            {{-- Analytics personali (Feature #7, gated da feature flag) --}}
+            @if(! empty($analytics))
+                @include('partials.dashboard-analytics', ['analytics' => $analytics])
+            @endif
+
             <section class="grid gap-5 lg:grid-cols-4">
                 <article class="km-dark-card p-5" x-data="{ open: false }">
                     {{-- Cerchio progress SVG --}}

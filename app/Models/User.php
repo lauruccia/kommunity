@@ -36,6 +36,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'invited_by_user_id',
         'invited_by_name',
         'locale',
+        // ── Concierge onboarding (feature: concierge_onboarding) ────────────
+        'concierge_assigned_at',
+        'concierge_assigned_to',
+        'concierge_completed_at',
+        'concierge_notes',
     ];
 
     /**
@@ -56,9 +61,19 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'      => 'datetime',
+            'password'               => 'hashed',
+            'concierge_assigned_at'  => 'datetime',
+            'concierge_completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Admin Concierge: chi sta gestendo l'onboarding di questo membro.
+     */
+    public function conciergeAssignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'concierge_assigned_to');
     }
 
     public function canAccessPanel(Panel $panel): bool
