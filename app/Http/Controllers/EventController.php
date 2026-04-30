@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Carbon\CarbonPeriod;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,8 @@ use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
+    use AuthorizesRequests;
+
     // ── INDEX ────────────────────────────────────────────────────────────────
 
     public function index(Request $request): View
@@ -356,7 +359,7 @@ class EventController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($this->canManageEvents($request->user()), 403);
+        $this->authorize('create', Event::class);
 
         $managedChapterIds = $this->managedChapterIds($request->user());
         $chapterRule = $this->isAdmin($request->user())
@@ -421,7 +424,7 @@ class EventController extends Controller
 
     public function invite(Request $request, Event $event): RedirectResponse
     {
-        abort_unless($this->canManageEvent($request->user(), $event), 403);
+        $this->authorize('invite', $event);
 
         $validated = $request->validate([
             'invite_target'        => ['required', Rule::in(['all', 'chapter', 'profession', 'category', 'city', 'region', 'users'])],
@@ -497,7 +500,7 @@ class EventController extends Controller
 
     public function cancel(Request $request, Event $event): RedirectResponse
     {
-        abort_unless($this->canManageEvent($request->user(), $event), 403);
+        $this->authorize('cancel', $event);
 
         $event->update(['status' => 'cancelled']);
 

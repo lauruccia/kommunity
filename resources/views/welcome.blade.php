@@ -246,5 +246,8 @@
     });
     document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});if(hamburger?.getAttribute('aria-expanded')==='true')hamburger.click();}}));
 </script>
+
+{{-- Cookie banner GDPR --}}
+@include('partials.cookie-banner')
 </body>
 </html>

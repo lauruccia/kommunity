@@ -71,5 +71,8 @@
 
         {{-- Modali globali (password, elimina account, ecc.) --}}
         @stack('modals')
+
+        {{-- Cookie banner GDPR (sempre presente) --}}
+        @include('partials.cookie-banner')
     </body>
 </html>

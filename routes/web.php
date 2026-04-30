@@ -102,10 +102,17 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::delete('/abbonamento/{subscription}', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 });
 
-// ── Admin: gestione cache ─────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/cache', [CacheController::class, 'index'])->name('cache.index');
-    Route::post('/cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
-});
+// ── Admin: gestione cache (riservata ad admin / leader-capitolo) ──────────────
+Route::middleware([
+        'auth',
+        'verified',
+        'role:super-admin|admin-community|leader-capitolo',
+    ])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/cache', [CacheController::class, 'index'])->name('cache.index');
+        Route::post('/cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
+    });
 
 require __DIR__.'/auth.php';

@@ -14,3 +14,20 @@ Schedule::command('kommunity:send-event-reminders')
     ->withoutOverlapping()
     ->runInBackground();
 
+// ── Backup DB giornaliero (alle 03:15) ─────────────────────────────────────────
+// Mantiene 7 backup in storage/app/backups/. Per cPanel senza scheduler PHP
+// configurato, schedulare direttamente "php artisan app:db-backup" via cron
+// (vedi DEPLOY_CHECKLIST_2026-04-30.md).
+Schedule::command('app:db-backup --keep=7')
+    ->dailyAt('03:15')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+// ── Queue worker: una passata ogni minuto, si ferma a coda vuota ──────────────
+// Compatibile con cron cPanel. In alternativa configurare un cron diretto su
+// "php artisan queue:work --stop-when-empty --max-time=55".
+Schedule::command('queue:work --stop-when-empty --max-time=55 --tries=3')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->runInBackground();
+

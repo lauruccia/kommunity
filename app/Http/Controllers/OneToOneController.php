@@ -12,12 +12,15 @@ use App\Notifications\OneToOneReceivedNotification;
 use App\Notifications\OneToOneStatusChangedNotification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class OneToOneController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request): View
     {
         $filters = $request->validate([
@@ -250,7 +253,7 @@ class OneToOneController extends Controller
 
     public function updateStatus(Request $request, OneToOneRequest $oneToOneRequest): RedirectResponse
     {
-        abort_unless($oneToOneRequest->recipient_id === $request->user()->id || $oneToOneRequest->requester_id === $request->user()->id, 403);
+        $this->authorize('update', $oneToOneRequest);
 
         $data = $request->validate([
             'status' => ['nullable', Rule::in(array_column(OneToOneStatus::cases(), 'value'))],
@@ -266,6 +269,7 @@ class OneToOneController extends Controller
         $statusMessage = 'one-to-one-updated';
 
         if ($request->boolean('confirm_completed')) {
+            // 422 = regola business (timing/sequenza), non autorizzazione
             abort_unless($oneToOneRequest->canBeConfirmedBy($user->id), 422);
 
             if ($isRequester) {
@@ -384,7 +388,7 @@ class OneToOneController extends Controller
 
     public function destroyAvailability(Request $request, AvailabilitySlot $availabilitySlot): RedirectResponse
     {
-        abort_unless($availabilitySlot->user_id === $request->user()->id, 403);
+        $this->authorize('deleteSlot', $availabilitySlot);
 
         $availabilitySlot->delete();
 

@@ -6,11 +6,14 @@ use App\Models\Conversation;
 use App\Models\User;
 use App\Notifications\NewMessageNotification;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ConversationController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request): View
     {
         $user = $request->user();
@@ -31,7 +34,7 @@ class ConversationController extends Controller
 
     public function show(Request $request, Conversation $conversation): View
     {
-        abort_unless($conversation->participants()->where('users.id', $request->user()->id)->exists(), 403);
+        $this->authorize('view', $conversation);
 
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
@@ -169,7 +172,7 @@ class ConversationController extends Controller
 
     public function storeMessage(Request $request, Conversation $conversation): RedirectResponse
     {
-        abort_unless($conversation->participants()->where('users.id', $request->user()->id)->exists(), 403);
+        $this->authorize('sendMessage', $conversation);
 
         $data = $request->validate([
             'body' => ['required', 'string', 'max:3000'],

@@ -10,14 +10,42 @@ use App\Models\Region;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class DirectoryController extends Controller
 {
+    /**
+     * Numero di minuti per cui mantenere stabile l'ordine random degli ID
+     * (riduce il "table scan" di ORDER BY RAND() su MySQL e tiene la
+     * paginazione coerente per l'utente).
+     */
+    private const RANDOM_SEED_TTL_MINUTES = 60;
+
     public function __invoke(Request $request): View
     {
         $filters = $request->only([
             'search', 'category', 'region', 'province', 'city', 'chapter',
         ]);
+
+        // Ordine random pre-calcolato e cachato per 60 minuti.
+        // Su MySQL con > 5k profili, ORDER BY RAND() faceva full-table-scan
+        // ad ogni richiesta; ora prendiamo gli ID una volta, li mescoliamo
+        // a livello applicativo e li teniamo stabili per la paginazione.
+        $orderedIds = Cache::remember(
+            'directory.random_ids.v1',
+            now()->addMinutes(self::RANDOM_SEED_TTL_MINUTES),
+            fn () => MemberProfile::query()
+                ->where('is_active', true)
+                ->where('is_visible_in_directory', true)
+                ->pluck('id')
+                ->shuffle()
+                ->all()
+        );
+
+        // FIELD(id, ...) ordina i record secondo la posizione nell'array di ID
+        // (compatibile MySQL/MariaDB; per SQLite locale c'è il fallback sotto).
+        $idsCsv     = implode(',', array_map('intval', $orderedIds));
+        $hasOrderBy = $idsCsv !== '';
 
         $members = MemberProfile::query()
             ->join('users', 'users.id', '=', 'member_profiles.user_id')
@@ -53,7 +81,13 @@ class DirectoryController extends Controller
             ->when($filters['chapter'] ?? null, fn (Builder $q, string $chapter) =>
                 $q->where('chapter_id', $chapter)
             )
-            ->inRandomOrder()
+            ->when($hasOrderBy, function (Builder $q) use ($idsCsv): void {
+                // Ordine stabile basato sul seed random cachato (no table scan)
+                $q->orderByRaw('FIELD(member_profiles.id, ' . $idsCsv . ')');
+            }, function (Builder $q): void {
+                // Fallback: nessun ID in cache (DB vuoto)
+                $q->orderBy('member_profiles.id');
+            })
             ->paginate(12)
             ->withQueryString();
 

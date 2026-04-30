@@ -9,12 +9,15 @@ use App\Models\Referral;
 use App\Models\User;
 use App\Notifications\ReferralReceivedNotification;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class ReferralController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request): View
     {
         $user = $request->user();
@@ -117,10 +120,7 @@ class ReferralController extends Controller
 
     public function updateStatus(Request $request, Referral $referral): RedirectResponse
     {
-        abort_unless(
-            in_array($request->user()->id, [$referral->sender_id, $referral->recipient_id], true),
-            403
-        );
+        $this->authorize('updateStatus', $referral);
 
         $data = $request->validate([
             'status' => ['required', Rule::in(array_column(ReferralStatus::cases(), 'value'))],

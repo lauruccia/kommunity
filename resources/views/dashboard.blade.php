@@ -136,7 +136,7 @@
         <div class="km-dark-panel km-hero p-7 lg:p-9">
             <div class="relative z-10 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
                 <div>
-                    <p class="km-eyebrow">Dashboard membro · Pianeta Roma</p>
+                    <p class="km-eyebrow">Dashboard membro · {{ $user->memberProfile?->chapter?->name ?? 'Kommunity' }}</p>
 
                     <h1 class="mt-4 max-w-5xl text-4xl font-black leading-[1.03] tracking-[-0.055em] text-white lg:text-6xl">
                         Gestisci presenza, relazioni e attività nel tuo
@@ -165,8 +165,8 @@
                 </div>
 
                 <div class="km-dark-card relative z-10 p-6">
-                    <p class="km-eyebrow">Zona Roma / Lazio</p>
-                    <h2 class="mt-3 text-2xl font-bold text-white">Pianeta Roma</h2>
+                    <p class="km-eyebrow">{{ $user->memberProfile?->city?->name ?? 'La tua zona' }}</p>
+                    <h2 class="mt-3 text-2xl font-bold text-white">{{ $user->memberProfile?->chapter?->name ?? 'Kommunity' }}</h2>
                     <p class="km-muted mt-2 text-sm leading-6">
                         Il tuo centro di controllo per connessioni, opportunità e visibilità locale.
                     </p>
@@ -256,7 +256,7 @@
                     <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(139,197,63,.12)] text-xl text-[color:var(--km-green)]">↔</div>
                     <p class="km-eyebrow">One-to-one ricevuti</p>
                     <p class="mt-3 text-3xl font-black text-white">{{ $receivedOneToOnes->count() }}</p>
-                    <p class="km-muted mt-2 text-sm leading-6">Richieste recenti da membri del Pianeta Roma.</p>
+                    <p class="km-muted mt-2 text-sm leading-6">Richieste recenti da membri della tua community.</p>
                 </article>
 
                 <article class="km-dark-card p-5">
@@ -282,7 +282,7 @@
                                 <p class="km-eyebrow">Profilo business</p>
                                 <h2 class="mt-2 text-3xl font-black text-white">{{ $user->name ?? 'Utente' }}</h2>
                                 <p class="km-muted mt-1 text-sm">
-                                    {{ optional($user->memberProfile)->company_name ?: 'Azienda da inserire' }} · Pianeta Roma
+                                    {{ optional($user->memberProfile)->company_name ?: 'Azienda da inserire' }} · {{ $user->memberProfile?->chapter?->name ?? 'Kommunity' }}
                                 </p>
                             </div>
 
@@ -327,7 +327,7 @@
 
                             <div class="km-glass-box p-4">
                                 <p class="km-eyebrow">Pianeta</p>
-                                <p class="mt-3 text-sm font-bold text-[color:var(--km-green)]">Pianeta Roma</p>
+                                <p class="mt-3 text-sm font-bold text-[color:var(--km-green)]">{{ $user->memberProfile?->chapter?->name ?? 'Kommunity' }}</p>
                             </div>
                         </div>
                     </div>
@@ -360,11 +360,11 @@
                                         </div>
                                     </div>
                                     <p class="mt-3 text-sm leading-7 text-white/80">
-                                        {{ $requestItem->goal ?? 'Valutare partnership e collaborazioni nel Pianeta Roma.' }}
+                                        {{ $requestItem->goal ?? 'Valutare partnership e collaborazioni nella tua community.' }}
                                     </p>
                                 </div>
                             @empty
-                                <p class="km-muted text-sm">Nessuna richiesta ricevuta per ora nel Pianeta Roma.</p>
+                                <p class="km-muted text-sm">Nessuna richiesta ricevuta per ora nella tua community.</p>
                             @endforelse
                         </div>
                     </div>
@@ -390,7 +390,7 @@
                                     </p>
                                 </a>
                             @empty
-                                <p class="km-muted text-sm">Nessun evento in arrivo nel Pianeta Roma.</p>
+                                <p class="km-muted text-sm">Nessun evento in arrivo nella tua community.</p>
                             @endforelse
                         </div>
                     </div>
@@ -409,11 +409,11 @@
                                 <a href="{{ route('forum.show', $thread) }}" class="block rounded-[1.4rem] border border-white/10 bg-white/[.045] p-4 transition hover:border-[rgba(139,197,63,.35)]">
                                     <p class="text-sm font-bold text-white">{{ $thread->title ?? 'Discussione senza titolo' }}</p>
                                     <p class="km-muted mt-1 text-sm">
-                                        {{ $thread->category?->name ?? 'Pianeta Roma' }}
+                                        {{ $thread->category?->name ?? 'Kommunity' }}
                                     </p>
                                 </a>
                             @empty
-                                <p class="km-muted text-sm">Nessuna discussione disponibile nel Pianeta Roma.</p>
+                                <p class="km-muted text-sm">Nessuna discussione disponibile nella tua community.</p>
                             @endforelse
                         </div>
                     </div>

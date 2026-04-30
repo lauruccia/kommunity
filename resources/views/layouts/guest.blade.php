@@ -31,5 +31,8 @@
                 {{ $slot }}
             </div>
         </div>
+
+        {{-- Cookie banner GDPR (sempre presente, anche su login/register) --}}
+        @include('partials.cookie-banner')
     </body>
 </html>

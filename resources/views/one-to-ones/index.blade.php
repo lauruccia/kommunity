@@ -49,7 +49,7 @@
         <div class="km-dark-panel km-hero" style="padding:2rem 2.5rem;">
             <div class="relative z-10" style="display:grid;gap:2rem;grid-template-columns:1.3fr 0.7fr;align-items:center;">
                 <div>
-                    <p class="km-eyebrow">Agenda relazionale · Pianeta Roma</p>
+                    <p class="km-eyebrow">Agenda relazionale · {{ auth()->user()->memberProfile?->chapter?->name ?? 'Kommunity' }}</p>
                     <h1 style="margin-top:1rem;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;line-height:1.08;letter-spacing:-.04em;color:var(--km-text);">
                         Incontri <span style="color:var(--km-green);">one-to-one</span><br>tra professionisti
                     </h1>
