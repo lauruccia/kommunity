@@ -119,8 +119,23 @@
                 top:calc(100% + .65rem);
                 z-index:30;
                 width:min(58rem, calc(100vw - 2rem));
+                background:#061923;
+                border:1px solid rgba(139,197,63,.22);
+                box-shadow:0 28px 90px rgba(0,0,0,.72), 0 0 0 1px rgba(255,255,255,.04) inset;
             }
             .km-oto-filter-summary::-webkit-details-marker{display:none;}
+            .km-oto-filter-menu .km-dark-input{
+                background:#102832;
+                border-color:rgba(255,255,255,.16);
+            }
+            .km-oto-filter-menu .km-dark-input:focus{
+                border-color:rgba(139,197,63,.55);
+                box-shadow:0 0 0 3px rgba(139,197,63,.10);
+            }
+            .km-oto-filter-menu .km-dark-input option{
+                background:#102832;
+                color:var(--km-text);
+            }
             .km-oto-mobile-list{display:none;}
             .km-dark-modal{
                 background:linear-gradient(135deg,#031822,#052532);
@@ -244,7 +259,7 @@
                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
                                     Filtri
                                 </summary>
-                                <div class="km-oto-filter-menu rounded-2xl border border-white/[.10] bg-[#031822]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,.45)] backdrop-blur-xl">
+                                <div class="km-oto-filter-menu rounded-2xl p-4">
                                     <form method="GET" class="grid gap-3 lg:grid-cols-12">
                                         <label class="lg:col-span-3">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Cerca</span>
