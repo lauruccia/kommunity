@@ -1,512 +1,408 @@
 <x-app-layout>
-    <style>
-        :root{
-            --km-dark:#020b12;
-            --km-dark-2:#031822;
-            --km-dark-3:#052532;
-            --km-green:#8BC53F;
-            --km-green-2:#9AD84A;
-            --km-teal:#2DD4BF;
-            --km-text:#F8FAFC;
-            --km-muted:#AAB7C4;
-            --km-line:rgba(255,255,255,.12);
-            --km-glass:rgba(255,255,255,.075);
-        }
+    {{-- Body in tema scuro. Tutte le classi .km-* arrivano da public/css/kommunity.css --}}
+    {{-- Tema scuro: classe spinta sul body via stack 'body-class' --}}
+    @push('body-class') km-bg-dark @endpush
 
-        body{
-            background:
-                radial-gradient(circle at 80% 0%, rgba(139,197,63,.18), transparent 30%),
-                radial-gradient(circle at 10% 25%, rgba(45,212,191,.12), transparent 35%),
-                linear-gradient(135deg,var(--km-dark),var(--km-dark-2) 48%,#06111a)!important;
-        }
-
-        .km-shell{
-            width:calc(100% - 32px);
-            max-width:1840px;
-            margin:0 auto;
-        }
-        @media (min-width: 1024px){
-            .km-shell{ width:calc(100% - 48px); }
-        }
-
-        .km-dark-panel{
-            position:relative;
-            overflow:hidden;
-            border:1px solid var(--km-line);
-            background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.045));
-            box-shadow:0 24px 80px rgba(0,0,0,.35);
-            backdrop-filter:blur(18px);
-            border-radius:2rem;
-            color:var(--km-text);
-        }
-
-        .km-dark-card{
-            border:1px solid var(--km-line);
-            background:linear-gradient(135deg,rgba(255,255,255,.085),rgba(255,255,255,.035));
-            box-shadow:0 18px 60px rgba(0,0,0,.22);
-            backdrop-filter:blur(18px);
-            border-radius:1.8rem;
-            color:var(--km-text);
-            transition:.22s ease;
-        }
-
-        .km-dark-card:hover{
-            transform:translateY(-3px);
-            border-color:rgba(139,197,63,.35);
-            box-shadow:0 24px 70px rgba(0,0,0,.32),0 0 34px rgba(139,197,63,.08);
-        }
-
-        .km-eyebrow{
-            color:var(--km-green-2);
-            font-size:.72rem;
-            letter-spacing:.28em;
-            text-transform:uppercase;
-            font-weight:800;
-        }
-
-        .km-muted{
-            color:var(--km-muted);
-        }
-
-        .km-glass-box{
-            border:1px solid rgba(255,255,255,.10);
-            background:rgba(255,255,255,.055);
-            border-radius:1.4rem;
-        }
-
-        .km-hero::before{
-            content:"K";
-            position:absolute;
-            right:12%;
-            top:-120px;
-            font-size:430px;
-            font-weight:900;
-            line-height:1;
-            transform:skewX(-8deg);
-            color:rgba(255,255,255,.045);
-            pointer-events:none;
-        }
-
-        .km-hero::after{
-            content:"";
-            position:absolute;
-            inset:0;
-            background:
-                radial-gradient(circle at 78% 32%, var(--km-green) 0 4px, transparent 5px),
-                radial-gradient(circle at 87% 62%, var(--km-teal) 0 3px, transparent 4px),
-                radial-gradient(circle at 67% 76%, var(--km-green-2) 0 3px, transparent 4px),
-                repeating-radial-gradient(circle at 79% 48%, transparent 0 50px, rgba(139,197,63,.10) 51px 52px, transparent 54px 100px);
-            opacity:.75;
-            pointer-events:none;
-        }
-
-        .km-orbit{
-            background:
-                radial-gradient(circle at 50% 50%,rgba(139,197,63,.32),transparent 7%),
-                radial-gradient(circle at 28% 34%,rgba(45,212,191,.35),transparent 6%),
-                radial-gradient(circle at 73% 68%,rgba(139,197,63,.35),transparent 6%),
-                repeating-radial-gradient(circle at 50% 50%,transparent 0 28px,rgba(139,197,63,.13) 30px 31px,transparent 33px 62px);
-        }
-
-        .km-button-primary{
-            background:linear-gradient(135deg,var(--km-green),#5f9d42)!important;
-            color:#061018!important;
-            border:0!important;
-            box-shadow:0 16px 42px rgba(139,197,63,.22);
-        }
-
-        .km-button-secondary{
-            background:rgba(255,255,255,.08)!important;
-            color:var(--km-text)!important;
-            border:1px solid rgba(255,255,255,.14)!important;
-        }
-
-        .km-button-primary,
-        .km-button-secondary{
-            border-radius:1rem!important;
-            min-height:52px;
-            padding:.9rem 1.25rem!important;
-            font-weight:800!important;
-            transition:.22s ease;
-        }
-
-        .km-button-primary:hover,
-        .km-button-secondary:hover{
-            transform:translateY(-2px);
-        }
-    </style>
+    @push('styles')
+        <style>
+            /* Stili UNICI di questa pagina. Tutto il resto vive in public/css/kommunity.css */
+            .km-hero-shell{
+                position:relative;
+                overflow:hidden;
+                border:1px solid var(--km-line-dark);
+                background:
+                    radial-gradient(circle at 95% 0%, rgba(139,197,63,.18), transparent 38%),
+                    radial-gradient(circle at 0% 100%, rgba(45,212,191,.10), transparent 35%),
+                    linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+                box-shadow:0 18px 60px rgba(0,0,0,.35);
+                backdrop-filter:blur(18px);
+                border-radius:var(--km-radius-lg);
+            }
+            .km-hero-shell::before{
+                content:"K";
+                position:absolute;
+                right:-12px; top:-90px;
+                font-size:280px; font-weight:900; line-height:1;
+                color:rgba(255,255,255,.035);
+                transform:skewX(-8deg);
+                pointer-events:none;
+            }
+        </style>
+    @endpush
 
     @php
-        // Calcola zona reale (regione/città) e completamento profilo
-        $mp = $user->memberProfile;
+        // ────────────────────────────────────────────────────────────────────
+        // Calcoli locali (dati REALI: niente "Roma/Lazio" hardcoded)
+        // ────────────────────────────────────────────────────────────────────
+        $mp          = $user->memberProfile;
         $cityName    = $mp?->city?->name;
         $regionName  = $mp?->region?->name;
         $chapterName = $mp?->chapter?->name;
+        $firstName   = \Illuminate\Support\Str::of($user->name)->before(' ');
 
-        // "Zona": preferisci regione, fallback "Città / Regione" se disponibili, altrimenti null
         $zoneLabel = match (true) {
-            ! empty($cityName) && ! empty($regionName) => $cityName . ' / ' . $regionName,
-            ! empty($regionName) => $regionName,
-            ! empty($cityName)   => $cityName,
+            !empty($cityName) && !empty($regionName) => $cityName . ' / ' . $regionName,
+            !empty($regionName) => $regionName,
+            !empty($cityName)   => $cityName,
             default => null,
         };
+        $heroArea = $regionName ?: ($cityName ?: ($chapterName ?: null));
 
-        $heroAreaLabel = $regionName ?: ($cityName ?: ($chapterName ?: 'la tua area'));
-        $verified = $mp?->onboarding_completed && ($profileCompletion['percentage'] ?? 0) >= 80;
+        // KPI computati dal database (no placeholder)
+        $pendingOneToOnes = $receivedOneToOnes->filter(fn ($r) =>
+            in_array($r->status->value ?? '', ['pending', 'rescheduled'], true)
+        )->count();
+
+        $unreadMessages = method_exists($user, 'unreadMessagesCount')
+            ? $user->unreadMessagesCount()
+            : ($recentMessages->count() ?: 0);
+
+        $upcomingCount  = $upcomingEvents->count();
+        $completionPct  = (int) ($profileCompletion['percentage'] ?? 0);
+        $missingCount   = count($profileCompletion['missing'] ?? []);
+        $hasOnepage     = (bool) optional($user->memberOnepage)->slug;
+
+        // Profilo: card mostrate solo se popolate
+        $businessFields = [];
+        if ($mp?->category?->name)   $businessFields[] = ['Categoria', $mp->category->name, false];
+        if ($cityName)               $businessFields[] = ['Citta\'', $cityName, false];
+        if ($zoneLabel && $zoneLabel !== $cityName) $businessFields[] = ['Zona', $zoneLabel, false];
+        if ($mp)                     $businessFields[] = ['Visibile in directory', $mp->is_visible_in_directory ? 'Si' : 'No', false];
+        if (optional(optional($mp)->preferred_contact_method)?->label())
+            $businessFields[] = ['Contatto preferito', $mp->preferred_contact_method->label(), false];
+        if ($chapterName)            $businessFields[] = ['Pianeta', $chapterName, true];
     @endphp
 
-    <x-slot name="header">
-        <div class="km-dark-panel km-hero p-5 sm:p-7">
-            <div class="relative z-10 grid gap-6 lg:grid-cols-[1.4fr_0.6fr] lg:items-center">
-                <div>
-                    <p class="km-eyebrow">Dashboard membro · {{ $chapterName ?? 'Kommunity' }}</p>
+    <main class="km-shell-wide space-y-4 py-5 sm:space-y-5">
 
-                    <h1 class="mt-3 text-3xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-4xl lg:text-5xl">
-                        Ciao {{ \Illuminate\Support\Str::of($user->name)->before(' ') }},
-                        <span class="text-[color:var(--km-green)]">benvenuta nel tuo Pianeta</span>
+        {{-- ═══════════════════════════════════════════════════════════════════
+             1. HERO COMPATTO (max ~140px)
+             ═══════════════════════════════════════════════════════════════════ --}}
+        <section class="km-hero-shell px-5 py-5 sm:px-7 sm:py-6">
+            <div class="relative z-[1] flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="min-w-0">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--km-green-2)]">
+                        Dashboard membro{{ $chapterName ? ' · ' . $chapterName : '' }}
+                    </p>
+                    <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                        Ciao {{ $firstName }},
+                        <span class="text-[color:var(--km-green)]">cosa vuoi fare oggi?</span>
                     </h1>
 
-                    <p class="km-muted mt-3 max-w-3xl text-sm leading-7 sm:text-base">
-                        Profilo, pagina personale, one-to-one, eventi, forum e messaggi&nbsp;—
-                        @if ($zoneLabel)
-                            tutto centrato su <span class="font-semibold text-white">{{ $heroAreaLabel }}</span>.
-                        @else
-                            completa il profilo per attivare la tua zona.
-                        @endif
-                    </p>
-
-                    <div class="mt-5 flex flex-wrap gap-3">
-                        @if (($profileCompletion['percentage'] ?? 0) < 100)
-                            <a href="{{ route('profile.edit') }}" class="km-button-secondary text-center">
-                                Completa profilo ({{ $profileCompletion['percentage'] ?? 0 }}%)
-                            </a>
-                        @else
-                            <a href="{{ route('profile.edit') }}" class="km-button-secondary text-center">
-                                Modifica profilo
-                            </a>
-                        @endif
-
-                        @if(optional($user->memberOnepage)->slug)
-                            <a href="{{ route('members.show', $user->memberOnepage->slug) }}" class="km-button-primary text-center">
-                                Apri pagina personale &rarr;
-                            </a>
-                        @else
-                            <a href="{{ route('profile.edit') }}" class="km-button-primary text-center">
-                                Crea pagina personale
-                            </a>
+                    {{-- Bar completamento integrata nell'hero, niente sezione separata --}}
+                    <div class="mt-3 flex flex-wrap items-center gap-3">
+                        <div class="flex min-w-[180px] flex-1 items-center gap-3 sm:max-w-md">
+                            <div class="km-progress flex-1">
+                                <span style="width: {{ $completionPct }}%"></span>
+                            </div>
+                            <span class="text-xs font-bold tabular-nums text-white/85">{{ $completionPct }}%</span>
+                        </div>
+                        @if ($missingCount > 0)
+                            <span class="text-xs text-white/55">
+                                {{ $missingCount }} {{ $missingCount === 1 ? 'campo da completare' : 'campi da completare' }}
+                            </span>
                         @endif
                     </div>
                 </div>
 
-                <div class="km-dark-card relative z-10 p-5">
-                    <p class="km-eyebrow">{{ $cityName ?? ($chapterName ?? 'La tua zona') }}</p>
-                    <h2 class="mt-2 text-xl font-bold text-white">{{ $chapterName ?? 'Kommunity' }}</h2>
-                    <p class="km-muted mt-1.5 text-xs leading-5">
-                        Centro di controllo per connessioni, opportunità e visibilità locale.
-                    </p>
-
-                    <div class="km-orbit mt-4 h-28 rounded-[1.2rem] border border-white/10"></div>
-
-                    @if ($verified)
-                        <div class="mt-4 inline-flex rounded-full bg-[color:var(--km-green)] px-3 py-1.5 text-xs font-black text-[#071018]">
-                            &#9679; Profilo verificato
-                        </div>
+                <div class="flex shrink-0 flex-wrap gap-2">
+                    @if ($completionPct < 100)
+                        <a href="{{ route('profile.edit') }}" class="km-cta-secondary text-sm">
+                            Completa profilo
+                        </a>
                     @else
-                        <div class="mt-4 inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/80">
-                            Profilo da completare
-                        </div>
+                        <a href="{{ route('profile.edit') }}" class="km-cta-secondary text-sm">
+                            Modifica profilo
+                        </a>
+                    @endif
+                    @if ($hasOnepage)
+                        <a href="{{ route('members.show', $user->memberOnepage->slug) }}" class="km-cta-primary text-sm">
+                            Pagina personale
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                        </a>
+                    @else
+                        <a href="{{ route('profile.edit') }}" class="km-cta-primary text-sm">
+                            Crea pagina personale
+                        </a>
                     @endif
                 </div>
             </div>
-        </div>
-    </x-slot>
+        </section>
 
-    <div class="pb-10">
-        <div class="km-shell space-y-5">
+        {{-- ═══════════════════════════════════════════════════════════════════
+             2. KPI ROW (sm: 2x2, lg: 1x4)
+             ═══════════════════════════════════════════════════════════════════ --}}
+        <section class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <x-dashboard.kpi
+                label="Profilo"
+                value="{{ $completionPct }}%"
+                sub="{{ $profileCompletion['done'] ?? 0 }}/{{ $profileCompletion['total'] ?? 0 }} campi"
+                tone="{{ $completionPct >= 80 ? 'green' : ($completionPct >= 50 ? 'amber' : 'rose') }}"
+                href="{{ route('profile.edit') }}"
+                :badge="$completionPct < 100 ? 'Completa' : null"
+            >
+                <x-slot name="icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 1 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+                </x-slot>
+            </x-dashboard.kpi>
 
-            {{-- Analytics personali (Feature #7, gated da feature flag) --}}
-            @if(! empty($analytics))
-                @include('partials.dashboard-analytics', ['analytics' => $analytics])
-            @endif
+            <x-dashboard.kpi
+                label="One-to-one da gestire"
+                value="{{ $pendingOneToOnes }}"
+                sub="{{ $receivedOneToOnes->count() }} ricevuti totali"
+                tone="{{ $pendingOneToOnes > 0 ? 'amber' : 'green' }}"
+                href="{{ route('one-to-ones.index', ['type' => 'received']) }}"
+                :badge="$pendingOneToOnes > 0 ? 'Azione' : null"
+            >
+                <x-slot name="icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8l4 4-4 4M3 12h18M7 16l-4-4 4-4"/></svg>
+                </x-slot>
+            </x-dashboard.kpi>
 
-            <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <article class="km-dark-card p-5" x-data="{ open: false }">
-                    {{-- Cerchio progress SVG --}}
-                    <div class="mb-4 flex items-center justify-between">
-                        <div class="relative flex h-14 w-14 items-center justify-center">
-                            <svg class="h-14 w-14 -rotate-90" viewBox="0 0 48 48">
-                                <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/>
-                                <circle cx="24" cy="24" r="20" fill="none"
-                                        stroke="#8BC53F" stroke-width="4"
-                                        stroke-linecap="round"
-                                        stroke-dasharray="{{ round(2 * M_PI * 20, 2) }}"
-                                        stroke-dashoffset="{{ round(2 * M_PI * 20 * (1 - $profileCompletion['percentage'] / 100), 2) }}"
-                                        style="transition:stroke-dashoffset .6s ease;"/>
-                            </svg>
-                            <span class="absolute text-[0.65rem] font-black text-white">{{ $profileCompletion['percentage'] }}%</span>
-                        </div>
-                        @if(count($profileCompletion['missing']) > 0)
-                            <button @click="open = !open"
-                                    class="text-[0.7rem] font-semibold text-[color:var(--km-green)] hover:underline focus:outline-none">
-                                <span x-show="!open">Suggerimenti ↓</span>
-                                <span x-show="open" x-cloak>Nascondi ↑</span>
-                            </button>
-                        @endif
+            <x-dashboard.kpi
+                label="Eventi in arrivo"
+                value="{{ $upcomingCount }}"
+                sub="{{ $upcomingCount === 0 ? 'Nessuno in calendario' : ($upcomingCount === 1 ? 'Prossimo appuntamento' : 'Appuntamenti aperti') }}"
+                tone="teal"
+                href="{{ route('events.index') }}"
+            >
+                <x-slot name="icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+                </x-slot>
+            </x-dashboard.kpi>
+
+            <x-dashboard.kpi
+                label="Conversazioni"
+                value="{{ $recentMessages->count() }}"
+                sub="Messaggi recenti tra membri"
+                tone="green"
+                href="{{ route('conversations.index') }}"
+            >
+                <x-slot name="icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z"/></svg>
+                </x-slot>
+            </x-dashboard.kpi>
+        </section>
+
+        {{-- ═══════════════════════════════════════════════════════════════════
+             3. AZIONI RAPIDE (CTA orientate all'azione)
+             ═══════════════════════════════════════════════════════════════════ --}}
+        <section class="grid gap-3 sm:grid-cols-3">
+            <x-dashboard.quick-action
+                href="{{ route('one-to-ones.index', ['compose' => 1]) }}"
+                title="Nuovo one-to-one"
+                desc="Cerca un membro e invia richiesta"
+                tone="green"
+            >
+                <x-slot name="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                </x-slot>
+            </x-dashboard.quick-action>
+
+            <x-dashboard.quick-action
+                href="{{ route('conversations.index') }}"
+                title="Scrivi un membro"
+                desc="Apri una conversazione privata"
+                tone="teal"
+            >
+                <x-slot name="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9 6 9-6M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-9-4-9 4z"/></svg>
+                </x-slot>
+            </x-dashboard.quick-action>
+
+            <x-dashboard.quick-action
+                href="{{ route('referrals.index') }}"
+                title="Invia una referenza"
+                desc="Connetti due membri per opportunita'"
+                tone="amber"
+            >
+                <x-slot name="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4 20-7zM22 2 11 13"/></svg>
+                </x-slot>
+            </x-dashboard.quick-action>
+        </section>
+
+        {{-- ═══════════════════════════════════════════════════════════════════
+             4. OPERATIVO (1:1 ricevuti + eventi prossimi)
+             ═══════════════════════════════════════════════════════════════════ --}}
+        <section class="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+            <x-dashboard.section
+                eyebrow="One-to-one ricevuti"
+                title="Ultime richieste"
+                :href="route('one-to-ones.index')"
+                cta="Gestisci tutte"
+            >
+                @forelse ($receivedOneToOnes->take(4) as $r)
+                    <div @class(['mt-2.5' => ! $loop->first])>
+                        <x-dashboard.one-to-one-row :request="$r" :current-user-id="$user->id" />
                     </div>
-
-                    <p class="km-eyebrow">Completamento profilo</p>
-                    <p class="mt-2 text-2xl font-black text-white">
-                        {{ $profileCompletion['done'] }}/{{ $profileCompletion['total'] }} campi
-                    </p>
-
-                    {{-- Progress bar lineare --}}
-                    <div class="mt-3 h-1.5 w-full rounded-full bg-white/10">
-                        <div class="h-1.5 rounded-full bg-gradient-to-r from-[#8BC53F] to-[#2DD4BF] transition-all duration-500"
-                             style="width: {{ $profileCompletion['percentage'] }}%"></div>
+                @empty
+                    <div class="rounded-xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-6 text-center">
+                        <p class="text-sm text-white/65">Nessuna richiesta ricevuta.</p>
+                        <p class="mt-1 text-xs text-white/40">Apri la directory per scoprire altri membri e proporre un incontro.</p>
+                        <a href="{{ route('directory.index') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[color:var(--km-green-2)] hover:underline">
+                            Vai alla directory &rarr;
+                        </a>
                     </div>
+                @endforelse
+            </x-dashboard.section>
 
-                    <p class="km-muted mt-2 text-xs leading-5">
-                        @if($profileCompletion['percentage'] === 100)
-                            Profilo completo al 100%. Ottimo lavoro!
-                        @else
-                            {{ count($profileCompletion['missing']) }} {{ count($profileCompletion['missing']) === 1 ? 'campo mancante' : 'campi mancanti' }} per raggiungere il 100%.
+            <x-dashboard.section
+                eyebrow="Eventi"
+                title="Prossimi appuntamenti"
+                :href="route('events.index')"
+                cta="Vedi tutti"
+            >
+                @forelse ($upcomingEvents->take(4) as $event)
+                    <div @class(['mt-2' => ! $loop->first])>
+                        <x-dashboard.event-row :event="$event" />
+                    </div>
+                @empty
+                    <div class="rounded-xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-6 text-center">
+                        <p class="text-sm text-white/65">Nessun evento in calendario.</p>
+                        <a href="{{ route('events.index') }}" class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[color:var(--km-green-2)] hover:underline">
+                            Crea o partecipa &rarr;
+                        </a>
+                    </div>
+                @endforelse
+            </x-dashboard.section>
+        </section>
+
+        {{-- ═══════════════════════════════════════════════════════════════════
+             5. PROFILO BUSINESS (compatto, solo campi popolati)
+             ═══════════════════════════════════════════════════════════════════ --}}
+        <x-dashboard.section
+            eyebrow="Profilo business"
+            title="{{ $user->name }}"
+            :href="route('profile.edit')"
+            cta="Modifica"
+        >
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div class="flex shrink-0 items-center gap-3">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-[rgba(139,197,63,.25)] bg-gradient-to-br from-[#0b1219] to-[#1e3128] text-2xl font-black text-white shadow-[0_0_28px_rgba(139,197,63,.16)]">
+                        {{ \Illuminate\Support\Str::of($user->name ?? 'U')->substr(0, 1)->upper() }}
+                    </div>
+                    <div class="min-w-0">
+                        @if (optional($mp)->company_name)
+                            <p class="truncate text-sm font-bold text-white">{{ $mp->company_name }}</p>
                         @endif
-                    </p>
-
-                    {{-- Lista suggerimenti espandibile --}}
-                    @if(count($profileCompletion['missing']) > 0)
-                        <div x-show="open" x-cloak
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 -translate-y-1"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             class="mt-3 space-y-1.5 border-t border-white/10 pt-3">
-                            @foreach(array_slice($profileCompletion['missing'], 0, 4) as $item)
-                                <a href="{{ route('profile.edit') }}"
-                                   class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 transition hover:bg-white/[.07] hover:text-white">
-                                    <span class="shrink-0 text-base leading-none">{{ $item['icon'] }}</span>
-                                    <span>{{ $item['label'] }}</span>
-                                    <span class="ml-auto shrink-0 text-white/30">→</span>
+                        @if ($heroArea)
+                            <p class="truncate text-xs text-white/55">{{ $heroArea }}</p>
+                        @endif
+                        @if (! optional($mp)->company_name && ! $heroArea)
+                            <p class="text-xs text-white/55">
+                                <a href="{{ route('profile.edit') }}" class="font-semibold text-[color:var(--km-green-2)] hover:underline">
+                                    Aggiungi azienda e zona
                                 </a>
-                            @endforeach
-                            @if(count($profileCompletion['missing']) > 4)
-                                <p class="pl-3 text-[0.68rem] text-white/30">
-                                    + altri {{ count($profileCompletion['missing']) - 4 }} elementi
-                                </p>
-                            @endif
-                        </div>
-                    @endif
-                </article>
-
-                <article class="km-dark-card p-5">
-                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(139,197,63,.12)] text-xl text-[color:var(--km-green)]">↔</div>
-                    <p class="km-eyebrow">One-to-one ricevuti</p>
-                    <p class="mt-3 text-3xl font-black text-white">{{ $receivedOneToOnes->count() }}</p>
-                    <p class="km-muted mt-2 text-sm leading-6">Richieste recenti da membri della tua community.</p>
-                </article>
-
-                <article class="km-dark-card p-5">
-                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(139,197,63,.12)] text-xl text-[color:var(--km-green)]">◷</div>
-                    <p class="km-eyebrow">Eventi in arrivo</p>
-                    <p class="mt-3 text-3xl font-black text-white">{{ $upcomingEvents->count() }}</p>
-                    <p class="km-muted mt-2 text-sm leading-6">Appuntamenti pubblicati e aperti alla registrazione.</p>
-                </article>
-
-                <article class="km-dark-card p-5">
-                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(139,197,63,.12)] text-xl text-[color:var(--km-green)]">✉</div>
-                    <p class="km-eyebrow">Messaggi recenti</p>
-                    <p class="mt-3 text-3xl font-black text-white">{{ $recentMessages->count() }}</p>
-                    <p class="km-muted mt-2 text-sm leading-6">Conversazioni attive con altri membri.</p>
-                </article>
-            </section>
-
-            <section class="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-                <div class="space-y-5">
-                    <div class="km-dark-card p-5 sm:p-6">
-                        <div class="flex items-center justify-between gap-4">
-                            <div class="min-w-0">
-                                <p class="km-eyebrow">Profilo business</p>
-                                <h2 class="mt-1.5 truncate text-2xl font-black text-white sm:text-3xl">{{ $user->name ?? 'Utente' }}</h2>
-                                <p class="km-muted mt-1 truncate text-sm">
-                                    @if (optional($user->memberProfile)->company_name)
-                                        {{ $user->memberProfile->company_name }}
-                                    @endif
-                                    @if (optional($user->memberProfile)->company_name && $chapterName) · @endif
-                                    @if ($chapterName){{ $chapterName }}@endif
-                                    @if (! optional($user->memberProfile)->company_name && ! $chapterName)
-                                        <a href="{{ route('profile.edit') }}" class="text-[color:var(--km-green)] underline-offset-4 hover:underline">Aggiungi azienda</a>
-                                    @endif
-                                </p>
-                            </div>
-
-                            <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.4rem] border border-[rgba(139,197,63,.25)] bg-gradient-to-br from-[#0b1219] to-[#1e3128] text-3xl font-black text-white shadow-[0_0_30px_rgba(139,197,63,.18)]">
-                                {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
-                            </div>
-                        </div>
-
-                        @php
-                            // Costruisce solo i campi realmente popolati (niente "Da definire" sterile)
-                            $cards = [];
-                            if ($mp?->category?->name) {
-                                $cards[] = ['label' => 'Categoria', 'value' => $mp->category->name, 'accent' => false];
-                            }
-                            if ($cityName) {
-                                $cards[] = ['label' => 'Città', 'value' => $cityName, 'accent' => false];
-                            }
-                            if ($zoneLabel && $zoneLabel !== $cityName) {
-                                $cards[] = ['label' => 'Zona', 'value' => $zoneLabel, 'accent' => false];
-                            }
-                            if ($mp) {
-                                $cards[] = [
-                                    'label' => 'Visibile in directory',
-                                    'value' => $mp->is_visible_in_directory ? 'Sì' : 'No',
-                                    'accent' => false,
-                                ];
-                            }
-                            $contactMethod = optional(optional($user->memberProfile)->preferred_contact_method)->label();
-                            if ($contactMethod) {
-                                $cards[] = ['label' => 'Contatto preferito', 'value' => $contactMethod, 'accent' => false];
-                            }
-                            if ($chapterName) {
-                                $cards[] = ['label' => 'Pianeta', 'value' => $chapterName, 'accent' => true];
-                            }
-                        @endphp
-
-                        @if (! empty($cards))
-                            <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-{{ min(count($cards), 6) }}">
-                                @foreach ($cards as $card)
-                                    <div class="km-glass-box px-4 py-3">
-                                        <p class="km-eyebrow">{{ $card['label'] }}</p>
-                                        <p class="mt-1.5 text-sm font-bold {{ $card['accent'] ? 'text-[color:var(--km-green)]' : 'text-white' }}">
-                                            {{ $card['value'] }}
-                                        </p>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="mt-5 rounded-[1.2rem] border border-dashed border-white/15 bg-white/[.03] p-4 text-sm text-white/70">
-                                Profilo ancora vuoto.
-                                <a href="{{ route('profile.edit') }}" class="font-semibold text-[color:var(--km-green)] underline-offset-4 hover:underline">Compila i dati</a>
-                                per essere visibile e ricevere richieste.
-                            </div>
+                            </p>
                         @endif
-                    </div>
-
-                    <div class="km-dark-card p-5 sm:p-6">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p class="km-eyebrow">One-to-one ricevuti</p>
-                                <h2 class="mt-1.5 text-2xl font-black text-white">Ultime richieste</h2>
-                            </div>
-                            <a href="{{ route('one-to-ones.index') }}" class="text-sm font-black text-[color:var(--km-green)]">Gestisci</a>
-                        </div>
-
-                        <div class="mt-4 space-y-3">
-                            @forelse ($receivedOneToOnes as $requestItem)
-                                <div class="rounded-[1.2rem] border border-white/10 bg-white/[.045] p-4">
-                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                                        <div>
-                                            <p class="text-sm font-bold text-white">
-                                                {{ $requestItem->requester?->name ?? 'Utente non disponibile' }}
-                                            </p>
-                                            <p class="km-muted text-xs uppercase tracking-[0.16em]">
-                                                {{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }}
-                                                &middot;
-                                                {{ $requestItem->status?->label() ?? 'Stato non disponibile' }}
-                                            </p>
-                                        </div>
-                                        <div class="text-right text-xs text-[color:var(--km-muted)]">
-                                            {{ optional($requestItem->requested_at)->format('d/m H:i') ?? 'Data non disponibile' }}
-                                        </div>
-                                    </div>
-                                    @if (! empty($requestItem->goal))
-                                        <p class="mt-3 text-sm leading-6 text-white/80">{{ \Illuminate\Support\Str::limit($requestItem->goal, 180) }}</p>
-                                    @endif
-                                </div>
-                            @empty
-                                <p class="km-muted text-sm">Nessuna richiesta ricevuta per ora nella tua community.</p>
-                            @endforelse
-                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-5">
-                    <div class="km-dark-card p-5 sm:p-6">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p class="km-eyebrow">Eventi</p>
-                                <h2 class="mt-2 text-2xl font-black text-white">Prossimi appuntamenti</h2>
+                @if (! empty($businessFields))
+                    <div class="grid flex-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+                        @foreach ($businessFields as [$lab, $val, $accent])
+                            <div class="rounded-xl border border-white/[.06] bg-white/[.02] px-3 py-2.5">
+                                <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/45">{{ $lab }}</p>
+                                <p class="mt-0.5 truncate text-sm font-bold {{ $accent ? 'text-[color:var(--km-green-2)]' : 'text-white' }}">{{ $val }}</p>
                             </div>
-                            <a href="{{ route('events.index') }}" class="text-sm font-black text-[color:var(--km-green)]">Vedi tutti</a>
-                        </div>
-
-                        <div class="mt-5 space-y-4">
-                            @forelse ($upcomingEvents as $event)
-                                <a href="{{ route('events.show', $event) }}" class="block rounded-[1.2rem] border border-white/10 bg-white/[.045] p-4 transition hover:border-[rgba(139,197,63,.35)]">
-                                    <p class="text-sm font-bold text-white">{{ $event->title ?? 'Evento senza titolo' }}</p>
-                                    @if (! empty($event->location))
-                                        <p class="km-muted mt-1 text-sm">{{ $event->location }}</p>
-                                    @endif
-                                    @if ($event->starts_at)
-                                        <p class="km-muted mt-1.5 text-xs uppercase tracking-[0.16em]">
-                                            {{ $event->starts_at->translatedFormat('d M Y · H:i') }}
-                                        </p>
-                                    @endif
-                                </a>
-                            @empty
-                                <p class="km-muted text-sm">Nessun evento in arrivo nella tua community.</p>
-                            @endforelse
-                        </div>
+                        @endforeach
                     </div>
-
-                    <div class="km-dark-card p-5 sm:p-6">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p class="km-eyebrow">Forum</p>
-                                <h2 class="mt-2 text-2xl font-black text-white">Discussioni attive</h2>
-                            </div>
-                            <a href="{{ route('forum.index') }}" class="text-sm font-black text-[color:var(--km-green)]">Apri forum</a>
-                        </div>
-
-                        <div class="mt-5 space-y-4">
-                            @forelse ($latestThreads as $thread)
-                                <a href="{{ route('forum.show', $thread) }}" class="block rounded-[1.4rem] border border-white/10 bg-white/[.045] p-4 transition hover:border-[rgba(139,197,63,.35)]">
-                                    <p class="text-sm font-bold text-white">{{ $thread->title ?? 'Discussione senza titolo' }}</p>
-                                    <p class="km-muted mt-1 text-sm">
-                                        {{ $thread->category?->name ?? 'Kommunity' }}
-                                    </p>
-                                </a>
-                            @empty
-                                <p class="km-muted text-sm">Nessuna discussione disponibile nella tua community.</p>
-                            @endforelse
-                        </div>
+                @else
+                    <div class="flex-1 rounded-xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-3 text-sm text-white/65">
+                        Profilo ancora vuoto.
+                        <a href="{{ route('profile.edit') }}" class="font-semibold text-[color:var(--km-green-2)] hover:underline">Compilalo</a>
+                        per essere visibile e ricevere richieste.
                     </div>
+                @endif
+            </div>
+        </x-dashboard.section>
 
-                    <div class="km-dark-card p-5 sm:p-6">
-                        <div>
-                            <p class="km-eyebrow">Referenze inviate</p>
-                            <h2 class="mt-2 text-2xl font-black text-white">Pipeline relazionale</h2>
+        {{-- ═══════════════════════════════════════════════════════════════════
+             6. CONTENUTI SECONDARI (forum + referenze)
+             ═══════════════════════════════════════════════════════════════════ --}}
+        <section class="grid gap-4 lg:grid-cols-2">
+            <x-dashboard.section
+                eyebrow="Forum"
+                title="Discussioni recenti"
+                :href="route('forum.index')"
+                cta="Apri forum"
+            >
+                @forelse ($latestThreads->take(4) as $thread)
+                    <a href="{{ route('forum.show', $thread) }}"
+                       @class([
+                           'flex items-center gap-3 rounded-xl border border-white/[.08] bg-white/[.04] p-3 transition hover:border-[rgba(139,197,63,.30)]',
+                           'mt-2' => ! $loop->first,
+                       ])>
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(139,197,63,.10)] text-sm font-black text-[color:var(--km-green-2)]">
+                            #
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-bold text-white">{{ $thread->title }}</p>
+                            <p class="mt-0.5 truncate text-[11px] text-white/55">{{ $thread->category?->name ?? 'Generale' }}</p>
                         </div>
-
-                        <div class="mt-5 space-y-4">
-                            @forelse ($sentReferrals as $referral)
-                                <div class="rounded-[1.4rem] border border-white/10 bg-white/[.045] p-4">
-                                    <p class="text-sm font-bold text-white">{{ $referral->title ?? 'Referenza senza titolo' }}</p>
-                                    <p class="km-muted mt-1 text-sm">
-                                        {{ $referral->recipient?->name ?? 'Destinatario non disponibile' }}
-                                    </p>
-                                    <p class="km-muted mt-2 text-xs uppercase tracking-[0.16em]">
-                                        {{ $referral->status?->label() ?? 'Stato non disponibile' }}
-                                    </p>
-                                </div>
-                            @empty
-                                <p class="km-muted text-sm">Non hai ancora inviato referenze nel tuo Pianeta professionale.</p>
-                            @endforelse
-                        </div>
+                        <svg class="h-4 w-4 shrink-0 text-white/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+                    </a>
+                @empty
+                    <div class="rounded-xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-5 text-center text-sm text-white/55">
+                        Nessuna discussione attiva.
+                        <a href="{{ route('forum.index') }}" class="ml-1 font-semibold text-[color:var(--km-green-2)] hover:underline">Aprine una</a>
                     </div>
-                </div>
-            </section>
-        </div>
-    </div>
+                @endforelse
+            </x-dashboard.section>
+
+            <x-dashboard.section
+                eyebrow="Referenze inviate"
+                title="Pipeline relazionale"
+                :href="route('referrals.index')"
+                cta="Tutte le referenze"
+            >
+                @forelse ($sentReferrals->take(4) as $referral)
+                    <div @class(['rounded-xl border border-white/[.08] bg-white/[.04] p-3', 'mt-2' => ! $loop->first])>
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="truncate text-sm font-bold text-white">{{ $referral->title ?: 'Senza titolo' }}</p>
+                            @php
+                                $rs = $referral->status?->value;
+                                $rsTone = match($rs) {
+                                    'won' => ['#9AD84A','rgba(139,197,63,.14)'],
+                                    'lost' => ['#FDA4AF','rgba(244,63,94,.12)'],
+                                    'pending' => ['#FCD34D','rgba(245,158,11,.14)'],
+                                    default => ['#94A3B8','rgba(148,163,184,.12)'],
+                                };
+                            @endphp
+                            <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                                  style="color: {{ $rsTone[0] }}; background: {{ $rsTone[1] }};">
+                                {{ $referral->status?->label() ?? '—' }}
+                            </span>
+                        </div>
+                        @if ($referral->recipient?->name)
+                            <p class="mt-1 text-xs text-white/55">A {{ $referral->recipient->name }}</p>
+                        @endif
+                    </div>
+                @empty
+                    <div class="rounded-xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-5 text-center text-sm text-white/55">
+                        Non hai ancora inviato referenze.
+                        <a href="{{ route('referrals.index') }}" class="ml-1 font-semibold text-[color:var(--km-green-2)] hover:underline">Invia la prima</a>
+                    </div>
+                @endforelse
+            </x-dashboard.section>
+        </section>
+
+        {{-- ═══════════════════════════════════════════════════════════════════
+             7. PERFORMANCE (analytics, gated; mostrato solo se ha dati)
+             ═══════════════════════════════════════════════════════════════════ --}}
+        @php
+            $hasMeaningfulAnalytics = ! empty($analytics) && (
+                ($analytics['one_to_ones']['completed'] ?? 0) > 0 ||
+                ($analytics['referrals']['won'] ?? 0) > 0 ||
+                ($analytics['referrals']['won_value'] ?? 0) > 0
+            );
+        @endphp
+        @if ($hasMeaningfulAnalytics)
+            @include('partials.dashboard-analytics', ['analytics' => $analytics])
+        @endif
+
+    </main>
 
     @include('onboarding._wizard')
 </x-app-layout>

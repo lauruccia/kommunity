@@ -53,23 +53,20 @@
                     <x-input-error class="mt-2" :messages="$errors->get('whatsapp_number')" />
                 </div>
                 <div>
-                    <x-image-upload
-                        name="avatar"
-                        label="Foto profilo"
-                        :current-url="$profile->avatarUrl()"
-                        shape="square"
-                        :fallback="\Illuminate\Support\Str::of($user->name ?? 'U')->substr(0,1)->upper()"
-                        hint="Quadrata, almeno 400x400 px. Verra' ritagliata circolare."
-                    />
+                    <x-input-label for="avatar" :value="'Foto profilo'" />
+                    @if ($profile->avatarUrl())
+                        <img src="{{ $profile->avatarUrl() }}" alt="Foto profilo attuale" class="mt-2 h-24 w-24 rounded-[1.4rem] border border-stone-200 object-cover shadow-sm">
+                    @endif
+                    <input id="avatar" name="avatar" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
+                    <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
                 </div>
                 <div>
-                    <x-image-upload
-                        name="cover_image"
-                        label="Banner card e pagina"
-                        :current-url="$user->memberOnepage?->coverImageUrl()"
-                        shape="wide"
-                        hint="Formato 16:6 consigliato. Sara' visualizzata sulla pagina personale e nelle card directory."
-                    />
+                    <x-input-label for="cover_image" :value="'Banner card e pagina'" />
+                    @if ($user->memberOnepage?->coverImageUrl())
+                        <img src="{{ $user->memberOnepage->coverImageUrl() }}" alt="Banner attuale" class="mt-2 h-24 w-full rounded-[1.4rem] border border-stone-200 object-cover shadow-sm">
+                    @endif
+                    <input id="cover_image" name="cover_image" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
+                    <x-input-error class="mt-2" :messages="$errors->get('cover_image')" />
                 </div>
                 <div class="md:col-span-2">
                     <x-input-label for="referral_link" :value="'Referral link personale'" />

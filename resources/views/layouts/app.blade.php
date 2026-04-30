@@ -15,9 +15,18 @@
         <link rel="apple-touch-icon" href="/images/icon-192.png">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        {{-- Design system Kommunity (file STATICO in public/css/, modificabile via cPanel)
+             Cache-busting via filemtime: ogni volta che modifichi il file, cambia il param ?v= --}}
+        @php
+            $kmCssPath = public_path('css/kommunity.css');
+            $kmCssVer = file_exists($kmCssPath) ? filemtime($kmCssPath) : '1';
+        @endphp
+        <link rel="stylesheet" href="{{ asset('css/kommunity.css') }}?v={{ $kmCssVer }}">
+
         @stack('styles')
     </head>
-    <body class="font-sans antialiased text-stone-900">
+    <body class="font-sans antialiased text-stone-900 @stack('body-class')">
         <div class="min-h-screen">
             @include('layouts.navigation')
 
@@ -55,61 +64,6 @@
                     @endif
                 </div>
 
-                <style>
-                    .km-toast-stack {
-                        position: fixed;
-                        top: 1rem;
-                        right: 1rem;
-                        z-index: 9999;
-                        display: flex;
-                        flex-direction: column;
-                        gap: .65rem;
-                        max-width: min(22rem, calc(100vw - 2rem));
-                        pointer-events: none;
-                    }
-                    .km-toast {
-                        pointer-events: auto;
-                        display: flex;
-                        align-items: flex-start;
-                        gap: .65rem;
-                        padding: .85rem 1rem;
-                        border-radius: 14px;
-                        box-shadow: 0 16px 38px rgba(15, 23, 42, .18), 0 2px 6px rgba(15, 23, 42, .08);
-                        border: 1px solid;
-                        font-size: .9rem;
-                        line-height: 1.4;
-                        backdrop-filter: blur(10px);
-                    }
-                    .km-toast-icon {
-                        flex-shrink: 0;
-                        width: 1.5rem;
-                        height: 1.5rem;
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        border-radius: 999px;
-                        font-weight: 700;
-                        font-size: .85rem;
-                    }
-                    .km-toast-body { flex: 1; min-width: 0; margin: 0; word-wrap: break-word; }
-                    .km-toast-close {
-                        flex-shrink: 0;
-                        background: transparent;
-                        border: 0;
-                        font-size: 1.25rem;
-                        line-height: 1;
-                        cursor: pointer;
-                        opacity: .6;
-                        padding: 0 .15rem;
-                    }
-                    .km-toast-close:hover { opacity: 1; }
-                    .km-toast-success { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
-                    .km-toast-success .km-toast-icon { background: #10b981; color: white; }
-                    .km-toast-error { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
-                    .km-toast-error .km-toast-icon { background: #ef4444; color: white; }
-                    .km-toast-warning { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
-                    .km-toast-warning .km-toast-icon { background: #f59e0b; color: white; }
-                </style>
             @endif
 
             @isset($header)
