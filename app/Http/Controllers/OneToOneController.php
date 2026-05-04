@@ -6,6 +6,7 @@ use App\Enums\OneToOneStatus;
 use App\Models\AvailabilitySlot;
 use App\Models\OneToOneFollowup;
 use App\Models\OneToOneNote;
+use App\Models\OneToOneReference;
 use App\Models\OneToOneRequest;
 use App\Models\User;
 use App\Notifications\OneToOneReceivedNotification;
@@ -86,10 +87,15 @@ class OneToOneController extends Controller
                         'recipient.memberProfile.city',
                         'notes'    => fn ($q) => $q->where('user_id', $request->user()->id)->where('type', 'private'),
                         'followUps'=> fn ($q) => $q->latest('id'),
+                        'references',
                     ])
                     ->whereKey($filters['request'])
                     ->where(fn ($q) => $q->where('requester_id', $request->user()->id)->orWhere('recipient_id', $request->user()->id))
                     ->first();
+            }
+            // Carica referenze se non già caricate
+            if ($selectedRequest && ! $selectedRequest->relationLoaded('references')) {
+                $selectedRequest->load('references');
             }
         }
 
@@ -117,6 +123,7 @@ class OneToOneController extends Controller
                 ->orderBy('weekday')->orderBy('starts_at')
                 ->get(),
             'weekdayOptions'   => [1=>'Lunedi',2=>'Martedi',3=>'Mercoledi',4=>'Giovedi',5=>'Venerdi',6=>'Sabato',7=>'Domenica'],
+            'referenceTags'    => OneToOneReference::availableTags(),
         ]);
     }
 
@@ -216,8 +223,13 @@ class OneToOneController extends Controller
             'private_note'         => ['nullable', 'string', 'max:2000'],
             'meeting_link'         => ['nullable', 'url', 'max:500'],
             'meeting_location'     => ['nullable', 'string', 'max:255'],
-            // FIX #6: proposta variazione orario
             'propose_new_datetime' => ['nullable', 'date'],
+            // Referenza
+            'ref_content'          => ['nullable', 'string', 'max:2000'],
+            'ref_rating'           => ['nullable', 'integer', 'between:1,5'],
+            'ref_tags'             => ['nullable', 'array'],
+            'ref_tags.*'           => ['string', 'in:'.implode(',', OneToOneReference::availableTags())],
+            'ref_is_recommended'   => ['nullable', 'boolean'],
         ]);
 
         $user        = $request->user();
@@ -337,11 +349,36 @@ class OneToOneController extends Controller
             }
         }
 
+        // ── Referenza (solo quando completato, una per partecipante) ─────────
+        if ($oneToOneRequest->status === OneToOneStatus::Completed
+            && (filled($data['ref_content'] ?? null)
+                || filled($data['ref_rating'] ?? null)
+                || ! empty($data['ref_tags'])
+                || isset($data['ref_is_recommended']))
+        ) {
+            $recipientId = $isRequester ? $oneToOneRequest->recipient_id : $oneToOneRequest->requester_id;
+            OneToOneReference::updateOrCreate(
+                [
+                    'one_to_one_request_id' => $oneToOneRequest->id,
+                    'author_id'             => $user->id,
+                ],
+                [
+                    'recipient_id'   => $recipientId,
+                    'content'        => trim((string) ($data['ref_content'] ?? '')),
+                    'rating'         => $data['ref_rating'] ?? null,
+                    'tags'           => $data['ref_tags'] ?? [],
+                    'is_recommended' => isset($data['ref_is_recommended']) ? (bool) $data['ref_is_recommended'] : null,
+                ]
+            );
+            $statusMsg = 'one-to-one-reference-saved';
+        }
+
         return back()->with('status', $statusMsg)->with('success',
             match ($statusMsg) {
                 'one-to-one-completed'            => 'Incontro segnato come completato da entrambi.',
                 'one-to-one-completion-confirmed' => 'Completamento confermato. Attendi conferma dell\'altro partecipante.',
                 'one-to-one-rescheduled'          => 'Nuova proposta orario inviata. L\'altra parte riceverà una notifica.',
+                'one-to-one-reference-saved'      => 'Referenza salvata con successo.',
                 default => 'Aggiornamento salvato.',
             }
         );

@@ -789,6 +789,154 @@
                         <textarea name="private_note" rows="2" class="km-dark-input" placeholder="Nota privata solo per te" style="resize:vertical;">{{ $privateNote }}</textarea>
                         <button type="submit" class="km-button-primary" style="width:100%;">Aggiorna</button>
                     </form>
+
+                    {{-- ── REFERENZA (solo status=completed) ───────────────────────── --}}
+                    @if ($selectedRequest->status->value === 'completed')
+                        @php
+                            $myRef        = $selectedRequest->references->firstWhere('author_id', auth()->id());
+                            $counterpart  ??= $isRequester ? $selectedRequest->recipient : $selectedRequest->requester;
+                            $theirRef     = $selectedRequest->references->firstWhere('recipient_id', auth()->id());
+                        @endphp
+
+                        {{-- Referenza già lasciata: mostra riepilogo --}}
+                        @if ($myRef)
+                            <div class="km-dark-card" style="padding:1rem;border-color:rgba(45,212,191,.22);background:rgba(45,212,191,.04);">
+                                <p class="km-eyebrow" style="color:#5EEAD4;margin-bottom:.55rem;">✔ La tua referenza per {{ $counterpart?->name }}</p>
+
+                                {{-- Stelle --}}
+                                @if ($myRef->rating)
+                                    <div style="display:flex;gap:.2rem;margin-bottom:.45rem;">
+                                        @for ($s = 1; $s <= 5; $s++)
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ $s <= $myRef->rating ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                @endif
+
+                                {{-- Raccomandazione --}}
+                                @if ($myRef->is_recommended !== null)
+                                    <p style="font-size:.78rem;color:var(--km-text-muted);margin-bottom:.4rem;">
+                                        {{ $myRef->is_recommended ? '👍 Consiglieresti questa persona' : '👎 Non consiglieresti questa persona' }}
+                                    </p>
+                                @endif
+
+                                {{-- Tag --}}
+                                @if (!empty($myRef->tags))
+                                    <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem;">
+                                        @foreach ($myRef->tags as $tag)
+                                            <span style="padding:.2rem .65rem;border-radius:999px;background:rgba(45,212,191,.15);color:#5EEAD4;border:1px solid rgba(45,212,191,.3);font-size:.72rem;font-weight:700;">{{ $tag }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                {{-- Testo --}}
+                                @if ($myRef->content)
+                                    <p style="font-size:.84rem;line-height:1.6;color:var(--km-text);">{{ $myRef->content }}</p>
+                                @endif
+                            </div>
+                        @else
+                            {{-- Form referenza --}}
+                            <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" class="km-dark-card" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;border-color:rgba(45,212,191,.22);background:rgba(45,212,191,.03);">
+                                @csrf
+                                @method('PATCH')
+                                <div>
+                                    <p class="km-eyebrow" style="color:#5EEAD4;">Lascia una referenza</p>
+                                    <p class="km-muted" style="margin-top:.2rem;font-size:.75rem;">Per {{ $counterpart?->name }} — visibile agli altri membri.</p>
+                                </div>
+
+                                {{-- Rating stelle interattivo --}}
+                                <div>
+                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);margin-bottom:.4rem;">Valutazione</p>
+                                    <div style="display:flex;gap:.3rem;" id="ref-stars">
+                                        @for ($s = 1; $s <= 5; $s++)
+                                            <button type="button" data-star="{{ $s }}"
+                                                    style="background:none;border:none;cursor:pointer;padding:.1rem;"
+                                                    onclick="setRefRating({{ $s }})">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="1.8" data-idx="{{ $s }}">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                                </svg>
+                                            </button>
+                                        @endfor
+                                    </div>
+                                    <input type="hidden" name="ref_rating" id="ref-rating-input" value="">
+                                </div>
+
+                                {{-- Raccomandazione --}}
+                                <div>
+                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);margin-bottom:.4rem;">Consiglieresti questa persona?</p>
+                                    <div style="display:flex;gap:.5rem;">
+                                        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;padding:.4rem .8rem;border-radius:.8rem;border:1px solid rgba(139,197,63,.3);background:rgba(139,197,63,.07);font-size:.82rem;color:var(--km-green-2);font-weight:700;">
+                                            <input type="radio" name="ref_is_recommended" value="1" style="accent-color:var(--km-green-2);"> Sì
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;padding:.4rem .8rem;border-radius:.8rem;border:1px solid rgba(244,63,94,.25);background:rgba(244,63,94,.06);font-size:.82rem;color:#FDA4AF;font-weight:700;">
+                                            <input type="radio" name="ref_is_recommended" value="0" style="accent-color:#FDA4AF;"> No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {{-- Tag competenze --}}
+                                <div>
+                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);margin-bottom:.4rem;">Competenze dimostrate</p>
+                                    <div style="display:flex;flex-wrap:wrap;gap:.35rem;">
+                                        @foreach ($referenceTags as $tag)
+                                            <label style="cursor:pointer;">
+                                                <input type="checkbox" name="ref_tags[]" value="{{ $tag }}" style="display:none;" class="ref-tag-check">
+                                                <span class="ref-tag-pill" style="display:inline-block;padding:.25rem .7rem;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04);font-size:.74rem;font-weight:700;color:var(--km-text-muted);transition:.15s;cursor:pointer;">{{ $tag }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                {{-- Testo libero --}}
+                                <textarea name="ref_content" rows="3" class="km-dark-input"
+                                          placeholder="Scrivi una referenza per {{ $counterpart?->name }}…"
+                                          style="resize:vertical;"></textarea>
+
+                                <button type="submit" style="display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:1rem;background:rgba(45,212,191,.22);border:1px solid rgba(45,212,191,.5);color:#5EEAD4;font-size:.85rem;font-weight:700;cursor:pointer;">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
+                                    Invia referenza
+                                </button>
+                            </form>
+                        @endif
+
+                        {{-- Referenza ricevuta dall'altra parte --}}
+                        @if ($theirRef)
+                            <div class="km-glass-box" style="padding:.9rem;border-color:rgba(139,197,63,.18);">
+                                <p class="km-eyebrow" style="color:var(--km-green-2);margin-bottom:.5rem;">Referenza ricevuta da {{ $counterpart?->name }}</p>
+
+                                @if ($theirRef->rating)
+                                    <div style="display:flex;gap:.2rem;margin-bottom:.4rem;">
+                                        @for ($s = 1; $s <= 5; $s++)
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="{{ $s <= $theirRef->rating ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                @endif
+
+                                @if ($theirRef->is_recommended !== null)
+                                    <p style="font-size:.78rem;color:var(--km-text-muted);margin-bottom:.35rem;">
+                                        {{ $theirRef->is_recommended ? '👍 Ti consiglia agli altri membri' : '👎 Non ti consiglia agli altri membri' }}
+                                    </p>
+                                @endif
+
+                                @if (!empty($theirRef->tags))
+                                    <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem;">
+                                        @foreach ($theirRef->tags as $tag)
+                                            <span style="padding:.18rem .6rem;border-radius:999px;background:rgba(139,197,63,.13);color:var(--km-green-2);border:1px solid rgba(139,197,63,.28);font-size:.72rem;font-weight:700;">{{ $tag }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @if ($theirRef->content)
+                                    <p style="font-size:.84rem;line-height:1.6;color:var(--km-text);">{{ $theirRef->content }}</p>
+                                @endif
+                            </div>
+                        @endif
+                    @endif
+                    {{-- ── fine referenza ───────────────────────────────────────────── --}}
+
                 </div>
             </div>
         </div>
@@ -1017,6 +1165,29 @@
             if (rsModal) rsModal.addEventListener('click', (e) => { if (e.target === rsModal) rsModal.style.display = 'none'; });
 
             renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState();
+
+            // ── Referenza: stelle interattive ─────────────────────────────────
+            window.setRefRating = (val) => {
+                document.getElementById('ref-rating-input').value = val;
+                document.querySelectorAll('#ref-stars svg').forEach((svg, i) => {
+                    svg.setAttribute('fill', i < val ? '#FCD34D' : 'none');
+                });
+            };
+            // ── Referenza: tag pill toggle ────────────────────────────────────
+            document.querySelectorAll('.ref-tag-check').forEach((cb) => {
+                cb.addEventListener('change', () => {
+                    const pill = cb.nextElementSibling;
+                    if (cb.checked) {
+                        pill.style.background = 'rgba(45,212,191,.18)';
+                        pill.style.color = '#5EEAD4';
+                        pill.style.borderColor = 'rgba(45,212,191,.45)';
+                    } else {
+                        pill.style.background = 'rgba(255,255,255,.04)';
+                        pill.style.color = 'var(--km-text-muted)';
+                        pill.style.borderColor = 'rgba(255,255,255,.18)';
+                    }
+                });
+            });
 
             // Apri modale in base al contesto:
             // - ?compose=1 (arrivo dal profilo membro): apri SUBITO con destinatario precompilato.

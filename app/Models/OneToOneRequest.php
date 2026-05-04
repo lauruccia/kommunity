@@ -91,4 +91,9 @@ class OneToOneRequest extends Model
     {
         return $this->hasMany(OneToOneFollowup::class);
     }
+
+    public function references(): HasMany
+    {
+        return $this->hasMany(OneToOneReference::class);
+    }
 }
