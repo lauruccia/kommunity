@@ -87,26 +87,33 @@ class ConversationController extends Controller
 
     private function conversationList(User $user, array $filters = [])
     {
+        // Carichiamo solo l'ULTIMO messaggio per conversazione invece di tutti i messaggi.
+        // Questo evita N*M record in memoria quando l'utente ha molte conversazioni.
         $conversations = Conversation::query()
             ->with([
                 'participants.memberProfile',
-                'messages.user',
+                // lastMessage è una relazione HasOne ordinata per created_at DESC (vedi model Conversation)
+                'lastMessage.user',
             ])
             ->whereHas('participants', fn ($query) => $query->where('users.id', $user->id))
             ->latest('updated_at')
+            ->limit(200) // hard cap: nessun utente ha bisogno di più di 200 conversazioni in lista
             ->get();
 
         $conversations = $conversations
             ->map(function (Conversation $conversation) use ($user) {
                 $otherParticipant = $conversation->participants->firstWhere('id', '!=', $user->id);
-                $lastMessage = $conversation->messages->sortByDesc('created_at')->first();
+                $lastMessage = $conversation->lastMessage;
                 $myPivot = $conversation->participants->firstWhere('id', $user->id)?->pivot;
                 $hasUnread = $lastMessage && (! $myPivot?->last_read_at || $lastMessage->created_at->gt($myPivot->last_read_at));
                 $lastReadAt = $myPivot?->last_read_at ? Carbon::parse($myPivot->last_read_at) : null;
-                $unreadCount = $conversation->messages
-                    ->where('user_id', '!=', $user->id)
-                    ->filter(fn ($message) => ! $lastReadAt || $message->created_at->gt($lastReadAt))
-                    ->count();
+                // Conta messaggi non letti via query puntuale (eseguita solo se serve il conteggio)
+                $unreadCount = $hasUnread
+                    ? $conversation->messages()
+                        ->where('user_id', '!=', $user->id)
+                        ->when($lastReadAt, fn ($q) => $q->where('created_at', '>', $lastReadAt))
+                        ->count()
+                    : 0;
 
                 $conversation->setAttribute('other_participant', $otherParticipant);
                 $conversation->setAttribute('last_message', $lastMessage);

@@ -144,9 +144,9 @@ class ProfileController extends Controller
                 'show_phone' => $request->boolean('show_phone'),
                 'show_whatsapp' => $request->boolean('show_whatsapp'),
                 'allow_whatsapp_contact' => $request->boolean('allow_whatsapp_contact'),
-                // is_visible_in_directory: gestito solo dall'admin, non sovrascriviamo mai
+                // is_visible_in_directory e is_active: gestiti solo dall'admin, non sovrascriviamo mai.
+                // Manteniamo il valore attuale del profilo (che può essere false se l'admin ha sospeso).
                 'onboarding_completed' => $request->boolean('onboarding_completed'),
-                'is_active' => true,
                 // Non sovrascrivere status se già gestito dall'admin (active/suspended)
                 'status' => in_array($profile->status?->value, ['active', 'suspended'])
                     ? $profile->status->value

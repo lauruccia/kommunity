@@ -628,10 +628,51 @@
                         </div>
                     @endif
 
+                    {{-- Dettagli logistici: data/ora, modalità, link/luogo --}}
+                    <div class="km-glass-box" style="padding:.85rem;border-color:rgba(139,197,63,.18);">
+                        <p class="km-eyebrow" style="color:var(--km-green-2);">Dettagli incontro</p>
+                        <div style="margin-top:.6rem;display:grid;gap:.45rem;">
+                            <div style="display:flex;align-items:center;gap:.6rem;">
+                                <span style="font-size:.75rem;font-weight:700;color:var(--km-text-muted);min-width:5.5rem;">Data e ora</span>
+                                <span style="font-size:.86rem;color:var(--km-text);">
+                                    {{ optional($selectedRequest->requested_at)->translatedFormat('l d F Y \a\l\l\e H:i') ?: 'Da concordare' }}
+                                </span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:.6rem;">
+                                <span style="font-size:.75rem;font-weight:700;color:var(--km-text-muted);min-width:5.5rem;">Modalità</span>
+                                <span style="font-size:.86rem;color:var(--km-text);">
+                                    {{ $selectedRequest->meeting_mode === 'online' ? 'Online' : 'In presenza' }}
+                                </span>
+                            </div>
+                            @if ($selectedRequest->meeting_mode === 'online' && $selectedRequest->meeting_link)
+                                <div style="display:flex;align-items:center;gap:.6rem;">
+                                    <span style="font-size:.75rem;font-weight:700;color:var(--km-text-muted);min-width:5.5rem;">Link meeting</span>
+                                    <a href="{{ $selectedRequest->meeting_link }}"
+                                       target="_blank" rel="noopener noreferrer"
+                                       style="font-size:.86rem;color:var(--km-green-2);font-weight:700;word-break:break-all;text-decoration:underline;text-underline-offset:2px;">
+                                        {{ $selectedRequest->meeting_link }}
+                                        <svg style="display:inline;margin-left:.25rem;vertical-align:middle;" width="12" height="12" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6m0 0v6m0-6L10 14"/></svg>
+                                    </a>
+                                </div>
+                            @elseif ($selectedRequest->meeting_mode === 'online' && !$selectedRequest->meeting_link)
+                                <div style="display:flex;align-items:center;gap:.6rem;">
+                                    <span style="font-size:.75rem;font-weight:700;color:var(--km-text-muted);min-width:5.5rem;">Link meeting</span>
+                                    <span style="font-size:.82rem;color:rgba(253,164,175,.7);font-style:italic;">Non ancora inserito</span>
+                                </div>
+                            @endif
+                            @if ($selectedRequest->meeting_location)
+                                <div style="display:flex;align-items:center;gap:.6rem;">
+                                    <span style="font-size:.75rem;font-weight:700;color:var(--km-text-muted);min-width:5.5rem;">Luogo</span>
+                                    <span style="font-size:.86rem;color:var(--km-text);">{{ $selectedRequest->meeting_location }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     <div class="km-oto-detail-grid">
                         <div class="km-glass-box" style="padding:.85rem;">
                             <p class="km-eyebrow">Obiettivo incontro</p>
-                            <p style="margin-top:.4rem;font-size:.86rem;line-height:1.5;color:var(--km-text);">{{ $selectedRequest->goal }}</p>
+                            <p style="margin-top:.4rem;font-size:.86rem;line-height:1.5;color:var(--km-text);">{{ $selectedRequest->goal ?: '—' }}</p>
                         </div>
                         @if ($selectedRequest->pre_notes)
                             <div class="km-glass-box" style="padding:.85rem;">
@@ -676,6 +717,22 @@
                             <textarea name="post_notes" rows="2" class="km-dark-input" placeholder="Resoconto condiviso visibile a entrambi" style="resize:vertical;">{{ $selectedRequest->post_notes }}</textarea>
                         @endif
                         @if ($isRequester)
+                            {{-- Il mittente può aggiornare il link meeting e il luogo --}}
+                            @if ($selectedRequest->meeting_mode === 'online')
+                                <div>
+                                    <p class="km-eyebrow">Link meeting</p>
+                                    <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">URL della videochiamata, visibile ad entrambi.</p>
+                                </div>
+                                <input type="url" name="meeting_link" value="{{ $selectedRequest->meeting_link }}"
+                                       class="km-dark-input" placeholder="https://meet.google.com/... o Zoom/Teams">
+                            @else
+                                <div>
+                                    <p class="km-eyebrow">Luogo incontro</p>
+                                    <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Indirizzo o indicazioni per il punto d'incontro.</p>
+                                </div>
+                                <input type="text" name="meeting_location" value="{{ $selectedRequest->meeting_location }}"
+                                       class="km-dark-input" placeholder="Es. Via Roma 12, Milano">
+                            @endif
                             <div>
                                 <p class="km-eyebrow">Follow-up condiviso</p>
                                 <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Prossima azione concordata dopo il contatto.</p>

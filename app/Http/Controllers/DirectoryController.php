@@ -23,6 +23,17 @@ class DirectoryController extends Controller
 
     public function __invoke(Request $request): View
     {
+        // ── Gate abbonamento ─────────────────────────────────────────────────
+        // La directory è accessibile solo ai membri con abbonamento attivo.
+        // Se nessun piano è configurato (piattaforma in fase di setup), si
+        // lascia passare tutti per non bloccare il lancio operativo.
+        $user = $request->user();
+        $subscriptionPlansExist = \App\Models\SubscriptionPlan::query()->where('is_active', true)->exists();
+
+        if ($subscriptionPlansExist && ! $user->hasDirectoryAccess()) {
+            return view('directory.no-subscription');
+        }
+
         $filters = $request->only([
             'search', 'category', 'region', 'province', 'city', 'chapter',
         ]);

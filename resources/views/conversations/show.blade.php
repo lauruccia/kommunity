@@ -154,6 +154,11 @@
                             $avatar = $participant?->memberProfile?->avatarUrl();
                             $receipt = $messageReceipt($lastMessage, $item);
                         @endphp
+                        @php
+                            $participantIsOnline = ($participant?->show_online_status ?? false)
+                                && $participant?->last_seen_at
+                                && $participant->last_seen_at->gt(now()->subMinutes(5));
+                        @endphp
                         <a href="{{ route('conversations.show', $item) }}" class="km-chat-thread {{ $item->id === $conversation->id ? 'km-chat-thread-active' : '' }} flex gap-3 px-4 py-3 text-white">
                             <div class="relative">
                                 @if ($avatar)
@@ -161,7 +166,9 @@
                                 @else
                                     <div class="km-chat-avatar km-chat-avatar-fallback text-lg">{{ \Illuminate\Support\Str::of($participant?->name ?? 'K')->substr(0, 1)->upper() }}</div>
                                 @endif
-                                <span class="absolute -right-0.5 bottom-0 h-3 w-3 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                                @if ($participantIsOnline)
+                                    <span class="absolute -right-0.5 bottom-0 h-3 w-3 rounded-full border-2 border-[#052532] bg-[color:var(--km-green-2)]"></span>
+                                @endif
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-start justify-between gap-2">

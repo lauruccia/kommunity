@@ -269,6 +269,9 @@ class OneToOneController extends Controller
             'post_notes' => ['nullable', 'string', 'max:2000'],
             'follow_up_notes' => ['nullable', 'string', 'max:2000'],
             'private_note' => ['nullable', 'string', 'max:2000'],
+            // Il mittente può aggiornare link meeting e luogo dopo la creazione
+            'meeting_link'     => ['nullable', 'url', 'max:500'],
+            'meeting_location' => ['nullable', 'string', 'max:255'],
         ]);
 
         $user = $request->user();
@@ -335,6 +338,17 @@ class OneToOneController extends Controller
                 OneToOneStatus::Cancelled,
                 $user->name,
             ));
+        }
+
+        // Il mittente può aggiornare meeting_link (online) o meeting_location (in presenza)
+        if ($isRequester && (array_key_exists('meeting_link', $data) || array_key_exists('meeting_location', $data))) {
+            if ($oneToOneRequest->meeting_mode === 'online' && array_key_exists('meeting_link', $data)) {
+                $oneToOneRequest->meeting_link = $data['meeting_link'] ?: null;
+                $oneToOneRequest->save();
+            } elseif ($oneToOneRequest->meeting_mode === 'in_person' && array_key_exists('meeting_location', $data)) {
+                $oneToOneRequest->meeting_location = $data['meeting_location'] ?: null;
+                $oneToOneRequest->save();
+            }
         }
 
         if ($isRequester && array_key_exists('follow_up_notes', $data)) {

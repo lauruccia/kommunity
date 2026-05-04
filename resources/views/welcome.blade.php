@@ -99,7 +99,24 @@
         ['Chat e connessioni','Comunica in modo diretto e senza filtri.','<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z" stroke="currentColor" stroke-width="1.8"/>'],
         ['News e contenuti','Resta aggiornato su trend, novità e best practice.','<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" stroke-width="1.8"/><path d="M14 2v6h6M16 13H8m8 4H8m2-8H8" stroke="currentColor" stroke-width="1.8"/>'],
     ];
-    $stats = [['500+','Professionisti attivi'],['120+','Collaborazioni generate'],['20+','Pianeti attivi'],['15+','Eventi ogni mese']];
+    // Statistiche dinamiche (con fallback sicuri)
+    try {
+        $memberCount = \App\Models\MemberProfile::where('is_active', true)->count();
+        $chapterCount = \App\Models\Chapter::where('is_active', true)->count();
+        $eventCount = \App\Models\Event::where('is_published', true)->where('status', '!=', 'cancelled')->where('starts_at', '>=', now()->startOfMonth()->subMonths(1))->count();
+        $referralCount = \DB::table('referrals')->count();
+    } catch (\Throwable) {
+        $memberCount = 0; $chapterCount = 0; $eventCount = 0; $referralCount = 0;
+    }
+    $memberLabel  = $memberCount > 0 ? ($memberCount < 10 ? $memberCount.'+' : (floor($memberCount/10)*10).'+') : '–';
+    $chapterLabel = $chapterCount > 0 ? $chapterCount.'+' : '–';
+    $eventLabel   = $eventCount > 0 ? $eventCount.'+' : '–';
+    $stats = [
+        [$memberLabel,'Professionisti attivi'],
+        ['120+','Collaborazioni generate'],
+        [$chapterLabel,'Pianeti attivi'],
+        [$eventLabel,'Eventi ogni mese'],
+    ];
     $testimonials = [
         ['Kommunity mi ha permesso di entrare in contatto con clienti e partner in modo autentico e produttivo.','Francesca R.','Consulente HR','a'],
         ['Grazie ai Pianeti ho trovato persone straordinarie con cui collaboro ogni giorno.','Alessandro T.','Imprenditore','b'],
@@ -197,7 +214,11 @@
             <div class="search-bar"><span>Cerca il tuo Pianeta...</span><span>⌕</span></div>
             <p style="margin-top:1.35rem;font-size:.8rem;font-weight:900;color:rgba(214,228,236,.78)">Aree attive nel Lazio</p>
             <div class="city-chips">
-                @foreach(['Roma','Latina','Frosinone','Viterbo','Rieti','Castelli Romani','Ostia','Tivoli'] as $city)<span class="city-chip">{{ $city }}</span>@endforeach
+                @forelse($chapters->take(8) as $ch)
+                    <span class="city-chip">{{ $ch->city?->name ?? $ch->name }}</span>
+                @empty
+                    @foreach(['Roma','Latina','Frosinone','Viterbo','Rieti'] as $city)<span class="city-chip">{{ $city }}</span>@endforeach
+                @endforelse
                 <a href="{{ route('register') }}" class="city-chip" style="border-color:rgba(111,163,103,.55);color:var(--brand4)">Vedi tutti i Pianeti</a>
             </div>
         </div>
@@ -229,7 +250,18 @@
         <address style="font-style:normal"><p class="footer-col-title">Contatti</p><p class="footer-link" style="cursor:default;line-height:1.7">KNM Srl<br>Via Eurialo, 56<br>00181 Roma (IT)</p> <a href="mailto:info@kommunity.it" class="footer-link">info@kommunity.it</a><a href="tel:+390678216530" class="footer-link">+39 06.7821653</a></address>
         <!-- <div><p class="footer-col-title">Resta aggiornato</p><p style="font-size:.78rem;color:var(--muted);margin-bottom:.75rem">Iscriviti alla newsletter</p>@if(session('newsletter_success'))<p style="font-size:.8rem;color:var(--brand4);font-weight:700;padding:.6rem .8rem;border-radius:.4rem;background:rgba(85,121,79,.12);border:1px solid rgba(85,121,79,.3);margin-bottom:.75rem">✓ Iscritto con successo!</p>@endif<form class="newsletter-form" method="POST" action="{{ route('newsletter.subscribe') }}">@csrf<input type="email" name="email" placeholder="La tua email" required><button type="submit">→</button></form></div> -->
     </div>
-    <div class="footer-bottom"><div class="km-wrap footer-bottom-inner"><p>© {{ date('Y') }} KNM Srl · P.IVA 13273091002 · Tutti i diritti riservati</p><nav class="footer-bottom-links"><a href="https://kommunity.it/pagina/privacy-policy">Privacy Policy</a><a href="https://kommunity.it/pagina/termini-e-condizioni">Termini e condizioni</a><a href="https://kommunity.it/pagina/cookie-policy">Cookie Policy</a></nav></div></div>
+    <div class="footer-bottom"><div class="km-wrap footer-bottom-inner"><p>© {{ date('Y') }} KNM Srl · P.IVA 13273091002 · Tutti i diritti riservati</p><nav class="footer-bottom-links">
+        @php
+            $legalSlugs = ['privacy-policy' => 'Privacy Policy', 'termini-e-condizioni' => 'Termini e condizioni', 'cookie-policy' => 'Cookie Policy'];
+        @endphp
+        @foreach($legalSlugs as $slug => $label)
+            @if($footerPages->contains('slug', $slug) || $navPages->contains('slug', $slug))
+                <a href="{{ route('page.show', $slug) }}">{{ $label }}</a>
+            @else
+                <a href="{{ route('page.show', $slug) }}" style="opacity:.45" title="Pagina non ancora pubblicata">{{ $label }}</a>
+            @endif
+        @endforeach
+    </nav></div></div>
 </footer>
 </div>
 

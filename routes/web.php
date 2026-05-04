@@ -59,6 +59,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// ── Notifiche e push: auth+verified ma NON richiedono onboarding completato ──
+// (campanella sempre funzionante anche durante l'onboarding)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+
+    // Push subscriptions (PWA): registrazione service worker appena dopo login
+    Route::get('/push/vapid-public-key', [PushSubscriptionController::class, 'vapidPublicKey'])->name('push.vapid');
+    Route::post('/push/subscribe',   [PushSubscriptionController::class, 'subscribe'])->middleware('throttle:30,1')->name('push.subscribe');
+    Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe'])->middleware('throttle:30,1')->name('push.unsubscribe');
+    Route::post('/push/test',        [PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
+
+    // Abbonamenti: accessibili prima del completamento onboarding
+    // (l'utente potrebbe voler iscriversi prima di compilare il profilo)
+    Route::get('/abbonamento', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::post('/abbonamento', [SubscriptionController::class, 'request'])->name('subscriptions.request');
+    Route::delete('/abbonamento/{subscription}', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+});
+
 // ── Sezioni riservate: richiede onboarding completato ────────────────────────
 Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::get('/directory', DirectoryController::class)->name('directory.index');
@@ -92,21 +111,6 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::get('/referenze', [ReferralController::class, 'index'])->name('referrals.index');
     Route::post('/referenze', [ReferralController::class, 'store'])->middleware('throttle:10,1')->name('referrals.store');
     Route::patch('/referenze/{referral}/status', [ReferralController::class, 'updateStatus'])->name('referrals.status');
-
-    // ── Notifiche in-app ─────────────────────────────────────────────────────
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
-
-    // ── Push subscriptions (PWA) ─────────────────────────────────────────────
-    Route::get('/push/vapid-public-key', [PushSubscriptionController::class, 'vapidPublicKey'])->name('push.vapid');
-    Route::post('/push/subscribe',     [PushSubscriptionController::class, 'subscribe'])->middleware('throttle:30,1')->name('push.subscribe');
-    Route::post('/push/unsubscribe',   [PushSubscriptionController::class, 'unsubscribe'])->middleware('throttle:30,1')->name('push.unsubscribe');
-    Route::post('/push/test',          [PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
-
-    // ── Abbonamenti ──────────────────────────────────────────────────────────
-    Route::get('/abbonamento', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-    Route::post('/abbonamento', [SubscriptionController::class, 'request'])->name('subscriptions.request');
-    Route::delete('/abbonamento/{subscription}', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 });
 
 // ── Admin: gestione cache (riservata ad admin / leader-capitolo) ──────────────

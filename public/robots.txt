@@ -1,2 +1,27 @@
 User-agent: *
-Disallow:
+# Blocca tutte le aree riservate ai membri
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /conversations
+Disallow: /directory
+Disallow: /forum
+Disallow: /events
+Disallow: /one-to-one
+Disallow: /referenze
+Disallow: /abbonamento
+Disallow: /member/
+Disallow: /admin/
+Disallow: /onboarding/
+Disallow: /push/
+Disallow: /notifications/
+Disallow: /media/
+
+# Blocca percorsi interni Laravel
+Disallow: /livewire/
+Disallow: /_ignition/
+
+Allow: /
+Allow: /pagina/
+Allow: /lingua/
+
+Sitemap: https://kommunity.it/sitemap.xml
