@@ -116,29 +116,52 @@
                 @endphp
                 <div class="md:col-span-2"
                      x-data="kmMultiSelect(@js($professionOptions), @js($selectedProfIds), 'profession_ids')">
-                    <x-input-label :value="'Professioni *'" />
+                    <x-input-label :value="'In che settore lavori:'" />
                     @include('profile.partials._multiselect')
                     <x-input-error class="mt-2" :messages="$errors->get('profession_ids')" />
                 </div>
 
-                {{-- Categorie: multi-select --}}
-                @php
-                    $catOpts = collect();
-                    foreach ($rootCategories as $root) {
-                        $catOpts->push(['id' => $root->id, 'label' => $root->name]);
-                        foreach ($root->activeChildren as $child) {
-                            $catOpts->push(['id' => $child->id, 'label' => '↳ ' . $child->name]);
-                        }
-                    }
-                    $catOpts        = $catOpts->values()->all();
-                    $selectedCatIds = collect(old('category_ids', $profile->categories->pluck('id')->all()))->map(fn($v) => (int) $v)->values()->all();
-                @endphp
-                <div class="md:col-span-2"
-                     x-data="kmMultiSelect(@js($catOpts), @js($selectedCatIds), 'category_ids')">
-                    <x-input-label :value="'Categorie'" />
-                    @include('profile.partials._multiselect')
-                    <x-input-error class="mt-2" :messages="$errors->get('category_ids')" />
+                {{-- Altro settore: proposta verso l'admin --}}
+                <div class="md:col-span-2 -mt-1" x-data="{ showOther: false, sent: false }">
+                    <button type="button"
+                            @click="showOther = !showOther"
+                            class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition">
+                        <span x-show="!showOther">+ Il tuo settore non è in lista? Proponilo qui</span>
+                        <span x-show="showOther" x-cloak>↑ Chiudi</span>
+                    </button>
+
+                    <div x-show="showOther" x-cloak
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         class="mt-3">
+                        <form method="POST" action="{{ route('profile.suggestions.store') }}"
+                              @submit.prevent="
+                                  $el.submit();
+                                  sent = true;
+                                  showOther = false;
+                              ">
+                            @csrf
+                            <input type="hidden" name="type" value="profession">
+                            <div class="flex gap-2">
+                                <input type="text"
+                                       name="value"
+                                       required
+                                       maxlength="255"
+                                       placeholder="Es: Consulenza HR, Logistica, Fotografia…"
+                                       class="km-input flex-1 text-sm">
+                                <button type="submit"
+                                        class="shrink-0 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                                    Proponi
+                                </button>
+                            </div>
+                            <p class="mt-1.5 text-xs text-stone-400">La proposta arriverà all'admin che valuterà se aggiungerla all'elenco.</p>
+                        </form>
+                        <p x-show="sent" x-cloak class="mt-2 text-sm font-medium text-emerald-600">✓ Proposta inviata, grazie!</p>
+                    </div>
                 </div>
+
+                {{-- Categorie: temporaneamente disabilitato --}}
 
                 {{-- Pianeta: assegnato dall'admin, non modificabile dall'utente --}}
                 <div class="md:col-span-2">
