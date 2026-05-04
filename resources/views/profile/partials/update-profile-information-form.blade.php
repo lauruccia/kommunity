@@ -121,8 +121,33 @@
                     <x-input-error class="mt-2" :messages="$errors->get('profession_ids')" />
                 </div>
 
-                {{-- Altro settore: proposta verso l'admin --}}
-                <div class="md:col-span-2 -mt-1" x-data="{ showOther: false, sent: false }">
+                {{-- Altro settore: proposta verso l'admin via fetch (NO form annidato) --}}
+                <div class="md:col-span-2 -mt-1"
+                     x-data="{
+                         showOther: false,
+                         sent: false,
+                         sending: false,
+                         otherValue: '',
+                         async propose() {
+                             if (!this.otherValue.trim() || this.sending) return;
+                             this.sending = true;
+                             try {
+                                 await fetch('{{ route('profile.suggestions.store') }}', {
+                                     method: 'POST',
+                                     headers: {
+                                         'Content-Type': 'application/json',
+                                         'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                         'Accept': 'application/json'
+                                     },
+                                     body: JSON.stringify({ type: 'profession', value: this.otherValue.trim() })
+                                 });
+                                 this.sent = true;
+                                 this.showOther = false;
+                                 this.otherValue = '';
+                             } catch(e) {}
+                             this.sending = false;
+                         }
+                     }">
                     <button type="button"
                             @click="showOther = !showOther"
                             class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition">
@@ -135,30 +160,25 @@
                          x-transition:enter-start="opacity-0 -translate-y-1"
                          x-transition:enter-end="opacity-100 translate-y-0"
                          class="mt-3">
-                        <form method="POST" action="{{ route('profile.suggestions.store') }}"
-                              @submit.prevent="
-                                  $el.submit();
-                                  sent = true;
-                                  showOther = false;
-                              ">
-                            @csrf
-                            <input type="hidden" name="type" value="profession">
-                            <div class="flex gap-2">
-                                <input type="text"
-                                       name="value"
-                                       required
-                                       maxlength="255"
-                                       placeholder="Es: Consulenza HR, Logistica, Fotografia…"
-                                       class="km-input flex-1 text-sm">
-                                <button type="submit"
-                                        class="shrink-0 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
-                                    Proponi
-                                </button>
-                            </div>
-                            <p class="mt-1.5 text-xs text-stone-400">La proposta arriverà all'admin che valuterà se aggiungerla all'elenco.</p>
-                        </form>
-                        <p x-show="sent" x-cloak class="mt-2 text-sm font-medium text-emerald-600">✓ Proposta inviata, grazie!</p>
+                        <div class="flex gap-2">
+                            <input type="text"
+                                   x-model="otherValue"
+                                   @keydown.enter.prevent="propose()"
+                                   maxlength="255"
+                                   placeholder="Es: Consulenza HR, Logistica, Fotografia…"
+                                   class="km-input flex-1 text-sm">
+                            <button type="button"
+                                    @click="propose()"
+                                    :disabled="sending || !otherValue.trim()"
+                                    class="shrink-0 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50">
+                                <span x-show="!sending">Proponi</span>
+                                <span x-show="sending" x-cloak>...</span>
+                            </button>
+                        </div>
+                        <p class="mt-1.5 text-xs text-stone-400">La proposta arriverà all'admin che valuterà se aggiungerla all'elenco.</p>
                     </div>
+
+                    <p x-show="sent" x-cloak class="mt-2 text-sm font-medium text-emerald-600">✓ Proposta inviata, grazie!</p>
                 </div>
 
                 {{-- Categorie: temporaneamente disabilitato --}}

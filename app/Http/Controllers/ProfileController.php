@@ -14,6 +14,7 @@ use App\Models\Region;
 use App\Services\ProfileCompletionService;
 use App\Support\VideoCompressor;
 use App\Support\VideoUploadLimits;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -215,7 +216,7 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    public function storeSuggestion(Request $request): RedirectResponse
+    public function storeSuggestion(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'type' => ['required', Rule::in(['profession', 'category', 'city', 'company_interest_type', 'other'])],
@@ -230,6 +231,10 @@ class ProfileController extends Controller
             'notes' => $validated['notes'] ?? null,
             'status' => 'pending',
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true]);
+        }
 
         return Redirect::route('profile.edit')->with('status', 'suggestion-created');
     }
