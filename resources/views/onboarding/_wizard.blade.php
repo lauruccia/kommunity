@@ -11,14 +11,14 @@
         saving: false,
         done: false,
         fields: {
-            company_name:             '{{ old('company_name', optional($user->memberProfile)->company_name ?? '') }}',
-            short_bio:                '{{ old('short_bio', optional($user->memberProfile)->short_bio ?? '') }}',
-            networking_goals:         '{{ old('networking_goals', optional($user->memberProfile)->networking_goals ?? '') }}',
-            services:                 '{{ old('services', optional($user->memberProfile)->services ?? '') }}',
-            website:                  '{{ old('website', optional($user->memberProfile)->website ?? '') }}',
-            linkedin_url:             '{{ old('linkedin_url', optional($user->memberProfile)->linkedin_url ?? '') }}',
-            phone:                    '{{ old('phone', optional($user->memberProfile)->phone ?? '') }}',
-            preferred_contact_method: '{{ old('preferred_contact_method', optional(optional($user->memberProfile)->preferred_contact_method)->value ?? 'email') }}'
+            company_name:             @json(old('company_name', optional($user->memberProfile)->company_name ?? '')),
+            short_bio:                @json(old('short_bio', optional($user->memberProfile)->short_bio ?? '')),
+            networking_goals:         @json(old('networking_goals', optional($user->memberProfile)->networking_goals ?? '')),
+            services:                 @json(old('services', optional($user->memberProfile)->services ?? '')),
+            website:                  @json(old('website', optional($user->memberProfile)->website ?? '')),
+            linkedin_url:             @json(old('linkedin_url', optional($user->memberProfile)->linkedin_url ?? '')),
+            phone:                    @json(old('phone', optional($user->memberProfile)->phone ?? '')),
+            preferred_contact_method: @json(old('preferred_contact_method', optional(optional($user->memberProfile)->preferred_contact_method)->value ?? 'email'))
         },
         error: '',
         get progress() { return Math.round((this.step / this.total) * 100); },
@@ -318,6 +318,5 @@
     50%  { transform: scale(1.08); }
     100% { transform: scale(1); opacity: 1; }
 }
-[x-cloak] { display: none !important; }
 </style>
 @endif

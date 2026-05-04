@@ -32,6 +32,10 @@
         <link rel="stylesheet" href="{{ asset('css/kommunity.css') }}?v={{ $kmCssVer }}">
 
         @stack('styles')
+        {{-- Nasconde gli elementi [x-cloak] PRIMA che Alpine.js inizializzi.
+             Deve stare nell'<head>, non nel body, altrimenti Alpine rimuove
+             x-cloak prima che la regola CSS venga letta → flash fullscreen. --}}
+        <style>[x-cloak]{display:none!important}</style>
     </head>
     <body class="font-sans antialiased text-stone-900 @stack('body-class')">
         <div class="min-h-screen">
