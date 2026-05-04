@@ -2,7 +2,7 @@
 
 return [
     'dashboard'        => 'Dashboard',
-    'directory'        => 'Directory membri',
+    'directory'        => 'K-Membri',
     'one_to_one'       => 'One-to-one',
     'events'           => 'Eventi',
     'forum'            => 'Forum',
