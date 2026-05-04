@@ -189,13 +189,13 @@ class OneToOneController extends Controller
                 $isBookable ? 'One-to-one prenotato! Trovala in Agenda relazionale.' : 'Richiesta inviata! Trovala in Agenda relazionale.');
         }
 
-        // Redirect alla lista: il modale si chiude, il toast mostra il messaggio di conferma.
+        // FIX #2: redirect al DETTAGLIO (non riaprire il modale) — mostra toast via session('success')
         $successMessage = $isBookable
             ? 'One-to-one prenotato! Lo slot è disponibile e senza conflitti.'
             : 'Richiesta inviata. Il destinatario riceverà una notifica.';
 
         return redirect()
-            ->route('one-to-ones.index')
+            ->route('one-to-ones.index', ['request' => $oneToOneRequest->id])
             ->with('success', $successMessage);
     }
 
@@ -312,75 +312,4 @@ class OneToOneController extends Controller
             $content = trim((string) ($data['follow_up_notes'] ?? ''));
             if ($content === '') {
                 $oneToOneRequest->followUps()->delete();
-            } else {
-                OneToOneFollowup::query()->updateOrCreate(
-                    ['one_to_one_request_id' => $oneToOneRequest->id],
-                    ['content' => $content, 'follow_up_at' => now()]
-                );
-            }
-        }
-
-        // ── Nota privata (entrambi) ───────────────────────────────────────────
-        if (array_key_exists('private_note', $data)) {
-            $note = trim((string) ($data['private_note'] ?? ''));
-            if ($note === '') {
-                OneToOneNote::query()
-                    ->where('one_to_one_request_id', $oneToOneRequest->id)
-                    ->where('user_id', $user->id)
-                    ->where('type', 'private')
-                    ->delete();
-            } else {
-                OneToOneNote::query()->updateOrCreate(
-                    ['one_to_one_request_id' => $oneToOneRequest->id, 'user_id' => $user->id, 'type' => 'private'],
-                    ['note' => $note]
-                );
-            }
-        }
-
-        return back()->with('status', $statusMsg)->with('success',
-            match ($statusMsg) {
-                'one-to-one-completed'            => 'Incontro segnato come completato da entrambi.',
-                'one-to-one-completion-confirmed' => 'Completamento confermato. Attendi conferma dell\'altro partecipante.',
-                'one-to-one-rescheduled'          => 'Nuova proposta orario inviata. L\'altra parte riceverà una notifica.',
-                default => 'Aggiornamento salvato.',
-            }
-        );
-    }
-
-    /**
-     * Salva uno slot di disponibilità settimanale.
-     * FIX #4: slot di esattamente 1 ora — ends_at calcolato automaticamente.
-     */
-    public function storeAvailability(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'weekday'      => ['required', 'integer', 'between:1,7'],
-            'starts_at'    => ['required', 'date_format:H:i'],
-            'meeting_mode' => ['required', Rule::in(['online', 'in_person'])],
-            'location'     => ['nullable', 'string', 'max:255'],
-        ]);
-
-        // FIX #4: lo slot dura sempre esattamente 1 ora
-        $endsAt = Carbon::createFromFormat('H:i', $data['starts_at'])->addHour()->format('H:i');
-
-        AvailabilitySlot::query()->create([
-            'user_id'      => $request->user()->id,
-            'weekday'      => $data['weekday'],
-            'starts_at'    => $data['starts_at'],
-            'ends_at'      => $endsAt,
-            'timezone'     => config('app.timezone', 'Europe/Rome'),
-            'meeting_mode' => $data['meeting_mode'],
-            'location'     => $data['location'] ?? null,
-            'is_active'    => true,
-        ]);
-
-        return back()->with('status', 'availability-created')->with('success', 'Disponibilità aggiunta (slot di 1 ora).');
-    }
-
-    public function destroyAvailability(Request $request, AvailabilitySlot $availabilitySlot): RedirectResponse
-    {
-        $this->authorize('deleteSlot', $availabilitySlot);
-        $availabilitySlot->delete();
-        return back()->with('status', 'availability-deleted')->with('success', 'Slot rimosso.');
-    }
-}
+            } else
