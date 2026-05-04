@@ -30,7 +30,27 @@ class DashboardController extends Controller
             ->whereHas('participants', fn ($query) => $query->where('users.id', $user->id))
             ->pluck('id');
 
-        $showOnboarding    = ! optional($user->memberProfile)->onboarding_completed;
+        // ── Wizard onboarding ────────────────────────────────────────────────
+        // Il wizard NON va mostrato se:
+        //   a) onboarding_completed è già true, OPPURE
+        //   b) il profilo ha già i 3 campi obbligatori (professione + città + telefono)
+        //      → capita per utenti attivati dall'admin o che hanno già compilato il profilo
+        //      → in quel caso salviamo subito onboarding_completed=true per non ripeterlo
+        $mp = $user->memberProfile;
+        $alreadyComplete = $mp
+            && ($mp->professions->isNotEmpty() || filled($mp->profession_id))
+            && filled($mp->city_id)
+            && filled($mp->phone);
+
+        if ($alreadyComplete && $mp && ! $mp->onboarding_completed) {
+            $mp->onboarding_completed = true;
+            if (in_array($mp->status?->value, ['draft', null], true)) {
+                $mp->status = 'pending_approval';
+            }
+            $mp->save();
+        }
+
+        $showOnboarding    = ! optional($mp)->onboarding_completed && ! $alreadyComplete;
         $profileCompletion = (new ProfileCompletionService())->calculate($user);
 
         // ── Feature: dashboard analytics personale (gated) ───────────────────

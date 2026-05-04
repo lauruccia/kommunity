@@ -86,7 +86,9 @@
         </div>
 
         {{-- ═══ STEP 0: Benvenuto ═══ --}}
-        <div x-show="step === 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="px-7 pb-8 pt-5">
+        {{-- Nessun x-transition qui: è lo stato iniziale (step=0 all'avvio), una transition "enter"
+             su opacity-0 lascerebbe il contenuto invisibile se i class CSS Tailwind vengono purgati --}}
+        <div x-show="step === 0" class="px-7 pb-8 pt-5">
             <div style="font-size:3rem;line-height:1;margin-bottom:1rem;">👋</div>
             <h2 style="font-size:1.75rem;font-weight:900;color:#fff;line-height:1.15;letter-spacing:-.03em;">
                 Benvenuto in<br><span style="color:#8BC53F;">Kommunity</span>
@@ -110,6 +112,11 @@
                     onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 Inizia il setup →
             </button>
+            <a href="{{ route('profile.edit') }}"
+               style="display:block;margin-top:.85rem;text-align:center;font-size:.78rem;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;"
+               onmouseover="this.style.color='rgba(255,255,255,.65)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">
+                Salta per ora → completa dal profilo
+            </a>
         </div>
 
         {{-- ═══ STEP 1: Chi sei ═══ --}}
