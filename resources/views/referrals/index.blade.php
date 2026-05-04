@@ -8,16 +8,12 @@
         $receivedPercent = ($summary['sent'] + $summary['received']) > 0 ? round(($summary['received'] / max(1, $summary['sent'] + $summary['received'])) * 100) : 0;
         $openPercent = ($summary['sent'] + $summary['received']) > 0 ? round(($summary['open'] / max(1, $summary['sent'] + $summary['received'])) * 100) : 0;
 
-        $priorityLabel = fn (?string $priority) => match ($priority) {
-            'high' => 'Alta',
-            'low' => 'Bassa',
-            default => 'Media',
-        };
-
-        $priorityClass = fn (?string $priority) => match ($priority) {
-            'high' => 'kr-priority-high',
-            'low' => 'kr-priority-low',
-            default => 'kr-priority-medium',
+        // Converte il valore priority (nuovo: '1'-'5', vecchio: 'low'/'medium'/'high') in stelle (1-5)
+        $priorityStars = fn (?string $p) => match(true) {
+            in_array($p, ['1','2','3','4','5'], true) => (int) $p,
+            $p === 'high'   => 5,
+            $p === 'low'    => 1,
+            default         => 3,
         };
 
         $statusClass = fn ($status) => match ($status?->value ?? $status) {
@@ -298,11 +294,21 @@
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <input type="number" step="0.01" min="0" name="estimated_value" value="{{ old('estimated_value') }}" class="kr-input h-12 rounded-xl px-4" placeholder="Valore">
-                            <select name="priority" class="kr-input h-12 rounded-xl px-4">
-                                <option value="low" @selected(old('priority') === 'low')>Bassa</option>
-                                <option value="medium" @selected(old('priority', 'medium') === 'medium')>Media</option>
-                                <option value="high" @selected(old('priority') === 'high')>Alta</option>
-                            </select>
+                            <div>
+                                <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:rgba(222,235,238,.55);margin-bottom:.4rem;">Priorità</p>
+                                <div id="kr-new-stars" style="display:flex;gap:.2rem;">
+                                    @for ($s = 1; $s <= 5; $s++)
+                                        <button type="button" data-val="{{ $s }}"
+                                                onclick="krSetStar({{ $s }},'kr-new-stars','kr-new-priority')"
+                                                style="background:none;border:none;cursor:pointer;padding:.1rem;">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ old('priority','3') >= $s ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8" data-idx="{{ $s }}">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                            </svg>
+                                        </button>
+                                    @endfor
+                                </div>
+                                <input type="hidden" name="priority" id="kr-new-priority" value="{{ old('priority','3') }}">
+                            </div>
                         </div>
                         <textarea name="notes" rows="2" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Note interne">{{ old('notes') }}</textarea>
                         <button type="submit" class="kr-primary h-12 w-full rounded-xl font-semibold">Invia referenza</button>
@@ -331,15 +337,25 @@
                             </select>
                         </label>
 
-                        <label>
-                            <span class="mb-2 block text-sm text-white">Priorità</span>
-                            <select name="priority" class="kr-input h-14 w-full rounded-xl px-4">
-                                <option value="">Tutte</option>
-                                <option value="high" @selected(($filters['priority'] ?? '') === 'high')>Alta</option>
-                                <option value="medium" @selected(($filters['priority'] ?? '') === 'medium')>Media</option>
-                                <option value="low" @selected(($filters['priority'] ?? '') === 'low')>Bassa</option>
-                            </select>
-                        </label>
+                        <div>
+                            <span class="mb-2 block text-sm text-white">Priorità min.</span>
+                            <div id="kr-filter-stars" style="display:flex;gap:.25rem;margin-top:.35rem;">
+                                @for ($s = 1; $s <= 5; $s++)
+                                    <button type="button" data-val="{{ $s }}"
+                                            onclick="krSetStar({{ $s }},'kr-filter-stars','kr-filter-priority')"
+                                            style="background:none;border:none;cursor:pointer;padding:.1rem;">
+                                        <svg width="24" height="24" viewBox="0 0 24 24"
+                                             fill="{{ ($filters['priority'] ?? '0') >= $s ? '#FCD34D' : 'none' }}"
+                                             stroke="#FCD34D" stroke-width="1.8" data-idx="{{ $s }}">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                    </button>
+                                @endfor
+                                <button type="button" onclick="krClearStar('kr-filter-stars','kr-filter-priority')"
+                                        style="background:none;border:none;cursor:pointer;font-size:.72rem;font-weight:700;color:rgba(222,235,238,.45);padding:.1rem .4rem;">✕</button>
+                            </div>
+                            <input type="hidden" name="priority" id="kr-filter-priority" value="{{ $filters['priority'] ?? '' }}">
+                        </div>
 
                         <button type="submit" class="kr-primary h-14 rounded-xl px-6 font-semibold">Filtra</button>
                     </form>
@@ -369,10 +385,21 @@
                                 <div>
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
-                                        <span class="kr-status {{ $priorityClass($referral->priority) }}">{{ $priorityLabel($referral->priority) }}</span>
+                                        @php $stars = $priorityStars($referral->priority); @endphp
+                                        <span style="display:inline-flex;gap:.1rem;align-items:center;">
+                                            @for ($s = 1; $s <= 5; $s++)
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="{{ $s <= $stars ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                            @endfor
+                                        </span>
                                     </div>
                                     <h3 class="mt-3 text-lg font-semibold text-white">{{ $referral->title }}</h3>
-                                    <div class="mt-1 text-sm text-[color:var(--kr-amber)]">★★★★★ <span style="color: var(--kr-muted);">Da {{ $actor?->name ?? 'Utente eliminato' }}</span></div>
+                                    <div class="mt-1 flex items-center gap-1.5 text-sm">
+                                        @php $stars = $priorityStars($referral->priority); @endphp
+                                        @for ($s = 1; $s <= 5; $s++)
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="{{ $s <= $stars ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                        @endfor
+                                        <span style="color: var(--kr-muted);">Da {{ $actor?->name ?? 'Utente eliminato' }}</span>
+                                    </div>
                                     <p class="mt-2 text-sm leading-6" style="color: var(--kr-muted);">{{ $referral->description }}</p>
                                     <p class="mt-2 text-sm" style="color: var(--kr-soft);">{{ $referral->company_name ?: 'Azienda non indicata' }} · {{ $referral->contact_name ?: 'Contatto non indicato' }} · {{ $referral->created_at->format('d F Y') }}</p>
                                 </div>
@@ -417,7 +444,13 @@
                                         <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
                                     </div>
                                     <h3 class="mt-3 text-lg font-semibold text-white">{{ $referral->title }}</h3>
-                                    <div class="mt-1 text-sm text-[color:var(--kr-amber)]">★★★★★ <span style="color: var(--kr-muted);">Da {{ $actor?->name ?? 'Utente eliminato' }}</span></div>
+                                    <div class="mt-1 flex items-center gap-1.5 text-sm">
+                                        @php $stars = $priorityStars($referral->priority); @endphp
+                                        @for ($s = 1; $s <= 5; $s++)
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="{{ $s <= $stars ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                        @endfor
+                                        <span style="color: var(--kr-muted);">Da {{ $actor?->name ?? 'Utente eliminato' }}</span>
+                                    </div>
                                     <p class="mt-2 text-sm leading-6" style="color: var(--kr-muted);">{{ $referral->description }}</p>
                                     <p class="mt-2 text-sm" style="color: var(--kr-soft);">{{ $referral->company_name ?: 'Azienda non indicata' }} · {{ $referral->contact_name ?: 'Contatto non indicato' }} · {{ $referral->created_at->format('d F Y') }}</p>
                                 </div>
@@ -470,6 +503,31 @@
     </div>
 
     <script>
+        // ── Star rating helper (referral priority) ─────────────────────────
+        function krSetStar(val, groupId, inputId) {
+            const group = document.getElementById(groupId);
+            const input = document.getElementById(inputId);
+            if (!group || !input) return;
+            input.value = val;
+            group.querySelectorAll('svg').forEach(svg => {
+                const idx = parseInt(svg.dataset.idx, 10);
+                svg.setAttribute('fill', idx <= val ? '#FCD34D' : 'none');
+            });
+        }
+        function krClearStar(groupId, inputId) {
+            const group = document.getElementById(groupId);
+            const input = document.getElementById(inputId);
+            if (!group || !input) return;
+            input.value = '';
+            group.querySelectorAll('svg').forEach(svg => svg.setAttribute('fill', 'none'));
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            [['kr-new-stars','kr-new-priority'],['kr-filter-stars','kr-filter-priority']].forEach(([gId, iId]) => {
+                const input = document.getElementById(iId);
+                if (input && input.value) krSetStar(parseInt(input.value, 10), gId, iId);
+            });
+        });
+
         function decodeHtml(str) {
             const el = document.createElement('textarea');
             el.innerHTML = str;

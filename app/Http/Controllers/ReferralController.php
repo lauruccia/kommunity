@@ -25,7 +25,7 @@ class ReferralController extends Controller
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(array_column(ReferralStatus::cases(), 'value'))],
-            'priority' => ['nullable', Rule::in(['low', 'medium', 'high'])],
+            'priority' => ['nullable', Rule::in(['1', '2', '3', '4', '5'])],
         ]);
 
         $sentQuery = Referral::query()
@@ -99,7 +99,7 @@ class ReferralController extends Controller
             'company_name' => ['nullable', 'string', 'max:255'],
             'contact_name' => ['nullable', 'string', 'max:255'],
             'estimated_value' => ['nullable', 'numeric', 'min:0'],
-            'priority' => ['required', Rule::in(['low', 'medium', 'high'])],
+            'priority' => ['required', Rule::in(['1', '2', '3', '4', '5'])],
             'notes' => ['nullable', 'string', 'max:3000'],
         ]);
 
