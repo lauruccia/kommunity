@@ -634,24 +634,32 @@
                         </div>
                     @endif
 
-                    {{-- Proponi variazione orario — apre popup separato --}}
+                    {{-- FIX #6: Proponi variazione orario (entrambe le parti, su richieste non chiuse) --}}
                     @if (! in_array($selectedRequest->status->value, ['completed','cancelled'], true))
                         <div class="km-glass-box" style="padding:.85rem;border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04);">
                             <p class="km-eyebrow" style="color:#FCD34D;">
-                                {{ $selectedRequest->status->value === 'rescheduled' ? '📅 Variazione orario proposta' : '📅 Variazione orario' }}
+                                {{ $selectedRequest->status->value === 'rescheduled' ? '📅 Variazione orario proposta — conferma o controproponi' : '📅 Proponi variazione orario' }}
                             </p>
                             <p style="margin-top:.3rem;font-size:.78rem;color:var(--km-text-muted);">
                                 @if($selectedRequest->status->value === 'rescheduled')
-                                    È stata proposta una nuova data. Accetta la richiesta oppure controproponi un orario diverso.
+                                    È stata proposta una nuova data. Accetta la richiesta (Accetta) oppure proponi un orario diverso qui sotto.
                                 @else
-                                    Puoi suggerire un nuovo orario all'altra parte.
+                                    Suggerisci un nuovo orario: lo stato passerà a "Riprogrammato" e l'altra parte riceverà una notifica.
                                 @endif
                             </p>
-                            <button type="button" onclick="document.getElementById('km-reschedule-modal').style.display='flex'"
-                                    style="margin-top:.75rem;padding:.5rem 1.1rem;border-radius:1rem;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.4);color:#FCD34D;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem;">
-                                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
-                                Proponi nuovo orario
-                            </button>
+                            <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;">
+                                @csrf
+                                @method('PATCH')
+                                <input type="datetime-local" name="propose_new_datetime"
+                                       value="{{ optional($selectedRequest->requested_at)->format('Y-m-d\TH:i') }}"
+                                       class="km-dark-input"
+                                       style="flex:1;min-width:200px;"
+                                       required>
+                                <button type="submit"
+                                        style="padding:.5rem 1.1rem;border-radius:1rem;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.4);color:#FCD34D;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+                                    Proponi nuovo orario
+                                </button>
+                            </form>
                         </div>
                     @endif
 
@@ -787,52 +795,6 @@
         </div>
     @endif
 
-    {{-- RESCHEDULE MODAL --}}
-    @if ($selectedRequest && ! in_array($selectedRequest->status->value, ['completed','cancelled'], true))
-        <div id="km-reschedule-modal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(2,11,18,.82);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:1.5rem;">
-            <div class="km-dark-modal" style="width:100%;max-width:26rem;border-radius:1.5rem;overflow:hidden;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.25rem;border-bottom:1px solid var(--km-line-dark);background:rgba(3,24,34,.92);backdrop-filter:blur(20px);">
-                    <div>
-                        <p class="km-eyebrow" style="color:#FCD34D;">Variazione orario</p>
-                        <h3 style="margin-top:.2rem;font-size:1.05rem;font-weight:800;color:var(--km-text);">Proponi nuovo orario</h3>
-                    </div>
-                    <button type="button" onclick="document.getElementById('km-reschedule-modal').style.display='none'"
-                            style="display:inline-flex;align-items:center;gap:.3rem;padding:.45rem .9rem;border-radius:.8rem;font-size:.82rem;font-weight:700;color:#f8fafc;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);cursor:pointer;transition:background .18s;"
-                            onmouseover="this.style.background='rgba(255,255,255,.18)'"
-                            onmouseout="this.style.background='rgba(255,255,255,.10)'">
-                        ✕ Chiudi
-                    </button>
-                </div>
-                <div style="padding:1.25rem;">
-                    <p style="font-size:.83rem;color:var(--km-text-muted);line-height:1.6;margin-bottom:1.1rem;">
-                        @if($selectedRequest->status->value === 'rescheduled')
-                            Una variazione orario è già in corso. Puoi controproporre un orario diverso qui sotto.
-                        @else
-                            Seleziona la nuova data e ora. Lo stato passerà a <strong style="color:#FCD34D;">Riprogrammato</strong> e l'altra parte riceverà una notifica.
-                        @endif
-                    </p>
-                    <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}">
-                        @csrf
-                        @method('PATCH')
-                        <label style="display:block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);margin-bottom:.5rem;">Nuova data e ora</label>
-                        <input type="datetime-local" name="propose_new_datetime"
-                               value="{{ optional($selectedRequest->requested_at)->format('Y-m-d\TH:i') }}"
-                               class="km-dark-input" style="width:100%;" required>
-                        <div style="display:flex;gap:.6rem;margin-top:1rem;">
-                            <button type="button" onclick="document.getElementById('km-reschedule-modal').style.display='none'"
-                                    class="km-button-secondary" style="flex:1;">
-                                Annulla
-                            </button>
-                            <button type="submit" class="km-button-primary" style="flex:2;">
-                                Conferma proposta
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endif
-
     {{-- CREATE MODAL --}}
     <div id="one-to-one-create-modal" style="display:none;position:fixed;inset:0;z-index:50;overflow-y:auto;background:rgba(2,11,18,.8);backdrop-filter:blur(4px);padding:1.5rem;">
         <div style="margin:auto;display:flex;min-height:100%;width:100%;max-width:72rem;align-items:center;justify-content:center;">
@@ -856,6 +818,12 @@
                     </div>
 
                     <div style="display:flex;flex-direction:column;padding:1.25rem;min-height:0;overflow:hidden;">
+                        @if (session('status') === 'one-to-one-booked')
+                            <div style="flex-shrink:0;margin-bottom:.75rem;padding:.75rem 1rem;border-radius:1rem;background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.25);color:#5EEAD4;font-size:.82rem;">One-to-one prenotato: slot disponibile e senza conflitti.</div>
+                        @elseif (session('status') === 'one-to-one-created')
+                            <div style="flex-shrink:0;margin-bottom:.75rem;padding:.75rem 1rem;border-radius:1rem;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#FCD34D;font-size:.82rem;">Richiesta inviata: il destinatario dovra' confermare.</div>
+                        @endif
+
                         <form method="POST" action="{{ route('one-to-ones.store') }}" style="display:flex;flex-direction:column;flex:1;min-height:0;">
                             @csrf
                             <input type="hidden" id="one-to-one-recipient-id" name="recipient_id" value="{{ old('recipient_id', optional($selectedMember)->id) }}">
@@ -905,119 +873,4 @@
             const resultsContainer = document.getElementById('one-to-one-member-results');
             const emptyState = document.getElementById('one-to-one-member-empty');
             const idleState = document.getElementById('one-to-one-member-idle');
-            const recipientInput = document.getElementById('one-to-one-recipient-id');
-            const requestedAtInput = document.getElementById('one-to-one-requested-at');
-            const meetingModeSelect = document.getElementById('one-to-one-meeting-mode');
-            const submitButton = document.getElementById('one-to-one-submit');
-            const availabilityContainer = document.getElementById('one-to-one-availability');
-            const selectedMemberSummary = document.getElementById('one-to-one-selected-member');
-            const members = @json($memberSearchItems);
-            const weekdayLabels = @json($weekdayOptions);
-
-            if (!modal || !openButton) return;
-
-            const normalize = (v) => String(v||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-            const selectedMember = () => members.find((m) => String(m.id) === String(recipientInput.value)) || null;
-
-            const nextOccurrenceFor = (slot) => {
-                const now = new Date();
-                const cw = ((now.getDay()+6)%7)+1;
-                let delta = slot.weekday - cw;
-                if (delta < 0) delta += 7;
-                const [h,m] = slot.starts_at.split(':').map(Number);
-                const d = new Date(now);
-                d.setHours(h,m,0,0);
-                d.setDate(d.getDate()+delta);
-                if (delta===0 && d<=now) d.setDate(d.getDate()+7);
-                return d;
-            };
-
-            const toDateTimeLocal = (date) => {
-                const p = (n) => String(n).padStart(2,'0');
-                return `${date.getFullYear()}-${p(date.getMonth()+1)}-${p(date.getDate())}T${p(date.getHours())}:${p(date.getMinutes())}`;
-            };
-
-            const updateSubmitState = () => { submitButton.disabled = !recipientInput.value; };
-
-            const renderSelectedMemberSummary = () => {
-                const m = selectedMember();
-                if (!m) { selectedMemberSummary.style.display='none'; selectedMemberSummary.innerHTML=''; return; }
-                selectedMemberSummary.style.display='block';
-                selectedMemberSummary.innerHTML=`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);">Membro selezionato</div><div style="margin-top:.3rem;font-weight:700;color:var(--km-text);">${m.name}</div><div style="font-size:.78rem;color:var(--km-text-muted);">${m.email}</div><div style="font-size:.73rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>`;
-            };
-
-            const renderAvailability = () => {
-                const m = selectedMember();
-                if (!m) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Seleziona un membro per vedere gli slot.</div>'; return; }
-                if (!m.availability_slots.length) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Nessuna disponibilita\' pubblicata. Proponi un altro orario.</div>'; return; }
-                availabilityContainer.innerHTML = m.availability_slots.map((slot) => `
-                    <button type="button" data-slot-id="${slot.id}" style="display:flex;width:100%;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-radius:1.1rem;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:.2s;margin-bottom:.35rem;">
-                        <div>
-                            <div style="font-weight:700;font-size:.82rem;color:var(--km-text);">${weekdayLabels[slot.weekday]||'Giorno'} · ${slot.starts_at} - ${slot.ends_at}</div>
-                            <div style="margin-top:.15rem;font-size:.75rem;color:var(--km-text-muted);">${slot.meeting_mode==='online'?'Online':'In presenza'}${slot.location?' · '+slot.location:''}</div>
-                        </div>
-                        <span style="flex-shrink:0;padding:.2rem .65rem;border-radius:999px;background:rgba(139,197,63,.15);color:var(--km-green-2);border:1px solid rgba(139,197,63,.3);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;">Prenota</span>
-                    </button>
-                `).join('');
-                availabilityContainer.querySelectorAll('[data-slot-id]').forEach((btn) => {
-                    btn.addEventListener('click', () => {
-                        const slot = m.availability_slots.find((s) => String(s.id)===String(btn.dataset.slotId));
-                        if (!slot) return;
-                        meetingModeSelect.value = slot.meeting_mode;
-                        requestedAtInput.value = toDateTimeLocal(nextOccurrenceFor(slot));
-                    });
-                });
-            };
-
-            const renderMembers = () => {
-                const query = normalize(queryInput.value.trim());
-                if (query.length < 2) { resultsContainer.innerHTML=''; emptyState.style.display='none'; idleState.style.display='block'; return; }
-                const filtered = members.filter((m) => [m.name,m.email,m.company,m.city].some((v) => normalize(v).includes(query)));
-                const cur = String(recipientInput.value);
-                resultsContainer.innerHTML = filtered.map((m) => `
-                    <button type="button" data-member-id="${m.id}" style="display:block;width:100%;padding:.6rem .875rem;border-radius:1.1rem;border:1px solid ${cur===String(m.id)?'rgba(139,197,63,.45)':'rgba(255,255,255,.12)'};background:${cur===String(m.id)?'rgba(139,197,63,.1)':'rgba(255,255,255,.04)'};cursor:pointer;text-align:left;transition:.15s;">
-                        <div style="font-weight:700;font-size:.83rem;color:var(--km-text);">${m.name}</div>
-                        <div style="font-size:.76rem;color:var(--km-text-muted);">${m.email}</div>
-                        <div style="font-size:.72rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>
-                    </button>
-                `).join('');
-                idleState.style.display='none';
-                emptyState.style.display=filtered.length?'none':'block';
-                resultsContainer.querySelectorAll('[data-member-id]').forEach((btn) => {
-                    btn.addEventListener('click', () => {
-                        recipientInput.value = btn.dataset.memberId;
-                        updateSubmitState(); renderSelectedMemberSummary(); renderMembers(); renderAvailability();
-                    });
-                });
-            };
-
-            const openModal = () => { modal.style.display='block'; renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState(); };
-            const closeModal = () => { modal.style.display='none'; };
-
-            openButton.addEventListener('click', openModal);
-            closeButtons.forEach((btn) => btn.addEventListener('click', closeModal));
-            modal.addEventListener('click', (e) => { if (e.target===modal) closeModal(); });
-            document.addEventListener('keydown', (e) => {
-                if (e.key !== 'Escape') return;
-                if (modal.style.display !== 'none') closeModal();
-                const rsModal = document.getElementById('km-reschedule-modal');
-                if (rsModal && rsModal.style.display !== 'none') rsModal.style.display = 'none';
-            });
-            queryInput.addEventListener('input', renderMembers);
-
-            // Chiudi reschedule modal cliccando lo sfondo
-            const rsModal = document.getElementById('km-reschedule-modal');
-            if (rsModal) rsModal.addEventListener('click', (e) => { if (e.target === rsModal) rsModal.style.display = 'none'; });
-
-            renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState();
-
-            // Apri modale in base al contesto:
-            // - ?compose=1 (arrivo dal profilo membro): apri SUBITO con destinatario precompilato.
-            // - Solo se NON e' presente ?request=ID (cioe' quando vogliamo vedere il dettaglio della richiesta appena creata)
-            //   non riapriamo il modale dopo un invio: cosi' UX e' chiusura+toast+dettaglio.
-            @if ((int) request('compose'))
-                openModal();
-            @endif
-        })();
-    </script>
-</x-app-layout>
+            const re

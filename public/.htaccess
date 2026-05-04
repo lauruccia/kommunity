@@ -17,8 +17,9 @@
     # Controlla le informazioni di referrer inviate
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-    # Limita le API browser accessibili (rimuovi se usi geolocalizzazione, camera, ecc.)
-    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    # Permetti camera e microfono per il video recorder del profilo (stessa origine).
+    # Blocca solo le API non usate (geolocalizzazione, pagamenti).
+    Header always set Permissions-Policy "camera=(self), microphone=(self), geolocation=(), payment=()"
 
     # Rimuovi header che espongono info sul server
     Header always unset X-Powered-By
