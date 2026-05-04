@@ -42,12 +42,14 @@ deployment:
     # ── Directory media upload: crea le sottocartelle se non esistono ──────
     # I file caricati dagli utenti vanno in public_html/media/{tipo}/ e sono
     # serviti direttamente da Apache come file statici (nessun passaggio PHP).
+    # I file vecchi (path members/...) vengono serviti dal MediaController PHP.
     - /bin/mkdir -p $DEPLOYPATH/media/avatars
     - /bin/mkdir -p $DEPLOYPATH/media/logos
     - /bin/mkdir -p $DEPLOYPATH/media/covers
     - /bin/mkdir -p $DEPLOYPATH/media/gallery
     - /bin/mkdir -p $DEPLOYPATH/media/videos
     - /bin/chmod -R 755 $DEPLOYPATH/media
+    - /bin/cp public/media/.htaccess $DEPLOYPATH/media/.htaccess
 
     # ── Permessi corretti per Apache ───────────────────────────────────────
     - /bin/find $DEPLOYPATH/css    -type f -exec /bin/chmod 644 {} \;
