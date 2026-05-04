@@ -106,19 +106,35 @@
                     <x-input-error class="mt-2" :messages="$errors->get('company_interest_type_ids')" />
                 </div>
 
-                {{-- Settore: "In quale settore lavori" — select singola --}}
-                <div class="md:col-span-2">
-                    <x-input-label for="sector_id" :value="'In quale settore lavori *'" />
-                    <select id="sector_id" name="sector_id" class="km-input mt-2 block w-full" required>
-                        <option value="">Seleziona settore...</option>
-                        @foreach ($sectors as $sector)
-                            <option value="{{ $sector->id }}"
-                                @selected(old('sector_id', $profile->sector_id) == $sector->id)>
-                                {{ $sector->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <x-input-error class="mt-2" :messages="$errors->get('sector_id')" />
+                {{-- Professioni: multi-select --}}
+                @php
+                    $professionOptions = $professions->map(fn($p) => ['id' => $p->id, 'label' => $p->name])->values()->all();
+                    $selectedProfIds   = collect(old('profession_ids', $profile->professions->pluck('id')->all()))->map(fn($v) => (int) $v)->values()->all();
+                @endphp
+                <div class="md:col-span-2"
+                     x-data="kmMultiSelect(@js($professionOptions), @js($selectedProfIds), 'profession_ids')">
+                    <x-input-label :value="'Professioni *'" />
+                    @include('profile.partials._multiselect')
+                    <x-input-error class="mt-2" :messages="$errors->get('profession_ids')" />
+                </div>
+
+                {{-- Categorie: multi-select --}}
+                @php
+                    $catOpts = collect();
+                    foreach ($rootCategories as $root) {
+                        $catOpts->push(['id' => $root->id, 'label' => $root->name]);
+                        foreach ($root->activeChildren as $child) {
+                            $catOpts->push(['id' => $child->id, 'label' => '↳ ' . $child->name]);
+                        }
+                    }
+                    $catOpts        = $catOpts->values()->all();
+                    $selectedCatIds = collect(old('category_ids', $profile->categories->pluck('id')->all()))->map(fn($v) => (int) $v)->values()->all();
+                @endphp
+                <div class="md:col-span-2"
+                     x-data="kmMultiSelect(@js($catOpts), @js($selectedCatIds), 'category_ids')">
+                    <x-input-label :value="'Categorie'" />
+                    @include('profile.partials._multiselect')
+                    <x-input-error class="mt-2" :messages="$errors->get('category_ids')" />
                 </div>
 
                 {{-- Pianeta: assegnato dall'admin, non modificabile dall'utente --}}

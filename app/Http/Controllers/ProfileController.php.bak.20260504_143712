@@ -11,7 +11,6 @@ use App\Models\ProfileSuggestion;
 use App\Models\Profession;
 use App\Models\Province;
 use App\Models\Region;
-use App\Models\Sector;
 use App\Services\ProfileCompletionService;
 use App\Support\VideoCompressor;
 use App\Support\VideoUploadLimits;
@@ -33,14 +32,13 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        $user = $request->user()->load(['memberProfile.professions', 'memberProfile.sector']);
+        $user = $request->user()->load(['memberProfile.professions']);
 
         return view('profile.edit', [
             'user'              => $user,
-            'profile'           => $user->memberProfile()->with(['chapter', 'categories', 'professions', 'companyInterestTypes', 'city', 'sector'])->firstOrFail(),
+            'profile'           => $user->memberProfile()->with(['chapter', 'categories', 'professions', 'companyInterestTypes', 'city'])->firstOrFail(),
             'profileCompletion' => (new ProfileCompletionService())->calculate($user),
             'galleryImages'     => $user->memberGalleryImages()->get(),
-            'sectors'           => Sector::query()->where('is_active', true)->orderBy('name')->get(),
             'professions'       => Profession::query()->where('is_active', true)->orderBy('name')->get(),
             'rootCategories'    => Category::query()->with(['activeChildren'])->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get(),
             'regions'           => Region::query()->orderBy('name')->get(),
@@ -155,7 +153,7 @@ class ProfileController extends Controller
                 'onboarding_completed' => $profile->onboarding_completed
                     || $request->boolean('onboarding_completed')
                     || (
-                        (! empty($validated['sector_id'] ?? null) || ! empty($validated['profession_ids'] ?? []))
+                        ! empty($validated['profession_ids'] ?? [])
                         && ! empty($validated['city_id'] ?? null)
                         && filled($validated['phone'] ?? null)
                     ),
@@ -165,7 +163,7 @@ class ProfileController extends Controller
                     : (
                         ($profile->onboarding_completed
                             || $request->boolean('onboarding_completed')
-                            || ((! empty($validated['sector_id'] ?? null) || ! empty($validated['profession_ids'] ?? [])) && ! empty($validated['city_id'] ?? null) && filled($validated['phone'] ?? null))
+                            || (! empty($validated['profession_ids'] ?? []) && ! empty($validated['city_id'] ?? null) && filled($validated['phone'] ?? null))
                         ) ? 'pending_approval' : $profile->status?->value
                     ),
                 'profession_id' => collect($validated['profession_ids'] ?? [])->first(),
@@ -345,47 +343,4 @@ class ProfileController extends Controller
         return $path;
     }
 
-    private function deletePublicImage(?string $url): void
-    {
-        if (! $url) {
-            return;
-        }
-
-        $path = parse_url($url, PHP_URL_PATH);
-
-        if (! is_string($path)) {
-            return;
-        }
-
-        if (str_contains($path, '/storage/')) {
-            $relativePath = ltrim(substr($path, strpos($path, '/storage/') + 9), '/');
-        } else {
-            $relativePath = ltrim($url, '/');
-        }
-
-        if ($relativePath !== '') {
-            Storage::disk('public')->delete($relativePath);
-        }
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
-}
+    private function dele

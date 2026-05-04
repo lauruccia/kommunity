@@ -31,7 +31,6 @@ class MemberProfile extends Model
     protected $fillable = [
         'user_id',
         'company_name',
-        'sector_id',           // Settore lavorativo scelto dall'utente
         'profession_id',       // FK primaria (usata per controllo Pianeta)
         'profession_other',
         'category_id',         // FK legacy (mantenuta per backward compat)
@@ -139,12 +138,6 @@ class MemberProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /** Settore lavorativo scelto dall'utente */
-    public function sector(): BelongsTo
-    {
-        return $this->belongsTo(Sector::class);
     }
 
     /** Professione primaria (usata per controllo Pianeta) */
