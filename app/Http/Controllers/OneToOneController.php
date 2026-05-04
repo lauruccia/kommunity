@@ -280,8 +280,12 @@ class OneToOneController extends Controller
         $statusMessage = 'one-to-one-updated';
 
         if ($request->boolean('confirm_completed')) {
-            // 422 = regola business (timing/sequenza), non autorizzazione
-            abort_unless($oneToOneRequest->canBeConfirmedBy($user->id), 422);
+            if (! $oneToOneRequest->canBeConfirmedBy($user->id)) {
+                $reason = $oneToOneRequest->completionConfirmedBy($user->id)
+                    ? 'Hai già confermato il completamento di questo incontro.'
+                    : 'Non puoi confermare il completamento: l\'incontro deve essere in stato "Accettato".';
+                return back()->with('error', $reason);
+            }
 
             if ($isRequester) {
                 $oneToOneRequest->requester_completed_at = now();
@@ -307,7 +311,9 @@ class OneToOneController extends Controller
             OneToOneStatus::Declined->value,
             OneToOneStatus::Rescheduled->value,
         ], true)) {
-            abort_unless(in_array($oneToOneRequest->status, [OneToOneStatus::Pending, OneToOneStatus::Rescheduled], true), 422);
+            if (! in_array($oneToOneRequest->status, [OneToOneStatus::Pending, OneToOneStatus::Rescheduled], true)) {
+                return back()->with('error', 'Non puoi modificare lo stato di un incontro già accettato o completato.');
+            }
 
             $oneToOneRequest->status = OneToOneStatus::from($data['status']);
             $oneToOneRequest->save();
@@ -327,7 +333,9 @@ class OneToOneController extends Controller
         }
 
         if ($isRequester && ($data['status'] ?? null) === OneToOneStatus::Cancelled->value) {
-            abort_unless($oneToOneRequest->status !== OneToOneStatus::Completed, 422);
+            if ($oneToOneRequest->status === OneToOneStatus::Completed) {
+                return back()->with('error', 'Non puoi annullare un incontro già completato.');
+            }
 
             $oneToOneRequest->fill(['status' => OneToOneStatus::Cancelled])->save();
 

@@ -139,15 +139,24 @@
                                 <button @click="goTo(n)"
                                         class="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-stone-50"
                                         :class="{ 'bg-emerald-50/50': !n.read_at }">
-                                    <span class="mt-0.5 shrink-0 text-xl leading-none" x-text="n.data.icon || '🔔'"></span>
+                                    <span class="mt-0.5 shrink-0 text-xl leading-none" x-text="(n.data && n.data.icon) ? n.data.icon : '🔔'"></span>
                                     <div class="min-w-0 flex-1">
-                                        <p class="truncate text-sm font-medium text-stone-900" x-text="n.data.title"></p>
-                                        <p class="mt-0.5 line-clamp-2 text-xs text-stone-500" x-text="n.data.body"></p>
+                                        <p class="truncate text-sm font-medium text-stone-900" x-text="(n.data && n.data.title) ? n.data.title : 'Notifica'"></p>
+                                        <p class="mt-0.5 line-clamp-2 text-xs text-stone-500" x-text="(n.data && n.data.body) ? n.data.body : ''"></p>
                                         <p class="mt-1 text-[10px] text-stone-400" x-text="timeAgo(n.created_at)"></p>
                                     </div>
                                     <span x-show="!n.read_at" class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-rose-400"></span>
                                 </button>
                             </template>
+                        </div>
+
+                        {{-- Footer: link a pagina completa --}}
+                        <div class="border-t border-stone-100">
+                            <a href="{{ route('notifications.index') }}"
+                               @click="open = false"
+                               class="flex w-full items-center justify-center px-4 py-2.5 text-xs font-semibold text-stone-500 transition hover:bg-stone-50 hover:text-stone-700">
+                                Vedi tutte le notifiche →
+                            </a>
                         </div>
                     </div>
                 </div>

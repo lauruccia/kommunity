@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ── Notifiche e push: auth+verified ma NON richiedono onboarding completato ──
 // (campanella sempre funzionante anche durante l'onboarding)
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
