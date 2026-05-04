@@ -148,42 +148,20 @@
                 <div class="km-panel overflow-hidden p-0 shadow-[0_14px_34px_rgba(66,87,103,0.08)]">
                     <div class="border-b border-stone-200 bg-[color:var(--km-soft)] px-5 py-3.5">
                         <div class="flex items-center justify-between">
-                            <h2 class="text-sm font-semibold text-stone-950">Categorie</h2>
-                            @if($filters['category'] ?? null)
-                                <a href="{{ route('directory.index', array_filter(array_merge($filters, ['category' => null]))) }}"
+                            <h2 class="text-sm font-semibold text-stone-950">Professioni</h2>
+                            @if($filters['profession'] ?? null)
+                                <a href="{{ route('directory.index', array_filter(array_merge($filters, ['profession' => null]))) }}"
                                    class="text-xs text-stone-400 hover:text-stone-700">Azzera</a>
                             @endif
                         </div>
                     </div>
 
                     <div class="divide-y divide-stone-100 text-sm">
-                        @foreach ($rootCategories as $root)
-                            <div x-data="{ open: {{ $root->activeChildren->isNotEmpty() && (($filters['category'] ?? null) == $root->id || $root->activeChildren->contains('id', (int)($filters['category'] ?? 0))) ? 'true' : 'false' }} }">
-                                <div class="flex items-center">
-                                    <a href="{{ route('directory.index', array_filter(array_merge($filters, ['category' => $root->id]))) }}"
-                                       class="flex-1 px-5 py-2.5 font-medium transition hover:bg-stone-50 {{ ($filters['category'] ?? null) == $root->id ? 'text-emerald-700' : 'text-stone-700' }}">
-                                        {{ $root->name }}
-                                    </a>
-
-                                    @if($root->activeChildren->isNotEmpty())
-                                        <button @click="open = !open" class="px-3 py-2.5 text-stone-400 hover:text-stone-700">
-                                            ›
-                                        </button>
-                                    @endif
-                                </div>
-
-                                @if($root->activeChildren->isNotEmpty())
-                                    <div x-show="open" x-cloak class="border-t border-stone-100 bg-stone-50/70">
-                                        @foreach($root->activeChildren as $child)
-                                            <a href="{{ route('directory.index', array_filter(array_merge($filters, ['category' => $child->id]))) }}"
-                                               class="flex items-center gap-2 py-2 pl-9 pr-5 text-xs transition hover:bg-stone-100 {{ ($filters['category'] ?? null) == $child->id ? 'font-semibold text-emerald-700' : 'text-stone-600' }}">
-                                                <span class="h-1 w-1 rounded-full bg-stone-300 shrink-0"></span>
-                                                {{ $child->name }}
-                                            </a>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
+                        @foreach ($professions as $profession)
+                            <a href="{{ route('directory.index', array_filter(array_merge($filters, ['profession' => $profession->id]))) }}"
+                               class="block px-5 py-2.5 font-medium transition hover:bg-stone-50 {{ ($filters['profession'] ?? null) == $profession->id ? 'text-emerald-700 bg-emerald-50/60' : 'text-stone-700' }}">
+                                {{ $profession->name }}
+                            </a>
                         @endforeach
                     </div>
                 </div>
@@ -213,8 +191,8 @@
                     <h3 class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Filtri rapidi</h3>
 
                     <form method="GET" class="mt-3 space-y-3">
-                        @if($filters['category'] ?? null)
-                            <input type="hidden" name="category" value="{{ $filters['category'] }}">
+                        @if($filters['profession'] ?? null)
+                            <input type="hidden" name="profession" value="{{ $filters['profession'] }}">
                         @endif
 
                         @if($filters['search'] ?? null)
@@ -288,7 +266,7 @@
                         <a href="{{ route('directory.index') }}" class="km-button-secondary px-4 shrink-0">×</a>
                     @endif
 
-                    @foreach(['category','region','province','city','chapter'] as $fk)
+                    @foreach(['profession','region','province','city','chapter'] as $fk)
                         @if($filters[$fk] ?? null)
                             <input type="hidden" name="{{ $fk }}" value="{{ $filters[$fk] }}">
                         @endif

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use App\Models\Chapter;
 use App\Models\MemberProfile;
+use App\Models\Profession;
 use App\Models\Province;
 use App\Models\Region;
 use Illuminate\Contracts\View\View;
@@ -35,7 +35,7 @@ class DirectoryController extends Controller
         }
 
         $filters = $request->only([
-            'search', 'category', 'region', 'province', 'city', 'chapter',
+            'search', 'profession', 'region', 'province', 'city', 'chapter',
         ]);
 
         // Ordine random pre-calcolato e cachato per 60 minuti.
@@ -76,9 +76,8 @@ class DirectoryController extends Controller
                         ->orWhereHas('categories', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
                 });
             })
-            ->when($filters['category'] ?? null, fn (Builder $q, string $cat) =>
-                $q->whereHas('categories', fn (Builder $inner) => $inner->where('categories.id', $cat)
-                    ->orWhere('categories.parent_id', $cat))
+            ->when($filters['profession'] ?? null, fn (Builder $q, string $prof) =>
+                $q->whereHas('professions', fn (Builder $inner) => $inner->where('professions.id', $prof))
             )
             ->when($filters['region'] ?? null, fn (Builder $q, string $region) =>
                 $q->where('region_id', $region)
@@ -120,21 +119,18 @@ class DirectoryController extends Controller
             // Tabella province non ancora migrata
         }
 
-        // Categorie ad albero per la sidebar
-        $rootCategories = Category::query()
-            ->with(['activeChildren'])
-            ->whereNull('parent_id')
+        $professions = Profession::query()
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
         return view('directory.index', [
-            'members'        => $members,
-            'rootCategories' => $rootCategories,
-            'regions'        => $regions,
-            'provinces'      => $provinces,
-            'chapters'       => Chapter::query()->where('is_active', true)->orderBy('name')->get(),
-            'filters'        => $filters,
+            'members'     => $members,
+            'professions' => $professions,
+            'regions'     => $regions,
+            'provinces'   => $provinces,
+            'chapters'    => Chapter::query()->where('is_active', true)->orderBy('name')->get(),
+            'filters'     => $filters,
         ]);
     }
 }
