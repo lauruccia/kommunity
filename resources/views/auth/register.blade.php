@@ -53,19 +53,19 @@
 
                 <div>
                     <x-input-label for="name" :value="'Nome e cognome'" />
-                    <x-text-input id="name" class="mt-1 block w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+                    <x-text-input id="name" class="km-portal-input mt-1 block w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
                     <x-input-error :messages="$errors->get('name')" class="mt-2" />
                 </div>
 
                 <div>
                     <x-input-label for="email" :value="'Email'" />
-                    <x-text-input id="email" class="mt-1 block w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+                    <x-text-input id="email" class="km-portal-input mt-1 block w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                 </div>
 
                 <div>
                     <x-input-label for="invited_by_name" :value="'Invitato da'" />
-                    <x-text-input id="invited_by_name" class="mt-1 block w-full" type="text" name="invited_by_name"
+                    <x-text-input id="invited_by_name" class="km-portal-input mt-1 block w-full" type="text" name="invited_by_name"
                         :value="old('invited_by_name', $invitedByName ?? '')"
                         required
                         :readonly="filled($invitedByName ?? null)" />
@@ -84,7 +84,7 @@
                 <div>
                     <x-input-label for="password" :value="'Password'" />
                     <div style="position:relative; margin-top:0.25rem;">
-                        <x-text-input id="password" class="block w-full" style="padding-right:2.75rem;" type="password" name="password" required autocomplete="new-password" />
+                        <x-text-input id="password" class="km-portal-input block w-full" style="padding-right:2.75rem;" type="password" name="password" required autocomplete="new-password" />
                         <button type="button" onclick="kmTogglePwd('password',this)" tabindex="-1"
                             style="position:absolute; right:0; top:0; bottom:0; display:flex; align-items:center; padding:0 0.75rem; background:transparent; border:none; cursor:pointer; z-index:10; color:rgba(255,255,255,0.55);"
                             onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'"
@@ -99,7 +99,7 @@
                 <div>
                     <x-input-label for="password_confirmation" :value="'Conferma password'" />
                     <div style="position:relative; margin-top:0.25rem;">
-                        <x-text-input id="password_confirmation" class="block w-full" style="padding-right:2.75rem;" type="password" name="password_confirmation" required autocomplete="new-password" />
+                        <x-text-input id="password_confirmation" class="km-portal-input block w-full" style="padding-right:2.75rem;" type="password" name="password_confirmation" required autocomplete="new-password" />
                         <button type="button" onclick="kmTogglePwd('password_confirmation',this)" tabindex="-1"
                             style="position:absolute; right:0; top:0; bottom:0; display:flex; align-items:center; padding:0 0.75rem; background:transparent; border:none; cursor:pointer; z-index:10; color:rgba(255,255,255,0.55);"
                             onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.55)'"
@@ -121,7 +121,9 @@
                 </script>
 
                 <div class="flex items-center justify-between pt-1">
-                    <a class="km-link text-sm underline" href="{{ route('login') }}">
+                    <a href="{{ route('login') }}"
+                       style="font-size:0.875rem; color:rgba(154,216,74,0.9); text-decoration:underline; text-underline-offset:3px;"
+                       onmouseover="this.style.color='rgba(154,216,74,1)'" onmouseout="this.style.color='rgba(154,216,74,0.9)'">
                         Hai già un account?
                     </a>
                     <x-primary-button>
