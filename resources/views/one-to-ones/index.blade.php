@@ -606,34 +606,6 @@
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:.8rem;">
-                    @if ($isRecipient && in_array($selectedRequest->status->value, ['pending','rescheduled'], true))
-                        {{-- CTA immediata: Accetta / Rifiuta in evidenza per il destinatario --}}
-                        <div class="km-glass-box" style="padding:1rem 1.25rem;border-color:rgba(139,197,63,.30);background:rgba(139,197,63,.06);">
-                            <p class="km-eyebrow" style="color:var(--km-green-2);">Azione richiesta</p>
-                            <p style="margin-top:.4rem;font-size:.9rem;line-height:1.5;color:var(--km-text);">
-                                {{ $counterpart?->name }} ha proposto un one-to-one. Conferma o rifiuta per liberare l'agenda.
-                            </p>
-                            <div style="margin-top:.85rem;display:flex;flex-wrap:wrap;gap:.6rem;">
-                                <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin:0;">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="accepted">
-                                    <button type="submit" class="km-button-primary" style="padding:.55rem 1.2rem!important;">
-                                        Accetta richiesta
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin:0;" onsubmit="return confirm('Rifiutare la richiesta?');">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="declined">
-                                    <button type="submit" style="padding:.55rem 1.2rem;border-radius:1rem;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.82rem;font-weight:700;cursor:pointer;">
-                                        Rifiuta
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @endif
-
                     {{-- Conferma completamento — visibile a entrambi quando status è accepted --}}
                     @if ($selectedRequest->status->value === 'accepted')
                         @php
@@ -664,27 +636,6 @@
                                 </p>
                             </div>
                         @endif
-                    @endif
-
-                    {{-- Proponi variazione orario — apre popup separato --}}
-                    @if (! in_array($selectedRequest->status->value, ['completed','cancelled'], true))
-                        <div class="km-glass-box" style="padding:.85rem;border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04);">
-                            <p class="km-eyebrow" style="color:#FCD34D;">
-                                {{ $selectedRequest->status->value === 'rescheduled' ? '📅 Variazione orario proposta' : '📅 Variazione orario' }}
-                            </p>
-                            <p style="margin-top:.3rem;font-size:.78rem;color:var(--km-text-muted);">
-                                @if($selectedRequest->status->value === 'rescheduled')
-                                    È stata proposta una nuova data. Accetta la richiesta oppure controproponi un orario diverso.
-                                @else
-                                    Puoi suggerire un nuovo orario all'altra parte.
-                                @endif
-                            </p>
-                            <button type="button" onclick="document.getElementById('km-reschedule-modal').style.display='flex'"
-                                    style="margin-top:.75rem;padding:.5rem 1.1rem;border-radius:1rem;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.4);color:#FCD34D;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem;">
-                                <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
-                                Proponi nuovo orario
-                            </button>
-                        </div>
                     @endif
 
                     {{-- Dettagli logistici: data/ora, modalità, link/luogo --}}
@@ -760,20 +711,44 @@
                         @endif
                     </div>
 
+                    {{-- Barra azioni: Accetta / Rifiuta / Proponi nuovo orario — tutti sulla stessa riga --}}
+                    @php
+                        $showAcceptDecline = $isRecipient && in_array($selectedRequest->status->value, ['pending','rescheduled'], true);
+                        $showReschedule    = ! in_array($selectedRequest->status->value, ['completed','cancelled'], true);
+                    @endphp
+                    @if ($showAcceptDecline || $showReschedule)
+                        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;">
+                            @if ($showAcceptDecline)
+                                <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin:0;">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="accepted">
+                                    <button type="submit" class="km-button-primary" style="padding:.55rem 1.25rem!important;">Accetta</button>
+                                </form>
+                                <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin:0;" onsubmit="return confirm('Rifiutare la richiesta?');">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="declined">
+                                    <button type="submit" style="padding:.53rem 1.1rem;border-radius:1rem;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.82rem;font-weight:700;cursor:pointer;">Rifiuta</button>
+                                </form>
+                            @endif
+                            @if ($showReschedule)
+                                <button type="button" onclick="document.getElementById('km-reschedule-modal').style.display='flex'"
+                                        style="padding:.53rem 1rem;border-radius:1rem;background:rgba(245,158,11,.13);border:1px solid rgba(245,158,11,.35);color:#FCD34D;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;">
+                                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
+                                    Proponi nuovo orario
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+
                     <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" class="km-dark-card km-oto-detail-form" style="display:flex;flex-direction:column;">
                         @csrf
                         @method('PATCH')
                         @if ($isRecipient)
                             <div>
-                                <p class="km-eyebrow">Aggiorna stato</p>
-                                <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Solo il destinatario puo' modificare stato e resoconto.</p>
-                                <select name="status" class="km-dark-input" style="margin-top:.6rem;">
-                                    @foreach (\App\Enums\OneToOneStatus::options() as $status => $label)
-                                        <option value="{{ $status }}" @selected($selectedRequest->status->value === $status)>{{ $label }}</option>
-                                    @endforeach
-                                </select>
+                                <p class="km-eyebrow">Resoconto condiviso</p>
+                                <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Visibile a entrambi i partecipanti.</p>
                             </div>
-                            <textarea name="post_notes" rows="2" class="km-dark-input" placeholder="Resoconto condiviso visibile a entrambi" style="resize:vertical;">{{ $selectedRequest->post_notes }}</textarea>
+                            <textarea name="post_notes" rows="2" class="km-dark-input" placeholder="Scrivi un resoconto dell'incontro..." style="resize:vertical;">{{ $selectedRequest->post_notes }}</textarea>
                         @endif
                         @if ($isRequester)
                             {{-- Il mittente può aggiornare il link meeting e il luogo --}}
