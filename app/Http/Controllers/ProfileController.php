@@ -145,12 +145,13 @@ class ProfileController extends Controller
                 'show_whatsapp' => $request->boolean('show_whatsapp'),
                 'allow_whatsapp_contact' => $request->boolean('allow_whatsapp_contact'),
                 // is_visible_in_directory e is_active: gestiti solo dall'admin, non sovrascriviamo mai.
-                // Manteniamo il valore attuale del profilo (che può essere false se l'admin ha sospeso).
-                'onboarding_completed' => $request->boolean('onboarding_completed'),
+                // onboarding_completed: una volta true non torna mai false (il salvataggio non azzera il flag).
+                // Diventa true se la checkbox è spuntata OPPURE se era già true in precedenza.
+                'onboarding_completed' => $profile->onboarding_completed || $request->boolean('onboarding_completed'),
                 // Non sovrascrivere status se già gestito dall'admin (active/suspended)
                 'status' => in_array($profile->status?->value, ['active', 'suspended'])
                     ? $profile->status->value
-                    : ($request->boolean('onboarding_completed') ? 'pending_approval' : $profile->status?->value),
+                    : (($profile->onboarding_completed || $request->boolean('onboarding_completed')) ? 'pending_approval' : $profile->status?->value),
                 'profession_id' => collect($validated['profession_ids'] ?? [])->first(),
                 'avatar' => $avatar,
                 'logo' => $logo,

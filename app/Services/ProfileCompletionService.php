@@ -56,11 +56,7 @@ class ProfileCompletionService
             'icon'       => '🎯',
             'test'       => 'hasNetworkingGoals',
         ],
-        'video' => [
-            'label'      => 'Aggiungi un video di presentazione',
-            'icon'       => '🎬',
-            'test'       => 'hasVideo',
-        ],
+        // Video escluso dai check obbligatori: è facoltativo e non blocca l'onboarding.
     ];
 
     public function calculate(User $user): array

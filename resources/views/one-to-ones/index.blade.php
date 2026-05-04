@@ -580,7 +580,12 @@
                     <p class="km-eyebrow">Dettaglio richiesta</p>
                     <h3 style="margin-top:.25rem;font-size:1.05rem;font-weight:800;color:var(--km-text);">Gestione one-to-one</h3>
                 </div>
-                <a href="{{ route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id])) }}" class="km-button-secondary" style="text-decoration:none;">Chiudi</a>
+                <a href="{{ route('one-to-ones.index', array_filter(['member'=>$selectedMember?->id])) }}"
+                   style="text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border-radius:.85rem;font-size:.82rem;font-weight:700;color:#f8fafc;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);transition:background .18s;"
+                   onmouseover="this.style.background='rgba(255,255,255,.18)'"
+                   onmouseout="this.style.background='rgba(255,255,255,.10)'">
+                    ← Chiudi
+                </a>
             </div>
 
             <div class="km-oto-detail-body">
