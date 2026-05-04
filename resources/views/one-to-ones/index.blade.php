@@ -534,6 +534,7 @@
 
                 <section class="km-dark-card p-5">
                     <p class="km-eyebrow">Nuovo slot</p>
+                    {{-- FIX #4: slot di esattamente 1 ora — ends_at calcolato automaticamente lato server --}}
                     <form method="POST" action="{{ route('one-to-ones.availability.store') }}" class="mt-4 space-y-3">
                         @csrf
                         <select name="weekday" class="km-dark-input" required>
@@ -542,9 +543,9 @@
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>
-                        <div class="grid grid-cols-2 gap-3">
-                            <input type="time" name="starts_at" class="km-dark-input" required>
-                            <input type="time" name="ends_at" class="km-dark-input" required>
+                        <div>
+                            <input type="time" name="starts_at" class="km-dark-input w-full" required placeholder="Ora inizio">
+                            <p class="mt-1 text-xs" style="color:var(--km-text-muted);">Lo slot dura sempre 1 ora (es. 10:00 → 11:00)</p>
                         </div>
                         <select name="meeting_mode" class="km-dark-input">
                             <option value="online">Online</option>
@@ -630,6 +631,35 @@
                                     </button>
                                 </form>
                             </div>
+                        </div>
+                    @endif
+
+                    {{-- FIX #6: Proponi variazione orario (entrambe le parti, su richieste non chiuse) --}}
+                    @if (! in_array($selectedRequest->status->value, ['completed','cancelled'], true))
+                        <div class="km-glass-box" style="padding:.85rem;border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04);">
+                            <p class="km-eyebrow" style="color:#FCD34D;">
+                                {{ $selectedRequest->status->value === 'rescheduled' ? '📅 Variazione orario proposta — conferma o controproponi' : '📅 Proponi variazione orario' }}
+                            </p>
+                            <p style="margin-top:.3rem;font-size:.78rem;color:var(--km-text-muted);">
+                                @if($selectedRequest->status->value === 'rescheduled')
+                                    È stata proposta una nuova data. Accetta la richiesta (Accetta) oppure proponi un orario diverso qui sotto.
+                                @else
+                                    Suggerisci un nuovo orario: lo stato passerà a "Riprogrammato" e l'altra parte riceverà una notifica.
+                                @endif
+                            </p>
+                            <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;">
+                                @csrf
+                                @method('PATCH')
+                                <input type="datetime-local" name="propose_new_datetime"
+                                       value="{{ optional($selectedRequest->requested_at)->format('Y-m-d\TH:i') }}"
+                                       class="km-dark-input"
+                                       style="flex:1;min-width:200px;"
+                                       required>
+                                <button type="submit"
+                                        style="padding:.5rem 1.1rem;border-radius:1rem;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.4);color:#FCD34D;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+                                    Proponi nuovo orario
+                                </button>
+                            </form>
                         </div>
                     @endif
 
