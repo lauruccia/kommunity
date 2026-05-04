@@ -634,6 +634,38 @@
                         </div>
                     @endif
 
+                    {{-- Conferma completamento — visibile a entrambi quando status è accepted --}}
+                    @if ($selectedRequest->status->value === 'accepted')
+                        @php
+                            $iCanConfirm      = $selectedRequest->canBeConfirmedBy(auth()->id());
+                            $iAlreadyConfirmed = $selectedRequest->completionConfirmedBy(auth()->id());
+                        @endphp
+                        @if ($iCanConfirm)
+                            <div class="km-glass-box" style="padding:1rem 1.25rem;border-color:rgba(45,212,191,.35);background:rgba(45,212,191,.07);">
+                                <p class="km-eyebrow" style="color:#5EEAD4;">Conferma completamento</p>
+                                <p style="margin-top:.4rem;font-size:.88rem;line-height:1.55;color:var(--km-text);">
+                                    L'incontro si è svolto? Confermalo qui. Quando entrambi i partecipanti confermano, il one-to-one viene segnato come <strong style="color:#5EEAD4;">Completato</strong>.
+                                </p>
+                                <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin-top:.85rem;">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="confirm_completed" value="1">
+                                    <button type="submit" style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.4rem;border-radius:1rem;background:rgba(45,212,191,.22);border:1px solid rgba(45,212,191,.5);color:#5EEAD4;font-size:.85rem;font-weight:700;cursor:pointer;">
+                                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
+                                        Conferma completamento
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif ($iAlreadyConfirmed)
+                            <div class="km-glass-box" style="padding:.85rem 1.25rem;border-color:rgba(45,212,191,.18);background:rgba(45,212,191,.04);">
+                                <p class="km-eyebrow" style="color:#5EEAD4;">⏳ In attesa dell'altra conferma</p>
+                                <p style="margin-top:.3rem;font-size:.82rem;color:var(--km-text-muted);line-height:1.5;">
+                                    Hai già confermato il completamento. Appena anche l'altra parte conferma, l'incontro verrà chiuso automaticamente.
+                                </p>
+                            </div>
+                        @endif
+                    @endif
+
                     {{-- Proponi variazione orario — apre popup separato --}}
                     @if (! in_array($selectedRequest->status->value, ['completed','cancelled'], true))
                         <div class="km-glass-box" style="padding:.85rem;border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04);">
