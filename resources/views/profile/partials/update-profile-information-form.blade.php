@@ -106,19 +106,16 @@
                     <x-input-error class="mt-2" :messages="$errors->get('company_interest_type_ids')" />
                 </div>
 
-                {{-- Settore: "In quale settore lavori" — select singola --}}
-                <div class="md:col-span-2">
-                    <x-input-label for="sector_id" :value="'In quale settore lavori *'" />
-                    <select id="sector_id" name="sector_id" class="km-input mt-2 block w-full" required>
-                        <option value="">Seleziona settore...</option>
-                        @foreach ($sectors as $sector)
-                            <option value="{{ $sector->id }}"
-                                @selected(old('sector_id', $profile->sector_id) == $sector->id)>
-                                {{ $sector->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <x-input-error class="mt-2" :messages="$errors->get('sector_id')" />
+                {{-- In quale settore lavori: multi-select sulle professioni --}}
+                @php
+                    $professionOptions = $professions->map(fn($p) => ['id' => $p->id, 'label' => $p->name])->values()->all();
+                    $selectedProfIds   = collect(old('profession_ids', $profile->professions->pluck('id')->all()))->map(fn($v) => (int) $v)->values()->all();
+                @endphp
+                <div class="md:col-span-2"
+                     x-data="kmMultiSelect(@js($professionOptions), @js($selectedProfIds), 'profession_ids')">
+                    <x-input-label :value="'In quale settore lavori *'" />
+                    @include('profile.partials._multiselect')
+                    <x-input-error class="mt-2" :messages="$errors->get('profession_ids')" />
                 </div>
 
                 {{-- Pianeta: assegnato dall'admin, non modificabile dall'utente --}}
