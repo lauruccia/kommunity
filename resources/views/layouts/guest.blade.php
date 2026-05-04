@@ -9,6 +9,21 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700|playfair-display:600,700&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+        /* Fix autofill browser: mantiene sfondo scuro del portal anche dopo autofill */
+        .km-portal-panel input:-webkit-autofill,
+        .km-portal-panel input:-webkit-autofill:hover,
+        .km-portal-panel input:-webkit-autofill:focus,
+        .km-portal-panel input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #0a1a27 inset !important;
+            -webkit-text-fill-color: #f1f5f9 !important;
+            caret-color: #f1f5f9 !important;
+            border-color: rgba(255,255,255,.18) !important;
+        }
+        /* Nasconde il pulsante occhio nativo di Edge/Chrome per usare quello custom */
+        input::-ms-reveal,
+        input::-ms-clear { display: none !important; }
+        </style>
     </head>
     <body class="font-sans text-white antialiased km-portal-bg">
         <div class="relative flex min-h-screen w-full flex-col justify-center overflow-hidden px-4 py-10 sm:px-6 lg:px-8">

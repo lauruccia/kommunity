@@ -9,32 +9,32 @@
 
         {{-- COLONNA SINISTRA: testo promozionale --}}
         <div class="flex flex-col justify-center">
-            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600">Kommunity</p>
-            <h1 class="mt-3 font-serif text-2xl font-semibold leading-snug text-stone-950 sm:text-3xl lg:text-4xl">
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-400">Kommunity</p>
+            <h1 class="mt-3 font-serif text-2xl font-semibold leading-snug text-white sm:text-3xl lg:text-4xl">
                 {{ $headline }}
             </h1>
             @if($subheadline)
-                <p class="mt-3 text-base font-medium text-stone-600">{{ $subheadline }}</p>
+                <p class="mt-3 text-base font-medium text-white/70">{{ $subheadline }}</p>
             @endif
 
             @if($body)
-                <div class="prose prose-stone prose-sm mt-5 max-w-none [&_h2]:font-serif [&_h2]:text-stone-900 [&_h3]:font-serif [&_h3]:text-stone-900 [&_ul]:space-y-1 [&_li]:text-stone-600">
+                <div class="prose prose-invert prose-sm mt-5 max-w-none [&_h2]:font-serif [&_h3]:font-serif [&_ul]:space-y-1">
                     {!! $body !!}
                 </div>
             @else
                 {{-- Testo placeholder mostrato finché l'admin non configura nulla --}}
-                <div class="mt-5 space-y-4 text-sm leading-7 text-stone-600">
+                <div class="mt-5 space-y-4 text-sm leading-7 text-white/65">
                     <div class="flex items-start gap-3">
                         <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white text-xs font-bold" style="background:#537d4d;">✓</span>
-                        <p><strong class="text-stone-800">Networking professionale</strong><br>Connettiti con professionisti selezionati e costruisci relazioni di valore.</p>
+                        <p><strong class="text-white">Networking professionale</strong><br>Connettiti con professionisti selezionati e costruisci relazioni di valore.</p>
                     </div>
                     <div class="flex items-start gap-3">
                         <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white text-xs font-bold" style="background:#537d4d;">✓</span>
-                        <p><strong class="text-stone-800">Visibilità nel tuo settore</strong><br>Presenta la tua professionalità nella directory e ricevi richieste di collaborazione.</p>
+                        <p><strong class="text-white">Visibilità nel tuo settore</strong><br>Presenta la tua professionalità nella directory e ricevi richieste di collaborazione.</p>
                     </div>
                     <div class="flex items-start gap-3">
                         <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white text-xs font-bold" style="background:#537d4d;">✓</span>
-                        <p><strong class="text-stone-800">Pianeti di settore</strong><br>Entra in un gruppo ristretto di professionisti del tuo campo e partecipa a incontri One-to-one.</p>
+                        <p><strong class="text-white">Pianeti di settore</strong><br>Entra in un gruppo ristretto di professionisti del tuo campo e partecipa a incontri One-to-one.</p>
                     </div>
                 </div>
             @endif
@@ -43,9 +43,9 @@
         {{-- COLONNA DESTRA: form --}}
         <div>
             <div class="mb-5">
-                <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Registrazione</p>
-                <h2 class="mt-2 font-serif text-xl font-semibold text-stone-950">Crea il tuo account</h2>
-                <p class="mt-1.5 text-sm text-stone-500">Compila i campi per completare la richiesta di accesso.</p>
+                <p class="text-xs uppercase tracking-[0.24em] text-white/50">Registrazione</p>
+                <h2 class="mt-2 font-serif text-xl font-semibold text-white">Crea il tuo account</h2>
+                <p class="mt-1.5 text-sm text-white/55">Compila i campi per completare la richiesta di accesso.</p>
             </div>
 
             <form method="POST" action="{{ route('register') }}" class="space-y-4">
@@ -70,9 +70,9 @@
                         required
                         :readonly="filled($invitedByName ?? null)" />
                     @if(filled($invitedByName ?? null))
-                        <p class="mt-1.5 text-xs text-stone-500">Campo compilato automaticamente dal referral link ricevuto.</p>
+                        <p class="mt-1.5 text-xs text-white/50">Campo compilato automaticamente dal referral link ricevuto.</p>
                     @else
-                        <p class="mt-1.5 text-xs text-stone-500">Inserisci nome e cognome della persona che ti ha invitato.</p>
+                        <p class="mt-1.5 text-xs text-white/50">Inserisci nome e cognome della persona che ti ha invitato.</p>
                     @endif
                     <x-input-error :messages="$errors->get('invited_by_name')" class="mt-2" />
                 </div>

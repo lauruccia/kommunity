@@ -63,6 +63,7 @@
 }
 
 .km-directory-avatar{
+    position:relative!important;
     width:6rem!important;
     height:6rem!important;
     border-radius:9999px!important;
@@ -72,7 +73,7 @@
     display:flex!important;
     align-items:center;
     justify-content:center;
-    background:#fff;
+    background:#e2e8f0;
 }
 
 .km-directory-avatar img{
@@ -369,6 +370,14 @@
                                 $circleType = $ytId ? 'yt' : ($localUrl ? 'local' : 'vimeo');
                             }
 
+                            // Thumbnail Vimeo senza API: estrae l'ID e usa vumbnail.com
+                            $vimeoThumb = null;
+                            if ($circleType === 'vimeo' && !$photoUrl) {
+                                if (preg_match('/vimeo\.com\/(?:video\/|channels\/[^\/]+\/|manage\/videos\/)?(\d+)/', (string)($member->intro_video_url ?? ''), $vm)) {
+                                    $vimeoThumb = 'https://vumbnail.com/' . $vm[1] . '.jpg';
+                                }
+                            }
+
                             $coverImage = $onepage?->coverImageUrl() ?: null;
                             $displayName = $member->user->name;
 
@@ -411,23 +420,28 @@
                                                 title="Guarda la videopresentazione">
 
                                             <div class="km-directory-avatar">
-                                                @if ($photoUrl)
-                                                    <img src="{{ $photoUrl }}" alt="{{ $displayName }}">
-                                                @elseif ($circleType === 'yt')
+                                                @if ($circleType === 'yt')
+                                                    {{-- YouTube: thumbnail ha priorità su foto --}}
                                                     <img src="https://img.youtube.com/vi/{{ $ytId }}/mqdefault.jpg" alt="{{ $displayName }}">
+                                                @elseif ($vimeoThumb)
+                                                    {{-- Vimeo: thumbnail via vumbnail.com --}}
+                                                    <img src="{{ $vimeoThumb }}" alt="{{ $displayName }}" onerror="this.style.display='none'">
+                                                    <span class="text-2xl font-bold text-slate-400" style="position:absolute;">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
+                                                @elseif ($photoUrl)
+                                                    <img src="{{ $photoUrl }}" alt="{{ $displayName }}">
                                                 @else
-                                                    <span class="text-2xl font-bold text-stone-500">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
+                                                    <span class="text-2xl font-bold text-slate-400">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
                                                 @endif
 
                                                 @if ($circleType === 'local' && $localUrl)
-    <video class="km-video-preview"
-           src="{{ $localUrl }}"
-           muted
-           playsinline
-           preload="metadata"
-           loop>
-    </video>
-@endif
+                                                    <video class="km-video-preview"
+                                                           src="{{ $localUrl }}"
+                                                           muted
+                                                           playsinline
+                                                           preload="metadata"
+                                                           loop>
+                                                    </video>
+                                                @endif
                                             </div>
 
                                             <span class="km-directory-avatar-play-badge">
@@ -442,7 +456,7 @@
                                                 @if ($photoUrl)
                                                     <img src="{{ $photoUrl }}" alt="{{ $displayName }}">
                                                 @else
-                                                    <span class="text-2xl font-bold text-stone-500">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
+                                                    <span class="text-2xl font-bold text-slate-400">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
                                                 @endif
                                             </div>
                                         </a>
