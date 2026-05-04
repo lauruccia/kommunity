@@ -33,11 +33,13 @@ deployment:
     - /bin/cp -R public/brand   $DEPLOYPATH/
 
     # ── File pubblici singoli (skip silenzioso se non esistono) ───────────
-    - /bin/cp public/favicon.ico    $DEPLOYPATH/ 2>/dev/null || true
-    - /bin/cp public/robots.txt     $DEPLOYPATH/ 2>/dev/null || true
-    - /bin/cp public/manifest.json  $DEPLOYPATH/ 2>/dev/null || true
-    - /bin/cp public/sw.js          $DEPLOYPATH/ 2>/dev/null || true
-    - /bin/cp public/.user.ini      $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/favicon.ico       $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/robots.txt        $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/manifest.json     $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/sw.js             $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/.user.ini         $DEPLOYPATH/ 2>/dev/null || true
+    # ── Script migrazione media ONE-TIME (rimuovere dopo l'uso) ───────────
+    - /bin/cp public/migrate-media.php $DEPLOYPATH/ 2>/dev/null || true
 
     # ── Directory media upload: crea le sottocartelle se non esistono ──────
     # I file caricati dagli utenti vanno in public_html/media/{tipo}/ e sono
