@@ -35,13 +35,17 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
+// Verifica email pubblica: funziona senza sessione preesistente
+// (WhatsApp, Gmail app, browser in-app non condividono cookie con Safari/Chrome).
+// La sicurezza è garantita dalla firma URL (middleware 'signed') + hash sha1(email)
+// verificato nel controller. L'utente viene loggato automaticamente.
+Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
-
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
 
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')

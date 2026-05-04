@@ -110,7 +110,7 @@
     <div class="w-full rounded-[2rem] bg-[linear-gradient(135deg,#425767_0%,#4d6474_52%,#5b7d4b_100%)] p-6 text-white shadow-[0_22px_60px_rgba(66,87,103,0.22)]">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-                <p class="text-xs uppercase tracking-[0.24em] text-white/70">K-Membri</p>
+                <p class="text-xs uppercase tracking-[0.24em] text-white/70">K-Members</p>
                 <h1 class="mt-2 font-serif text-2xl font-semibold sm:text-3xl">Kommunity business interna</h1>
             </div>
             <div class="shrink-0 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
@@ -577,4 +577,4 @@
 </div>
 
 </x-app-layout>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                        

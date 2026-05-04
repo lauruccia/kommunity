@@ -97,7 +97,7 @@
 
                     <form method="GET" action="{{ route('conversations.index') }}" class="mt-4 flex gap-2">
                         <label class="relative min-w-0 flex-1">
-                            <input name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input h-11 rounded-xl pr-10" placeholder="Cerca un messaggio...">
+                            <input name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input h-11 rounded-xl pr-10" placeholder="Cerca conversazione...">
                             <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                         </label>
                         <button type="submit" class="km-cta-secondary h-11 w-11 justify-center p-0" aria-label="Cerca">
@@ -106,9 +106,9 @@
                     </form>
 
                     <div class="mt-4 flex items-center gap-2 text-xs font-black">
-                        <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Tutti</a>
-                        <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Non letti</a>
-                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Preferiti</a>
+                        <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Tutte</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Non lette</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Preferite</a>
                     </div>
                 </div>
 
@@ -153,26 +153,26 @@
                             @endif
                         </a>
                     @empty
-                        <div class="p-5 text-sm text-white/55">Nessun messaggio.</div>
+                        <div class="p-5 text-sm text-white/55">Nessuna conversazione attiva.</div>
                     @endforelse
                 </div>
             </aside>
 
             <section class="km-chat-panel km-chat-main flex min-h-0 flex-col items-center justify-center p-8 text-center">
                 <div class="km-chat-empty-orbit mx-auto flex h-24 w-24 items-center justify-center rounded-3xl border border-white/[.10] text-3xl font-black text-[color:var(--km-green-2)]">msg</div>
-                <h1 class="mt-5 text-2xl font-black tracking-tight text-white">Seleziona un messaggio</h1>
-                <p class="mt-2 max-w-md text-sm leading-6 text-white/55">Apri un messaggio dalla lista o inizia una nuova chat.</p>
+                <h1 class="mt-5 text-2xl font-black tracking-tight text-white">Seleziona una conversazione</h1>
+                <p class="mt-2 max-w-md text-sm leading-6 text-white/55">Apri una chat dalla lista oppure crea un nuovo messaggio per iniziare una conversazione privata.</p>
                 <button type="button" data-open-message-modal class="km-cta-primary mt-6 text-sm">Nuovo messaggio</button>
             </section>
 
             <aside class="km-chat-panel km-chat-detail p-5">
                 <p class="km-eyebrow">Dettagli</p>
-                <h2 class="mt-1 text-lg font-black text-white">Messaggi</h2>
+                <h2 class="mt-1 text-lg font-black text-white">Conversazione</h2>
                 <div class="mt-5 rounded-2xl border border-white/[.08] bg-white/[.035] p-4 text-sm text-white/60">
-                    <div class="flex items-center justify-between"><span>Messaggi</span><strong class="text-white">{{ $conversations->count() }}</strong></div>
-                    <div class="mt-3 flex items-center justify-between"><span>Non letti</span><strong class="text-white">{{ $unreadCount }}</strong></div>
+                    <div class="flex items-center justify-between"><span>Conversazioni</span><strong class="text-white">{{ $conversations->count() }}</strong></div>
+                    <div class="mt-3 flex items-center justify-between"><span>Non lette</span><strong class="text-white">{{ $unreadCount }}</strong></div>
                 </div>
-                <p class="mt-4 text-sm leading-6 text-white/50">Seleziona un messaggio per visualizzare profilo, contatti, media e opzioni.</p>
+                <p class="mt-4 text-sm leading-6 text-white/50">Seleziona una conversazione per visualizzare profilo, contatti, media e opzioni.</p>
             </aside>
         </section>
     </main>
@@ -182,7 +182,7 @@
             <div class="flex items-center justify-between border-b border-white/[.10] px-5 py-4">
                 <div>
                     <p class="km-eyebrow">Nuovo messaggio</p>
-                    <h2 class="mt-1 text-xl font-black text-white">Nuovo messaggio</h2>
+                    <h2 class="mt-1 text-xl font-black text-white">Avvia conversazione</h2>
                 </div>
                 <button type="button" data-close-message-modal class="km-cta-secondary">Chiudi</button>
             </div>
@@ -195,7 +195,7 @@
                     @endforeach
                 </select>
                 <textarea name="message" rows="5" class="km-dark-input w-full" placeholder="Scrivi il primo messaggio" required minlength="2"></textarea>
-                <button type="submit" class="km-button-primary w-full">Invia messaggio</button>
+                <button type="submit" class="km-button-primary w-full">Apri conversazione</button>
             </form>
         </div>
     </div>
