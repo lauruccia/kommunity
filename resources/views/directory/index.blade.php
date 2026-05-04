@@ -398,20 +398,23 @@
                                 <div class="km-directory-avatar-wrap">
                                     @if ($hasVideo)
                                         <button type="button"
-                                                x-data="{ playing: false }"
-                                                @mouseleave="
-    const v = $el.querySelector('video.km-video-preview');
-    if (v) {
-        v.pause();
-        v.currentTime = 0;
-    }
-"
-                                                @mouseleave="
-                                                    playing = false;
+                                                x-data="{ _t: null }"
+                                                @mouseenter="
                                                     const v = $el.querySelector('video.km-video-preview');
-                                                    if (v) { v.pause(); v.currentTime = 0; v.classList.remove('is-playing'); }
+                                                    if (v) {
+                                                        v.currentTime = 0;
+                                                        v.play().catch(() => {});
+                                                        clearTimeout(_t);
+                                                        _t = setTimeout(() => { v.pause(); v.currentTime = 0; }, 3000);
+                                                    }
+                                                "
+                                                @mouseleave="
+                                                    clearTimeout(_t);
+                                                    const v = $el.querySelector('video.km-video-preview');
+                                                    if (v) { v.pause(); v.currentTime = 0; }
                                                 "
                                                 @click="
+                                                    clearTimeout(_t);
                                                     const v = $el.querySelector('video.km-video-preview');
                                                     if (v) { v.pause(); }
                                                     window.dispatchEvent(new CustomEvent('open-video', {detail:{embed:@js($embedUrl),local:@js($localUrl)}}));
@@ -434,12 +437,12 @@
                                                 @endif
 
                                                 @if ($circleType === 'local' && $localUrl)
+                                                    {{-- Video locale: visibile sempre (primo frame), si anima al hover --}}
                                                     <video class="km-video-preview"
                                                            src="{{ $localUrl }}"
                                                            muted
                                                            playsinline
-                                                           preload="metadata"
-                                                           loop>
+                                                           preload="metadata">
                                                     </video>
                                                 @endif
                                             </div>

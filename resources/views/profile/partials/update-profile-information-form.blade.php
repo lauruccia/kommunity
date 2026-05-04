@@ -332,6 +332,31 @@
                            value="{{ old('intro_video_url', $profile->intro_video_url) }}">
                     <x-input-error class="mt-2" :messages="$errors->get('intro_video_url')" />
 
+                    {{-- Anteprima video attivo --}}
+                    @php
+                        $previewEmbed = $profile->videoEmbedUrl();
+                        $previewLocal = $profile->introVideoUrl();
+                    @endphp
+                    @if ($previewEmbed)
+                        <div class="mt-3 overflow-hidden rounded-xl border border-stone-200 bg-black" style="aspect-ratio:16/9;">
+                            <iframe src="{{ $previewEmbed }}"
+                                    class="h-full w-full"
+                                    frameborder="0"
+                                    allow="autoplay; fullscreen"
+                                    allowfullscreen
+                                    loading="lazy">
+                            </iframe>
+                        </div>
+                    @elseif ($previewLocal)
+                        <div class="mt-3 overflow-hidden rounded-xl border border-stone-200 bg-black" style="aspect-ratio:16/9;">
+                            <video src="{{ $previewLocal }}"
+                                   controls
+                                   preload="metadata"
+                                   class="h-full w-full object-contain">
+                            </video>
+                        </div>
+                    @endif
+
                     {{-- Toggle guida — subito sotto il campo URL --}}
                     <button type="button" @click="guide = !guide"
                             class="mt-3 flex items-center gap-1.5 text-xs font-medium text-[color:var(--km-accent-strong)] hover:underline focus:outline-none">

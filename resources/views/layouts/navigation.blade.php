@@ -117,10 +117,10 @@
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 scale-95 translate-y-1"
                          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                         class="absolute right-0 top-full mt-2 origin-top-right overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl"
-                         style="z-index:9999; width: min(20rem, calc(100vw - 1.5rem)); max-width: 100vw;">
+                         class="absolute right-0 top-full mt-2 origin-top-right rounded-2xl border border-stone-200 bg-white shadow-xl flex flex-col"
+                         style="z-index:9999; width: min(22rem, calc(100vw - 1rem)); max-height: calc(100vh - 5rem); right: max(0px, env(safe-area-inset-right, 0px));">
 
-                        <div class="flex items-center justify-between border-b border-stone-100 px-4 py-3">
+                        <div class="flex shrink-0 items-center justify-between border-b border-stone-100 px-4 py-3 rounded-t-2xl">
                             <span class="text-sm font-semibold text-stone-900">Notifiche</span>
                             <button x-show="unread > 0" x-cloak
                                     @click.stop="markAllRead()"
@@ -129,7 +129,7 @@
                             </button>
                         </div>
 
-                        <div class="max-h-80 overflow-y-auto divide-y divide-stone-50">
+                        <div class="flex-1 overflow-y-auto divide-y divide-stone-50" style="max-height:20rem;">
                             <template x-if="notifications.length === 0">
                                 <div class="px-4 py-8 text-center text-sm text-stone-400">
                                     Nessuna notifica
@@ -151,7 +151,7 @@
                         </div>
 
                         {{-- Footer: link a pagina completa --}}
-                        <div class="border-t border-stone-100">
+                        <div class="shrink-0 border-t border-stone-100 rounded-b-2xl overflow-hidden">
                             <a href="{{ route('notifications.index') }}"
                                @click="open = false"
                                class="flex w-full items-center justify-center px-4 py-2.5 text-xs font-semibold text-stone-500 transition hover:bg-stone-50 hover:text-stone-700">
