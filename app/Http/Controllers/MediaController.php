@@ -9,24 +9,49 @@ class MediaController extends Controller
 {
     public function show(string $path): Response
     {
-        // ── Posizione 1: disco "public" configurato ───────────────────────────
-        // In locale punta a storage/app/public/.
-        // Su cPanel, se MEDIA_DISK_ROOT=/home2/kommunity/public_html/media è nel
-        // .env, punta direttamente alla web root → file trovato qui.
-        if (Storage::disk('public')->exists($path)) {
-            return response()->file(Storage::disk('public')->path($path));
+        $clean = ltrim($path, '/');
+
+        // ── 1. Disco configurato (MEDIA_DISK_ROOT o storage/app/public) ───────
+        if (Storage::disk('public')->exists($clean)) {
+            return response()->file(Storage::disk('public')->path($clean));
         }
 
-        // ── Posizione 2: fallback cPanel ─────────────────────────────────────
-        // Quando MEDIA_DISK_ROOT non è impostato nel .env, Laravel salva i file
-        // in storage/app/public/, MA se il disco è stato configurato diversamente
-        // in passato o i file sono stati caricati via File Manager cPanel, si
-        // trovano in public_html/media/.
-        // base_path() = /home2/kommunity/kommunity/ → dirname = /home2/kommunity/
-        $cPanelPath = dirname(base_path()) . '/public_html/media/' . ltrim($path, '/');
+        // ── 2. storage/app/public/ (percorso diretto, senza disco) ───────────
+        $storagePath = storage_path('app/public/' . $clean);
+        if (is_file($storagePath) && is_readable($storagePath)) {
+            return response()->file($storagePath);
+        }
+
+        // ── 3. public_html/media/ tramite dirname(base_path()) ───────────────
+        // base_path() = /home2/USERNAME/APPFOLDER → dirname = /home2/USERNAME/
+        $cPanelPath = dirname(base_path()) . '/public_html/media/' . $clean;
         if (is_file($cPanelPath) && is_readable($cPanelPath)) {
             return response()->file($cPanelPath);
         }
+
+        // ── 4. public_html/media/ tramite HOME di sistema ────────────────────
+        // Alcune configurazioni cPanel hanno HOME impostato correttamente.
+        $home = rtrim(env('HOME', ''), '/');
+        if ($home) {
+            $homePath = $home . '/public_html/media/' . $clean;
+            if (is_file($homePath) && is_readable($homePath)) {
+                return response()->file($homePath);
+            }
+        }
+
+        // ── 5. Percorso relativo a public_path() ─────────────────────────────
+        // Utile se esiste un symlink storage/ dentro public_html/
+        $publicStoragePath = public_path('storage/' . $clean);
+        if (is_file($publicStoragePath) && is_readable($publicStoragePath)) {
+            return response()->file($publicStoragePath);
+        }
+
+        \Illuminate\Support\Facades\Log::warning('MediaController: file non trovato', [
+            'path'         => $clean,
+            'disk_root'    => Storage::disk('public')->path(''),
+            'storage_path' => $storagePath,
+            'cpanel_path'  => $cPanelPath,
+        ]);
 
         abort(404);
     }
