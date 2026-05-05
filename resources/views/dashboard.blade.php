@@ -75,6 +75,27 @@
 
     <main class="km-shell-wide space-y-4 py-5 sm:space-y-5">
 
+        @if($needsOnboarding ?? false)
+            <section class="km-dark-card p-5 sm:p-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--km-green-2)]">
+                            Account attivo
+                        </p>
+                        <h2 class="mt-1 text-xl font-black tracking-tight text-white">
+                            Completa il profilo per sbloccare la community
+                        </h2>
+                        <p class="mt-2 max-w-2xl text-sm leading-6 text-white/65">
+                            Mancano alcuni dati essenziali: professione, città e telefono. La dashboard resta accessibile, ma directory, eventi e incontri sono guidati dal profilo.
+                        </p>
+                    </div>
+                    <a href="{{ route('profile.edit') }}" class="km-cta-primary shrink-0 text-sm">
+                        Completa profilo
+                    </a>
+                </div>
+            </section>
+        @endif
+
         {{-- ═══════════════════════════════════════════════════════════════════
              1. HERO COMPATTO (max ~140px)
              ═══════════════════════════════════════════════════════════════════ --}}

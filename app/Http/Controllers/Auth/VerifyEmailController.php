@@ -63,14 +63,16 @@ class VerifyEmailController extends Controller
                 ->with('success', 'Account verificato. La sessione corrente non è stata modificata.');
         }
 
-        // Email già verificata → redirect diretto alla dashboard
+        // Email già verificata → porta al profilo, non al wizard dashboard.
         if ($user->hasVerifiedEmail()) {
-            return redirect(route('dashboard', absolute: false) . '?verified=1');
+            return redirect()->route('profile.edit')
+                ->with('success', 'Email verificata. Completa il profilo per attivare tutte le funzioni.');
         }
 
         $this->verifyUser($user);
 
-        return redirect(route('dashboard', absolute: false) . '?verified=1');
+        return redirect()->route('profile.edit')
+            ->with('success', 'Account attivato. Completa il profilo per entrare nella community.');
     }
 
     private function verifyUser(User $user): void

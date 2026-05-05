@@ -50,7 +50,12 @@ class DashboardController extends Controller
             $mp->save();
         }
 
-        $showOnboarding    = ! optional($mp)->onboarding_completed && ! $alreadyComplete;
+        // Il vecchio wizard fullscreen dipendeva da Alpine.js e, se gli asset
+        // produzione erano stale o incompleti, poteva bloccare l'intera dashboard
+        // mostrando solo il pannello vuoto. La dashboard deve restare sempre
+        // usabile: guidiamo il completamento profilo con CTA inline.
+        $showOnboarding    = false;
+        $needsOnboarding   = ! optional($mp)->onboarding_completed && ! $alreadyComplete;
         $profileCompletion = (new ProfileCompletionService())->calculate($user);
 
         // ── Feature: dashboard analytics personale (gated) ───────────────────
@@ -61,6 +66,7 @@ class DashboardController extends Controller
         return view('dashboard', [
             'user'              => $user,
             'showOnboarding'    => $showOnboarding,
+            'needsOnboarding'   => $needsOnboarding,
             'profileCompletion' => $profileCompletion,
             'analytics'         => $analytics,
             'upcomingEvents' => Event::query()
