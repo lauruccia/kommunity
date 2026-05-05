@@ -23,5 +23,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Routing\Exceptions\InvalidSignatureException $e, \Illuminate\Http\Request $request) {
+            if (! $request->routeIs('verification.verify')) {
+                return null;
+            }
+
+            $message = 'Il link di attivazione non è valido o è scaduto. Accedi e richiedi un nuovo link di verifica.';
+
+            if ($request->user()) {
+                return redirect()->route('verification.notice')->with('warning', $message);
+            }
+
+            return redirect()->route('login')->with('warning', $message);
+        });
     })->create();

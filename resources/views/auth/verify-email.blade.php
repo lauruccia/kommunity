@@ -16,6 +16,12 @@
         </div>
     @endif
 
+    @if (session('warning'))
+        <div class="mb-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm leading-6 text-amber-100">
+            {{ session('warning') }}
+        </div>
+    @endif
+
     <div class="mt-4 flex items-center justify-between">
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf

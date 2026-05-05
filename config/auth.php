@@ -114,4 +114,19 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email Verification Timeout
+    |--------------------------------------------------------------------------
+    |
+    | I link di verifica vengono spesso aperti da client mobile, WhatsApp o
+    | webmail ore dopo la registrazione. Manteniamo comunque la firma temporanea,
+    | ma con una finestra più adatta a un onboarding reale.
+    |
+    */
+
+    'verification' => [
+        'expire' => (int) env('AUTH_EMAIL_VERIFICATION_EXPIRE', 1440),
+    ],
+
 ];

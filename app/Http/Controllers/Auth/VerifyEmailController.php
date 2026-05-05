@@ -36,19 +36,31 @@ class VerifyEmailController extends Controller
         }
 
         // ── Auto-login se necessario ─────────────────────────────────────────
-        // Scenari gestiti:
-        // 1. Nessun utente loggato (WhatsApp/Gmail in-app browser) → login automatico
-        // 2. Utente diverso loggato (raro, ma gestito) → logout + login come utente corretto
-        // 3. Stesso utente già loggato → nessuna azione
+        // Se il link viene aperto da WhatsApp/Gmail/Safari senza cookie, logghiamo
+        // il nuovo membro. Se invece esiste già una sessione diversa (es. admin
+        // aperto nello stesso browser), NON la sostituiamo: verificare una mail non
+        // deve mai rubare la sessione corrente e causare 403 su /admin.
         $currentUser = $request->user();
 
         if (! $currentUser) {
             Auth::login($user, remember: true);
-        } elseif ($currentUser->id !== (int) $id) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            Auth::login($user, remember: true);
+            $request->session()->regenerate();
+        } elseif ($currentUser->id !== $user->id) {
+            $this->verifyUser($user);
+
+            $target = $currentUser->hasAnyRole(['super-admin', 'admin-community', 'leader-capitolo'])
+                || $currentUser->hasAnyPermission([
+                    'gestire-eventi',
+                    'gestire-utenti',
+                    'assegnare-ruoli',
+                    'assegnare-permessi',
+                    'gestire-capitoli',
+                ])
+                    ? url('/admin')
+                    : route('dashboard', absolute: false);
+
+            return redirect()->to($target)
+                ->with('success', 'Account verificato. La sessione corrente non è stata modificata.');
         }
 
         // Email già verificata → redirect diretto alla dashboard
@@ -56,7 +68,14 @@ class VerifyEmailController extends Controller
             return redirect(route('dashboard', absolute: false) . '?verified=1');
         }
 
-        if ($user->markEmailAsVerified()) {
+        $this->verifyUser($user);
+
+        return redirect(route('dashboard', absolute: false) . '?verified=1');
+    }
+
+    private function verifyUser(User $user): void
+    {
+        if (! $user->hasVerifiedEmail() && $user->markEmailAsVerified()) {
             event(new Verified($user));
 
             // ── Auto-approvazione profilo ────────────────────────────────────
@@ -94,7 +113,5 @@ class VerifyEmailController extends Controller
                 ]);
             }
         }
-
-        return redirect(route('dashboard', absolute: false) . '?verified=1');
     }
 }
