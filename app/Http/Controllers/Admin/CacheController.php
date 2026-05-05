@@ -70,7 +70,17 @@ class CacheController extends Controller
             }
         }
 
-        // 5. Application cache (cache/data — file driver)
+        // 5. OPcache PHP — frequente su cPanel: senza reset può servire ancora
+        // versioni vecchie dei file PHP appena caricati via File Manager/FTP.
+        if (function_exists('opcache_reset')) {
+            $results[] = opcache_reset()
+                ? '✅ OPcache PHP: reset eseguito'
+                : '⚠️ OPcache PHP: reset non riuscito';
+        } else {
+            $results[] = 'ℹ️ OPcache PHP: non disponibile';
+        }
+
+        // 6. Application cache (cache/data — file driver)
         $cachePath = storage_path('framework/cache/data');
         if (File::isDirectory($cachePath)) {
             $cacheFiles = File::allFiles($cachePath);

@@ -25,6 +25,7 @@
                     <li><strong>Config cache</strong> — configurazione compilata (<code>bootstrap/cache/config.php</code>)</li>
                     <li><strong>Route cache</strong> — routing compilato (<code>bootstrap/cache/routes-v7.php</code>)</li>
                     <li><strong>Bootstrap cache</strong> — services e packages (<code>bootstrap/cache/</code>)</li>
+                    <li><strong>OPcache PHP</strong> — cache bytecode del server, spesso attiva su cPanel</li>
                     <li><strong>Application cache</strong> — dati in cache (<code>storage/framework/cache/</code>)</li>
                 </ul>
 

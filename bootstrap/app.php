@@ -36,4 +36,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return redirect()->route('login')->with('warning', $message);
         });
+
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            $message = 'La sessione è scaduta o hai inviato un form aperto da troppo tempo. Ricarica la pagina e accedi di nuovo.';
+
+            if ($request->is('admin/*') || $request->is('admin')) {
+                return redirect('/admin/login')->with('warning', $message);
+            }
+
+            return redirect()->route('login')->with('warning', $message);
+        });
     })->create();

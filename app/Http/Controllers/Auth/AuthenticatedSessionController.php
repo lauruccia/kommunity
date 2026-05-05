@@ -28,6 +28,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = $request->user();
+        $intended = (string) $request->session()->get('url.intended', '');
+
+        if ($user && str_starts_with(parse_url($intended, PHP_URL_PATH) ?: '', '/admin') && ! $this->canAccessAdmin($user)) {
+            $request->session()->forget('url.intended');
+
+            return redirect()->route('dashboard')
+                ->with('warning', 'Hai effettuato l\'accesso come membro. Per entrare in amministrazione usa un account admin.');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -43,5 +53,17 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function canAccessAdmin($user): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'admin-community', 'leader-capitolo'])
+            || $user->hasAnyPermission([
+                'gestire-eventi',
+                'gestire-utenti',
+                'assegnare-ruoli',
+                'assegnare-permessi',
+                'gestire-capitoli',
+            ]);
     }
 }
