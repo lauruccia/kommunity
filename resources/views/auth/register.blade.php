@@ -64,6 +64,12 @@
                 </div>
 
                 <div>
+                    <x-input-label for="phone" :value="'Telefono'" />
+                    <x-text-input id="phone" class="km-portal-input mt-1 block w-full" type="tel" name="phone" :value="old('phone')" required autocomplete="tel" />
+                    <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+                </div>
+
+                <div>
                     <x-input-label for="invited_by_name" :value="'Invitato da'" />
                     <x-text-input id="invited_by_name" class="km-portal-input mt-1 block w-full" type="text" name="invited_by_name"
                         :value="old('invited_by_name', $invitedByName ?? '')"

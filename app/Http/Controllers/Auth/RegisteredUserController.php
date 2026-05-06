@@ -47,9 +47,15 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+().\s-]{6,30}$/'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'invited_by_name' => ['required', 'string', 'max:255'],
+            'invited_by_name' => ['required', 'string', 'max:255', 'regex:/^\S+\s+\S+.*$/'],
             'referral_code' => ['nullable', 'string', 'exists:users,referral_code'],
+        ], [
+            'phone.required' => 'Il numero di telefono e obbligatorio.',
+            'phone.regex' => 'Inserisci un numero di telefono valido.',
+            'invited_by_name.required' => 'Il campo Invitato da e obbligatorio.',
+            'invited_by_name.regex' => 'Inserisci nome e cognome della persona che ti ha invitato.',
         ]);
 
         $inviter = null;
@@ -69,6 +75,9 @@ class RegisteredUserController extends Controller
         ]);
 
         $user->assignRole(Role::findOrCreate('membro'));
+        $user->memberProfile()->update([
+            'phone' => $request->string('phone')->toString(),
+        ]);
 
         event(new Registered($user));
 
