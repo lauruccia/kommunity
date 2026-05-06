@@ -26,7 +26,8 @@ class RegisteredUserController extends Controller
         if (is_string($referralCode) && $referralCode !== '') {
             session(['registration_referral_code' => $referralCode]);
         } else {
-            $referralCode = session('registration_referral_code');
+            session()->forget('registration_referral_code');
+            $referralCode = null;
         }
 
         $inviter = User::query()->where('referral_code', $referralCode)->first();

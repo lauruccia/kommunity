@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,6 +15,22 @@ class RegistrationTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
+    }
+
+    public function test_direct_registration_does_not_reuse_previous_referral(): void
+    {
+        $inviter = User::factory()->create([
+            'name' => 'Kommunity Admin',
+            'referral_code' => 'admin',
+        ]);
+
+        $this->get('/register?ref='.$inviter->referral_code)
+            ->assertSee('Kommunity Admin')
+            ->assertSee('Campo compilato automaticamente dal referral link ricevuto.');
+
+        $this->get('/register')
+            ->assertDontSee('Kommunity Admin')
+            ->assertSee('Inserisci nome e cognome della persona che ti ha invitato.');
     }
 
     public function test_new_users_can_register(): void
