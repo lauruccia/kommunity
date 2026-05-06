@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
@@ -201,7 +202,37 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function referralRegistrationUrl(): string
     {
+        $this->ensureReferralCode();
+
         return route('register', ['ref' => $this->referral_code], false);
+    }
+
+    public function ensureReferralCode(): string
+    {
+        if (filled($this->referral_code)) {
+            return $this->referral_code;
+        }
+
+        $base = Str::slug($this->name, '');
+
+        if ($base === '') {
+            $base = 'membro';
+        }
+
+        $code = $base;
+        $index = 2;
+
+        while (static::query()
+            ->where('referral_code', $code)
+            ->when($this->exists, fn ($query) => $query->whereKeyNot($this->getKey()))
+            ->exists()) {
+            $code = $base.$index;
+            $index++;
+        }
+
+        $this->forceFill(['referral_code' => $code])->saveQuietly();
+
+        return $code;
     }
 
     // ── Abbonamenti ────────────────────────────────────────────────────────

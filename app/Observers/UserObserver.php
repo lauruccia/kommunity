@@ -15,9 +15,7 @@ class UserObserver
 {
     public function created(User $user): void
     {
-        $user->forceFill([
-            'referral_code' => $this->uniqueReferralCode($user->name),
-        ])->saveQuietly();
+        $user->ensureReferralCode();
 
         $user->memberProfile()->create([
             'short_bio' => 'Nuovo membro della kommunity Kommunity.',
@@ -91,22 +89,4 @@ class UserObserver
         return $slug;
     }
 
-    protected function uniqueReferralCode(string $name): string
-    {
-        $base = Str::slug($name, '');
-
-        if ($base === '') {
-            $base = 'membro';
-        }
-
-        $code = $base;
-        $index = 2;
-
-        while (User::query()->where('referral_code', $code)->exists()) {
-            $code = $base . $index;
-            $index++;
-        }
-
-        return $code;
-    }
 }

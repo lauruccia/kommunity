@@ -17,6 +17,22 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_legacy_user_gets_referral_code_when_link_is_generated(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Kommunity Admin',
+        ]);
+        $user->forceFill(['referral_code' => null])->saveQuietly();
+
+        $url = $user->referralRegistrationUrl();
+
+        $this->assertSame('/register?ref=kommunityadmin', $url);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'referral_code' => 'kommunityadmin',
+        ]);
+    }
+
     public function test_direct_registration_does_not_reuse_previous_referral(): void
     {
         $inviter = User::factory()->create([
