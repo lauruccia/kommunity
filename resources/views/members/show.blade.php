@@ -258,13 +258,7 @@
                                 <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
                                     Competenze
                                 </h2>
-                                <div class="mt-3 flex flex-wrap gap-2">
-                                    @foreach ($skillsList as $skill)
-                                        <span class="rounded-lg bg-stone-100 px-3 py-1.5 text-base leading-8 text-stone-700">
-                                            {{ $skill }}
-                                        </span>
-                                    @endforeach
-                                </div>
+                                <p class="mt-2 text-base leading-8 text-stone-700">{{ $skillsList->implode(', ') }}</p>
                             </div>
                             @endif
 
