@@ -3,7 +3,9 @@
 namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
+use App\Support\MemberNavigation;
 use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -40,6 +42,7 @@ class SiteSettingsPage extends Page
             'registration_headline'    => SiteSetting::get('registration_headline', 'Entra in Kommunity'),
             'registration_subheadline' => SiteSetting::get('registration_subheadline', 'La community professionale che fa crescere il tuo business'),
             'registration_body'        => SiteSetting::get('registration_body'),
+            'member_navigation_items'  => MemberNavigation::enabledKeys(),
         ]);
     }
 
@@ -73,6 +76,17 @@ class SiteSettingsPage extends Page
                             ])
                             ->columnSpanFull(),
                     ]),
+
+                Section::make('Menu area membri')
+                    ->description('Scegli quali voci mostrare nel menu superiore dell’area riservata. Le pagine restano raggiungibili via URL, ma non appaiono nel menu.')
+                    ->schema([
+                        CheckboxList::make('member_navigation_items')
+                            ->label('Voci visibili nel menu in alto')
+                            ->options(fn (): array => MemberNavigation::options())
+                            ->columns(2)
+                            ->bulkToggleable()
+                            ->helperText('Deseleziona una voce per nasconderla dal menu superiore e dal menu mobile.'),
+                    ]),
             ]);
     }
 
@@ -103,6 +117,10 @@ class SiteSettingsPage extends Page
         SiteSetting::set('registration_headline',    $data['registration_headline'] ?? null);
         SiteSetting::set('registration_subheadline', $data['registration_subheadline'] ?? null);
         SiteSetting::set('registration_body',        $data['registration_body'] ?? null);
+        SiteSetting::set(
+            MemberNavigation::SETTING_KEY,
+            json_encode(array_values($data['member_navigation_items'] ?? []))
+        );
 
         Notification::make()
             ->title('Impostazioni salvate con successo')

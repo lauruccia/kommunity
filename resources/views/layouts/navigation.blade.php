@@ -4,6 +4,7 @@
         now()->addMinutes(30),
         fn () => \App\Models\SubscriptionPlan::query()->where('is_active', true)->exists()
     );
+    $memberNavigationItems = \App\Support\MemberNavigation::visibleItems($hasActiveSubscriptionPlans);
 
     $navNotifications    = [];
     $navUnreadCount      = 0;
@@ -36,32 +37,11 @@
                     </div>
 
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                            {{ __('nav.dashboard') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('directory.index')" :active="request()->routeIs('directory.*')">
-                            {{ __('nav.directory') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('one-to-ones.index')" :active="request()->routeIs('one-to-ones.*')">
-                            {{ __('nav.one_to_one') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
-                            {{ __('nav.events') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('forum.index')" :active="request()->routeIs('forum.*')">
-                            {{ __('nav.forum') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('conversations.index')" :active="request()->routeIs('conversations.*')">
-                            {{ __('nav.messages') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
-                            {{ __('nav.referrals') }}
-                        </x-nav-link>
-                        @if ($hasActiveSubscriptionPlans)
-                            <x-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
-                                {{ __('nav.subscription') }}
+                        @foreach ($memberNavigationItems as $item)
+                            <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['active'])">
+                                {{ __($item['label']) }}
                             </x-nav-link>
-                        @endif
+                        @endforeach
                     </div>
                 </div>
 
@@ -232,32 +212,11 @@
 
             <div :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-stone-200 pb-4 pt-3 sm:hidden">
                 <div class="space-y-1 pb-3">
-                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('nav.dashboard') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('directory.index')" :active="request()->routeIs('directory.*')">
-                        {{ __('nav.directory') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('one-to-ones.index')" :active="request()->routeIs('one-to-ones.*')">
-                        {{ __('nav.one_to_one') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
-                        {{ __('nav.events') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('forum.index')" :active="request()->routeIs('forum.*')">
-                        {{ __('nav.forum') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('conversations.index')" :active="request()->routeIs('conversations.*')">
-                        {{ __('nav.messages') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('referrals.index')" :active="request()->routeIs('referrals.*')">
-                        {{ __('nav.referrals') }}
-                    </x-responsive-nav-link>
-                    @if ($hasActiveSubscriptionPlans)
-                        <x-responsive-nav-link :href="route('subscriptions.index')" :active="request()->routeIs('subscriptions.*')">
-                            {{ __('nav.subscription') }}
+                    @foreach ($memberNavigationItems as $item)
+                        <x-responsive-nav-link :href="route($item['route'])" :active="request()->routeIs($item['active'])">
+                            {{ __($item['label']) }}
                         </x-responsive-nav-link>
-                    @endif
+                    @endforeach
                 </div>
 
                 <div class="border-t border-stone-200 pt-4">
