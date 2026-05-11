@@ -260,7 +260,7 @@
                                 </h2>
                                 <div class="mt-3 flex flex-wrap gap-2">
                                     @foreach ($skillsList as $skill)
-                                        <span class="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">
+                                        <span class="rounded-lg bg-stone-100 px-3 py-1.5 text-base leading-8 text-stone-700">
                                             {{ $skill }}
                                         </span>
                                     @endforeach
