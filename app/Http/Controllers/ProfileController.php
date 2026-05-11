@@ -55,10 +55,6 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request, VideoCompressor $videoCompressor): RedirectResponse
     {
-        // Rileva upload bloccati da PHP (upload_max_filesize, post_max_size, ecc.):
-        // senza questo controllo i file rifiutati a livello PHP arrivano come $_FILES
-        // con error != 0 ma Laravel/$request->file() li tratta come "nessun file" e
-        // la regola 'nullable' passa, lasciando l'utente convinto di aver salvato.
         $this->guardAgainstUploadErrors(['avatar', 'logo', 'cover_image', 'intro_video']);
 
         $validated = $request->validated();
@@ -101,7 +97,6 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        // Normalizza URL: aggiunge https:// se manca lo schema (accetta input con/senza http/www)
         foreach (['website', 'linkedin_url', 'facebook_url', 'instagram_url'] as $urlField) {
             if (!empty($validated[$urlField])) {
                 $url = trim($validated[$urlField]);
@@ -112,7 +107,6 @@ class ProfileController extends Controller
             }
         }
 
-        // Normalizza intro_video_url: aggiunge https:// se manca
         $introVideoUrl = null;
         if (!empty($validated['intro_video_url'])) {
             $introVideoUrl = trim($validated['intro_video_url']);
@@ -145,11 +139,6 @@ class ProfileController extends Controller
                 'show_phone' => $request->boolean('show_phone'),
                 'show_whatsapp' => $request->boolean('show_whatsapp'),
                 'allow_whatsapp_contact' => $request->boolean('allow_whatsapp_contact'),
-                // is_visible_in_directory e is_active: gestiti solo dall'admin, non sovrascriviamo mai.
-                // onboarding_completed: diventa true se:
-                //   1. era già true (mai azzerare), O
-                //   2. checkbox "Confermo" spuntata, O
-                //   3. AUTO: i 3 campi obbligatori (professione, città, telefono) sono tutti compilati.
                 'onboarding_completed' => $profile->onboarding_completed
                     || $request->boolean('onboarding_completed')
                     || (
@@ -157,7 +146,6 @@ class ProfileController extends Controller
                         && ! empty($validated['city_id'] ?? null)
                         && filled($validated['phone'] ?? null)
                     ),
-                // Non sovrascrivere status se già gestito dall'admin (active/suspended)
                 'status' => in_array($profile->status?->value, ['active', 'suspended'])
                     ? $profile->status->value
                     : (
@@ -191,12 +179,10 @@ class ProfileController extends Controller
             'cover_image' => $coverImage,
         ]);
 
-        // Assicura che la directory esista sul disco public
         Storage::disk('public')->makeDirectory('members/gallery');
 
         $galleryFiles = $request->file('gallery_images') ?? [];
         foreach ((array) $galleryFiles as $galleryImage) {
-            // Salta file nulli o non validi (upload parziali, errori PHP)
             if (! $galleryImage || ! ($galleryImage instanceof \Illuminate\Http\UploadedFile) || ! $galleryImage->isValid()) {
                 continue;
             }
@@ -291,14 +277,10 @@ class ProfileController extends Controller
             return null;
         }
 
-        // Assicura che la directory esista prima di salvare
         Storage::disk('public')->makeDirectory($folder);
 
         $path = $file->store($folder, 'public');
 
-        // Se lo store fallisce (disco non scrivibile, permessi cPanel, ecc.)
-        // ritorna null così l'operatore ?? mantiene il valore esistente nel DB.
-        // Non cancellare la vecchia immagine se il salvataggio è fallito.
         if (! $path) {
             Log::warning('storePublicFile: salvataggio fallito', [
                 'folder' => $folder,
@@ -314,8 +296,7 @@ class ProfileController extends Controller
 
     /**
      * Controlla i campi file di $_FILES e lancia ValidationException
-     * con un messaggio chiaro se PHP ha rifiutato l'upload (file troppo
-     * grande, upload parziale, directory tmp non scrivibile, ecc.).
+     * con un messaggio chiaro se PHP ha rifiutato l'upload.
      *
      * @param array<int,string> $fields nomi dei field file da controllare
      */
@@ -332,7 +313,6 @@ class ProfileController extends Controller
 
             $code = $entry['error'] ?? UPLOAD_ERR_OK;
 
-            // Nessun upload tentato: nulla da segnalare.
             if ($code === UPLOAD_ERR_OK || $code === UPLOAD_ERR_NO_FILE) {
                 continue;
             }
@@ -369,4 +349,57 @@ class ProfileController extends Controller
         if (! $path) {
             Log::warning('storePublicVideo: salvataggio fallito', [
                 'folder' => $folder,
-             
+                'user'   => request()->user()?->id,
+            ]);
+            return null;
+        }
+
+        $this->deletePublicImage($currentUrl);
+
+        return $path;
+    }
+
+    private function deletePublicImage(?string $url): void
+    {
+        if (! $url) {
+            return;
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if (! is_string($path)) {
+            return;
+        }
+
+        if (str_contains($path, '/storage/')) {
+            $relativePath = ltrim(substr($path, strpos($path, '/storage/') + 9), '/');
+        } else {
+            $relativePath = ltrim($url, '/');
+        }
+
+        if ($relativePath !== '') {
+            Storage::disk('public')->delete($relativePath);
+        }
+    }
+
+    /**
+     * Delete the user's account.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
+}

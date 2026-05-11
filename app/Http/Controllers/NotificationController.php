@@ -15,15 +15,15 @@ class NotificationController extends Controller
         $user = $request->user();
 
         // Segna tutte le non lette come lette quando si apre la pagina notifiche,
-        // così il badge nella navbar sparisce dopo aver visitato questa pagina.
-        $user->unreadNotifications()->update(['read_at' => now()]);
+        // cosi il badge nella navbar sparisce dopo aver visitato questa pagina.
+        $user->unreadNotifications()->update(["read_at" => now()]);
 
         $notifications = $user
             ->notifications()
             ->latest()
             ->paginate(20);
 
-        return view('notifications.index', compact('notifications'));
+        return view("notifications.index", compact("notifications"));
     }
 
     public function markAsRead(Request $request, string $id): JsonResponse
@@ -34,7 +34,17 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        return response()->json(['ok' => true]);
+        return response()->json(["ok" => true]);
     }
 
-    public function markAllAsRead(Request $request): JsonResponse
+    public function markAllAsRead(Request $request): JsonResponse|RedirectResponse
+    {
+        $request->user()->unreadNotifications->markAsRead();
+
+        if ($request->expectsJson()) {
+            return response()->json(["ok" => true]);
+        }
+
+        return back()->with("status", "notifications-read");
+    }
+}

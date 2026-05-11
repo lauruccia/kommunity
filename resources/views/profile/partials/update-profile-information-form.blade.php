@@ -733,4 +733,96 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('kmVideoRecorder', (hasExistingVideo = false) => ({
         state:            'idle',   // idle | preview | recording | recorded | error
         errorMsg:         '',
-       
+        elapsed:          0,
+        hasExistingVideo: hasExistingVideo,
+        _stream:          null,
+        _recorder:  null,
+        _chunks:    [],
+        _timer:     null,
+        _blob:      null,
+        MAX_SEC:    60,
+
+        async startCamera() {
+            if (this.hasExistingVideo) {
+                const ok = confirm(
+                    'Hai già una videopresentazione attiva.\n\n' +
+                    'Vuoi registrarne una nuova in sostituzione?\n' +
+                    'Il video precedente sarà eliminato al salvataggio.'
+                );
+                if (!ok) return;
+            }
+            try {
+                this._stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                this.state = 'preview';
+                // srcObject viene assegnato da x-init sull'elemento video al momento del mount
+            } catch (e) {
+                this.state = 'error';
+                this.errorMsg = 'Impossibile accedere alla camera. Controlla i permessi del browser e riprova.';
+            }
+        },
+
+        startRecording() {
+            this._chunks = [];
+            this.elapsed = 0;
+            const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+                ? 'video/webm;codecs=vp9'
+                : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4');
+            this._recorder = new MediaRecorder(this._stream, { mimeType });
+            this._recorder.ondataavailable = e => { if (e.data.size > 0) this._chunks.push(e.data); };
+            this._recorder.onstop = () => this._onRecordingStop();
+            this._recorder.start(250);
+            this.state = 'recording';
+            // srcObject viene assegnato da x-init sull'elemento video al momento del mount
+            this._timer = setInterval(() => {
+                this.elapsed++;
+                if (this.elapsed >= this.MAX_SEC) this.stopRecording();
+            }, 1000);
+        },
+
+        stopRecording() {
+            clearInterval(this._timer);
+            if (this._recorder && this._recorder.state !== 'inactive') this._recorder.stop();
+        },
+
+        _onRecordingStop() {
+            const ext  = this._chunks[0]?.type?.includes('mp4') ? 'mp4' : 'webm';
+            const mime = this._chunks[0]?.type || 'video/webm';
+            this._blob = new Blob(this._chunks, { type: mime });
+            this.state = 'recorded';
+            // src viene assegnato da x-init sull'elemento video al momento del mount
+            // Attach al file input tramite DataTransfer (Chrome/Firefox/Safari 17+)
+            try {
+                const file = new File([this._blob], 'presentazione.' + ext, { type: mime });
+                const dt   = new DataTransfer();
+                dt.items.add(file);
+                const input = document.getElementById('intro_video');
+                if (input) input.files = dt.files;
+            } catch (_) { /* Safari < 17: upload via file input rimane manuale */ }
+            // Ferma stream camera
+            this._stream?.getTracks().forEach(t => t.stop());
+        },
+
+        reRecord() {
+            this._blob = null;
+            this._chunks = [];
+            this.elapsed = 0;
+            const input = document.getElementById('intro_video');
+            if (input) input.value = '';
+            this.startCamera();
+        },
+
+        cancelCamera() {
+            clearInterval(this._timer);
+            this._recorder?.stop();
+            this._stream?.getTracks().forEach(t => t.stop());
+            this._blob = null;
+            this._chunks = [];
+            this.elapsed = 0;
+            const input = document.getElementById('intro_video');
+            if (input) input.value = '';
+            this.state = 'idle';
+        },
+    }));
+
+});
+</script>
