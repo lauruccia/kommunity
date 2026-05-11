@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
 use App\Support\MemberNavigation;
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\RichEditor;
@@ -17,21 +18,19 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
+use Filament\Support\Icons\Heroicon;
 
 /**
  * @property-read Schema $form
  */
 class SiteSettingsPage extends Page
 {
-    protected static ?string $navigationLabel = 'Impostazioni sito';
-    protected static ?string $title          = 'Impostazioni sito';
-    protected static ?int    $navigationSort = 99;
-    protected string $view                   = 'filament.pages.site-settings';
-
-    public static function getNavigationGroup(): string|\UnitEnum|null
-    {
-        return 'Kommunity';
-    }
+    protected static ?string $navigationLabel = 'Menu area membri';
+    protected static ?string $title = 'Impostazioni sito';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sito';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBars3;
+    protected static ?int $navigationSort = 11;
+    protected string $view = 'filament.pages.site-settings';
 
     /** @var array<string, mixed>|null */
     public ?array $data = [];
