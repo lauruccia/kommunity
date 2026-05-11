@@ -7,7 +7,10 @@ use App\Filament\Resources\Pages\Pages\EditPage;
 use App\Filament\Resources\Pages\Pages\ListPages;
 use App\Models\Page;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\RichEditor;
@@ -20,7 +23,9 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 
 class PageResource extends Resource
@@ -93,7 +98,8 @@ class PageResource extends Resource
                         ->helperText('Solo le pagine pubblicate sono visibili sul sito'),
 
                     Toggle::make('show_in_nav')
-                        ->label('Mostra nel menu di navigazione'),
+                        ->label('Mostra nel menu in alto')
+                        ->helperText('Quando spento, la pagina resta accessibile dal suo URL ma non appare nel menu superiore.'),
 
                     Toggle::make('show_in_footer')
                         ->label('Mostra nel footer'),
@@ -145,11 +151,57 @@ class PageResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('nav_order')
+            ->filters([
+                TernaryFilter::make('is_published')
+                    ->label('Pubblicazione')
+                    ->trueLabel('Solo pubblicate')
+                    ->falseLabel('Solo bozze')
+                    ->native(false),
+
+                TernaryFilter::make('show_in_nav')
+                    ->label('Menu in alto')
+                    ->trueLabel('Visibili nel menu')
+                    ->falseLabel('Nascoste dal menu')
+                    ->native(false),
+            ])
             ->recordActions([
+                Action::make('showInNav')
+                    ->label('Mostra nel menu')
+                    ->icon(Heroicon::OutlinedEye)
+                    ->color('success')
+                    ->visible(fn (Page $record): bool => ! $record->show_in_nav)
+                    ->action(fn (Page $record): bool => $record->update(['show_in_nav' => true])),
+
+                Action::make('hideFromNav')
+                    ->label('Nascondi dal menu')
+                    ->icon(Heroicon::OutlinedEyeSlash)
+                    ->color('warning')
+                    ->visible(fn (Page $record): bool => (bool) $record->show_in_nav)
+                    ->action(fn (Page $record): bool => $record->update(['show_in_nav' => false])),
+
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('showSelectedInNav')
+                        ->label('Mostra nel menu in alto')
+                        ->icon(Heroicon::OutlinedEye)
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records): int => Page::query()
+                            ->whereKey($records->modelKeys())
+                            ->update(['show_in_nav' => true])),
+
+                    BulkAction::make('hideSelectedFromNav')
+                        ->label('Nascondi dal menu in alto')
+                        ->icon(Heroicon::OutlinedEyeSlash)
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records): int => Page::query()
+                            ->whereKey($records->modelKeys())
+                            ->update(['show_in_nav' => false])),
+
                     DeleteBulkAction::make(),
                 ]),
             ]);
