@@ -244,24 +244,27 @@
                                     ? collect(explode(',', $profile->skills))->map(fn ($s) => trim($s))->filter()
                                     : collect();
                             @endphp
-                            @if ($servicesText || $skillsList->isNotEmpty())
+                            @if ($servicesText)
                             <div>
                                 <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
-                                    Servizi e competenze
+                                    Servizi
                                 </h2>
-                                @if ($servicesText)
-                                    <p class="mt-2 text-base leading-8 text-stone-700">{{ $servicesText }}</p>
-                                @endif
+                                <p class="mt-2 text-base leading-8 text-stone-700">{{ $servicesText }}</p>
+                            </div>
+                            @endif
 
-                                @if ($skillsList->isNotEmpty())
-                                    <div class="mt-3 flex flex-wrap gap-2">
-                                        @foreach ($skillsList as $skill)
-                                            <span class="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">
-                                                {{ $skill }}
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                @endif
+                            @if ($skillsList->isNotEmpty())
+                            <div>
+                                <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
+                                    Competenze
+                                </h2>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach ($skillsList as $skill)
+                                        <span class="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">
+                                            {{ $skill }}
+                                        </span>
+                                    @endforeach
+                                </div>
                             </div>
                             @endif
 
@@ -398,8 +401,4 @@
                         </div>
                     </div>
 
-                </section>
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+ 

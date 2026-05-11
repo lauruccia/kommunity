@@ -239,6 +239,42 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'suggestion-created');
     }
 
+    public function destroyAvatar(Request $request): RedirectResponse
+    {
+        $profile = $request->user()->memberProfile()->firstOrFail();
+        $this->deletePublicImage($profile->avatar);
+        $profile->update(['avatar' => null]);
+
+        return Redirect::route('profile.edit')->with('status', 'avatar-deleted');
+    }
+
+    public function destroyBanner(Request $request): RedirectResponse
+    {
+        $onepage = $request->user()->memberOnepage;
+        if ($onepage && $onepage->cover_image) {
+            $this->deletePublicImage($onepage->cover_image);
+            $onepage->update(['cover_image' => null]);
+        }
+
+        return Redirect::route('profile.edit')->with('status', 'banner-deleted');
+    }
+
+    public function destroyVideo(Request $request): RedirectResponse
+    {
+        $profile = $request->user()->memberProfile()->firstOrFail();
+
+        if ($profile->intro_video) {
+            $this->deletePublicImage($profile->intro_video);
+        }
+
+        $profile->update([
+            'intro_video'     => null,
+            'intro_video_url' => null,
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'video-deleted');
+    }
+
     public function destroyGalleryImage(Request $request, MemberGalleryImage $memberGalleryImage): RedirectResponse
     {
         abort_unless($memberGalleryImage->user_id === $request->user()->id, 403);
@@ -333,57 +369,4 @@ class ProfileController extends Controller
         if (! $path) {
             Log::warning('storePublicVideo: salvataggio fallito', [
                 'folder' => $folder,
-                'user'   => request()->user()?->id,
-            ]);
-            return null;
-        }
-
-        $this->deletePublicImage($currentUrl);
-
-        return $path;
-    }
-
-    private function deletePublicImage(?string $url): void
-    {
-        if (! $url) {
-            return;
-        }
-
-        $path = parse_url($url, PHP_URL_PATH);
-
-        if (! is_string($path)) {
-            return;
-        }
-
-        if (str_contains($path, '/storage/')) {
-            $relativePath = ltrim(substr($path, strpos($path, '/storage/') + 9), '/');
-        } else {
-            $relativePath = ltrim($url, '/');
-        }
-
-        if ($relativePath !== '') {
-            Storage::disk('public')->delete($relativePath);
-        }
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
-}
+             

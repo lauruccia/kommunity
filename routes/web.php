@@ -56,6 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/suggestions', [ProfileController::class, 'storeSuggestion'])->name('profile.suggestions.store');
     Route::delete('/profile/gallery/{memberGalleryImage}', [ProfileController::class, 'destroyGalleryImage'])->name('profile.gallery.destroy');
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
+    Route::delete('/profile/banner', [ProfileController::class, 'destroyBanner'])->name('profile.banner.destroy');
+    Route::delete('/profile/video', [ProfileController::class, 'destroyVideo'])->name('profile.video.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
@@ -118,13 +121,4 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
 Route::middleware([
         'auth',
         'verified',
-        'role:super-admin|admin-community|leader-capitolo',
-    ])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::get('/cache', [CacheController::class, 'index'])->name('cache.index');
-        Route::post('/cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
-    });
-
-require __DIR__.'/auth.php';
+        'ro

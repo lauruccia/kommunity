@@ -56,6 +56,16 @@
                     <x-input-label for="avatar" :value="'Foto profilo'" />
                     @if ($profile->avatarUrl())
                         <img src="{{ $profile->avatarUrl() }}" alt="Foto profilo attuale" class="mt-2 h-24 w-24 rounded-[1.4rem] border border-stone-200 object-cover shadow-sm">
+                        <form method="POST" action="{{ route('profile.avatar.destroy') }}" class="mt-1.5">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    onclick="return confirm('Eliminare la foto profilo?')"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:text-rose-700 transition">
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/></svg>
+                                Elimina foto
+                            </button>
+                        </form>
                     @endif
                     <input id="avatar" name="avatar" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
                     <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
@@ -64,6 +74,16 @@
                     <x-input-label for="cover_image" :value="'Banner card e pagina'" />
                     @if ($user->memberOnepage?->coverImageUrl())
                         <img src="{{ $user->memberOnepage->coverImageUrl() }}" alt="Banner attuale" class="mt-2 h-24 w-full rounded-[1.4rem] border border-stone-200 object-cover shadow-sm">
+                        <form method="POST" action="{{ route('profile.banner.destroy') }}" class="mt-1.5">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    onclick="return confirm('Eliminare il banner?')"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:text-rose-700 transition">
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/></svg>
+                                Elimina banner
+                            </button>
+                        </form>
                     @endif
                     <input id="cover_image" name="cover_image" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
                     <x-input-error class="mt-2" :messages="$errors->get('cover_image')" />
@@ -297,6 +317,19 @@
                                    class="h-full w-full object-contain">
                             </video>
                         </div>
+                    @endif
+
+                    @if ($hasExistingVideo)
+                        <form method="POST" action="{{ route('profile.video.destroy') }}" class="mt-2">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    onclick="return confirm('Eliminare il video di presentazione?')"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:text-rose-700 transition">
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/></svg>
+                                Elimina video
+                            </button>
+                        </form>
                     @endif
 
                     {{-- Toggle guida — subito sotto il campo URL --}}
@@ -700,96 +733,4 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('kmVideoRecorder', (hasExistingVideo = false) => ({
         state:            'idle',   // idle | preview | recording | recorded | error
         errorMsg:         '',
-        elapsed:          0,
-        hasExistingVideo: hasExistingVideo,
-        _stream:          null,
-        _recorder:  null,
-        _chunks:    [],
-        _timer:     null,
-        _blob:      null,
-        MAX_SEC:    60,
-
-        async startCamera() {
-            if (this.hasExistingVideo) {
-                const ok = confirm(
-                    'Hai già una videopresentazione attiva.\n\n' +
-                    'Vuoi registrarne una nuova in sostituzione?\n' +
-                    'Il video precedente sarà eliminato al salvataggio.'
-                );
-                if (!ok) return;
-            }
-            try {
-                this._stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                this.state = 'preview';
-                // srcObject viene assegnato da x-init sull'elemento video al momento del mount
-            } catch (e) {
-                this.state = 'error';
-                this.errorMsg = 'Impossibile accedere alla camera. Controlla i permessi del browser e riprova.';
-            }
-        },
-
-        startRecording() {
-            this._chunks = [];
-            this.elapsed = 0;
-            const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-                ? 'video/webm;codecs=vp9'
-                : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4');
-            this._recorder = new MediaRecorder(this._stream, { mimeType });
-            this._recorder.ondataavailable = e => { if (e.data.size > 0) this._chunks.push(e.data); };
-            this._recorder.onstop = () => this._onRecordingStop();
-            this._recorder.start(250);
-            this.state = 'recording';
-            // srcObject viene assegnato da x-init sull'elemento video al momento del mount
-            this._timer = setInterval(() => {
-                this.elapsed++;
-                if (this.elapsed >= this.MAX_SEC) this.stopRecording();
-            }, 1000);
-        },
-
-        stopRecording() {
-            clearInterval(this._timer);
-            if (this._recorder && this._recorder.state !== 'inactive') this._recorder.stop();
-        },
-
-        _onRecordingStop() {
-            const ext  = this._chunks[0]?.type?.includes('mp4') ? 'mp4' : 'webm';
-            const mime = this._chunks[0]?.type || 'video/webm';
-            this._blob = new Blob(this._chunks, { type: mime });
-            this.state = 'recorded';
-            // src viene assegnato da x-init sull'elemento video al momento del mount
-            // Attach al file input tramite DataTransfer (Chrome/Firefox/Safari 17+)
-            try {
-                const file = new File([this._blob], 'presentazione.' + ext, { type: mime });
-                const dt   = new DataTransfer();
-                dt.items.add(file);
-                const input = document.getElementById('intro_video');
-                if (input) input.files = dt.files;
-            } catch (_) { /* Safari < 17: upload via file input rimane manuale */ }
-            // Ferma stream camera
-            this._stream?.getTracks().forEach(t => t.stop());
-        },
-
-        reRecord() {
-            this._blob = null;
-            this._chunks = [];
-            this.elapsed = 0;
-            const input = document.getElementById('intro_video');
-            if (input) input.value = '';
-            this.startCamera();
-        },
-
-        cancelCamera() {
-            clearInterval(this._timer);
-            this._recorder?.stop();
-            this._stream?.getTracks().forEach(t => t.stop());
-            this._blob = null;
-            this._chunks = [];
-            this.elapsed = 0;
-            const input = document.getElementById('intro_video');
-            if (input) input.value = '';
-            this.state = 'idle';
-        },
-    }));
-
-});
-</script>
+       
