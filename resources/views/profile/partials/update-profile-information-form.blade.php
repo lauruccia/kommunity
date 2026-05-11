@@ -56,16 +56,15 @@
                     <x-input-label for="avatar" :value="'Foto profilo'" />
                     @if ($profile->avatarUrl())
                         <img src="{{ $profile->avatarUrl() }}" alt="Foto profilo attuale" class="mt-2 h-24 w-24 rounded-[1.4rem] border border-stone-200 object-cover shadow-sm">
-                        <form method="POST" action="{{ route('profile.avatar.destroy') }}" class="mt-1.5">
-                            @csrf
-                            @method('DELETE')
+                        <div class="mt-1.5">
                             <button type="submit"
+                                    form="delete-avatar-form"
                                     onclick="return confirm('Eliminare la foto profilo?')"
                                     class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:text-rose-700 transition">
                                 <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/></svg>
                                 Elimina foto
                             </button>
-                        </form>
+                        </div>
                     @endif
                     <input id="avatar" name="avatar" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
                     <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
@@ -74,16 +73,15 @@
                     <x-input-label for="cover_image" :value="'Banner card e pagina'" />
                     @if ($user->memberOnepage?->coverImageUrl())
                         <img src="{{ $user->memberOnepage->coverImageUrl() }}" alt="Banner attuale" class="mt-2 h-24 w-full rounded-[1.4rem] border border-stone-200 object-cover shadow-sm">
-                        <form method="POST" action="{{ route('profile.banner.destroy') }}" class="mt-1.5">
-                            @csrf
-                            @method('DELETE')
+                        <div class="mt-1.5">
                             <button type="submit"
+                                    form="delete-banner-form"
                                     onclick="return confirm('Eliminare il banner?')"
                                     class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:text-rose-700 transition">
                                 <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/></svg>
                                 Elimina banner
                             </button>
-                        </form>
+                        </div>
                     @endif
                     <input id="cover_image" name="cover_image" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
                     <x-input-error class="mt-2" :messages="$errors->get('cover_image')" />
@@ -320,16 +318,15 @@
                     @endif
 
                     @if ($hasExistingVideo)
-                        <form method="POST" action="{{ route('profile.video.destroy') }}" class="mt-2">
-                            @csrf
-                            @method('DELETE')
+                        <div class="mt-2">
                             <button type="submit"
+                                    form="delete-video-form"
                                     onclick="return confirm('Eliminare il video di presentazione?')"
                                     class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:text-rose-700 transition">
                                 <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/></svg>
                                 Elimina video
                             </button>
-                        </form>
+                        </div>
                     @endif
 
                     {{-- Toggle guida — subito sotto il campo URL --}}
@@ -606,6 +603,27 @@
             @endif
         </div>
     </form>
+
+    @if ($profile->avatarUrl())
+        <form id="delete-avatar-form" method="POST" action="{{ route('profile.avatar.destroy') }}" class="hidden">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endif
+
+    @if ($user->memberOnepage?->coverImageUrl())
+        <form id="delete-banner-form" method="POST" action="{{ route('profile.banner.destroy') }}" class="hidden">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endif
+
+    @if ($hasExistingVideo)
+        <form id="delete-video-form" method="POST" action="{{ route('profile.video.destroy') }}" class="hidden">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endif
 
     <div class="mt-8 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
         <div class="grid gap-6 lg:grid-cols-2">

@@ -35,12 +35,8 @@ return new class extends Migration {
             ->whereNull('completed_at')
             ->update(['completed_at' => DB::raw('COALESCE(updated_at, CURRENT_TIMESTAMP)')]);
 
-        // Indice sicuro (controllo via SHOW INDEX)
-        $exists = collect(DB::select('SHOW INDEX FROM one_to_one_requests'))
-            ->pluck('Key_name')
-            ->contains('one_to_one_requested_at_idx');
-
-        if (! $exists) {
+        // Indice sicuro, compatibile con MySQL e SQLite in test.
+        if (! Schema::hasIndex('one_to_one_requests', 'one_to_one_requested_at_idx')) {
             Schema::table('one_to_one_requests', function (Blueprint $table) {
                 $table->index('requested_at', 'one_to_one_requested_at_idx');
             });
