@@ -76,7 +76,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/push/test',        [PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
 
     // Abbonamenti: accessibili prima del completamento onboarding
-    // (l'utente potrebbe voler iscriversi prima di compilare il profilo)
     Route::get('/abbonamento', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::post('/abbonamento', [SubscriptionController::class, 'request'])->name('subscriptions.request');
     Route::delete('/abbonamento/{subscription}', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
@@ -121,4 +120,13 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
 Route::middleware([
         'auth',
         'verified',
-        'ro
+        'role:super-admin|admin-community|leader-capitolo',
+    ])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/cache', [CacheController::class, 'index'])->name('cache.index');
+        Route::post('/cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
+    });
+
+require __DIR__.'/auth.php';
