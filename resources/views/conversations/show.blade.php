@@ -369,4 +369,22 @@
                 setTimeout(scrollToBottom, 80);
             });
 
-            document.getEl
+            document.getElementById('chat-composer-form')
+                ?.querySelector('textarea[name="body"]')
+                ?.addEventListener('input', function () {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 160) + 'px';
+                });
+
+            document.getElementById('chat-composer-form')
+                ?.querySelector('textarea[name="body"]')
+                ?.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        document.getElementById('chat-composer-form')?.requestSubmit();
+                    }
+                });
+        })();
+    </script>
+
+</x-app-layout>
