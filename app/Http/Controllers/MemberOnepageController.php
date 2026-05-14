@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MemberOnepage;
+use App\Models\OneToOneReference;
 use App\Models\OneToOneRequest;
 use App\Models\Referral;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class MemberOnepageController extends Controller
                 'user.memberProfile.category',
                 'user.memberProfile.professions',
                 'user.memberProfile.profession',
+                'user.memberProfile.sector',
                 'user.memberProfile.city',
                 'user.memberProfile.region',
                 'user.memberProfile.chapter',
@@ -29,13 +31,25 @@ class MemberOnepageController extends Controller
             ->firstOrFail();
 
         $currentUserId = $request->user()->id;
-        $memberUserId = $onepage->user->id;
+        $memberUserId  = $onepage->user->id;
+
+        // Recensioni ricevute da questo membro (con testo o voto)
+        $reviews = OneToOneReference::query()
+            ->with('author')
+            ->where('recipient_id', $memberUserId)
+            ->where(function ($q): void {
+                $q->whereNotNull('content')
+                  ->orWhereNotNull('rating');
+            })
+            ->latest()
+            ->get();
 
         return view('members.show', [
-            'onepage' => $onepage,
-            'profile' => $onepage->user->memberProfile,
-            'user' => $onepage->user,
-            'currentTab' => $request->string('tab')->toString() ?: 'profile',
+            'onepage'         => $onepage,
+            'profile'         => $onepage->user->memberProfile,
+            'user'            => $onepage->user,
+            'reviews'         => $reviews,
+            'currentTab'      => $request->string('tab')->toString() ?: 'profile',
             'communityThreads' => $onepage->user->forumThreads()
                 ->with('category')
                 ->latest()
