@@ -39,8 +39,6 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'invited_by_name',
         'locale',
         'last_seen_at',
-        'last_seen_url',
-        'last_seen_route',
         'show_online_status',
         'show_read_receipts',
         // ── Concierge onboarding (feature: concierge_onboarding) ────────────

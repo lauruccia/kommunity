@@ -567,31 +567,6 @@
                     @endforelse
                 </div>
 
-                {{-- Barra info + selettore "per pagina" --}}
-                <div class="km-panel flex flex-wrap items-center justify-between gap-3 px-4 py-2">
-                    <span class="text-sm text-stone-500">
-                        {{ $members->total() }} {{ $members->total() === 1 ? 'membro trovato' : 'membri trovati' }}
-                    </span>
-
-                    <form method="GET" class="flex items-center gap-2">
-                        {{-- Preserva tutti i filtri attivi --}}
-                        @foreach(['search','profession','region','province','city','chapter'] as $_fk)
-                            @if($filters[$_fk] ?? null)
-                                <input type="hidden" name="{{ $_fk }}" value="{{ $filters[$_fk] }}">
-                            @endif
-                        @endforeach
-
-                        <label for="per_page_select" class="text-sm text-stone-500 whitespace-nowrap">Per pagina:</label>
-                        <select id="per_page_select" name="per_page"
-                                onchange="this.form.submit()"
-                                class="km-input py-1 text-sm">
-                            @foreach($perPageOptions as $_opt)
-                                <option value="{{ $_opt }}" {{ $perPage === $_opt ? 'selected' : '' }}>{{ $_opt }}</option>
-                            @endforeach
-                        </select>
-                    </form>
-                </div>
-
                 <div class="km-panel p-4">
                     {{ $members->links() }}
                 </div>

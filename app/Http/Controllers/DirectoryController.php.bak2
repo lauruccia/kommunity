@@ -38,11 +38,6 @@ class DirectoryController extends Controller
             'search', 'profession', 'region', 'province', 'city', 'chapter',
         ]);
 
-        $allowedPerPage = [40, 80, 120, 160];
-        $perPage = in_array((int) $request->input('per_page'), $allowedPerPage)
-            ? (int) $request->input('per_page')
-            : 40;
-
         // Ordine random pre-calcolato e cachato per 60 minuti.
         // Su MySQL con > 5k profili, ORDER BY RAND() faceva full-table-scan
         // ad ogni richiesta; ora prendiamo gli ID una volta, li mescoliamo
@@ -96,23 +91,14 @@ class DirectoryController extends Controller
             ->when($filters['chapter'] ?? null, fn (Builder $q, string $chapter) =>
                 $q->where('chapter_id', $chapter)
             )
-            ->when($hasOrderBy, function (Builder $q) use ($idsCsv, $orderedIds): void {
-                // FIELD() è MySQL/MariaDB only; SQLite (locale) usa CASE WHEN
-                $driver = config('database.connections.' . config('database.default') . '.driver');
-                if ($driver === 'sqlite') {
-                    $cases = collect($orderedIds)
-                        ->map(fn ($id, $i) => 'WHEN member_profiles.id = ' . (int) $id . ' THEN ' . $i)
-                        ->implode(' ');
-                    $q->orderByRaw('CASE ' . $cases . ' ELSE 9999 END');
-                } else {
-                    // MySQL/MariaDB: ordine stabile basato sul seed random cachato
-                    $q->orderByRaw('FIELD(member_profiles.id, ' . $idsCsv . ')');
-                }
+            ->when($hasOrderBy, function (Builder $q) use ($idsCsv): void {
+                // Ordine stabile basato sul seed random cachato (no table scan)
+                $q->orderByRaw('FIELD(member_profiles.id, ' . $idsCsv . ')');
             }, function (Builder $q): void {
                 // Fallback: nessun ID in cache (DB vuoto)
                 $q->orderBy('member_profiles.id');
             })
-            ->paginate($perPage)
+            ->paginate(12)
             ->withQueryString();
 
         // Albero per filtro localita: Regione → Provincia → Città
@@ -139,14 +125,12 @@ class DirectoryController extends Controller
             ->get();
 
         return view('directory.index', [
-            'members'        => $members,
-            'professions'    => $professions,
-            'regions'        => $regions,
-            'provinces'      => $provinces,
-            'chapters'       => Chapter::query()->where('is_active', true)->orderBy('name')->get(),
-            'filters'        => $filters,
-            'perPage'        => $perPage,
-            'perPageOptions' => $allowedPerPage,
+            'members'     => $members,
+            'professions' => $professions,
+            'regions'     => $regions,
+            'provinces'   => $provinces,
+            'chapters'    => Chapter::query()->where('is_active', true)->orderBy('name')->get(),
+            'filters'     => $filters,
         ]);
     }
 }
