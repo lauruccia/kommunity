@@ -6,6 +6,7 @@ use App\Enums\MemberProfileStatus;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\RelationManagers\UserPlanetsRelationManager;
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -222,7 +223,9 @@ class UserResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            UserPlanetsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
