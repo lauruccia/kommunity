@@ -30,7 +30,7 @@ class ChapterInvitationsRelationManager extends RelationManager
     /**
      * La scheda Inviti è visibile solo ad admin e al leader del pianeta.
      */
-    public static function canViewAny(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): bool
+    public function canViewAny(): bool
     {
         $user = auth()->user();
 
@@ -43,7 +43,7 @@ class ChapterInvitationsRelationManager extends RelationManager
         }
 
         // Leader di questo specifico pianeta
-        return $ownerRecord->leader_id === $user->id
+        return $this->getOwnerRecord()->leader_id === $user->id
             || $user->can('gestire-inviti');
     }
 

@@ -29,7 +29,7 @@ class UserPlanetsRelationManager extends RelationManager
 
     // ── Autorizzazione: solo admin ────────────────────────────────────────────
 
-    public static function canViewAny(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): bool
+    public function canViewAny(): bool
     {
         $user = auth()->user();
         return $user?->hasAnyRole(['super-admin', 'admin-community'])
