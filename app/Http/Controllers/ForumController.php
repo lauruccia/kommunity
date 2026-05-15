@@ -23,6 +23,9 @@ class ForumController extends Controller
             'search' => ['nullable', 'string', 'max:255'],
         ]);
 
+        // Pianeta attivo: il forum è scopato per Pianeta.
+        $activePlanetId = $request->user()->memberProfile?->active_chapter_id;
+
         $threadsQuery = ForumThread::query()
             ->with([
                 'category',
@@ -30,15 +33,19 @@ class ForumController extends Controller
                 'latestPost.user.memberProfile',
             ])
             ->withCount('posts')
+            ->when($activePlanetId, fn ($q) => $q->where('chapter_id', $activePlanetId))
             ->orderByDesc('is_pinned')
             ->latest();
 
         $categories = ForumCategory::query()
-            ->withCount('threads')
+            ->withCount(['threads' => fn ($q) =>
+                $q->when($activePlanetId, fn ($q) => $q->where('chapter_id', $activePlanetId))
+            ])
             ->with([
                 'threads' => fn ($query) => $query
                     ->with(['latestPost.user.memberProfile'])
                     ->withCount('posts')
+                    ->when($activePlanetId, fn ($q) => $q->where('chapter_id', $activePlanetId))
                     ->latest()
                     ->limit(1),
             ])
@@ -48,6 +55,7 @@ class ForumController extends Controller
 
         $postCountsByCategory = ForumPost::query()
             ->join('forum_threads', 'forum_threads.id', '=', 'forum_posts.forum_thread_id')
+            ->when($activePlanetId, fn ($q) => $q->where('forum_threads.chapter_id', $activePlanetId))
             ->selectRaw('forum_threads.forum_category_id as category_id, count(forum_posts.id) as posts_count')
             ->groupBy('forum_threads.forum_category_id')
             ->pluck('posts_count', 'category_id');
@@ -56,15 +64,24 @@ class ForumController extends Controller
             $category->setAttribute('posts_count', (int) ($postCountsByCategory[$category->id] ?? 0));
         });
 
+        $planetThreadScope = fn ($q) => $q->when($activePlanetId, fn ($q) => $q->where('chapter_id', $activePlanetId));
+
         $stats = [
-            'threads' => ForumThread::query()->count(),
-            'posts' => ForumPost::query()->count(),
-            'members' => User::query()->count(),
-            'active_members' => ForumPost::query()->distinct('user_id')->count('user_id'),
+            'threads'        => ForumThread::query()->tap($planetThreadScope)->count(),
+            'posts'          => ForumPost::query()
+                ->join('forum_threads', 'forum_threads.id', '=', 'forum_posts.forum_thread_id')
+                ->when($activePlanetId, fn ($q) => $q->where('forum_threads.chapter_id', $activePlanetId))
+                ->count(),
+            'members'        => User::query()->count(),
+            'active_members' => ForumPost::query()
+                ->join('forum_threads', 'forum_threads.id', '=', 'forum_posts.forum_thread_id')
+                ->when($activePlanetId, fn ($q) => $q->where('forum_threads.chapter_id', $activePlanetId))
+                ->distinct('forum_posts.user_id')->count('forum_posts.user_id'),
         ];
 
         $featuredThreads = ForumThread::query()
             ->with(['category', 'user.memberProfile', 'latestPost.user.memberProfile'])
+            ->when($activePlanetId, fn ($q) => $q->where('chapter_id', $activePlanetId))
             ->withCount('posts')
             ->orderByDesc('is_pinned')
             ->latest()
@@ -108,10 +125,11 @@ class ForumController extends Controller
 
         $thread = ForumThread::query()->create([
             'forum_category_id' => $data['forum_category_id'],
-            'user_id' => $request->user()->id,
-            'title' => $data['title'],
-            'slug' => Str::slug($data['title']).'-'.Str::lower(Str::random(6)),
-            'excerpt' => Str::limit(strip_tags($data['content']), 150),
+            'user_id'           => $request->user()->id,
+            'chapter_id'        => $request->user()->memberProfile?->active_chapter_id,
+            'title'             => $data['title'],
+            'slug'              => Str::slug($data['title']).'-'.Str::lower(Str::random(6)),
+            'excerpt'           => Str::limit(strip_tags($data['content']), 150),
         ]);
 
         ForumPost::query()->create([

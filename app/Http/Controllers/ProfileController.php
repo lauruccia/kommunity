@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -41,9 +42,9 @@ class ProfileController extends Controller
             'galleryImages'     => $user->memberGalleryImages()->get(),
             'professions'       => Profession::query()->where('is_active', true)->orderBy('name')->get(),
             'rootCategories'    => Category::query()->with(['activeChildren'])->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get(),
-            'regions'           => Region::query()->orderBy('name')->get(),
-            'provinces'         => Province::query()->orderBy('name')->get(),
-            'cities'            => City::query()->orderBy('name')->get(),
+            'regions'           => Cache::remember('regions_list', 86400, fn () => Region::query()->orderBy('name')->get()),
+            'provinces'         => Cache::remember('provinces_list', 86400, fn () => Province::query()->orderBy('name')->get()),
+            'cities'            => Cache::remember('cities_list', 86400, fn () => City::query()->orderBy('name')->get()),
             'companyInterestTypes' => CompanyInterestType::query()->where('is_active', true)->orderBy('name')->get(),
             'referralLink'      => $user->referralRegistrationUrl(),
             'videoUploadLimits' => app(VideoUploadLimits::class),

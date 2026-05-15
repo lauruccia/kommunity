@@ -142,6 +142,63 @@
                 </div>
                 @endauth
 
+                {{-- ── Switcher Pianeta (desktop) — visibile solo con più Pianeti ─── --}}
+                @auth
+                @php
+                    $userPlanets    = auth()->user()->planets()->orderBy('name')->get(['chapters.id', 'chapters.name']);
+                    $activePlanetId = auth()->user()->memberProfile?->active_chapter_id;
+                @endphp
+                @if ($userPlanets->count() > 1)
+                <div class="relative z-50 hidden sm:flex sm:items-center mr-2"
+                     x-data="{ open: false }"
+                     @click.away="open = false">
+                    <button @click="open = !open"
+                            class="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-600 transition hover:text-stone-900 focus:outline-none"
+                            title="Cambia Pianeta">
+                        <svg class="h-4 w-4 shrink-0 text-[color:var(--km-accent)]" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="max-w-[110px] truncate text-xs">
+                            {{ $userPlanets->firstWhere('id', $activePlanetId)?->name ?? 'Pianeta' }}
+                        </span>
+                        <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+
+                    <div x-show="open" x-cloak
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         class="absolute right-0 top-full mt-2 min-w-[180px] origin-top-right rounded-2xl border border-stone-200 bg-white shadow-xl overflow-hidden"
+                         style="z-index:9999;">
+                        <div class="px-4 py-2.5 border-b border-stone-100">
+                            <p class="text-[10px] font-semibold uppercase tracking-widest text-stone-400">I tuoi Pianeti</p>
+                        </div>
+                        <div class="py-1">
+                            @foreach ($userPlanets as $planet)
+                            <form method="POST" action="{{ route('planet.switch', $planet) }}">
+                                @csrf
+                                <button type="submit"
+                                        class="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm transition hover:bg-stone-50
+                                               {{ $planet->id === $activePlanetId ? 'font-semibold text-[color:var(--km-accent)]' : 'text-stone-700' }}">
+                                    @if ($planet->id === $activePlanetId)
+                                        <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @else
+                                        <span class="h-3.5 w-3.5 shrink-0"></span>
+                                    @endif
+                                    {{ $planet->name }}
+                                </button>
+                            </form>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+                @endauth
+
                 <div class="relative z-50 hidden sm:ms-6 sm:flex sm:items-center">
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">

@@ -96,7 +96,7 @@ class JoinRequestsRelationManager extends RelationManager
                         }
 
                         try {
-                            $profile->update(['chapter_id' => $record->chapter_id]);
+                            $profile->update(['active_chapter_id' => $record->chapter_id]);
 
                             $record->update([
                                 'status'              => 'accepted',
@@ -142,7 +142,7 @@ class JoinRequestsRelationManager extends RelationManager
                         MemberProfile::$adminOverrideLimit = true;
 
                         try {
-                            $profile->update(['chapter_id' => $record->chapter_id]);
+                            $profile->update(['active_chapter_id' => $record->chapter_id]);
                         } finally {
                             MemberProfile::$adminOverrideLimit = false;
                         }

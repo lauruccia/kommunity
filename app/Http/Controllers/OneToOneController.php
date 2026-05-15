@@ -102,12 +102,18 @@ class OneToOneController extends Controller
         return view('one-to-ones.index', [
             'requests'         => $paginatedRequests,
             'selectedRequest'  => $selectedRequest,
-            'members'          => User::query()
-                ->with(['memberProfile.city', 'availabilitySlots' => fn ($q) => $q->where('is_active', true)->orderBy('weekday')->orderBy('starts_at')])
-                ->whereKeyNot($request->user()->id)
-                ->whereHas('memberProfile', fn ($q) => $q->where('is_active', true))
-                ->orderBy('name')
-                ->get(),
+            'members'          => (function () use ($request): \Illuminate\Database\Eloquent\Collection {
+                $activePlanetId = $request->user()->memberProfile?->active_chapter_id;
+                return User::query()
+                    ->with(['memberProfile.city', 'availabilitySlots' => fn ($q) => $q->where('is_active', true)->orderBy('weekday')->orderBy('starts_at')])
+                    ->whereKeyNot($request->user()->id)
+                    ->whereHas('memberProfile', fn ($q) => $q->where('is_active', true))
+                    ->when($activePlanetId, fn ($q) =>
+                        $q->whereHas('planets', fn ($p) => $p->where('chapters.id', $activePlanetId))
+                    )
+                    ->orderBy('name')
+                    ->get();
+            })(),
             'selectedMember'   => $selectedMemberId ? User::query()->with('memberProfile.city')->find($selectedMemberId) : null,
             'filters'          => $filters,
             'summary'          => [

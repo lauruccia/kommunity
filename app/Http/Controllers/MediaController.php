@@ -11,6 +11,17 @@ class MediaController extends Controller
     {
         $clean = ltrim($path, '/');
 
+        // ── Blocco path traversal ─────────────────────────────────────────────
+        // Rifiuta qualsiasi path con "..", null-byte, o caratteri di controllo.
+        // Consenti solo: lettere, cifre, "/", ".", "-", "_".
+        if (
+            str_contains($clean, '..')
+            || str_contains($clean, "\0")
+            || ! preg_match('#^[a-zA-Z0-9/.\-_]+$#', $clean)
+        ) {
+            abort(400);
+        }
+
         // ── 1. Disco configurato (MEDIA_DISK_ROOT o storage/app/public) ───────
         if (Storage::disk('public')->exists($clean)) {
             return response()->file(Storage::disk('public')->path($clean));

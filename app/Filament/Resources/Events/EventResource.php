@@ -124,7 +124,7 @@ class EventResource extends Resource
                     ->label('Organizzatore')
                     ->relationship('organizer', 'name', fn (Builder $query) => $isAdmin
                         ? $query->orderBy('name')
-                        : $query->whereHas('memberProfile', fn (Builder $profileQuery) => $profileQuery->whereIn('chapter_id', $chapterIds))->orderBy('name'))
+                        : $query->whereHas('memberProfile', fn (Builder $profileQuery) => $profileQuery->whereIn('active_chapter_id', $chapterIds))->orderBy('name'))
                     ->required()
                     ->default(static::currentUser()?->id)
                     ->disabled(fn () => ! $isAdmin),

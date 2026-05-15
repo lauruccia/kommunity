@@ -29,17 +29,25 @@ class Event extends Model
         'capacity',
         'status',
         'is_published',
+        // ── Audience: chi può vedere e partecipare ───────────────────────────
+        // 'all'                      → tutti i membri
+        // 'by_planet'                → solo Pianeti selezionati
+        // 'by_profession'            → solo Professioni selezionate
+        // 'by_planet_and_profession' → intersezione Pianeta + Professione
+        'audience_type',
     ];
 
     protected function casts(): array
     {
         return [
-            'starts_at' => 'datetime',
-            'ends_at' => 'datetime',
-            'type' => EventType::class,
+            'starts_at'    => 'datetime',
+            'ends_at'      => 'datetime',
+            'type'         => EventType::class,
             'is_published' => 'boolean',
         ];
     }
+
+    // ── Relazioni base ───────────────────────────────────────────────────────
 
     public function chapter(): BelongsTo
     {
@@ -81,6 +89,79 @@ class Event extends Model
     {
         return $this->hasMany(EventInvitation::class);
     }
+
+    // ── Audience (multi-pianeta) ─────────────────────────────────────────────
+
+    /**
+     * Pianeti a cui l'evento è riservato (usato quando audience_type = 'by_planet'
+     * o 'by_planet_and_profession').
+     */
+    public function targetPlanets(): BelongsToMany
+    {
+        return $this->belongsToMany(Chapter::class, 'event_planet_targets')
+            ->withTimestamps();
+    }
+
+    /**
+     * Professioni a cui l'evento è riservato (usato quando audience_type = 'by_profession'
+     * o 'by_planet_and_profession').
+     */
+    public function targetProfessions(): BelongsToMany
+    {
+        return $this->belongsToMany(Profession::class, 'event_profession_targets')
+            ->withTimestamps();
+    }
+
+    /**
+     * Verifica se un utente può vedere e partecipare a questo evento.
+     * Gli admin vedono sempre tutto.
+     *
+     * @param  User  $user
+     * @param  int|null  $activePlanetId  ID del Pianeta attivo dell'utente
+     * @param  array<int>  $userProfessionIds  ID delle professioni dell'utente
+     */
+    public function isVisibleTo(User $user, ?int $activePlanetId, array $userProfessionIds): bool
+    {
+        // Admin e gestori-eventi vedono tutto
+        if ($user->hasAnyRole(['super-admin', 'admin-community'])) {
+            return true;
+        }
+
+        $type = $this->audience_type ?? 'all';
+
+        return match ($type) {
+            'all' => true,
+
+            'by_planet' => $activePlanetId !== null
+                && $this->targetPlanets->contains('id', $activePlanetId),
+
+            'by_profession' => ! empty($userProfessionIds)
+                && $this->targetProfessions->pluck('id')->intersect($userProfessionIds)->isNotEmpty(),
+
+            'by_planet_and_profession' => $activePlanetId !== null
+                && $this->targetPlanets->contains('id', $activePlanetId)
+                && ! empty($userProfessionIds)
+                && $this->targetProfessions->pluck('id')->intersect($userProfessionIds)->isNotEmpty(),
+
+            default => true,
+        };
+    }
+
+    /**
+     * Label human-readable del tipo di audience, usata nell'UI.
+     */
+    public function audienceLabel(): string
+    {
+        return match ($this->audience_type ?? 'all') {
+            'all'                      => 'Tutta la community',
+            'by_planet'                => 'Pianeti selezionati',
+            'by_profession'            => 'Professioni selezionate',
+            'by_planet_and_profession' => 'Pianeti + Professioni',
+            default                    => 'Tutta la community',
+        };
+    }
+
+    // ── Media ────────────────────────────────────────────────────────────────
 
     public function coverImageUrl(): ?string
     {

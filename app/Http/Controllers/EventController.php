@@ -93,6 +93,26 @@ class EventController extends Controller
                 'registrations as interested_count'     => fn ($q) => $q->where('status', EventAttendanceStatus::Interested->value),
                 'registrations as not_interested_count' => fn ($q) => $q->where('status', EventAttendanceStatus::NotInterested->value),
             ])
+            ->when(! $this->isAdmin($user), function ($q) use ($user) {
+                $activePlanetId = $user->memberProfile?->active_chapter_id;
+                $professionIds  = $user->memberProfile?->professions()->pluck('professions.id')->toArray() ?? [];
+                $q->where(function ($inner) use ($activePlanetId, $professionIds) {
+                    $inner->where('audience_type', 'all')
+                        ->orWhere(function ($p) use ($activePlanetId) {
+                            $p->where('audience_type', 'by_planet')
+                              ->whereHas('targetPlanets', fn ($q) => $q->where('chapters.id', $activePlanetId));
+                        })
+                        ->orWhere(function ($p) use ($professionIds) {
+                            $p->where('audience_type', 'by_profession')
+                              ->whereHas('targetProfessions', fn ($q) => $q->whereIn('professions.id', $professionIds));
+                        })
+                        ->orWhere(function ($p) use ($activePlanetId, $professionIds) {
+                            $p->where('audience_type', 'by_planet_and_profession')
+                              ->whereHas('targetPlanets', fn ($q) => $q->where('chapters.id', $activePlanetId))
+                              ->whereHas('targetProfessions', fn ($q) => $q->whereIn('professions.id', $professionIds));
+                        });
+                });
+            })
             ->where('is_published', true)
             ->whereBetween('starts_at', [$queryStart, $queryEnd])
             ->orderBy('starts_at')
@@ -147,10 +167,13 @@ class EventController extends Controller
         $regions     = $canManage ? Region::orderBy('name')->get(['id', 'name']) : collect();
         $cities      = $canManage ? City::orderBy('name')->get(['id', 'name']) : collect();
 
+        // Limitato a 500: evita di caricare l'intera tabella utenti in memoria.
+        // Per community grandi, sostituire con un endpoint AJAX di ricerca.
         $allUsers = $canManage
             ? User::with('memberProfile:id,user_id,company_name')
                 ->where('id', '!=', $user->id)
                 ->orderBy('name')
+                ->limit(500)
                 ->get(['id', 'name', 'email'])
                 ->map(fn ($u) => [
                     'id'    => $u->id,
@@ -266,6 +289,8 @@ class EventController extends Controller
                                     ->join('')
                             ),
                         ])->values()->all(),
+                    'audience_type'        => $event->audience_type ?? 'all',
+                    'audience_label'       => $event->audienceLabel(),
                     'detail_url'           => route('events.show', $event),
                     'register_url'         => route('events.register', $event),
                     'unregister_url'       => route('events.unregister', $event),
@@ -273,6 +298,10 @@ class EventController extends Controller
                 ],
             ];
         });
+
+        $allChapters = $canManage
+            ? Chapter::where('is_active', true)->orderBy('name')->get(['id', 'name'])
+            : collect();
 
         return view('events.index', [
             'viewMode'         => $viewMode,
@@ -294,6 +323,7 @@ class EventController extends Controller
             'regions'          => $regions,
             'cities'           => $cities,
             'allUsers'         => $allUsers,
+            'allChapters'      => $allChapters,
         ]);
     }
 
@@ -326,10 +356,12 @@ class EventController extends Controller
                 ->orderBy('name')->get()
             : collect();
 
+        // Limitato a 500: evita di caricare l'intera tabella utenti in memoria.
         $allUsers = $canManageEvent
             ? User::with('memberProfile:id,user_id,company_name')
                 ->where('id', '!=', auth()->id())
                 ->orderBy('name')
+                ->limit(500)
                 ->get(['id', 'name'])
                 ->map(fn ($u) => [
                     'id'    => $u->id,
@@ -367,25 +399,30 @@ class EventController extends Controller
             : Rule::in($managedChapterIds);
 
         $validated = $request->validate([
-            'chapter_id'           => ['required', $chapterRule],
-            'title'                => ['required', 'string', 'max:255'],
-            'description'          => ['nullable', 'string'],
-            'cover_image'          => ['nullable', 'image', 'max:4096'],
-            'type'                 => ['required', Rule::in(array_keys(EventType::options()))],
-            'starts_at'            => ['required', 'date'],
-            'ends_at'              => ['nullable', 'date', 'after_or_equal:starts_at'],
-            'location'             => ['nullable', 'string', 'max:255'],
-            'meeting_url'          => ['nullable', 'url', 'max:255'],
-            'capacity'             => ['nullable', 'integer', 'min:1'],
-            'is_published'         => ['nullable', 'boolean'],
-            'invite_target'        => ['nullable', 'string', Rule::in(['none', 'all', 'chapter', 'profession', 'category', 'city', 'region', 'users'])],
-            'invite_chapter_id'    => ['nullable', Rule::exists('chapters', 'id')],
-            'invite_profession_id' => ['nullable', Rule::exists('professions', 'id')],
-            'invite_category_id'   => ['nullable', Rule::exists('categories', 'id')],
-            'invite_city_id'       => ['nullable', Rule::exists('cities', 'id')],
-            'invite_region_id'     => ['nullable', Rule::exists('regions', 'id')],
-            'invite_user_ids'      => ['nullable', 'array'],
-            'invite_user_ids.*'    => ['integer', Rule::exists('users', 'id')],
+            'chapter_id'              => ['required', $chapterRule],
+            'title'                   => ['required', 'string', 'max:255'],
+            'description'             => ['nullable', 'string'],
+            'cover_image'             => ['nullable', 'image', 'max:4096'],
+            'type'                    => ['required', Rule::in(array_keys(EventType::options()))],
+            'starts_at'               => ['required', 'date'],
+            'ends_at'                 => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'location'                => ['nullable', 'string', 'max:255'],
+            'meeting_url'             => ['nullable', 'url', 'max:255'],
+            'capacity'                => ['nullable', 'integer', 'min:1'],
+            'is_published'            => ['nullable', 'boolean'],
+            'audience_type'           => ['nullable', 'string', Rule::in(['all', 'by_planet', 'by_profession', 'by_planet_and_profession'])],
+            'target_planet_ids'       => ['nullable', 'array'],
+            'target_planet_ids.*'     => ['integer', Rule::exists('chapters', 'id')],
+            'target_profession_ids'   => ['nullable', 'array'],
+            'target_profession_ids.*' => ['integer', Rule::exists('professions', 'id')],
+            'invite_target'           => ['nullable', 'string', Rule::in(['none', 'all', 'chapter', 'profession', 'category', 'city', 'region', 'users'])],
+            'invite_chapter_id'       => ['nullable', Rule::exists('chapters', 'id')],
+            'invite_profession_id'    => ['nullable', Rule::exists('professions', 'id')],
+            'invite_category_id'      => ['nullable', Rule::exists('categories', 'id')],
+            'invite_city_id'          => ['nullable', Rule::exists('cities', 'id')],
+            'invite_region_id'        => ['nullable', Rule::exists('regions', 'id')],
+            'invite_user_ids'         => ['nullable', 'array'],
+            'invite_user_ids.*'       => ['integer', Rule::exists('users', 'id')],
         ]);
 
         // Upload cover image
@@ -395,21 +432,32 @@ class EventController extends Controller
         }
 
         $event = Event::create([
-            'chapter_id'   => $validated['chapter_id'],
-            'organizer_id' => $request->user()->id,
-            'title'        => $validated['title'],
-            'slug'         => Str::slug($validated['title'] . '-' . Str::random(5)),
-            'description'  => $validated['description'] ?? null,
-            'cover_image'  => $coverImagePath,
-            'type'         => $validated['type'],
-            'starts_at'    => $validated['starts_at'],
-            'ends_at'      => $validated['ends_at'] ?? null,
-            'location'     => $validated['location'] ?? null,
-            'meeting_url'  => $validated['meeting_url'] ?? null,
-            'capacity'     => $validated['capacity'] ?? null,
-            'status'       => ($validated['is_published'] ?? false) ? 'published' : 'draft',
-            'is_published' => (bool) ($validated['is_published'] ?? false),
+            'chapter_id'    => $validated['chapter_id'],
+            'organizer_id'  => $request->user()->id,
+            'title'         => $validated['title'],
+            'slug'          => Str::slug($validated['title'] . '-' . Str::random(5)),
+            'description'   => $validated['description'] ?? null,
+            'cover_image'   => $coverImagePath,
+            'type'          => $validated['type'],
+            'starts_at'     => $validated['starts_at'],
+            'ends_at'       => $validated['ends_at'] ?? null,
+            'location'      => $validated['location'] ?? null,
+            'meeting_url'   => $validated['meeting_url'] ?? null,
+            'capacity'      => $validated['capacity'] ?? null,
+            'status'        => ($validated['is_published'] ?? false) ? 'published' : 'draft',
+            'is_published'  => (bool) ($validated['is_published'] ?? false),
+            'audience_type' => $validated['audience_type'] ?? 'all',
         ]);
+
+        // Sync pivot audience
+        if (($validated['audience_type'] ?? 'all') !== 'all') {
+            if (in_array($validated['audience_type'], ['by_planet', 'by_planet_and_profession'])) {
+                $event->targetPlanets()->sync($validated['target_planet_ids'] ?? []);
+            }
+            if (in_array($validated['audience_type'], ['by_profession', 'by_planet_and_profession'])) {
+                $event->targetProfessions()->sync($validated['target_profession_ids'] ?? []);
+            }
+        }
 
         // Processa inviti
         $inviteTarget = $validated['invite_target'] ?? 'none';
@@ -427,14 +475,19 @@ class EventController extends Controller
         $this->authorize('invite', $event);
 
         $validated = $request->validate([
-            'invite_target'        => ['required', Rule::in(['all', 'chapter', 'profession', 'category', 'city', 'region', 'users'])],
-            'invite_chapter_id'    => ['nullable', Rule::exists('chapters', 'id')],
-            'invite_profession_id' => ['nullable', Rule::exists('professions', 'id')],
-            'invite_category_id'   => ['nullable', Rule::exists('categories', 'id')],
-            'invite_city_id'       => ['nullable', Rule::exists('cities', 'id')],
-            'invite_region_id'     => ['nullable', Rule::exists('regions', 'id')],
-            'invite_user_ids'      => ['nullable', 'array'],
-            'invite_user_ids.*'    => ['integer', Rule::exists('users', 'id')],
+            'invite_target'           => ['required', Rule::in(['all', 'chapter', 'planets', 'profession', 'category', 'city', 'region', 'users'])],
+            'invite_chapter_id'       => ['nullable', Rule::exists('chapters', 'id')],
+            'invite_profession_id'    => ['nullable', Rule::exists('professions', 'id')],
+            'invite_category_id'      => ['nullable', Rule::exists('categories', 'id')],
+            'invite_city_id'          => ['nullable', Rule::exists('cities', 'id')],
+            'invite_region_id'        => ['nullable', Rule::exists('regions', 'id')],
+            'invite_user_ids'         => ['nullable', 'array'],
+            'invite_user_ids.*'       => ['integer', Rule::exists('users', 'id')],
+            'audience_type'           => ['nullable', 'string', Rule::in(['all', 'by_planet', 'by_profession', 'by_planet_and_profession'])],
+            'target_planet_ids'       => ['nullable', 'array'],
+            'target_planet_ids.*'     => ['integer', Rule::exists('chapters', 'id')],
+            'target_profession_ids'   => ['nullable', 'array'],
+            'target_profession_ids.*' => ['integer', Rule::exists('professions', 'id')],
         ]);
 
         $count = $this->processInvitations($event, $request->user(), $validated['invite_target'], $validated);
@@ -521,8 +574,12 @@ class EventController extends Controller
         $users = match ($target) {
             'all' => User::where('id', '!=', $excludeId)->get(['id', 'name', 'email']),
 
-            'chapter' => User::whereHas('memberProfile', fn ($q) =>
-                    $q->where('chapter_id', $data['invite_chapter_id'] ?? 0)
+            'chapter' => User::whereHas('planets', fn ($q) =>
+                    $q->where('chapters.id', $data['invite_chapter_id'] ?? 0)
+                )->where('id', '!=', $excludeId)->get(['id', 'name', 'email']),
+
+            'planets' => User::whereHas('planets', fn ($q) =>
+                    $q->whereIn('chapters.id', (array) ($data['target_planet_ids'] ?? []))
                 )->where('id', '!=', $excludeId)->get(['id', 'name', 'email']),
 
             'profession' => User::whereHas('memberProfile', fn ($q) =>

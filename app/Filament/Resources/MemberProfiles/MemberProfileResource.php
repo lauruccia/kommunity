@@ -74,8 +74,8 @@ class MemberProfileResource extends Resource
                     ->relationship('region', 'name')
                     ->searchable()
                     ->preload(),
-                Select::make('chapter_id')
-                    ->label('Pianeta')
+                Select::make('active_chapter_id')
+                    ->label('Pianeta attivo')
                     ->relationship('chapter', 'name'),
                 Select::make('companyInterestTypes')
                     ->label('Tipologie aziende/gruppi da conoscere')

@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ConversationController extends Controller
 {
@@ -100,20 +101,30 @@ class ConversationController extends Controller
             ->limit(200) // hard cap: nessun utente ha bisogno di più di 200 conversazioni in lista
             ->get();
 
+        // Calcola i conteggi dei messaggi non letti con una sola JOIN query
+        // invece di N query COUNT separate (una per ogni conversazione).
+        $conversationIds = $conversations->pluck('id');
+        $unreadCountsMap = $conversationIds->isNotEmpty()
+            ? DB::table('messages as m')
+                ->join('conversation_participants as cp', function ($join) use ($user) {
+                    $join->on('cp.conversation_id', '=', 'm.conversation_id')
+                         ->where('cp.user_id', '=', $user->id);
+                })
+                ->select('m.conversation_id', DB::raw('COUNT(*) as cnt'))
+                ->whereIn('m.conversation_id', $conversationIds)
+                ->where('m.user_id', '!=', $user->id)
+                ->whereRaw('(cp.last_read_at IS NULL OR m.created_at > cp.last_read_at)')
+                ->groupBy('m.conversation_id')
+                ->pluck('cnt', 'm.conversation_id')
+            : collect();
+
         $conversations = $conversations
-            ->map(function (Conversation $conversation) use ($user) {
+            ->map(function (Conversation $conversation) use ($user, $unreadCountsMap) {
                 $otherParticipant = $conversation->participants->firstWhere('id', '!=', $user->id);
-                $lastMessage = $conversation->lastMessage;
-                $myPivot = $conversation->participants->firstWhere('id', $user->id)?->pivot;
-                $hasUnread = $lastMessage && (! $myPivot?->last_read_at || $lastMessage->created_at->gt($myPivot->last_read_at));
-                $lastReadAt = $myPivot?->last_read_at ? Carbon::parse($myPivot->last_read_at) : null;
-                // Conta messaggi non letti via query puntuale (eseguita solo se serve il conteggio)
-                $unreadCount = $hasUnread
-                    ? $conversation->messages()
-                        ->where('user_id', '!=', $user->id)
-                        ->when($lastReadAt, fn ($q) => $q->where('created_at', '>', $lastReadAt))
-                        ->count()
-                    : 0;
+                $lastMessage      = $conversation->lastMessage;
+                $myPivot          = $conversation->participants->firstWhere('id', $user->id)?->pivot;
+                $hasUnread        = $lastMessage && (! $myPivot?->last_read_at || $lastMessage->created_at->gt($myPivot->last_read_at));
+                $unreadCount      = $hasUnread ? (int) ($unreadCountsMap[$conversation->id] ?? 0) : 0;
 
                 $conversation->setAttribute('other_participant', $otherParticipant);
                 $conversation->setAttribute('last_message', $lastMessage);
@@ -147,10 +158,16 @@ class ConversationController extends Controller
 
     private function availableMembers(User $user)
     {
+        $activePlanetId = $user->memberProfile?->active_chapter_id;
+
         return User::query()
             ->with('memberProfile')
             ->whereKeyNot($user->id)
             ->whereHas('memberProfile', fn ($query) => $query->where('is_active', true))
+            // Mostra solo i membri del Pianeta attivo
+            ->when($activePlanetId, fn ($q) =>
+                $q->whereHas('planets', fn ($p) => $p->where('chapters.id', $activePlanetId))
+            )
             ->orderBy('name')
             ->get();
     }

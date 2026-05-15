@@ -23,7 +23,7 @@ class MemberProfile extends Model
      *
      * Esempio d'uso:
      *   MemberProfile::$adminOverrideLimit = true;
-     *   $profile->update(['chapter_id' => $chapterId]);
+     *   $profile->update(['active_chapter_id' => $chapterId]);
      *   MemberProfile::$adminOverrideLimit = false;
      */
     public static bool $adminOverrideLimit = false;
@@ -58,7 +58,7 @@ class MemberProfile extends Model
         'intro_video',
         'intro_video_url',
         'intro_video_duration_minutes',
-        'chapter_id',
+        'active_chapter_id',
         'is_visible_in_directory',
         'is_active',
         'onboarding_completed',
@@ -89,24 +89,24 @@ class MemberProfile extends Model
                 return;
             }
 
-            // Controlla il limite per professione solo se viene assegnato un Pianeta
-            if (! $profile->chapter_id || ! $profile->profession_id) {
+            // Controlla il limite per professione solo se viene assegnato un Pianeta primario
+            if (! $profile->active_chapter_id || ! $profile->profession_id) {
                 return;
             }
 
-            // Se il chapter_id non è cambiato non rieseguire il controllo
-            if ($profile->exists && ! $profile->isDirty('chapter_id') && ! $profile->isDirty('profession_id')) {
+            // Se active_chapter_id non è cambiato non rieseguire il controllo
+            if ($profile->exists && ! $profile->isDirty('active_chapter_id') && ! $profile->isDirty('profession_id')) {
                 return;
             }
 
-            $chapter = Chapter::query()->find($profile->chapter_id);
+            $chapter = Chapter::query()->find($profile->active_chapter_id);
 
             if (! $chapter) {
                 return;
             }
 
             $assignedProfessionals = static::query()
-                ->where('chapter_id', $profile->chapter_id)
+                ->where('active_chapter_id', $profile->active_chapter_id)
                 ->where('profession_id', $profile->profession_id)
                 ->when($profile->exists, fn ($query) => $query->whereKeyNot($profile->getKey()))
                 ->count();
@@ -116,7 +116,7 @@ class MemberProfile extends Model
                     $position = $chapter->nextWaitlistPosition($profile->profession_id);
 
                     \DB::table('chapter_join_requests')->updateOrInsert(
-                        ['chapter_id' => $profile->chapter_id, 'user_id' => $profile->user_id],
+                        ['chapter_id' => $profile->active_chapter_id, 'user_id' => $profile->user_id],
                         [
                             'status' => 'waitlist',
                             'waitlist_position' => $position,
@@ -128,7 +128,7 @@ class MemberProfile extends Model
                 }
 
                 throw ValidationException::withMessages([
-                    'chapter_id' => 'Il Pianeta "' . $chapter->name . '" ha raggiunto il limite di ' . $chapter->max_members_per_profession . ' professionisti per questa categoria. Il membro è stato messo in lista d\'attesa.',
+                    'active_chapter_id' => 'Il Pianeta "' . $chapter->name . '" ha raggiunto il limite di ' . $chapter->max_members_per_profession . ' professionisti per questa categoria. Il membro è stato messo in lista d\'attesa.',
                 ]);
             }
         });
@@ -181,9 +181,13 @@ class MemberProfile extends Model
         return $this->belongsTo(Region::class);
     }
 
+    /**
+     * Pianeta attivo (contesto corrente) — FK rinominata da chapter_id.
+     * Uso esplicito della foreign key per non dipendere dalla convenzione.
+     */
     public function chapter(): BelongsTo
     {
-        return $this->belongsTo(Chapter::class);
+        return $this->belongsTo(Chapter::class, 'active_chapter_id');
     }
 
     public function companyInterestTypes(): BelongsToMany

@@ -57,7 +57,7 @@ class MemberProfilesRelationManager extends RelationManager
                             ->label('Membro')
                             ->options(
                                 MemberProfile::query()
-                                    ->whereNull('chapter_id')
+                                    ->whereNull('active_chapter_id')
                                     ->with('user')
                                     ->get()
                                     ->mapWithKeys(fn ($p) => [$p->id => $p->user->name.' ('.$p->user->email.')'])
@@ -67,7 +67,7 @@ class MemberProfilesRelationManager extends RelationManager
                     ])
                     ->using(function (array $data): MemberProfile {
                         $profile = MemberProfile::findOrFail($data['member_profile_id']);
-                        $profile->update(['chapter_id' => $this->getOwnerRecord()->id]);
+                        $profile->update(['active_chapter_id' => $this->getOwnerRecord()->id]);
                         return $profile;
                     })
                     ->successNotificationTitle('Membro aggiunto al Pianeta'),
@@ -81,7 +81,7 @@ class MemberProfilesRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->modalHeading('Rimuovere il membro dal Pianeta?')
                     ->modalDescription('Il membro non sarà eliminato, ma verrà rimosso da questo Pianeta.')
-                    ->action(fn (MemberProfile $record) => $record->update(['chapter_id' => null]))
+                    ->action(fn (MemberProfile $record) => $record->update(['active_chapter_id' => null]))
                     ->successNotificationTitle('Membro rimosso dal Pianeta'),
             ])
             ->bulkActions([]);

@@ -17,6 +17,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\PlanetContextController;
 use Illuminate\Support\Facades\Route;
 
 // ── Cambio lingua (disponibile anche senza auth) ──────────────────────────────
@@ -83,6 +84,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // ── Sezioni riservate: richiede onboarding completato ────────────────────────
 Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
+    // ── Switch Pianeta attivo ─────────────────────────────────────────────
+    Route::post('/pianeta/{chapter}/switch', PlanetContextController::class . '@switch')
+        ->name('planet.switch');
+
     Route::get('/directory', DirectoryController::class)->name('directory.index');
     Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
 

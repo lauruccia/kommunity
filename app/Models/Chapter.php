@@ -42,7 +42,7 @@ class Chapter extends Model
     public function availableSlotsForProfession(int $professionId): int
     {
         $assigned = MemberProfile::query()
-            ->where('chapter_id', $this->id)
+            ->where('active_chapter_id', $this->id)
             ->where('profession_id', $professionId)
             ->count();
 
@@ -84,9 +84,13 @@ class Chapter extends Model
         return $this->hasMany(Event::class);
     }
 
+    /**
+     * Profili dei membri il cui pianeta primario (attivo) è questo Pianeta.
+     * FK esplicita perché la colonna è stata rinominata da chapter_id ad active_chapter_id.
+     */
     public function memberProfiles(): HasMany
     {
-        return $this->hasMany(MemberProfile::class);
+        return $this->hasMany(MemberProfile::class, 'active_chapter_id');
     }
 
     /** Regioni geograficamente coperte da questo Pianeta (molti-a-molti). */

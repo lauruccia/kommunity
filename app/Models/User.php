@@ -202,6 +202,43 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->hasMany(Message::class);
     }
 
+    // ── Pianeti (multi-pianeta) ────────────────────────────────────────────
+
+    /**
+     * Tutti i Pianeti a cui l'utente appartiene (via chapter_members).
+     * Un utente può appartenere a più Pianeti contemporaneamente.
+     */
+    public function planets(): BelongsToMany
+    {
+        return $this->belongsToMany(Chapter::class, 'chapter_members')
+            ->withPivot(['status', 'joined_at'])
+            ->withTimestamps()
+            ->wherePivot('status', 'active');
+    }
+
+    /**
+     * ID del Pianeta attivo (contesto corrente di navigazione).
+     * Corrisponde a member_profiles.active_chapter_id.
+     */
+    public function activePlanetId(): ?int
+    {
+        return $this->memberProfile?->active_chapter_id;
+    }
+
+    /**
+     * Pianeta attivo come model Chapter.
+     */
+    public function activePlanet(): ?Chapter
+    {
+        $id = $this->activePlanetId();
+        if (! $id) {
+            return null;
+        }
+
+        return $this->planets->firstWhere('id', $id)
+            ?? Chapter::find($id);
+    }
+
     public function referralRegistrationUrl(): string
     {
         $this->ensureReferralCode();

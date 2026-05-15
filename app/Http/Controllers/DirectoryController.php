@@ -47,12 +47,28 @@ class DirectoryController extends Controller
         // Su MySQL con > 5k profili, ORDER BY RAND() faceva full-table-scan
         // ad ogni richiesta; ora prendiamo gli ID una volta, li mescoliamo
         // a livello applicativo e li teniamo stabili per la paginazione.
+        // Pianeta attivo dell'utente: la directory mostra solo i membri dello stesso Pianeta.
+        // Usa chapter_members (non active_chapter_id) così anche chi ha più Pianeti
+        // compare in tutti quelli di cui fa parte.
+        $activePlanetId = $user->memberProfile?->active_chapter_id;
+
+        // Cache separata per pianeta → ordine random stabile per ogni contesto.
+        $cacheKey = 'directory.random_ids.planet.' . ($activePlanetId ?? 'all');
+
         $orderedIds = Cache::remember(
-            'directory.random_ids.v1',
+            $cacheKey,
             now()->addMinutes(self::RANDOM_SEED_TTL_MINUTES),
             fn () => MemberProfile::query()
                 ->where('is_active', true)
                 ->where('is_visible_in_directory', true)
+                ->when($activePlanetId, fn ($q) =>
+                    $q->whereExists(fn ($sub) => $sub
+                        ->from('chapter_members')
+                        ->whereColumn('chapter_members.user_id', 'member_profiles.user_id')
+                        ->where('chapter_members.chapter_id', $activePlanetId)
+                        ->where('chapter_members.status', 'active')
+                    )
+                )
                 ->pluck('id')
                 ->shuffle()
                 ->all()
@@ -70,6 +86,15 @@ class DirectoryController extends Controller
             ->withExists(['availabilitySlots as has_availability' => fn ($q) => $q->where('is_active', true)])
             ->where('is_active', true)
             ->where('is_visible_in_directory', true)
+            // ── Scope Pianeta: mostra solo i membri del Pianeta attivo ────────
+            ->when($activePlanetId, fn (Builder $q) =>
+                $q->whereExists(fn ($sub) => $sub
+                    ->from('chapter_members')
+                    ->whereColumn('chapter_members.user_id', 'member_profiles.user_id')
+                    ->where('chapter_members.chapter_id', $activePlanetId)
+                    ->where('chapter_members.status', 'active')
+                )
+            )
             ->when($filters['search'] ?? null, function (Builder $query, string $search): void {
                 $query->where(function (Builder $inner) use ($search): void {
                     $inner
@@ -94,7 +119,7 @@ class DirectoryController extends Controller
                 $q->where('city_id', $city)
             )
             ->when($filters['chapter'] ?? null, fn (Builder $q, string $chapter) =>
-                $q->where('chapter_id', $chapter)
+                $q->where('active_chapter_id', $chapter)
             )
             ->when($hasOrderBy, function (Builder $q) use ($idsCsv, $orderedIds): void {
                 // FIELD() è MySQL/MariaDB only; SQLite (locale) usa CASE WHEN
