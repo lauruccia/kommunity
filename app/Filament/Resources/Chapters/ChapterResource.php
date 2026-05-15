@@ -10,10 +10,12 @@ use App\Filament\Resources\Chapters\RelationManagers\ChapterInvitationsRelationM
 use App\Filament\Resources\Chapters\RelationManagers\MemberProfilesRelationManager;
 use App\Models\Chapter;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -111,10 +113,6 @@ class ChapterResource extends Resource
                 IconEntry::make('enforce_profession_limit')
                     ->label('Limitazioni professionisti attive')
                     ->boolean(),
-                TextEntry::make('professionDistributionSummary')
-                    ->label('Distribuzione professioni nel Pianeta')
-                    ->state(fn (Chapter $record) => $record->professionDistributionSummary())
-                    ->columnSpanFull(),
                 ImageEntry::make('cover_image')
                     ->label('Copertina')
                     ->placeholder('-'),
@@ -153,13 +151,9 @@ class ChapterResource extends Resource
                     ->label('Limite/professione')
                     ->sortable(),
                 TextColumn::make('member_profiles_count')
-                    ->label('Professionisti')
+                    ->label('Membri')
                     ->counts('memberProfiles')
                     ->sortable(),
-                TextColumn::make('professionDistributionSummary')
-                    ->label('Distribuzione')
-                    ->state(fn (Chapter $record) => $record->professionDistributionSummary())
-                    ->wrap(),
                 ImageColumn::make('cover_image')->label('Copertina'),
                 IconColumn::make('is_active')
                     ->label('Attivo')
@@ -179,6 +173,14 @@ class ChapterResource extends Resource
             ])
             ->filters([])
             ->recordActions([
+                Action::make('statistiche')
+                    ->label('Statistiche')
+                    ->icon('heroicon-o-chart-bar')
+                    ->color('info')
+                    ->modalHeading(fn (Chapter $record): string => 'Statistiche — ' . $record->name)
+                    ->modalContent(fn (Chapter $record) => self::buildStatsModal($record))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Chiudi'),
                 ViewAction::make(),
                 EditAction::make(),
             ])
@@ -205,5 +207,50 @@ class ChapterResource extends Resource
             'view' => ViewChapter::route('/{record}'),
             'edit' => EditChapter::route('/{record}/edit'),
         ];
+    }
+
+    // ── Modal statistiche ─────────────────────────────────────────────────────
+
+    private static function buildStatsModal(Chapter $record): \Illuminate\View\View
+    {
+        // Distribuzione professioni
+        $professions = DB::table('member_profiles')
+            ->join('professions', 'professions.id', '=', 'member_profiles.profession_id')
+            ->where('member_profiles.active_chapter_id', $record->id)
+            ->select('professions.name', DB::raw('count(*) as total'))
+            ->groupBy('professions.name')
+            ->orderByDesc('total')
+            ->orderBy('professions.name')
+            ->get();
+
+        // Totale membri (profili con active_chapter_id = questo pianeta)
+        $totalMembers = $record->memberProfiles()->count();
+
+        // Membri in chapter_members (appartenenza, anche non primaria)
+        $totalInPivot = DB::table('chapter_members')
+            ->where('chapter_id', $record->id)
+            ->count();
+
+        $activeInPivot = DB::table('chapter_members')
+            ->where('chapter_id', $record->id)
+            ->where('status', 'active')
+            ->count();
+
+        // Inviti
+        $invitesPending  = $record->invitations()->where('status', 'pending')->count();
+        $invitesAccepted = $record->invitations()->where('status', 'accepted')->count();
+
+        // Richieste di iscrizione
+        $joinPending    = $record->joinRequests()->where('status', 'pending')->count();
+        $joinWaitlist   = $record->joinRequests()->where('status', 'waitlist')->count();
+
+        $limit = $record->max_members_per_profession;
+        $limitActive = $record->enforce_profession_limit;
+
+        return view('filament.chapters.stats-modal', compact(
+            'record', 'professions', 'totalMembers', 'totalInPivot',
+            'activeInPivot', 'invitesPending', 'invitesAccepted',
+            'joinPending', 'joinWaitlist', 'limit', 'limitActive'
+        ));
     }
 }
