@@ -17,11 +17,18 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ChapterInviteController;
 use App\Http\Controllers\PlanetContextController;
 use Illuminate\Support\Facades\Route;
 
 // ── Cambio lingua (disponibile anche senza auth) ──────────────────────────────
 Route::get('/lingua/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
+
+// ── Inviti Pianeta (pubblici: funzionano anche senza login) ───────────────────
+Route::get('/invita/{token}', [ChapterInviteController::class, 'show'])->name('chapter.invite');
+Route::post('/invita/{token}/accetta', [ChapterInviteController::class, 'accept'])
+    ->middleware('auth')
+    ->name('chapter.invite.accept');
 
 Route::get('/', function () {
     // Passa capitoli e pagine CMS alla homepage

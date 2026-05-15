@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InvitationAcceptedMail;
+use App\Models\ChapterInvitation;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -32,9 +35,24 @@ class RegisteredUserController extends Controller
 
         $inviter = User::query()->where('referral_code', $referralCode)->first();
 
+        // Recupera il contesto invito-pianeta se presente in sessione
+        $invitationPlanet = session('invitation_planet');
+        $invitationBy     = session('invitation_by');
+
+        // Se c'è un token pianeta in sessione e nessun nome invitante, usa quello del pianeta
+        $chapterInvitation = null;
+        if (session()->has('chapter_invitation_token')) {
+            $chapterInvitation = ChapterInvitation::with(['chapter', 'invitedBy'])
+                ->where('token', session('chapter_invitation_token'))
+                ->where('status', 'pending')
+                ->first();
+        }
+
         return view('auth.register', [
-            'referralCode' => $inviter?->referral_code,
-            'invitedByName' => $inviter?->name,
+            'referralCode'      => $inviter?->referral_code,
+            'invitedByName'     => $inviter?->name ?? ($chapterInvitation?->invitedBy?->name),
+            'invitationPlanet'  => $chapterInvitation?->chapter?->name ?? $invitationPlanet,
+            'chapterInvitation' => $chapterInvitation,
         ]);
     }
 
@@ -85,6 +103,31 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         $request->session()->forget('registration_referral_code');
+
+        // ── Gestione invito pianeta ───────────────────────────────────────────
+        $chapterToken = $request->session()->get('chapter_invitation_token');
+        if ($chapterToken) {
+            $invitation = ChapterInvitation::with(['chapter', 'invitedBy'])
+                ->where('token', $chapterToken)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($invitation && $invitation->isValid()) {
+                try {
+                    $invitation->accept($user);
+
+                    // Notifica email al leader/invitante
+                    if ($invitation->invitedBy && $invitation->invitedBy->email) {
+                        Mail::to($invitation->invitedBy->email)
+                            ->send(new InvitationAcceptedMail($invitation, $user));
+                    }
+                } catch (\Throwable) {
+                    // Non bloccare la registrazione se qualcosa va storto
+                }
+            }
+
+            $request->session()->forget('chapter_invitation_token');
+        }
 
         return redirect(route('dashboard', absolute: false));
     }
