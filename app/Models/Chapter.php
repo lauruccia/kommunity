@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -79,6 +80,25 @@ class Chapter extends Model
         return $this->belongsToMany(User::class, 'chapter_members')
             ->withPivot(['status', 'joined_at'])
             ->withTimestamps();
+    }
+
+    /**
+     * Tutti i profili membro iscritti a questo Pianeta (via chapter_members).
+     * Diverso da memberProfiles() che usa active_chapter_id.
+     * Usato dal MemberProfilesRelationManager per mostrare tutti i membri iscritti.
+     *
+     * Chapter → chapter_members (chapter_id) → member_profiles (user_id)
+     */
+    public function allMemberProfiles(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            MemberProfile::class,   // modello finale
+            ChapterMember::class,   // modello intermedio (pivot)
+            'chapter_id',           // FK su chapter_members → chapters
+            'user_id',              // FK su member_profiles → users
+            'id',                   // PK su chapters
+            'user_id'               // FK locale su chapter_members → users
+        );
     }
 
     public function events(): HasMany

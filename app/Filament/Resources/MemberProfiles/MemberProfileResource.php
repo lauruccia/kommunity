@@ -8,9 +8,11 @@ use App\Filament\Resources\MemberProfiles\Pages\CreateMemberProfile;
 use App\Filament\Resources\MemberProfiles\Pages\EditMemberProfile;
 use App\Filament\Resources\MemberProfiles\Pages\ListMemberProfiles;
 use App\Filament\Resources\MemberProfiles\Pages\ViewMemberProfile;
+use App\Models\Chapter;
 use App\Models\MemberProfile;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
+use Illuminate\Support\Facades\DB;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -75,8 +77,26 @@ class MemberProfileResource extends Resource
                     ->searchable()
                     ->preload(),
                 Select::make('active_chapter_id')
-                    ->label('Pianeta attivo')
-                    ->relationship('chapter', 'name'),
+                    ->label('Pianeta attivo (principale)')
+                    ->relationship('chapter', 'name')
+                    ->helperText('Il pianeta attualmente attivo per questo membro.'),
+                Select::make('all_planets_display')
+                    ->label('Tutti i Pianeti iscritti')
+                    ->options(fn () => Chapter::orderBy('name')->pluck('name', 'id'))
+                    ->multiple()
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->afterStateHydrated(function (Select $component, ?MemberProfile $record): void {
+                        if (! $record?->user_id) {
+                            return;
+                        }
+                        $ids = DB::table('chapter_members')
+                            ->where('user_id', $record->user_id)
+                            ->pluck('chapter_id')
+                            ->toArray();
+                        $component->state($ids);
+                    })
+                    ->helperText('Solo lettura — gestisci le iscrizioni dalla scheda Pianeti nell\'utente.'),
                 Select::make('companyInterestTypes')
                     ->label('Tipologie aziende/gruppi da conoscere')
                     ->relationship('companyInterestTypes', 'name')
