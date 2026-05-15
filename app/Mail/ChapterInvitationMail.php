@@ -34,9 +34,9 @@ class ChapterInvitationMail extends Mailable
                 'invitation'  => $this->invitation,
                 'chapter'     => $this->invitation->chapter,
                 'invitedBy'   => $this->invitation->invitedBy,
-                'inviteUrl'   => $this->invitation->inviteUrl(),
-                'expiresAt'   => $this->invitation->expires_at,
-                'message'     => $this->invitation->message,
+                'inviteUrl'       => $this->invitation->inviteUrl(),
+                'expiresAt'       => $this->invitation->expires_at,
+                'personalMessage' => $this->invitation->message,
             ],
         );
     }

@@ -39,9 +39,9 @@
             <p>Sei stato invitato a entrare nel Pianeta <strong>{{ $chapter?->name }}</strong> su Kommunity.</p>
         @endif
 
-        @if($message)
+        @if($personalMessage)
             <div class="message-box">
-                <p>"{{ $message }}"</p>
+                <p>"{{ $personalMessage }}"</p>
             </div>
         @endif
 
