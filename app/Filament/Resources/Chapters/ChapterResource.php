@@ -70,6 +70,9 @@ class ChapterResource extends Resource
                     ->default(3)
                     ->required()
                     ->helperText('Se il limite viene superato, il membro va in lista d\'attesa automaticamente.'),
+                Toggle::make('enforce_profession_limit')
+                    ->label('Attiva limitazioni professionisti')
+                    ->helperText('Se disattivato, il limite per categoria viene ignorato e chiunque può iscriversi.'),
                 Toggle::make('is_invite_only')
                     ->label('Solo su invito')
                     ->helperText('Se attivo, solo i membri invitati direttamente possono iscriversi.'),
@@ -104,6 +107,9 @@ class ChapterResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('max_members_per_profession')
                     ->label('Max membri per professione'),
+                IconEntry::make('enforce_profession_limit')
+                    ->label('Limitazioni professionisti attive')
+                    ->boolean(),
                 TextEntry::make('professionDistributionSummary')
                     ->label('Distribuzione professioni nel Pianeta')
                     ->state(fn (Chapter $record) => $record->professionDistributionSummary())

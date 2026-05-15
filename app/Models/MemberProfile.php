@@ -105,6 +105,11 @@ class MemberProfile extends Model
                 return;
             }
 
+            // Se il pianeta non ha le limitazioni attive, salta il controllo
+            if (! $chapter->enforce_profession_limit) {
+                return;
+            }
+
             $assignedProfessionals = static::query()
                 ->where('active_chapter_id', $profile->active_chapter_id)
                 ->where('profession_id', $profile->profession_id)

@@ -22,6 +22,7 @@ class Chapter extends Model
         'leader_id',
         'cover_image',
         'max_members_per_profession',
+        'enforce_profession_limit',
         'is_active',
         'is_invite_only',
     ];
@@ -31,6 +32,7 @@ class Chapter extends Model
         return [
             'is_active' => 'boolean',
             'is_invite_only' => 'boolean',
+            'enforce_profession_limit' => 'boolean',
             'max_members_per_profession' => 'integer',
         ];
     }
