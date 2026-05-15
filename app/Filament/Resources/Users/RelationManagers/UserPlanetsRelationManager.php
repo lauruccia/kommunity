@@ -27,6 +27,23 @@ class UserPlanetsRelationManager extends RelationManager
 
     protected static ?string $pluralLabel = 'Pianeti';
 
+    // ── Autorizzazione: solo admin ────────────────────────────────────────────
+
+    public static function canViewAny(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): bool
+    {
+        $user = auth()->user();
+        return $user?->hasAnyRole(['super-admin', 'admin-community'])
+            || $user?->can('gestire-utenti')
+            ?? false;
+    }
+
+    private function isAdmin(): bool
+    {
+        return auth()->user()?->hasAnyRole(['super-admin', 'admin-community'])
+            || auth()->user()?->can('gestire-utenti')
+            ?? false;
+    }
+
     public function table(Table $table): Table
     {
         /** @var \App\Models\User $user */
@@ -66,6 +83,7 @@ class UserPlanetsRelationManager extends RelationManager
                 Action::make('aggiungi_pianeta')
                     ->label('Aggiungi a Pianeta')
                     ->icon('heroicon-o-plus-circle')
+                    ->visible(fn (): bool => $this->isAdmin())
                     ->form([
                         Select::make('chapter_id')
                             ->label('Pianeta')
@@ -134,7 +152,8 @@ class UserPlanetsRelationManager extends RelationManager
                             ->send();
                     })
                     ->visible(fn (Chapter $record): bool =>
-                        $record->id !== $this->getOwnerRecord()->memberProfile?->active_chapter_id
+                        $this->isAdmin()
+                        && $record->id !== $this->getOwnerRecord()->memberProfile?->active_chapter_id
                     ),
 
                 // ── Rimuovi dal Pianeta ──────────────────────────────────────
@@ -169,10 +188,13 @@ class UserPlanetsRelationManager extends RelationManager
                             ->success()
                             ->send();
                     })
-                    // Non si può rimuovere se è l'unico pianeta
+                    // Solo admin, e non si può rimuovere se è l'unico pianeta
                     ->visible(fn (Chapter $record): bool =>
-                        $this->getOwnerRecord()->planets()->count() > 1
+                        $this->isAdmin()
+                        && (
+                            $this->getOwnerRecord()->planets()->count() > 1
                             || $this->getOwnerRecord()->memberProfile?->active_chapter_id !== $record->id
+                        )
                     ),
             ])
             ->bulkActions([]);

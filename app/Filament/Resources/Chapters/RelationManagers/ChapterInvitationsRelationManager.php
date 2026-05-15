@@ -25,6 +25,44 @@ class ChapterInvitationsRelationManager extends RelationManager
 
     protected static ?string $pluralLabel = 'Inviti';
 
+    // ── Autorizzazione ────────────────────────────────────────────────────────
+
+    /**
+     * La scheda Inviti è visibile solo ad admin e al leader del pianeta.
+     */
+    public static function canViewAny(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasAnyRole(['super-admin', 'admin-community'])) {
+            return true;
+        }
+
+        // Leader di questo specifico pianeta
+        return $ownerRecord->leader_id === $user->id
+            || $user->can('gestire-inviti');
+    }
+
+    private function isAuthorized(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasAnyRole(['super-admin', 'admin-community'])) {
+            return true;
+        }
+
+        return $this->getOwnerRecord()->leader_id === $user->id
+            || $user->can('gestire-inviti');
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -74,6 +112,7 @@ class ChapterInvitationsRelationManager extends RelationManager
                 Action::make('crea_invito')
                     ->label('Nuovo invito')
                     ->icon('heroicon-o-envelope')
+                    ->visible(fn (): bool => $this->isAuthorized())
                     ->form([
                         TextInput::make('email')
                             ->label('Email destinatario')
@@ -138,7 +177,9 @@ class ChapterInvitationsRelationManager extends RelationManager
                     ->label('Reinvia email')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('info')
-                    ->visible(fn (ChapterInvitation $record): bool => $record->status === 'pending')
+                    ->visible(fn (ChapterInvitation $record): bool =>
+                        $record->status === 'pending' && $this->isAuthorized()
+                    )
                     ->action(function (ChapterInvitation $record): void {
                         try {
                             Mail::to($record->email)->send(new ChapterInvitationMail($record));
@@ -155,7 +196,9 @@ class ChapterInvitationsRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->modalHeading('Revocare questo invito?')
                     ->modalDescription('Il link diventerà inutilizzabile.')
-                    ->visible(fn (ChapterInvitation $record): bool => $record->status === 'pending')
+                    ->visible(fn (ChapterInvitation $record): bool =>
+                        $record->status === 'pending' && $this->isAuthorized()
+                    )
                     ->action(function (ChapterInvitation $record): void {
                         $record->update(['status' => 'revoked']);
                         Notification::make()->title('Invito revocato.')->success()->send();
