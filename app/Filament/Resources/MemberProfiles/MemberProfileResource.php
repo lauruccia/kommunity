@@ -117,6 +117,9 @@ class MemberProfileResource extends Resource
                 Textarea::make('networking_goals')
                     ->label('Obiettivi di networking')
                     ->columnSpanFull(),
+                Toggle::make('use_ai_profile_rewrite')
+                    ->label('Usa AI per rielaborare i testi')
+                    ->helperText('Quando il membro salva il profilo, i campi narrativi vengono riscritti in modo professionale.'),
                 TextInput::make('website')
                     ->label('Sito web')
                     ->url(),
@@ -249,6 +252,9 @@ class MemberProfileResource extends Resource
                     ->label('Obiettivi di networking')
                     ->placeholder('-')
                     ->columnSpanFull(),
+                IconEntry::make('use_ai_profile_rewrite')
+                    ->label('Usa AI')
+                    ->boolean(),
                 TextEntry::make('website')
                     ->label('Sito web')
                     ->placeholder('-'),
@@ -379,6 +385,9 @@ class MemberProfileResource extends Resource
                     ->boolean(),
                 IconColumn::make('allow_whatsapp_contact')
                     ->label('Contatto WA')
+                    ->boolean(),
+                IconColumn::make('use_ai_profile_rewrite')
+                    ->label('AI testi')
                     ->boolean(),
                 TextColumn::make('preferred_contact_method')
                     ->label('Contatto preferito')

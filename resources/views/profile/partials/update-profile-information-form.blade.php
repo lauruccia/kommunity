@@ -105,6 +105,13 @@
                     <x-text-input id="company_name" name="company_name" type="text" class="mt-2 block w-full" :value="old('company_name', $profile->company_name)" />
                     <x-input-error class="mt-2" :messages="$errors->get('company_name')" />
                 </div>
+                <label class="md:col-span-2 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                    <input type="checkbox" name="use_ai_profile_rewrite" value="1" class="mt-1 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-300" @checked(old('use_ai_profile_rewrite', $profile->use_ai_profile_rewrite))>
+                    <span>
+                        <span class="block font-semibold">Usa l'AI per rendere il profilo piu' avvincente</span>
+                        <span class="mt-1 block text-emerald-800/80">Quando salvi, i testi di bio, chi sono, servizi, competenze e obiettivi vengono rielaborati senza inventare informazioni nuove.</span>
+                    </span>
+                </label>
                 {{-- Tipologie aziende/gruppi: create da admin, selezionabili dall'utente --}}
                 <div class="md:col-span-2">
                     <x-input-label :value="'Tipologie aziende/gruppi che voglio conoscere'" />

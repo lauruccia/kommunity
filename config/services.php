@@ -45,4 +45,10 @@ return [
         'subject'     => env('VAPID_SUBJECT', 'mailto:info@kommunity.it'),
     ],
 
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_PROFILE_MODEL', 'gpt-5.2'),
+        'timeout' => (int) env('OPENAI_PROFILE_TIMEOUT', 30),
+    ],
+
 ];

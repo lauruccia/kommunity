@@ -11,6 +11,7 @@ use App\Models\ProfileSuggestion;
 use App\Models\Profession;
 use App\Models\Province;
 use App\Models\Region;
+use App\Services\ProfileAiRewriteService;
 use App\Services\ProfileCompletionService;
 use App\Support\VideoCompressor;
 use App\Support\VideoUploadLimits;
@@ -54,7 +55,11 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request, VideoCompressor $videoCompressor): RedirectResponse
+    public function update(
+        ProfileUpdateRequest $request,
+        VideoCompressor $videoCompressor,
+        ProfileAiRewriteService $profileAiRewriteService
+    ): RedirectResponse
     {
         $this->guardAgainstUploadErrors(['avatar', 'logo', 'cover_image', 'intro_video']);
 
@@ -116,6 +121,20 @@ class ProfileController extends Controller
             }
         }
 
+        $useAiProfileRewrite = $request->boolean('use_ai_profile_rewrite');
+        $profileTextFields = collect($validated)
+            ->only(['short_bio', 'bio', 'services', 'skills', 'networking_goals'])
+            ->all();
+
+        if ($this->shouldRewriteProfileText($profile, $profileTextFields, $useAiProfileRewrite)) {
+            $profileTextFields = $profileAiRewriteService->rewrite(
+                $profile->loadMissing(['user', 'profession', 'city']),
+                $profileTextFields,
+                $this->buildProfileAiContext($validated)
+            );
+            $validated = array_merge($validated, $profileTextFields);
+        }
+
         $profileData = collect($validated)
             ->except([
                 'name',
@@ -140,6 +159,7 @@ class ProfileController extends Controller
                 'show_phone' => $request->boolean('show_phone'),
                 'show_whatsapp' => $request->boolean('show_whatsapp'),
                 'allow_whatsapp_contact' => $request->boolean('allow_whatsapp_contact'),
+                'use_ai_profile_rewrite' => $useAiProfileRewrite,
                 'onboarding_completed' => $profile->onboarding_completed
                     || $request->boolean('onboarding_completed')
                     || (
@@ -201,6 +221,57 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * @param array<string, mixed> $profileTextFields
+     */
+    private function shouldRewriteProfileText($profile, array $profileTextFields, bool $useAiProfileRewrite): bool
+    {
+        if (! $useAiProfileRewrite) {
+            return false;
+        }
+
+        if (! $profile->use_ai_profile_rewrite) {
+            return collect($profileTextFields)->filter(fn ($value) => filled($value))->isNotEmpty();
+        }
+
+        return collect($profileTextFields)->contains(function ($value, string $field) use ($profile): bool {
+            return trim((string) $value) !== trim((string) $profile->{$field});
+        });
+    }
+
+    /**
+     * @param array<string, mixed> $validated
+     * @return array<string, mixed>
+     */
+    private function buildProfileAiContext(array $validated): array
+    {
+        $professionIds = collect($validated['profession_ids'] ?? [])->filter()->map(fn ($id) => (int) $id)->all();
+        $categoryIds = collect($validated['category_ids'] ?? [])->filter()->map(fn ($id) => (int) $id)->all();
+        $companyInterestTypeIds = collect($validated['company_interest_type_ids'] ?? [])->filter()->map(fn ($id) => (int) $id)->all();
+
+        return [
+            'azienda' => $validated['company_name'] ?? null,
+            'professione_altro' => $validated['profession_other'] ?? null,
+            'professioni' => empty($professionIds)
+                ? null
+                : Profession::query()->whereKey($professionIds)->orderBy('name')->pluck('name')->implode(', '),
+            'categorie' => empty($categoryIds)
+                ? null
+                : Category::query()->whereKey($categoryIds)->orderBy('name')->pluck('name')->implode(', '),
+            'tipologie_aziende_da_conoscere' => empty($companyInterestTypeIds)
+                ? null
+                : CompanyInterestType::query()->whereKey($companyInterestTypeIds)->orderBy('name')->pluck('name')->implode(', '),
+            'citta' => empty($validated['city_id'] ?? null)
+                ? null
+                : City::query()->whereKey($validated['city_id'])->value('name'),
+            'regione' => empty($validated['region_id'] ?? null)
+                ? null
+                : Region::query()->whereKey($validated['region_id'])->value('name'),
+            'sito_web' => $validated['website'] ?? null,
+            'linkedin' => $validated['linkedin_url'] ?? null,
+        ];
     }
 
     public function storeSuggestion(Request $request): RedirectResponse|JsonResponse

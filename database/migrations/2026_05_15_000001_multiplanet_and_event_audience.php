@@ -18,20 +18,28 @@ return new class extends Migration
 
         // ── 2. Backfill chapter_members dagli active_chapter_id esistenti ──
         // Ogni utente con un pianeta assegnato diventa membro "attivo" in quella
-        // riga di chapter_members (se non esiste già — INSERT IGNORE).
-        DB::statement("
-            INSERT IGNORE INTO chapter_members
-                (chapter_id, user_id, status, joined_at, created_at, updated_at)
-            SELECT
-                active_chapter_id,
-                user_id,
-                'active',
-                NOW(),
-                NOW(),
-                NOW()
-            FROM member_profiles
-            WHERE active_chapter_id IS NOT NULL
-        ");
+        // riga di chapter_members, se non esiste gia'.
+        DB::table('member_profiles')
+            ->whereNotNull('active_chapter_id')
+            ->orderBy('id')
+            ->chunkById(500, function ($profiles): void {
+                $now = now();
+
+                foreach ($profiles as $profile) {
+                    DB::table('chapter_members')->updateOrInsert(
+                        [
+                            'chapter_id' => $profile->active_chapter_id,
+                            'user_id' => $profile->user_id,
+                        ],
+                        [
+                            'status' => 'active',
+                            'joined_at' => $now,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ],
+                    );
+                }
+            });
 
         // ── 3. Forum scopato per Pianeta ────────────────────────────────────
         // Ogni thread appartiene al pianeta in cui è stato creato.
@@ -45,11 +53,21 @@ return new class extends Migration
 
         // Backfill: assegna al thread il pianeta attivo dell'autore al momento.
         DB::statement("
-            UPDATE forum_threads ft
-            JOIN member_profiles mp ON mp.user_id = ft.user_id
-            SET ft.chapter_id = mp.active_chapter_id
-            WHERE ft.chapter_id IS NULL
-              AND mp.active_chapter_id IS NOT NULL
+            UPDATE forum_threads
+            SET chapter_id = (
+                SELECT mp.active_chapter_id
+                FROM member_profiles mp
+                WHERE mp.user_id = forum_threads.user_id
+                  AND mp.active_chapter_id IS NOT NULL
+                LIMIT 1
+            )
+            WHERE chapter_id IS NULL
+              AND EXISTS (
+                SELECT 1
+                FROM member_profiles mp
+                WHERE mp.user_id = forum_threads.user_id
+                  AND mp.active_chapter_id IS NOT NULL
+              )
         ");
 
         // ── 4. Audience degli eventi ────────────────────────────────────────

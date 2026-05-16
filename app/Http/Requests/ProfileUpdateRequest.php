@@ -59,6 +59,7 @@ class ProfileUpdateRequest extends FormRequest
             'services' => ['nullable', 'string', 'max:3000'],
             'skills' => ['nullable', 'string', 'max:2000'],
             'networking_goals' => ['nullable', 'string', 'max:2000'],
+            'use_ai_profile_rewrite' => ['sometimes', 'boolean'],
             'website' => ['nullable', 'string', 'max:255'],
             'linkedin_url' => ['nullable', 'string', 'max:255'],
             'facebook_url' => ['nullable', 'string', 'max:255'],
