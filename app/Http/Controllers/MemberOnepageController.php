@@ -97,6 +97,9 @@ class MemberOnepageController extends Controller
                 ->latest()
                 ->take(6)
                 ->get(),
+            'receivedReferralsCount' => Referral::query()
+                ->where('recipient_id', $memberUserId)
+                ->count(),
         ]);
     }
 }

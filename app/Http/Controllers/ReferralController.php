@@ -99,7 +99,7 @@ class ReferralController extends Controller
             'company_name' => ['nullable', 'string', 'max:255'],
             'contact_name' => ['nullable', 'string', 'max:255'],
             'estimated_value' => ['nullable', 'numeric', 'min:0'],
-            'priority' => ['required', Rule::in(['1', '2', '3', '4', '5'])],
+            'priority' => ['nullable', Rule::in(['1', '2', '3', '4', '5'])],
             'notes' => ['nullable', 'string', 'max:3000'],
         ]);
 
@@ -107,6 +107,7 @@ class ReferralController extends Controller
 
         $referral = Referral::query()->create([
             ...$data,
+            'priority' => $data['priority'] ?? '3',
             'sender_id' => $request->user()->id,
             'status' => ReferralStatus::Sent,
         ]);
