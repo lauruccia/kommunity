@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\BannerClickController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EventController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\ProfileVideoAccessController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin\CacheController;
+use App\Http\Controllers\Admin\BannerReportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PushSubscriptionController;
@@ -51,6 +53,10 @@ Route::get('/pagina/{slug}', [PageController::class, 'show'])->name('page.show')
 Route::get('/media/{path}', [MediaController::class, 'show'])
     ->where('path', '.*')
     ->name('media.show');
+
+Route::get('/banner/{bannerCampaign}/click', BannerClickController::class)
+    ->middleware('auth')
+    ->name('banners.click');
 
 // ── Dashboard e onboarding: accessibili senza onboarding completato ─────────
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -143,6 +149,8 @@ Route::middleware([
     ->group(function () {
         Route::get('/cache', [CacheController::class, 'index'])->name('cache.index');
         Route::post('/cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
+        Route::get('/banner-campaigns/{bannerCampaign}/export', [BannerReportController::class, 'export'])
+            ->name('banner-campaigns.export');
     });
 
 require __DIR__.'/auth.php';

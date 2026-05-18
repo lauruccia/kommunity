@@ -219,9 +219,13 @@
                         </a>
                     </form>
                 </div>
+
+                <x-banner-placement key="directory_sidebar" />
             </aside>
 
             <section class="min-w-0 flex-1 space-y-4">
+
+                <x-banner-placement key="directory_top" />
 
                 <form method="GET" class="flex gap-2">
                     <input type="text" name="search"
