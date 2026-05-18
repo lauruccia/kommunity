@@ -122,6 +122,7 @@ class ReferralController extends Controller
             'priority'  => $data['priority'] ?? '3',
             'sender_id' => $request->user()->id,
             'status'    => ReferralStatus::Sent,
+            'is_public' => true,
         ]);
 
         $recipient = User::find($data['recipient_id']);

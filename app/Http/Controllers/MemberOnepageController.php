@@ -152,9 +152,6 @@ class MemberOnepageController extends Controller
                 ->latest()
                 ->take(6)
                 ->get(),
-            'receivedReferralsCount' => Referral::query()
-                ->where('recipient_id', $memberUserId)
-                ->count(),
             'publicEndorsements' => Referral::query()
                 ->with('sender')
                 ->where('recipient_id', $memberUserId)
@@ -162,9 +159,14 @@ class MemberOnepageController extends Controller
                 ->latest()
                 ->take(6)
                 ->get(),
+            'receivedReferralsCount' => Referral::query()
+                ->where('recipient_id', $memberUserId)
+                ->where('is_public', true)
+                ->count(),
             'receivedReferralsAvgPriority' => (function () use ($memberUserId): ?float {
                 $rows = Referral::query()
                     ->where('recipient_id', $memberUserId)
+                    ->where('is_public', true)
                     ->whereNotNull('priority')
                     ->pluck('priority');
                 if ($rows->isEmpty()) {
@@ -175,7 +177,7 @@ class MemberOnepageController extends Controller
                     $p === 'high'   => 5,
                     $p === 'low'    => 1,
                     default         => 3,
-                });
+                ]);
                 return round($numeric->avg(), 1);
             })(),
         ]);
