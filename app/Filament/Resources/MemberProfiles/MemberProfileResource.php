@@ -174,9 +174,15 @@ class MemberProfileResource extends Resource
                     ->visibility('public'),
                 FileUpload::make('cover_image')
                     ->label('Banner (immagine copertina profilo)')
-                    ->helperText('Immagine di sfondo del profilo pubblico — gestita nella pagina personale del membro.')
+                    ->helperText('Dimensioni consigliate: 1500 × 375 px (rapporto 4:1). Testa e elementi importanti devono stare nella metà superiore dell\'immagine — la parte inferiore potrebbe essere tagliata su schermi piccoli. Formato: JPG o PNG.')
                     ->image()
                     ->imageEditor()
+                    ->imageEditorAspectRatios([
+                        null,    // ritaglio libero
+                        '4:1',   // ideale per banner
+                        '3:1',   // banner più alto
+                        '16:5',  // alternativa
+                    ])
                     ->disk('public')
                     ->directory('members/covers')
                     ->visibility('public')

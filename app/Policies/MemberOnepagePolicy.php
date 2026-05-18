@@ -23,11 +23,12 @@ class MemberOnepagePolicy
     }
 
     /**
-     * Aggiornare la propria onepage: solo il proprietario.
+     * Aggiornare la onepage: il proprietario o un admin.
      */
     public function update(User $user, MemberOnepage $onepage): bool
     {
-        return $user->id === $onepage->user_id;
+        return $user->id === $onepage->user_id
+            || $user->hasAnyRole(['super-admin', 'admin-community']);
     }
 
     /**
