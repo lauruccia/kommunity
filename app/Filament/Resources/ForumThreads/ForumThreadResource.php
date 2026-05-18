@@ -26,7 +26,7 @@ class ForumThreadResource extends Resource
     protected static ?string $navigationLabel = 'Discussioni forum';
     protected static ?string $modelLabel = 'discussione forum';
     protected static ?string $pluralModelLabel = 'discussioni forum';
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kommunity';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftEllipsis;
 
     public static function form(Schema $schema): Schema

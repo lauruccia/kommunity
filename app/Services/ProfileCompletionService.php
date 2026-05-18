@@ -52,7 +52,7 @@ class ProfileCompletionService
             'test'       => 'hasServices',
         ],
         'networking_goals' => [
-            'label'      => 'Indica cosa cerchi nella community',
+            'label'      => 'Indica cosa cerchi in Kommunity',
             'icon'       => '🎯',
             'test'       => 'hasNetworkingGoals',
         ],

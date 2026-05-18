@@ -26,7 +26,7 @@ class ForumCategoryResource extends Resource
     protected static ?string $navigationLabel = 'Categorie forum';
     protected static ?string $modelLabel = 'categoria forum';
     protected static ?string $pluralModelLabel = 'categorie forum';
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kommunity';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenterText;
 
     public static function canViewAny(): bool

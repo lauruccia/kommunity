@@ -2,7 +2,7 @@
 
 return [
     'title'              => "Piani di abbonamento",
-    'subtitle'           => "Scegli il piano più adatto alla tua presenza nella community.",
+    'subtitle'           => "Scegli il piano più adatto alla tua presenza in Kommunity.",
     'monthly'            => "Mensile",
     'yearly'             => "Annuale",
     'save_badge'         => "Risparmia",

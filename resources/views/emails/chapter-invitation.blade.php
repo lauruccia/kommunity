@@ -45,7 +45,7 @@
             </div>
         @endif
 
-        <p>Kommunity è la community professionale dove costruire relazioni di valore con altri professionisti del tuo settore.</p>
+        <p>Kommunity è la piattaforma professionale dove costruire relazioni di valore con altri professionisti del tuo settore.</p>
 
         <div class="btn-wrap">
             <a href="{{ $inviteUrl }}" class="btn">Accetta l'invito</a>

@@ -2,7 +2,7 @@
 
 return [
     'title'           => "Members directory",
-    'subtitle'        => "Explore and connect with community professionals.",
+    'subtitle'        => "Explore and connect with Kommunity professionals.",
     'search'          => "Search by name, company or profession…",
     'filter_sector'   => "Sector",
     'filter_city'     => "City",

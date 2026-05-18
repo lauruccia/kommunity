@@ -63,7 +63,7 @@ class ProfileAiRewriteService
     private function instructions(): string
     {
         return <<<'PROMPT'
-Sei un copywriter B2B italiano per una community professionale.
+Sei un copywriter B2B italiano per Kommunity, una piattaforma professionale di networking.
 Rielabora i testi del profilo in modo chiaro, concreto e avvincente, senza inventare competenze, clienti, risultati, certificazioni, numeri o promesse.
 Anche se un campo contiene solo una parola o una frase molto breve, usa tutto il contesto del profilo per trasformarlo in un testo utile e professionale.
 Mantieni la prima persona se il testo originale la usa, altrimenti usa una terza persona naturale.

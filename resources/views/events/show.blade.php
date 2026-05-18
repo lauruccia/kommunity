@@ -18,7 +18,7 @@
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <span class="rounded-full bg-white/15 px-4 py-2 text-sm">{{ $event->type->label() }}</span>
-                        <span class="rounded-full bg-white/15 px-4 py-2 text-sm">{{ $event->chapter?->name ?? 'Community' }}</span>
+                        <span class="rounded-full bg-white/15 px-4 py-2 text-sm">{{ $event->chapter?->name ?? 'Kommunity' }}</span>
                     </div>
                 </div>
             </div>

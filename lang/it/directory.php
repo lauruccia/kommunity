@@ -2,7 +2,7 @@
 
 return [
     'title'           => "Directory membri",
-    'subtitle'        => "Esplora e connettiti con i professionisti della community.",
+    'subtitle'        => "Esplora e connettiti con i professionisti di Kommunity.",
     'search'          => "Cerca per nome, azienda o professione…",
     'filter_sector'   => "Settore",
     'filter_city'     => "Città",

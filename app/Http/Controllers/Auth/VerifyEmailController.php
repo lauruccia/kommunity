@@ -72,7 +72,7 @@ class VerifyEmailController extends Controller
         $this->verifyUser($user);
 
         return redirect()->route('profile.edit')
-            ->with('success', 'Account attivato. Completa il profilo per entrare nella community.');
+            ->with('success', 'Account attivato. Completa il profilo per entrare in Kommunity.');
     }
 
     private function verifyUser(User $user): void

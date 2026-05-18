@@ -42,7 +42,7 @@ return [
     'show_phone'           => "Show phone number",
     'show_whatsapp'        => "Show WhatsApp button",
     'allow_whatsapp'       => "Allow direct WhatsApp contact",
-    'onboarding_completed' => "I confirm that my content is ready to activate my presence in the community",
+    'onboarding_completed' => "I confirm that my content is ready to activate my presence in Kommunity",
     'gallery_images'       => "New gallery images",
     'save'                 => "Save profile",
     'saved'                => "Profile updated.",

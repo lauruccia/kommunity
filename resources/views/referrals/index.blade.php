@@ -138,7 +138,7 @@
                 <div>
                     <p class="kr-green-text text-sm font-semibold uppercase tracking-[.35em]">Referenze business</p>
                     <h1 class="mt-3 text-3xl font-semibold text-white">Opportunità e introduzioni tra membri</h1>
-                    <p class="mt-2 text-base" style="color:var(--kr-muted);">Invia opportunità, traccia lo stato e costruisci relazioni significative nella community.</p>
+                    <p class="mt-2 text-base" style="color:var(--kr-muted);">Invia opportunità, traccia lo stato e costruisci relazioni significative in Kommunity.</p>
                     <div class="mt-5 flex flex-wrap gap-3">
                         <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['sent'] }}</strong> <span style="color:var(--kr-muted);">Inviate</span></div>
                         <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['received'] }}</strong> <span style="color:var(--kr-muted);">Ricevute</span></div>

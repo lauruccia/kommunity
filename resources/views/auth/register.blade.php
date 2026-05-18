@@ -1,7 +1,7 @@
 <x-guest-layout>
     @php
         $headline    = \App\Models\SiteSetting::getCached('registration_headline', 'Entra in Kommunity');
-        $subheadline = \App\Models\SiteSetting::getCached('registration_subheadline', 'La community professionale che fa crescere il tuo business');
+        $subheadline = \App\Models\SiteSetting::getCached('registration_subheadline', 'Kommunity: la piattaforma che fa crescere il tuo business');
         $body        = \App\Models\SiteSetting::getCached('registration_body');
     @endphp
 

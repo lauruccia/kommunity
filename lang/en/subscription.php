@@ -2,7 +2,7 @@
 
 return [
     'title'              => "Subscription plans",
-    'subtitle'           => "Choose the plan that best suits your presence in the community.",
+    'subtitle'           => "Choose the plan that best suits your presence in Kommunity.",
     'monthly'            => "Monthly",
     'yearly'             => "Yearly",
     'save_badge'         => "Save",

@@ -25,7 +25,7 @@ class ForumCategoryProposalResource extends Resource
     protected static ?string $navigationLabel = 'Proposte categorie forum';
     protected static ?string $modelLabel = 'proposta categoria forum';
     protected static ?string $pluralModelLabel = 'proposte categorie forum';
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kommunity';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLightBulb;
 
     public static function canViewAny(): bool

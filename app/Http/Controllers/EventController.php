@@ -239,7 +239,7 @@ class EventController extends Controller
                     'time_label'           => $event->starts_at->format('H:i') . ($event->ends_at ? ' - ' . $event->ends_at->format('H:i') : ''),
                     'location'             => $event->location ?: 'Online',
                     'meeting_url'          => $event->meeting_url,
-                    'chapter'              => $event->chapter?->name ?? 'Evento community',
+                    'chapter'              => $event->chapter?->name ?? 'Evento Kommunity',
                     'organizer_name'       => $event->organizer?->name ?? 'N/D',
                     'cover_image'          => $event->coverImageUrl(),
                     'type'                 => $event->type->value,

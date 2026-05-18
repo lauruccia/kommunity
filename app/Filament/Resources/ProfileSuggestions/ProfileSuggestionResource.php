@@ -30,7 +30,7 @@ class ProfileSuggestionResource extends Resource
     protected static ?string $navigationLabel = 'Suggerimenti profilo';
     protected static ?string $modelLabel = 'suggerimento profilo';
     protected static ?string $pluralModelLabel = 'suggerimenti profilo';
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kommunity';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLightBulb;
 
     public static function canViewAny(): bool

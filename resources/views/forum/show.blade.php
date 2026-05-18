@@ -14,7 +14,7 @@
             <div class="px-6 py-5">
                 <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div>
-                        <div class="text-xs uppercase tracking-[0.22em]" style="color: rgba(248,250,252,.55);">Board index / {{ $thread->category?->name ?? 'Community' }}</div>
+                        <div class="text-xs uppercase tracking-[0.22em]" style="color: rgba(248,250,252,.55);">Board index / {{ $thread->category?->name ?? 'Kommunity' }}</div>
                         <h1 class="mt-2 text-3xl font-semibold">{{ $thread->title }}</h1>
                         <div class="mt-2 flex flex-wrap items-center gap-2 text-sm" style="color: rgba(248,250,252,.62);">
                             <span>Topic aperto da {{ $thread->user?->name ?? 'Utente eliminato' }}</span>
@@ -39,7 +39,7 @@
             <div class="bg-white/[.045] px-5 py-3 text-sm font-semibold text-white/80">
                 <a href="{{ route('forum.index') }}" class="hover:text-[color:#9AD84A]">Board index</a>
                 <span class="mx-2 text-[#7a93a5]">/</span>
-                <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="hover:text-[color:#9AD84A]">{{ $thread->category?->name ?? 'Community' }}</a>
+                <a href="{{ route('forum.index', ['category' => $thread->forum_category_id]) }}" class="hover:text-[color:#9AD84A]">{{ $thread->category?->name ?? 'Kommunity' }}</a>
                 <span class="mx-2 text-[#7a93a5]">/</span>
                 <span>{{ $thread->title }}</span>
             </div>
@@ -64,7 +64,7 @@
                     <div class="grid lg:grid-cols-[230px_minmax(0,1fr)]">
                         <aside class="border-b border-white/10 bg-white/[.045] px-5 py-5 lg:border-b-0 lg:border-r">
                             <div class="text-lg font-semibold text-white">{{ $post->user?->name ?? 'Utente eliminato' }}</div>
-                            <div class="mt-2 text-sm text-white/60">{{ $post->user->memberProfile?->company_name ?: 'Membro community' }}</div>
+                            <div class="mt-2 text-sm text-white/60">{{ $post->user->memberProfile?->company_name ?: 'Membro Kommunity' }}</div>
                             @if ($post->user->memberProfile?->city?->name)
                                 <div class="mt-1 text-xs uppercase tracking-[0.14em] text-white/45">{{ $post->user?->memberProfile?->city?->name ?? '' }}</div>
                             @endif

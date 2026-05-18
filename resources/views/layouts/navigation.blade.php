@@ -31,7 +31,7 @@
                             </div>
                             <div class="min-w-0">
                                 <div class="truncate text-base font-semibold tracking-tight text-stone-950 sm:text-lg">Kommunity</div>
-                                <div class="hidden sm:block km-brand-kicker">Community professionale</div>
+                                <div class="hidden sm:block km-brand-kicker">La piattaforma professionale</div>
                             </div>
                         </a>
                     </div>

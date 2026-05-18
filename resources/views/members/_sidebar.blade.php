@@ -199,7 +199,7 @@
 </div>
 @endif
 
-{{-- Referenze dalla community --}}
+{{-- Referenze da Kommunity --}}
 @if (!empty($publicEndorsements) && $publicEndorsements->isNotEmpty())
 @php $sidebarEndorsements = $publicEndorsements->sortByDesc(fn($r) => in_array($r->priority, ['1','2','3','4','5'], true) ? (int)$r->priority : 3)->take(3); @endphp
 <div class="km-panel p-6">

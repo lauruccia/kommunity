@@ -94,7 +94,7 @@
                 Benvenuto in<br><span style="color:#8BC53F;">Kommunity</span>
             </h2>
             <p style="margin-top:.75rem;color:#AAB7C4;font-size:.9rem;line-height:1.7;">
-                Ci vogliono solo <strong style="color:#fff;">3 minuti</strong> per completare il profilo e rendere la tua presenza visibile nella community professionale.
+                Ci vogliono solo <strong style="color:#fff;">3 minuti</strong> per completare il profilo e rendere la tua presenza visibile in Kommunity.
             </p>
             <ul style="margin-top:1.25rem;space-y:.5rem;display:flex;flex-direction:column;gap:.5rem;">
                 <li style="display:flex;align-items:center;gap:.6rem;color:#AAB7C4;font-size:.85rem;">
@@ -161,7 +161,7 @@
         <div x-show="step === 2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0" class="px-7 pb-8 pt-4">
             <p style="color:#9AD84A;font-size:.68rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;">Step 2</p>
             <h2 style="margin-top:.4rem;font-size:1.4rem;font-weight:900;color:#fff;">La tua attività</h2>
-            <p style="margin-top:.35rem;color:#AAB7C4;font-size:.83rem;line-height:1.6;">Cosa offri e cosa cerchi nella community.</p>
+            <p style="margin-top:.35rem;color:#AAB7C4;font-size:.83rem;line-height:1.6;">Cosa offri e cosa cerchi in Kommunity.</p>
 
             <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:1rem;">
                 <div>
@@ -176,7 +176,7 @@
                     <label style="display:block;font-size:.78rem;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:.4rem;letter-spacing:.06em;text-transform:uppercase;">
                         Obiettivi di networking
                     </label>
-                    <textarea x-model="fields.networking_goals" rows="3" placeholder="Cosa speri di ottenere dalla community? Nuovi clienti, partner, fornitori..."
+                    <textarea x-model="fields.networking_goals" rows="3" placeholder="Cosa speri di ottenere da Kommunity? Nuovi clienti, partner, fornitori..."
                               style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:.9rem;padding:.75rem 1rem;color:#fff;font-size:.9rem;outline:none;resize:vertical;transition:.2s;"
                               onfocus="this.style.borderColor='rgba(139,197,63,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.14)'"></textarea>
                 </div>

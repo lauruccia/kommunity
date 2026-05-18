@@ -87,7 +87,7 @@
 
     $steps = [
         ['01','Crea il tuo profilo','Mostra chi sei, cosa fai e quali sono i tuoi obiettivi.','<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
-        ['02','Entra nei Pianeti','Unisciti alla community più vicina a te.','<circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 22s7-5.5 7-12a7 7 0 1 0-14 0c0 6.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/>'],
+        ['02','Entra nei Pianeti','Unisciti al Pianeta Kommunity più vicino a te.','<circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 22s7-5.5 7-12a7 7 0 1 0-14 0c0 6.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/>'],
         ['03','Connettiti','Incontra professionisti e crea relazioni di valore.','<path d="M18 8a3 3 0 1 0-3-3M6 19a3 3 0 1 0 0-6m12 6a3 3 0 1 0 0-6M8.5 14.5l7-6m-7 0l7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
         ['04','Genera opportunità','Collabora, condividi, fai crescere il tuo business.','<path d="M13 10V3L4 14h7v7l9-11h-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'],
     ];
@@ -132,14 +132,14 @@
         </a>
         <nav class="site-nav" aria-label="Navigazione principale">
             <a href="#come-funziona" class="nav-link">Come funziona</a>
-            <a href="#community" class="nav-link">Community</a>
+            <a href="#community" class="nav-link">Kommunity</a>
 
             <a href="#contatti" class="nav-link">Contatti</a>
             @foreach($navPages as $np)<a href="{{ route('page.show', $np->slug) }}" class="nav-link">{{ $np->title }}</a>@endforeach
         </nav>
         <div class="header-cta">
             <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Accedi</a>
-            <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Entra nella community</a>
+            <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Entra in Kommunity</a>
         </div>
         <button class="hamburger" aria-label="Apri menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
@@ -152,7 +152,7 @@
             <h1 id="hero-heading"><span class="title-line">Relazioni giuste.</span><span class="title-line accent">Opportunità reali.</span></h1>
             <p class="hero-body">Kommunity è l'ecosistema dove professionisti e aziende si connettono, collaborano e crescono insieme.</p>
             <div class="hero-actions">
-                <a href="{{ route('register') }}" class="btn btn-primary btn-lg">Entra nella community <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="{{ route('register') }}" class="btn btn-primary btn-lg">Entra in Kommunity <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
                 <a href="#come-funziona" class="btn btn-ghost btn-lg">Scopri come funziona <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .8.9 1.27 1.56.82l10.04-6.86a1 1 0 0 0 0-1.64L9.56 4.32C8.9 3.87 8 4.34 8 5.14Z"/></svg></a>
             </div>
             <div class="social-proof">
@@ -239,20 +239,20 @@
 
 <section id="eventi" class="km-section"><div class="km-wrap video-grid"><div class="video-player glass"><button type="button" class="play-btn" aria-label="Guarda il video"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .8.9 1.27 1.56.82l10.04-6.86a1 1 0 0 0 0-1.64L9.56 4.32C8.9 3.87 8 4.34 8 5.14Z"/></svg></button><div class="video-brand brand-lockup" style="font-size:.95rem"><span class="brand-mark"><x-application-logo /></span><span>Kommunity</span></div></div><div><span class="badge badge-green" style="margin-bottom:1.2rem"><span class="badge-dot"></span>Scopri Kommunity</span><h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">In 60 secondi</h2><p class="section-copy">Guarda il video e scopri come Kommunity può trasformare le tue relazioni in risultati concreti.</p><a href="{{ route('register') }}" class="btn btn-ghost" style="margin-top:2rem">Guarda il video ▶</a></div></div></section>
 
-<section class="cta-section"><div class="km-wrap cta-inner"><div><h2 class="cta-title">Pronto a trasformare<br>le relazioni in risultati?</h2><p class="cta-body">Entra oggi in Kommunity e inizia a costruire il tuo futuro professionale.</p></div><a href="{{ route('register') }}" class="btn btn-primary btn-lg">Entra nella community <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></section>
+<section class="cta-section"><div class="km-wrap cta-inner"><div><h2 class="cta-title">Pronto a trasformare<br>le relazioni in risultati?</h2><p class="cta-body">Entra oggi in Kommunity e inizia a costruire il tuo futuro professionale.</p></div><a href="{{ route('register') }}" class="btn btn-primary btn-lg">Entra in Kommunity <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></section>
 </main>
 
 <footer id="contatti" class="site-footer">
     <div class="km-wrap footer-grid">
         <div><a href="{{ route('home') }}" class="brand-lockup"><span class="brand-mark"><x-application-logo /></span><span>Kommunity</span></a><p style="margin-top:1rem;max-width:280px;font-size:.78rem;line-height:1.72;color:var(--muted)">Kommunity è l'ecosistema che connette professionisti e aziende per generare valore, collaborare e crescere insieme.</p><div class="social-icons"><a href="#" class="soc-icon">in</a><a href="#" class="soc-icon">f</a><a href="#" class="soc-icon">IG</a><a href="#" class="soc-icon">X</a></div></div>
-        <nav><p class="footer-col-title">Esplora</p><a href="#come-funziona" class="footer-link">Come funziona</a><a href="#community" class="footer-link">Community</a>@foreach($footerPages as $fp)<a href="{{ route('page.show', $fp->slug) }}" class="footer-link">{{ $fp->title }}</a>@endforeach</nav>
+        <nav><p class="footer-col-title">Esplora</p><a href="#come-funziona" class="footer-link">Come funziona</a><a href="#community" class="footer-link">Kommunity</a>@foreach($footerPages as $fp)<a href="{{ route('page.show', $fp->slug) }}" class="footer-link">{{ $fp->title }}</a>@endforeach</nav>
         <nav><p class="footer-col-title">Risorse</p><a href="#" class="footer-link">FAQ</a><a href="#" class="footer-link">Storie di successo</a></nav>
         <address style="font-style:normal"><p class="footer-col-title">Contatti</p><p class="footer-link" style="cursor:default;line-height:1.7">KNM Srl<br>Via Eurialo, 56<br>00181 Roma (IT)</p> <a href="mailto:info@kommunity.it" class="footer-link">info@kommunity.it</a><a href="tel:+390678216530" class="footer-link">+39 06.7821653</a></address>
         <!-- <div><p class="footer-col-title">Resta aggiornato</p><p style="font-size:.78rem;color:var(--muted);margin-bottom:.75rem">Iscriviti alla newsletter</p>@if(session('newsletter_success'))<p style="font-size:.8rem;color:var(--brand4);font-weight:700;padding:.6rem .8rem;border-radius:.4rem;background:rgba(85,121,79,.12);border:1px solid rgba(85,121,79,.3);margin-bottom:.75rem">✓ Iscritto con successo!</p>@endif<form class="newsletter-form" method="POST" action="{{ route('newsletter.subscribe') }}">@csrf<input type="email" name="email" placeholder="La tua email" required><button type="submit">→</button></form></div> -->
     </div>
     <div class="footer-bottom"><div class="km-wrap footer-bottom-inner"><p>© {{ date('Y') }} KNM Srl · P.IVA 13273091002 · Tutti i diritti riservati</p><nav class="footer-bottom-links">
         @php
-            $legalSlugs = ['privacy-policy' => 'Privacy Policy', 'termini-e-condizioni' => 'Termini e condizioni', 'cookie-policy' => 'Cookie Policy'];
+            $legalSlugs = ['privacy' => 'Privacy Policy', 'termini' => 'Termini e condizioni', 'cookie-policy' => 'Cookie Policy'];
         @endphp
         @foreach($legalSlugs as $slug => $label)
             @if($footerPages->contains('slug', $slug) || $navPages->contains('slug', $slug))

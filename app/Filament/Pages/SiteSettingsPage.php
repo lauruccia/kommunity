@@ -39,7 +39,7 @@ class SiteSettingsPage extends Page
     {
         $this->form->fill([
             'registration_headline'    => SiteSetting::get('registration_headline', 'Entra in Kommunity'),
-            'registration_subheadline' => SiteSetting::get('registration_subheadline', 'La community professionale che fa crescere il tuo business'),
+            'registration_subheadline' => SiteSetting::get('registration_subheadline', 'Kommunity: la piattaforma che fa crescere il tuo business'),
             'registration_body'        => SiteSetting::get('registration_body'),
             'member_navigation_items'  => MemberNavigation::enabledKeys(),
         ]);
@@ -60,7 +60,7 @@ class SiteSettingsPage extends Page
 
                         TextInput::make('registration_subheadline')
                             ->label('Sottotitolo')
-                            ->placeholder('La community professionale che fa crescere il tuo business')
+                            ->placeholder('Kommunity: la piattaforma che fa crescere il tuo business')
                             ->maxLength(200),
 
                         RichEditor::make('registration_body')

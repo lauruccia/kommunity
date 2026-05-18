@@ -1,7 +1,7 @@
 {
   "name": "Kommunity",
   "short_name": "Kommunity",
-  "description": "La community professionale italiana — incontri 1:1, referral, eventi.",
+  "description": "Kommunity — la piattaforma professionale italiana: incontri 1:1, referral, eventi.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
@@ -28,7 +28,7 @@
     {
       "name": "Directory membri",
       "url": "/directory",
-      "description": "Sfoglia i membri della community"
+      "description": "Sfoglia i membri di Kommunity"
     },
     {
       "name": "I miei 1:1",

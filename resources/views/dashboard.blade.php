@@ -83,7 +83,7 @@
                             Account attivo
                         </p>
                         <h2 class="mt-1 text-xl font-black tracking-tight text-white">
-                            Completa il profilo per sbloccare la community
+                            Completa il profilo per sbloccare Kommunity
                         </h2>
                         <p class="mt-2 max-w-2xl text-sm leading-6 text-white/65">
                             Mancano alcuni dati essenziali: professione, città e telefono. La dashboard resta accessibile, ma directory, eventi e incontri sono guidati dal profilo.

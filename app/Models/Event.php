@@ -173,14 +173,14 @@ class Event extends Model
     public function audienceLabel(): string
     {
         return match ($this->audience_type ?? 'all') {
-            'all'                      => 'Tutta la community',
+            'all'                      => 'Tutta Kommunity',
             'by_planet'                => 'Pianeti selezionati',
             'by_profession'            => 'Professioni selezionate',
             'by_planet_and_profession' => 'Pianeti + Professioni',
             'by_role'                  => 'Ruoli selezionati',
             'by_planet_and_role'       => 'Pianeti + Ruoli',
             'by_profession_and_role'   => 'Professioni + Ruoli',
-            default                    => 'Tutta la community',
+            default                    => 'Tutta Kommunity',
         };
     }
 

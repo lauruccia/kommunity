@@ -36,7 +36,7 @@
                         </div>
                         <div>
                             <div class="text-3xl font-black tracking-[-0.055em] text-white">Kommunity</div>
-                            <div class="km-portal-eyebrow text-[10px]">Community professionale</div>
+                            <div class="km-portal-eyebrow text-[10px]">La piattaforma professionale</div>
                         </div>
                     </div>
                 </a>

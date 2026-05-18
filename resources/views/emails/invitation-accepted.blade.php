@@ -35,7 +35,7 @@
             <p class="value" style="margin-bottom:0;">{{ $newUser->email }}</p>
         </div>
 
-        <p>{{ $newUser->name }} è ora parte del Pianeta <strong>{{ $chapter?->name }}</strong> e potrà accedere a tutti i contenuti della community.</p>
+        <p>{{ $newUser->name }} è ora parte del Pianeta <strong>{{ $chapter?->name }}</strong> e potrà accedere a tutti i contenuti di Kommunity.</p>
         <p>Puoi visualizzare i dettagli del nuovo membro dal pannello di amministrazione.</p>
     </div>
     <div class="footer">

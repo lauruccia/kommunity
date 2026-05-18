@@ -452,7 +452,7 @@
                         </div>
                     </div>
 
-                    {{-- RECENSIONI DALLA COMMUNITY --}}
+                    {{-- RECENSIONI DA KOMMUNITY --}}
                     @if ($reviews->isNotEmpty())
                     @php
                         $reviewsWithRating = $reviews->filter(fn ($r) => $r->rating > 0);
@@ -463,7 +463,7 @@
                     <div class="km-panel p-5 sm:p-6">
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
-                                Recensioni dalla community
+                                Recensioni da Kommunity
                             </h2>
                             @if ($avgRating)
                                 <div class="flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5">

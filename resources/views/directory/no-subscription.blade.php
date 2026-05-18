@@ -15,7 +15,7 @@
             </h1>
             <p style="margin-top:.75rem;font-size:.95rem;line-height:1.7;color:var(--km-text-muted);">
                 L'accesso alla Directory dei membri è riservato agli abbonati.
-                Scegli un piano per connetterti con tutti i professionisti della community.
+                Scegli un piano per connetterti con tutti i professionisti di Kommunity.
             </p>
 
             <div style="margin-top:2rem;display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;">

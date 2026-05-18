@@ -350,8 +350,8 @@
                                         <span class="rounded-full bg-white/10 px-2 py-1 text-xs font-semibold text-white/70">Chiuso</span>
                                     @endif
                                 </div>
-                                <p class="mt-1 line-clamp-1 text-sm" style="color: var(--kf-muted);">{{ $thread->excerpt ?: 'Discussione della community su questo tema.' }}</p>
-                                <p class="mt-2 text-sm text-white">{{ $thread->category?->name ?? 'Community' }}</p>
+                                <p class="mt-1 line-clamp-1 text-sm" style="color: var(--kf-muted);">{{ $thread->excerpt ?: 'Discussione Kommunity su questo tema.' }}</p>
+                                <p class="mt-2 text-sm text-white">{{ $thread->category?->name ?? 'Kommunity' }}</p>
                             </div>
                         </div>
 
@@ -427,7 +427,7 @@
                     </div>
                     <div class="min-w-0">
                         <h2 class="text-lg font-semibold text-white">Hai un'idea o un'opportunità?</h2>
-                        <p class="mt-1 text-sm" style="color: var(--kf-muted);">Condividila con la community e trova i partner giusti per realizzarla.</p>
+                        <p class="mt-1 text-sm" style="color: var(--kf-muted);">Condividila con Kommunity e trova i partner giusti per realizzarla.</p>
                         <button type="button" data-open-forum-thread class="kf-btn-primary mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-lg px-5 text-sm font-semibold">
                             <span class="text-xl">+</span> Crea nuovo topic
                         </button>
