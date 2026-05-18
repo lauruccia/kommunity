@@ -206,7 +206,7 @@
     <div class="flex items-center justify-between">
         <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Referenze</h3>
         <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-            {{ $publicEndorsements->count() }} {{ $publicEndorsements->count() === 1 ? 'referenza' : 'referenze' }}
+            {{ $receivedReferralsCount }} {{ $receivedReferralsCount === 1 ? 'referenza' : 'referenze' }}
         </span>
     </div>
     <div class="mt-4 space-y-3">
