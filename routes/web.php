@@ -104,6 +104,7 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
 
     Route::get('/directory', DirectoryController::class)->name('directory.index');
     Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
+    Route::get('/member/{slug}/referenze', [MemberOnepageController::class, 'referrals'])->name('members.referrals');
     Route::post('/members/{user}/video-access', [ProfileVideoAccessController::class, 'store'])->name('profile-video-access.store');
     Route::patch('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'respond'])->name('profile-video-access.respond');
     Route::delete('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'revoke'])->name('profile-video-access.revoke');

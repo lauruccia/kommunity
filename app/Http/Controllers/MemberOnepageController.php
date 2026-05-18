@@ -13,6 +13,61 @@ use Illuminate\Support\Facades\Schema;
 
 class MemberOnepageController extends Controller
 {
+    public function referrals(Request $request, string $slug): View
+    {
+        $onepage = MemberOnepage::query()
+            ->with(['user.memberProfile'])
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $memberUserId = $onepage->user->id;
+        $sort         = $request->get('sort', 'recenti');
+
+        $query = Referral::query()
+            ->with('sender')
+            ->where('recipient_id', $memberUserId)
+            ->where('is_public', true);
+
+        match ($sort) {
+            'migliori' => $query->orderByRaw('CAST(priority AS UNSIGNED) DESC'),
+            'peggiori' => $query->orderByRaw('CAST(priority AS UNSIGNED) ASC'),
+            default    => $query->latest(),
+        };
+
+        $referrals  = $query->paginate(12)->withQueryString();
+        $totalCount = Referral::query()->where('recipient_id', $memberUserId)->where('is_public', true)->count();
+
+        $avgPriority = (function () use ($memberUserId): ?float {
+            $rows = Referral::query()
+                ->where('recipient_id', $memberUserId)
+                ->where('is_public', true)
+                ->whereNotNull('priority')
+                ->pluck('priority');
+            if ($rows->isEmpty()) {
+                return null;
+            }
+            $numeric = $rows->map(fn ($p) => match (true) {
+                in_array($p, ['1','2','3','4','5'], true) => (int) $p,
+                $p === 'high' => 5,
+                $p === 'low'  => 1,
+                default       => 3,
+            });
+
+            return round($numeric->avg(), 1);
+        })();
+
+        return view('members.referrals', [
+            'onepage'     => $onepage,
+            'profile'     => $onepage->user->memberProfile,
+            'user'        => $onepage->user,
+            'referrals'   => $referrals,
+            'totalCount'  => $totalCount,
+            'avgPriority' => $avgPriority,
+            'sort'        => $sort,
+        ]);
+    }
+
     public function show(Request $request, string $slug): View
     {
         $onepage = MemberOnepage::query()
