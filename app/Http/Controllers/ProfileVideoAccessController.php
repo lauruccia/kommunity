@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\ProfileVideoAccessRequestedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class ProfileVideoAccessController extends Controller
@@ -14,6 +15,10 @@ class ProfileVideoAccessController extends Controller
     public function store(Request $request, User $user): RedirectResponse
     {
         abort_if($request->user()->id === $user->id, 403);
+
+        if (! Schema::hasTable('profile_video_access_requests')) {
+            return back()->with('status', 'video-access-unavailable');
+        }
 
         if (! $request->user()->memberProfile?->hasVideo()) {
             return back()->with('status', 'video-access-own-video-required');
@@ -41,8 +46,14 @@ class ProfileVideoAccessController extends Controller
         return back()->with('status', 'video-access-requested');
     }
 
-    public function respond(Request $request, ProfileVideoAccessRequest $profileVideoAccessRequest): RedirectResponse
+    public function respond(Request $request, int $profileVideoAccessRequest): RedirectResponse
     {
+        if (! Schema::hasTable('profile_video_access_requests')) {
+            return back()->with('status', 'video-access-unavailable');
+        }
+
+        $profileVideoAccessRequest = ProfileVideoAccessRequest::query()->findOrFail($profileVideoAccessRequest);
+
         abort_unless($profileVideoAccessRequest->recipient_id === $request->user()->id, 403);
 
         $validated = $request->validate([
@@ -60,8 +71,14 @@ class ProfileVideoAccessController extends Controller
             : 'video-access-declined');
     }
 
-    public function revoke(Request $request, ProfileVideoAccessRequest $profileVideoAccessRequest): RedirectResponse
+    public function revoke(Request $request, int $profileVideoAccessRequest): RedirectResponse
     {
+        if (! Schema::hasTable('profile_video_access_requests')) {
+            return back()->with('status', 'video-access-unavailable');
+        }
+
+        $profileVideoAccessRequest = ProfileVideoAccessRequest::query()->findOrFail($profileVideoAccessRequest);
+
         abort_unless(
             $profileVideoAccessRequest->requester_id === $request->user()->id
             || $profileVideoAccessRequest->recipient_id === $request->user()->id,

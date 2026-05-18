@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 class MemberProfile extends Model
@@ -281,6 +282,10 @@ class MemberProfile extends Model
 
         if ($viewer->hasAnyRole(['super-admin', 'admin-community'])) {
             return true;
+        }
+
+        if (! Schema::hasTable('profile_video_access_requests')) {
+            return false;
         }
 
         return ProfileVideoAccessRequest::grantsAccessBetween((int) $viewer->id, (int) $this->user_id);

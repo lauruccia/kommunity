@@ -7,8 +7,9 @@ use App\Models\OneToOneReference;
 use App\Models\OneToOneRequest;
 use App\Models\ProfileVideoAccessRequest;
 use App\Models\Referral;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class MemberOnepageController extends Controller
 {
@@ -33,12 +34,14 @@ class MemberOnepageController extends Controller
 
         $currentUserId = $request->user()->id;
         $memberUserId  = $onepage->user->id;
-        $videoAccessRequest = $currentUserId === $memberUserId
-            ? null
-            : ProfileVideoAccessRequest::query()
+        $videoAccessRequest = null;
+
+        if ($currentUserId !== $memberUserId && Schema::hasTable('profile_video_access_requests')) {
+            $videoAccessRequest = ProfileVideoAccessRequest::query()
                 ->between($currentUserId, $memberUserId)
                 ->latest()
                 ->first();
+        }
 
         // Recensioni ricevute da questo membro (con testo o voto)
         $reviews = OneToOneReference::query()

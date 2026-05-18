@@ -13,7 +13,7 @@ class BannerService
 {
     public function forPlacement(string $placementKey, ?User $user = null): ?array
     {
-        if (! Schema::hasTable('banner_campaigns')) {
+        if (! $this->tablesReady()) {
             return null;
         }
 
@@ -72,6 +72,10 @@ class BannerService
 
     public function recordClick(BannerCampaign $campaign, ?int $creativeId, string $placementKey, ?User $user = null): void
     {
+        if (! Schema::hasTable('banner_clicks')) {
+            return;
+        }
+
         BannerClick::query()->create([
             'banner_campaign_id' => $campaign->id,
             'banner_creative_id' => $creativeId,
@@ -84,6 +88,10 @@ class BannerService
 
     private function recordImpression(BannerCampaign $campaign, ?int $creativeId, string $placementKey, ?User $user): void
     {
+        if (! Schema::hasTable('banner_impressions')) {
+            return;
+        }
+
         BannerImpression::query()->create([
             'banner_campaign_id' => $campaign->id,
             'banner_creative_id' => $creativeId,
@@ -137,5 +145,15 @@ class BannerService
             && $campaign->cities->isEmpty()
             && $campaign->professions->isEmpty()
             && $campaign->categories->isEmpty();
+    }
+
+    private function tablesReady(): bool
+    {
+        return Schema::hasTable('banner_campaigns')
+            && Schema::hasTable('banner_placements')
+            && Schema::hasTable('banner_creatives')
+            && Schema::hasTable('banner_campaign_placement')
+            && Schema::hasTable('banner_impressions')
+            && Schema::hasTable('banner_clicks');
     }
 }

@@ -67,6 +67,7 @@
                     'video-access-declined' => 'Richiesta video rifiutata.',
                     'video-access-revoked' => 'Accesso video revocato.',
                     'video-access-own-video-required' => 'Carica prima la tua videopresentazione per richiedere uno scambio.',
+                    'video-access-unavailable' => 'La funzione video privato sara disponibile dopo l aggiornamento database.',
                 ];
             @endphp
 
