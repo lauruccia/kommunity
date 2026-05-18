@@ -149,6 +149,21 @@
 
             @unless ($viewerIsOwner)
                 <div class="shrink-0 space-y-2 border-t border-stone-200 bg-white p-4">
+                    {{-- Referenze ricevute sopra il pulsante --}}
+                    @if (!empty($receivedReferralsCount) && $receivedReferralsCount > 0)
+                        <a href="{{ route('members.referrals', $onepage->slug) }}"
+                           class="flex items-center justify-center gap-2 rounded-2xl bg-amber-50 px-4 py-2.5 transition hover:bg-amber-100">
+                            @if (!empty($receivedReferralsAvgPriority))
+                                <span class="flex gap-0.5">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <svg class="h-4 w-4 {{ $i <= floor($receivedReferralsAvgPriority) ? 'text-yellow-400' : 'text-stone-300' }}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    @endfor
+                                </span>
+                            @endif
+                            <span class="text-sm font-semibold text-stone-700">{{ $receivedReferralsCount }} {{ $receivedReferralsCount === 1 ? 'referenza ricevuta' : 'referenze ricevute' }}</span>
+                            <svg class="h-3.5 w-3.5 text-stone-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                        </a>
+                    @endif
                     {{-- Apre la pagina messaggi con il destinatario precompilato. NESSUN invio automatico. --}}
                     <a href="{{ route('conversations.index', ['to' => $user->id]) }}"
                        class="km-button-secondary inline-flex w-full items-center justify-center">
@@ -229,74 +244,38 @@
                                     <p class="mt-2 text-sm italic text-stone-500">{{ $shortBio }}</p>
                                 @endif
 
-                                @php
-                                    $heroRatedReviews = $reviews->filter(fn ($r) => $r->rating > 0);
-                                    $heroAvgRating = $heroRatedReviews->isNotEmpty()
-                                        ? round($heroRatedReviews->avg('rating'), 1)
-                                        : null;
-                                @endphp
-                                @if ($heroAvgRating || (!empty($receivedReferralsCount) && $receivedReferralsCount > 0))
-                                    <div class="mt-4 flex flex-wrap items-center gap-4">
-                                        @if ($heroAvgRating)
-                                            <div class="flex items-center gap-2">
-                                                {{-- Stelle SVG visibili --}}
-                                                <span class="flex gap-0.5">
-                                                    @for ($i = 1; $i <= 5; $i++)
-                                                        @if ($i <= floor($heroAvgRating))
-                                                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                        @elseif ($i - 0.5 <= $heroAvgRating)
-                                                            {{-- mezza stella --}}
-                                                            <span class="relative inline-block h-5 w-5">
-                                                                <svg class="absolute inset-0 h-5 w-5 text-stone-200" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                                <svg class="absolute inset-0 h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" style="clip-path:inset(0 50% 0 0)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                            </span>
-                                                        @else
-                                                            <svg class="h-5 w-5 text-stone-200" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                        @endif
-                                                    @endfor
-                                                </span>
-                                                <span class="text-sm font-bold text-stone-800">{{ number_format($heroAvgRating, 1) }}</span>
-                                                <span class="text-sm text-stone-400">({{ $reviews->count() }} {{ $reviews->count() === 1 ? 'recensione' : 'recensioni' }})</span>
-                                            </div>
-                                        @endif
-                                        @if (!empty($receivedReferralsCount) && $receivedReferralsCount > 0)
-                                            <div class="flex items-center gap-2">
-                                                @if (!empty($receivedReferralsAvgPriority))
-                                                    <span class="flex gap-0.5">
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            @if ($i <= floor($receivedReferralsAvgPriority))
-                                                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                            @elseif ($i - 0.5 <= $receivedReferralsAvgPriority)
-                                                                <span class="relative inline-block h-5 w-5">
-                                                                    <svg class="absolute inset-0 h-5 w-5 text-stone-200" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                                    <svg class="absolute inset-0 h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" style="clip-path:inset(0 50% 0 0)"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                                </span>
-                                                            @else
-                                                                <svg class="h-5 w-5 text-stone-200" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                            @endif
-                                                        @endfor
-                                                    </span>
-                                                @endif
-                                                <span class="text-sm font-semibold text-stone-700">{{ $receivedReferralsCount }} {{ $receivedReferralsCount === 1 ? 'referenza ricevuta' : 'referenze ricevute' }}</span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endif
                             </div>
 
                             @unless ($viewerIsOwner)
-                                <div class="hidden flex-wrap gap-3 sm:flex">
-                                    {{-- Apre la pagina messaggi con il destinatario precompilato. NESSUN invio automatico. --}}
-                                    <a href="{{ route('conversations.index', ['to' => $user->id]) }}"
-                                       class="km-button-secondary inline-flex items-center justify-center">
-                                        Messaggio diretto
-                                    </a>
+                                <div class="hidden flex-col items-end gap-3 sm:flex">
+                                    {{-- Referenze ricevute sopra il pulsante --}}
+                                    @if (!empty($receivedReferralsCount) && $receivedReferralsCount > 0)
+                                        <a href="{{ route('members.referrals', $onepage->slug) }}"
+                                           class="flex items-center gap-2 rounded-2xl bg-amber-50 px-4 py-2 transition hover:bg-amber-100">
+                                            @if (!empty($receivedReferralsAvgPriority))
+                                                <span class="flex gap-0.5">
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <svg class="h-4 w-4 {{ $i <= floor($receivedReferralsAvgPriority) ? 'text-yellow-400' : 'text-stone-300' }}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                    @endfor
+                                                </span>
+                                            @endif
+                                            <span class="text-sm font-semibold text-stone-700">{{ $receivedReferralsCount }} {{ $receivedReferralsCount === 1 ? 'referenza' : 'referenze' }}</span>
+                                            <svg class="h-3.5 w-3.5 text-stone-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                                        </a>
+                                    @endif
+                                    <div class="flex flex-wrap gap-3">
+                                        {{-- Apre la pagina messaggi con il destinatario precompilato. NESSUN invio automatico. --}}
+                                        <a href="{{ route('conversations.index', ['to' => $user->id]) }}"
+                                           class="km-button-secondary inline-flex items-center justify-center">
+                                            Messaggio diretto
+                                        </a>
 
-                                    {{-- Apre il form one-to-one con il destinatario precompilato. NESSUN invio automatico. --}}
-                                    <a href="{{ route('one-to-ones.index', ['member' => $user->id, 'compose' => 1]) }}"
-                                       class="inline-flex items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]">
-                                        Prenota one-to-one
-                                    </a>
+                                        {{-- Apre il form one-to-one con il destinatario precompilato. NESSUN invio automatico. --}}
+                                        <a href="{{ route('one-to-ones.index', ['member' => $user->id, 'compose' => 1]) }}"
+                                           class="inline-flex items-center justify-center rounded-full border border-transparent bg-[color:var(--km-accent)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(66,98,64,0.28)] transition hover:bg-[color:var(--km-accent-strong)]">
+                                            Prenota one-to-one
+                                        </a>
+                                    </div>
                                 </div>
                             @endunless
                         </div>
