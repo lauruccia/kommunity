@@ -110,17 +110,9 @@ class MemberOnepageResource extends Resource
             // ── IMMAGINE BANNER ───────────────────────────────────────────────
             FileUpload::make('cover_image')
                 ->label('Banner (immagine copertina)')
-                ->helperText('L\'editor si apre automaticamente al caricamento per ritagliare al rapporto 4:1. Immagine salvata a 1500 × 375 px.')
+                ->helperText('Carica il banner nelle dimensioni originali — verrà mostrato automaticamente in proporzione. Opzionalmente usa l\'editor per ritagliare.')
                 ->image()
                 ->imageEditor()
-                ->imageAspectRatio('4:1')
-                ->automaticallyCropImagesToAspectRatio()
-                ->automaticallyOpenImageEditorForAspectRatio()
-                ->automaticallyResizeImagesToWidth('1500')
-                ->automaticallyResizeImagesToHeight('375')
-                ->automaticallyResizeImagesMode('cover')
-                ->imageEditorViewportWidth(760)
-                ->imageEditorViewportHeight(190)
                 ->disk('public')
                 ->directory('members/covers')
                 ->visibility('public'),

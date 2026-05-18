@@ -13,18 +13,18 @@
 
     <style>
         .member-banner {
-            height: 200px;
+            height: 180px;
         }
 
         @media (min-width: 640px) {
             .member-banner {
-                height: 260px;
+                height: 280px;
             }
         }
 
         @media (min-width: 1024px) {
             .member-banner {
-                height: 320px;
+                height: 420px;
             }
 
             .member-grid {
