@@ -7,6 +7,9 @@ use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\RelationManagers\UserPlanetsRelationManager;
+use App\Models\Chapter;
+use App\Models\City;
+use App\Models\Region;
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -22,6 +25,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -88,7 +92,7 @@ class UserResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query
-                ->with(['roles', 'permissions', 'memberProfile.city', 'memberProfile.chapter', 'invitedBy'])
+                ->with(['roles', 'permissions', 'memberProfile.city.region', 'memberProfile.region', 'memberProfile.chapter', 'planets', 'invitedBy'])
                 ->withCount('invitedUsers'))
             ->columns([
                 TextColumn::make('name')
@@ -166,7 +170,61 @@ class UserResource extends Resource
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
-            ->filters([])
+            ->filters([
+                SelectFilter::make('planet_id')
+                    ->label('Pianeta')
+                    ->options(fn () => Chapter::query()
+                        ->where('is_active', true)
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->searchable()
+                    ->query(function (Builder $query, array $data): void {
+                        if (blank($data['value'] ?? null)) {
+                            return;
+                        }
+
+                        $query->whereHas('planets', fn (Builder $planetQuery) =>
+                            $planetQuery->where('chapters.id', $data['value'])
+                        );
+                    }),
+                SelectFilter::make('city_id')
+                    ->label('Citta')
+                    ->options(fn () => City::query()
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->searchable()
+                    ->query(function (Builder $query, array $data): void {
+                        if (blank($data['value'] ?? null)) {
+                            return;
+                        }
+
+                        $query->whereHas('memberProfile', fn (Builder $profileQuery) =>
+                            $profileQuery->where('city_id', $data['value'])
+                        );
+                    }),
+                SelectFilter::make('region_id')
+                    ->label('Regione')
+                    ->options(fn () => Region::query()
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->all())
+                    ->searchable()
+                    ->query(function (Builder $query, array $data): void {
+                        if (blank($data['value'] ?? null)) {
+                            return;
+                        }
+
+                        $query->whereHas('memberProfile', fn (Builder $profileQuery) =>
+                            $profileQuery
+                                ->where('region_id', $data['value'])
+                                ->orWhereHas('city', fn (Builder $cityQuery) =>
+                                    $cityQuery->where('region_id', $data['value'])
+                                )
+                        );
+                    }),
+            ])
             ->recordActions([
                 Action::make('activateUser')
                     ->label('Attiva')
