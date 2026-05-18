@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Chapter;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -67,6 +68,62 @@ class RegistrationTest extends TestCase
         ]);
         $this->assertDatabaseHas('member_profiles', [
             'phone' => '+39 333 1234567',
+        ]);
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_registration_from_referral_assigns_inviter_active_planet(): void
+    {
+        $chapter = Chapter::create([
+            'name' => 'Pianeta Milano',
+            'slug' => 'pianeta-milano',
+            'is_active' => true,
+        ]);
+
+        $inviter = User::factory()->create([
+            'name' => 'Leader Milano',
+            'referral_code' => 'leader-milano',
+        ]);
+
+        $inviter->memberProfile()->update([
+            'active_chapter_id' => $chapter->id,
+        ]);
+
+        \DB::table('chapter_members')->insert([
+            'chapter_id' => $chapter->id,
+            'user_id' => $inviter->id,
+            'status' => 'active',
+            'joined_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->post('/register', [
+            'name' => 'Nuovo Membro',
+            'email' => 'nuovo@example.com',
+            'phone' => '+39 333 7654321',
+            'invited_by_name' => 'Leader Milano',
+            'referral_code' => $inviter->referral_code,
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $newUser = User::where('email', 'nuovo@example.com')->firstOrFail();
+
+        $this->assertAuthenticatedAs($newUser);
+        $this->assertDatabaseHas('users', [
+            'id' => $newUser->id,
+            'invited_by_user_id' => $inviter->id,
+            'invited_by_name' => 'Leader Milano',
+        ]);
+        $this->assertDatabaseHas('member_profiles', [
+            'user_id' => $newUser->id,
+            'active_chapter_id' => $chapter->id,
+        ]);
+        $this->assertDatabaseHas('chapter_members', [
+            'chapter_id' => $chapter->id,
+            'user_id' => $newUser->id,
+            'status' => 'active',
         ]);
         $response->assertRedirect(route('dashboard', absolute: false));
     }

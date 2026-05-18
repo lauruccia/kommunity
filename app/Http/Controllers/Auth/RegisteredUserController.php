@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\InvitationAcceptedMail;
 use App\Models\ChapterInvitation;
+use App\Models\MemberProfile;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
@@ -98,14 +100,34 @@ class RegisteredUserController extends Controller
             'phone' => $request->string('phone')->toString(),
         ]);
 
+        // ── Gestione invito pianeta ───────────────────────────────────────────
+        $chapterToken = $request->session()->get('chapter_invitation_token');
+
+        if (! $chapterToken && $inviter) {
+            $inviterPlanetId = $inviter->activePlanetId()
+                ?? $inviter->planets()->value('chapters.id');
+
+            if ($inviterPlanetId) {
+                MemberProfile::$adminOverrideLimit = true;
+                try {
+                    $user->memberProfile?->update(['active_chapter_id' => $inviterPlanetId]);
+                } finally {
+                    MemberProfile::$adminOverrideLimit = false;
+                }
+
+                DB::table('chapter_members')->updateOrInsert(
+                    ['chapter_id' => $inviterPlanetId, 'user_id' => $user->id],
+                    ['status' => 'active', 'joined_at' => now(), 'updated_at' => now(), 'created_at' => now()]
+                );
+            }
+        }
+
         event(new Registered($user));
 
         Auth::login($user);
 
         $request->session()->forget('registration_referral_code');
 
-        // ── Gestione invito pianeta ───────────────────────────────────────────
-        $chapterToken = $request->session()->get('chapter_invitation_token');
         if ($chapterToken) {
             $invitation = ChapterInvitation::with(['chapter', 'invitedBy'])
                 ->where('token', $chapterToken)

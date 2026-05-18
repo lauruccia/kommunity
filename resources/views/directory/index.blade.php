@@ -5,41 +5,10 @@
 
 <style>
 
-.km-directory-avatar video.km-video-preview{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    object-fit:cover!important;
-    border-radius:9999px!important;
-    pointer-events:none;
-    opacity:1!important;
-    z-index:2;
-}
-
 .km-directory-avatar img,
 .km-directory-avatar span{
     position:relative;
     z-index:1;
-}
-
-.km-directory-avatar-play-badge{
-    z-index:4;
-}
-
-.km-directory-avatar-play-badge{
-    position:absolute;
-    right:.15rem;
-    bottom:.15rem;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:1.85rem!important;
-    height:1.85rem!important;
-    border-radius:9999px;
-    border:2.5px solid rgba(255,255,255,.95);
-    background:linear-gradient(135deg,#55794f 0%,#426240 100%);
-    box-shadow:0 10px 20px rgba(14,20,27,.22);
 }
 
 .km-directory-card{
@@ -273,52 +242,6 @@
                     @endforeach
                 </form>
 
-                <div x-data="{
-                         open: false,
-                         embedUrl: '',
-                         localUrl: '',
-                         openVideo(d) {
-                             this.embedUrl = d.embed || '';
-                             this.localUrl = d.local || '';
-                             this.open = true;
-                         },
-                         closeVideo() {
-                             const v = this.$refs.mv;
-                             if (v) {
-                                 v.pause();
-                                 v.removeAttribute('src');
-                                 v.load();
-                             }
-                             this.open = false;
-                             this.embedUrl = '';
-                             this.localUrl = '';
-                         }
-                     }"
-                     @open-video.window="openVideo($event.detail)"
-                     @keydown.escape.window="if(open) closeVideo()">
-
-                    <template x-if="open">
-                        <div x-cloak
-                             class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
-                             @click.self="closeVideo()">
-                            <div class="relative w-full max-w-3xl overflow-hidden rounded-[1.6rem] bg-black shadow-2xl" style="aspect-ratio:16/9;">
-                                <template x-if="embedUrl">
-                                    <iframe :src="embedUrl" class="h-full w-full" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
-                                </template>
-
-                                <template x-if="!embedUrl && localUrl">
-                                    <video x-ref="mv" :src="localUrl" controls autoplay class="h-full w-full"></video>
-                                </template>
-
-                                <button @click="closeVideo()"
-                                        class="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur hover:bg-white/30">
-                                    ×
-                                </button>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style="column-gap:1rem; row-gap:4.5rem; margin-top:3.5rem;">
 
                     @forelse ($members as $member)
@@ -333,28 +256,6 @@
                                 ?? null;
 
                             $profileUrl = $onepage?->slug ? route('members.show', $onepage->slug) : '#';
-
-                            $embedUrl = $member->videoEmbedUrl() ?? '';
-                            $localUrl = (!$embedUrl && $member->introVideoUrl()) ? $member->introVideoUrl() : '';
-                            $hasVideo = $member->hasVideo();
-
-                            $ytId = null;
-                            if ($embedUrl && preg_match('/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/', $embedUrl, $m)) {
-                                $ytId = $m[1];
-                            }
-
-                            $circleType = 'photo';
-                            if ($hasVideo) {
-                                $circleType = $ytId ? 'yt' : ($localUrl ? 'local' : 'vimeo');
-                            }
-
-                            // Thumbnail Vimeo senza API: estrae l'ID e usa vumbnail.com
-                            $vimeoThumb = null;
-                            if ($circleType === 'vimeo' && !$photoUrl) {
-                                if (preg_match('/vimeo\.com\/(?:video\/|channels\/[^\/]+\/|manage\/videos\/)?(\d+)/', (string)($member->intro_video_url ?? ''), $vm)) {
-                                    $vimeoThumb = 'https://vumbnail.com/' . $vm[1] . '.jpg';
-                                }
-                            }
 
                             $coverImage = $onepage?->coverImageUrl() ?: null;
                             $displayName = $member->user->name;
@@ -374,74 +275,15 @@
                         <article class="km-directory-card group transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_rgba(39,54,67,0.14)]">
 
                                 <div class="km-directory-avatar-wrap">
-                                    @if ($hasVideo)
-                                        <button type="button"
-                                                x-data="{ _t: null }"
-                                                @mouseenter="
-                                                    const v = $el.querySelector('video.km-video-preview');
-                                                    if (v) {
-                                                        v.currentTime = 0;
-                                                        v.play().catch(() => {});
-                                                        clearTimeout(_t);
-                                                        _t = setTimeout(() => { v.pause(); v.currentTime = 0; }, 3000);
-                                                    }
-                                                "
-                                                @mouseleave="
-                                                    clearTimeout(_t);
-                                                    const v = $el.querySelector('video.km-video-preview');
-                                                    if (v) { v.pause(); v.currentTime = 0; }
-                                                "
-                                                @click="
-                                                    clearTimeout(_t);
-                                                    const v = $el.querySelector('video.km-video-preview');
-                                                    if (v) { v.pause(); }
-                                                    window.dispatchEvent(new CustomEvent('open-video', {detail:{embed:@js($embedUrl),local:@js($localUrl)}}));
-                                                "
-                                                class="km-directory-avatar-button"
-                                                title="Guarda la videopresentazione">
-
-                                            <div class="km-directory-avatar">
-                                                @if ($circleType === 'yt')
-                                                    {{-- YouTube: thumbnail ha priorità su foto --}}
-                                                    <img src="https://img.youtube.com/vi/{{ $ytId }}/mqdefault.jpg" alt="{{ $displayName }}">
-                                                @elseif ($vimeoThumb)
-                                                    {{-- Vimeo: thumbnail via vumbnail.com --}}
-                                                    <img src="{{ $vimeoThumb }}" alt="{{ $displayName }}" onerror="this.style.display='none'">
-                                                    <span class="text-2xl font-bold text-slate-400" style="position:absolute;">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
-                                                @elseif ($photoUrl)
-                                                    <img src="{{ $photoUrl }}" alt="{{ $displayName }}">
-                                                @else
-                                                    <span class="text-2xl font-bold text-slate-400">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
-                                                @endif
-
-                                                @if ($circleType === 'local' && $localUrl)
-                                                    {{-- Video locale: visibile sempre (primo frame), si anima al hover --}}
-                                                    <video class="km-video-preview"
-                                                           src="{{ $localUrl }}"
-                                                           muted
-                                                           playsinline
-                                                           preload="metadata">
-                                                    </video>
-                                                @endif
-                                            </div>
-
-                                            <span class="km-directory-avatar-play-badge">
-                                                <svg class="h-3.5 w-3.5 translate-x-px text-white" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.34-5.89a1.5 1.5 0 000-2.54L6.3 2.84z"/>
-                                                </svg>
-                                            </span>
-                                        </button>
-                                    @else
-                                        <a href="{{ $profileUrl }}" class="km-directory-avatar-button" title="{{ $displayName }}">
-                                            <div class="km-directory-avatar">
-                                                @if ($photoUrl)
-                                                    <img src="{{ $photoUrl }}" alt="{{ $displayName }}">
-                                                @else
-                                                    <span class="text-2xl font-bold text-slate-400">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
-                                                @endif
-                                            </div>
-                                        </a>
-                                    @endif
+                                    <a href="{{ $profileUrl }}" class="km-directory-avatar-button" title="{{ $displayName }}">
+                                        <div class="km-directory-avatar">
+                                            @if ($photoUrl)
+                                                <img src="{{ $photoUrl }}" alt="{{ $displayName }}">
+                                            @else
+                                                <span class="text-2xl font-bold text-slate-400">{{ strtoupper(substr($displayName, 0, 1)) }}</span>
+                                            @endif
+                                        </div>
+                                    </a>
                                 </div>
 
                             <div class="km-directory-body">
@@ -602,4 +444,3 @@
 </div>
 
 </x-app-layout>
-                                                                                        
