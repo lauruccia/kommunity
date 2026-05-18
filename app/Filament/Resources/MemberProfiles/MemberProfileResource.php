@@ -22,6 +22,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -171,6 +172,17 @@ class MemberProfileResource extends Resource
                     ->disk('public')
                     ->directory('members/logos')
                     ->visibility('public'),
+                FileUpload::make('cover_image')
+                    ->label('Banner (immagine copertina profilo)')
+                    ->helperText('Immagine di sfondo del profilo pubblico — gestita nella pagina personale del membro.')
+                    ->image()
+                    ->imageEditor()
+                    ->disk('public')
+                    ->directory('members/covers')
+                    ->visibility('public')
+                    ->afterStateHydrated(function (FileUpload $component, ?MemberProfile $record): void {
+                        $component->state($record?->onepage?->cover_image);
+                    }),
                 FileUpload::make('intro_video')
                     ->label('Video presentazione')
                     ->acceptedFileTypes(['video/mp4', 'video/quicktime', 'video/webm'])
@@ -314,6 +326,11 @@ class MemberProfileResource extends Resource
                 TextEntry::make('logo')
                     ->label('Logo')
                     ->placeholder('-'),
+                ImageEntry::make('onepage.cover_image')
+                    ->label('Banner (immagine copertina profilo)')
+                    ->disk('public')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
                 TextEntry::make('intro_video')
                     ->label('Video presentazione')
                     ->placeholder('-'),

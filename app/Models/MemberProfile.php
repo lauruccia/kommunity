@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
@@ -196,6 +197,14 @@ class MemberProfile extends Model
     public function chapter(): BelongsTo
     {
         return $this->belongsTo(Chapter::class, 'active_chapter_id');
+    }
+
+    /**
+     * Pagina personale del membro (condivide lo stesso user_id).
+     */
+    public function onepage(): HasOne
+    {
+        return $this->hasOne(MemberOnepage::class, 'user_id', 'user_id');
     }
 
     public function companyInterestTypes(): BelongsToMany
