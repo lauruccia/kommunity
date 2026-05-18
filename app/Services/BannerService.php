@@ -49,7 +49,7 @@ class BannerService
         }
 
         $topPriority = $campaigns->first()->priority;
-        $campaign = $campaigns->where('priority', $topPriority)->random();
+        $campaign = $this->pickWeightedCampaign($campaigns->where('priority', $topPriority)->values());
         $creative = $campaign->creatives->first();
 
         if (! $creative) {
@@ -145,6 +145,23 @@ class BannerService
             && $campaign->cities->isEmpty()
             && $campaign->professions->isEmpty()
             && $campaign->categories->isEmpty();
+    }
+
+    private function pickWeightedCampaign($campaigns): BannerCampaign
+    {
+        $totalWeight = $campaigns->sum(fn (BannerCampaign $campaign): int => max(1, (int) $campaign->weight));
+        $ticket = random_int(1, max(1, $totalWeight));
+        $cursor = 0;
+
+        foreach ($campaigns as $campaign) {
+            $cursor += max(1, (int) $campaign->weight);
+
+            if ($ticket <= $cursor) {
+                return $campaign;
+            }
+        }
+
+        return $campaigns->first();
     }
 
     private function tablesReady(): bool

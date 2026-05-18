@@ -70,6 +70,12 @@ class BannerCampaignResource extends Resource
             DateTimePicker::make('starts_at')->label('Inizio'),
             DateTimePicker::make('ends_at')->label('Fine'),
             TextInput::make('priority')->label('Priorita')->numeric()->default(0),
+            TextInput::make('weight')
+                ->label('Peso rotazione')
+                ->numeric()
+                ->default(1)
+                ->minValue(1)
+                ->helperText('A parita di priorita, un peso maggiore fa apparire la campagna piu spesso.'),
             TextInput::make('price')->label('Prezzo venduto')->numeric()->prefix('€'),
             TextInput::make('max_impressions')->label('Limite impression')->numeric(),
             TextInput::make('max_clicks')->label('Limite click')->numeric(),
@@ -112,6 +118,8 @@ class BannerCampaignResource extends Resource
                     }),
                 TextColumn::make('starts_at')->label('Inizio')->dateTime('d/m/Y')->sortable(),
                 TextColumn::make('ends_at')->label('Fine')->dateTime('d/m/Y')->sortable(),
+                TextColumn::make('priority')->label('Priorita')->numeric()->sortable()->toggleable(),
+                TextColumn::make('weight')->label('Peso')->numeric()->sortable()->toggleable(),
                 TextColumn::make('impressions_count')->label('Impression')->numeric()->sortable(),
                 TextColumn::make('clicks_count')->label('Click')->numeric()->sortable(),
                 TextColumn::make('ctr')

@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `banner_campaigns` (
   `starts_at` timestamp NULL DEFAULT NULL,
   `ends_at` timestamp NULL DEFAULT NULL,
   `priority` int unsigned NOT NULL DEFAULT 0,
+  `weight` int unsigned NOT NULL DEFAULT 1,
   `price` decimal(10,2) DEFAULT NULL,
   `max_impressions` int unsigned DEFAULT NULL,
   `max_clicks` int unsigned DEFAULT NULL,
@@ -88,6 +89,13 @@ CREATE TABLE IF NOT EXISTS `banner_placements` (
   `key` varchar(255) NOT NULL,
   `label` varchar(255) NOT NULL,
   `section` varchar(255) DEFAULT NULL,
+  `desktop_width` int unsigned DEFAULT NULL,
+  `desktop_height` int unsigned DEFAULT NULL,
+  `mobile_width` int unsigned DEFAULT NULL,
+  `mobile_height` int unsigned DEFAULT NULL,
+  `max_file_size_kb` int unsigned NOT NULL DEFAULT 300,
+  `allowed_formats` json DEFAULT NULL,
+  `mobile_required` tinyint(1) NOT NULL DEFAULT 0,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -205,16 +213,24 @@ CREATE TABLE IF NOT EXISTS `banner_clicks` (
   CONSTRAINT `banner_clicks_chapter_id_foreign` FOREIGN KEY (`chapter_id`) REFERENCES `chapters` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `banner_placements` (`key`, `label`, `section`, `is_active`, `created_at`, `updated_at`) VALUES
-  ('directory_top', 'Directory - fascia alta', 'directory', 1, NOW(), NOW()),
-  ('directory_sidebar', 'Directory - sidebar filtri', 'directory', 1, NOW(), NOW())
+INSERT INTO `banner_placements` (`key`, `label`, `section`, `desktop_width`, `desktop_height`, `mobile_width`, `mobile_height`, `max_file_size_kb`, `allowed_formats`, `mobile_required`, `is_active`, `created_at`, `updated_at`) VALUES
+  ('directory_top', 'Directory - fascia alta', 'directory', 1200, 250, 640, 320, 300, JSON_ARRAY('jpg', 'jpeg', 'png', 'webp'), 0, 1, NOW(), NOW()),
+  ('directory_sidebar', 'Directory - sidebar filtri', 'directory', 600, 600, 600, 600, 250, JSON_ARRAY('jpg', 'jpeg', 'png', 'webp'), 0, 1, NOW(), NOW())
 ON DUPLICATE KEY UPDATE
   `label` = VALUES(`label`),
   `section` = VALUES(`section`),
+  `desktop_width` = VALUES(`desktop_width`),
+  `desktop_height` = VALUES(`desktop_height`),
+  `mobile_width` = VALUES(`mobile_width`),
+  `mobile_height` = VALUES(`mobile_height`),
+  `max_file_size_kb` = VALUES(`max_file_size_kb`),
+  `allowed_formats` = VALUES(`allowed_formats`),
+  `mobile_required` = VALUES(`mobile_required`),
   `is_active` = VALUES(`is_active`),
   `updated_at` = NOW();
 
 INSERT IGNORE INTO `migrations` (`migration`, `batch`) VALUES
   ('2026_05_18_000001_create_profile_video_access_requests_table', 999),
   ('2026_05_18_000002_create_event_role_targets_table', 999),
-  ('2026_05_18_000003_create_banner_advertising_tables', 999);
+  ('2026_05_18_000003_create_banner_advertising_tables', 999),
+  ('2026_05_18_000004_add_banner_delivery_controls', 999);

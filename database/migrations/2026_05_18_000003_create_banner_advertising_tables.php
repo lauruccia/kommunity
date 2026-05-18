@@ -28,6 +28,7 @@ return new class extends Migration
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
             $table->unsignedInteger('priority')->default(0);
+            $table->unsignedInteger('weight')->default(1);
             $table->decimal('price', 10, 2)->nullable();
             $table->unsignedInteger('max_impressions')->nullable();
             $table->unsignedInteger('max_clicks')->nullable();
@@ -55,6 +56,13 @@ return new class extends Migration
             $table->string('key')->unique();
             $table->string('label');
             $table->string('section')->nullable();
+            $table->unsignedInteger('desktop_width')->nullable();
+            $table->unsignedInteger('desktop_height')->nullable();
+            $table->unsignedInteger('mobile_width')->nullable();
+            $table->unsignedInteger('mobile_height')->nullable();
+            $table->unsignedInteger('max_file_size_kb')->default(300);
+            $table->json('allowed_formats')->nullable();
+            $table->boolean('mobile_required')->default(false);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -124,8 +132,36 @@ return new class extends Migration
         });
 
         DB::table('banner_placements')->insert([
-            ['key' => 'directory_top', 'label' => 'Directory - fascia alta', 'section' => 'directory', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['key' => 'directory_sidebar', 'label' => 'Directory - sidebar filtri', 'section' => 'directory', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
+            [
+                'key' => 'directory_top',
+                'label' => 'Directory - fascia alta',
+                'section' => 'directory',
+                'desktop_width' => 1200,
+                'desktop_height' => 250,
+                'mobile_width' => 640,
+                'mobile_height' => 320,
+                'max_file_size_kb' => 300,
+                'allowed_formats' => json_encode(['jpg', 'jpeg', 'png', 'webp']),
+                'mobile_required' => false,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'key' => 'directory_sidebar',
+                'label' => 'Directory - sidebar filtri',
+                'section' => 'directory',
+                'desktop_width' => 600,
+                'desktop_height' => 600,
+                'mobile_width' => 600,
+                'mobile_height' => 600,
+                'max_file_size_kb' => 250,
+                'allowed_formats' => json_encode(['jpg', 'jpeg', 'png', 'webp']),
+                'mobile_required' => false,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 

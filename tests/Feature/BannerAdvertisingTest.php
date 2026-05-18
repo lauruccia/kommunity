@@ -8,6 +8,8 @@ use App\Models\BannerCreative;
 use App\Models\BannerPlacement;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -79,6 +81,29 @@ class BannerAdvertisingTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('text/csv', $response->headers->get('content-type'));
+    }
+
+    public function test_banner_creative_rejects_invalid_placement_proportions(): void
+    {
+        Storage::fake('public');
+
+        $placement = BannerPlacement::where('key', 'directory_top')->firstOrFail();
+        $campaign = $this->campaignForPlacement($placement);
+
+        Storage::disk('public')->put(
+            'banners/invalid.png',
+            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAFgwJ/lxigCwAAAABJRU5ErkJggg==')
+        );
+
+        $this->expectException(ValidationException::class);
+
+        BannerCreative::create([
+            'banner_campaign_id' => $campaign->id,
+            'image_desktop' => 'banners/invalid.png',
+            'alt_text' => 'Banner non valido',
+            'placement_size' => 'leaderboard',
+            'is_active' => true,
+        ]);
     }
 
     private function campaignForPlacement(BannerPlacement $placement): BannerCampaign

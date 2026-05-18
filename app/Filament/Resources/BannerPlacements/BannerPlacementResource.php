@@ -45,6 +45,29 @@ class BannerPlacementResource extends Resource
                 ->native(false)
                 ->searchable()
                 ->required(),
+            TextInput::make('desktop_width')->label('Larghezza desktop')->numeric()->suffix('px'),
+            TextInput::make('desktop_height')->label('Altezza desktop')->numeric()->suffix('px'),
+            TextInput::make('mobile_width')->label('Larghezza mobile')->numeric()->suffix('px'),
+            TextInput::make('mobile_height')->label('Altezza mobile')->numeric()->suffix('px'),
+            TextInput::make('max_file_size_kb')
+                ->label('Peso massimo')
+                ->numeric()
+                ->default(300)
+                ->required()
+                ->suffix('KB'),
+            Select::make('allowed_formats')
+                ->label('Formati ammessi')
+                ->options([
+                    'jpg' => 'JPG',
+                    'jpeg' => 'JPEG',
+                    'png' => 'PNG',
+                    'webp' => 'WebP',
+                ])
+                ->multiple()
+                ->native(false)
+                ->default(['jpg', 'jpeg', 'png', 'webp'])
+                ->required(),
+            Toggle::make('mobile_required')->label('Creativita mobile obbligatoria')->default(false),
             Toggle::make('is_active')->label('Attivo')->default(true),
         ]);
     }
@@ -56,6 +79,12 @@ class BannerPlacementResource extends Resource
                 TextColumn::make('key')->label('Chiave')->searchable()->copyable(),
                 TextColumn::make('label')->label('Etichetta')->searchable(),
                 TextColumn::make('section')->label('Sezione')->badge(),
+                TextColumn::make('desktop_format')
+                    ->label('Desktop')
+                    ->state(fn (BannerPlacement $record): string => $record->desktop_width && $record->desktop_height
+                        ? $record->desktop_width . 'x' . $record->desktop_height
+                        : '-'),
+                TextColumn::make('max_file_size_kb')->label('Max KB')->numeric(),
                 IconColumn::make('is_active')->label('Attivo')->boolean(),
             ])
             ->recordActions([EditAction::make()])

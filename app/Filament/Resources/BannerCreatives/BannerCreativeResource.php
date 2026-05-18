@@ -49,17 +49,23 @@ class BannerCreativeResource extends Resource
                 ->label('Immagine desktop')
                 ->image()
                 ->imageEditor()
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                ->maxSize(1024)
                 ->disk('public')
                 ->directory('banners')
                 ->visibility('public')
+                ->helperText('Il sistema controlla proporzioni, formato e peso massimo dei placement collegati alla campagna.')
                 ->required(),
             FileUpload::make('image_mobile')
                 ->label('Immagine mobile')
                 ->image()
                 ->imageEditor()
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                ->maxSize(1024)
                 ->disk('public')
                 ->directory('banners/mobile')
-                ->visibility('public'),
+                ->visibility('public')
+                ->helperText('Obbligatoria solo per i placement configurati come mobile obbligatorio.'),
             TextInput::make('alt_text')->label('Testo alternativo')->maxLength(255),
             TextInput::make('headline')->label('Headline interna')->maxLength(255),
             Select::make('placement_size')
