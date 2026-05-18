@@ -122,16 +122,20 @@ class MemberProfileResource extends Resource
                     ->helperText('Quando il membro salva il profilo, i campi narrativi vengono riscritti in modo professionale.'),
                 TextInput::make('website')
                     ->label('Sito web')
-                    ->url(),
+                    ->maxLength(255)
+                    ->dehydrateStateUsing(fn (?string $state): ?string => self::normalizeUrlField($state)),
                 TextInput::make('linkedin_url')
                     ->label('LinkedIn')
-                    ->url(),
+                    ->maxLength(255)
+                    ->dehydrateStateUsing(fn (?string $state): ?string => self::normalizeUrlField($state)),
                 TextInput::make('facebook_url')
                     ->label('Facebook')
-                    ->url(),
+                    ->maxLength(255)
+                    ->dehydrateStateUsing(fn (?string $state): ?string => self::normalizeUrlField($state)),
                 TextInput::make('instagram_url')
                     ->label('Instagram')
-                    ->url(),
+                    ->maxLength(255)
+                    ->dehydrateStateUsing(fn (?string $state): ?string => self::normalizeUrlField($state)),
                 TextInput::make('phone')
                     ->label('Telefono')
                     ->tel(),
@@ -195,6 +199,21 @@ class MemberProfileResource extends Resource
                     ->default('draft')
                     ->required(),
             ]);
+    }
+
+    private static function normalizeUrlField(?string $value): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (! preg_match('#^https?://#i', $value)) {
+            return 'https://' . $value;
+        }
+
+        return $value;
     }
 
     public static function infolist(Schema $schema): Schema
