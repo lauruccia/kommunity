@@ -100,6 +100,22 @@ class MemberOnepageController extends Controller
             'receivedReferralsCount' => Referral::query()
                 ->where('recipient_id', $memberUserId)
                 ->count(),
+            'receivedReferralsAvgPriority' => (function () use ($memberUserId): ?float {
+                $rows = Referral::query()
+                    ->where('recipient_id', $memberUserId)
+                    ->whereNotNull('priority')
+                    ->pluck('priority');
+                if ($rows->isEmpty()) {
+                    return null;
+                }
+                $numeric = $rows->map(fn ($p) => match (true) {
+                    in_array($p, ['1','2','3','4','5'], true) => (int) $p,
+                    $p === 'high'   => 5,
+                    $p === 'low'    => 1,
+                    default         => 3,
+                });
+                return round($numeric->avg(), 1);
+            })(),
         ]);
     }
 }
