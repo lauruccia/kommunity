@@ -177,7 +177,7 @@ class MemberOnepageController extends Controller
                     $p === 'high'   => 5,
                     $p === 'low'    => 1,
                     default         => 3,
-                ]);
+                });
                 return round($numeric->avg(), 1);
             })(),
         ]);
