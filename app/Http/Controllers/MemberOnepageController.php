@@ -100,6 +100,13 @@ class MemberOnepageController extends Controller
             'receivedReferralsCount' => Referral::query()
                 ->where('recipient_id', $memberUserId)
                 ->count(),
+            'publicEndorsements' => Referral::query()
+                ->with('sender')
+                ->where('recipient_id', $memberUserId)
+                ->where('is_public', true)
+                ->latest()
+                ->take(6)
+                ->get(),
             'receivedReferralsAvgPriority' => (function () use ($memberUserId): ?float {
                 $rows = Referral::query()
                     ->where('recipient_id', $memberUserId)

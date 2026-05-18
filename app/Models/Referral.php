@@ -23,6 +23,8 @@ class Referral extends Model
         'status',
         'notes',
         'outcome',
+        'is_public',
+        'acknowledged_at',
     ];
 
     protected function casts(): array
@@ -30,6 +32,8 @@ class Referral extends Model
         return [
             'estimated_value' => 'decimal:2',
             'status' => ReferralStatus::class,
+            'is_public' => 'boolean',
+            'acknowledged_at' => 'datetime',
         ];
     }
 
