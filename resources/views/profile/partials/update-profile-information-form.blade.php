@@ -69,11 +69,20 @@
                     <input id="avatar" name="avatar" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
                     <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
                 </div>
-                <div>
-                    <x-input-label for="cover_image" :value="'Banner card e pagina'" />
+                {{-- BANNER con crop Cropper.js --}}
+                <div x-data="kmBannerCropper">
+
+                    <x-input-label :value="'Banner card e pagina'" />
+                    <p class="mt-1 text-xs text-stone-500">Proporzione ideale 4:1 (es. 1500 × 375 px). L'editor ti permette di ritagliare qualsiasi immagine.</p>
+
+                    {{-- Anteprima immagine attuale (se presente e non ancora sostituita) --}}
                     @if ($user->memberOnepage?->coverImageUrl())
-                        <img src="{{ $user->memberOnepage->coverImageUrl() }}" alt="Banner attuale" class="mt-2 h-24 w-full rounded-[1.4rem] border border-stone-200 object-cover shadow-sm">
-                        <div class="mt-1.5">
+                        <div x-show="!croppedPreview" class="mt-2">
+                            <img src="{{ $user->memberOnepage->coverImageUrl() }}"
+                                 alt="Banner attuale"
+                                 class="h-20 w-full rounded-[1.4rem] border border-stone-200 object-cover object-top shadow-sm">
+                        </div>
+                        <div x-show="!croppedPreview" class="mt-1.5">
                             <button type="submit"
                                     form="delete-banner-form"
                                     onclick="return confirm('Eliminare il banner?')"
@@ -83,8 +92,55 @@
                             </button>
                         </div>
                     @endif
-                    <input id="cover_image" name="cover_image" type="file" accept="image/*" class="km-input mt-2 block w-full py-2.5">
+
+                    {{-- Anteprima immagine ritagliata (dopo crop) --}}
+                    <template x-if="croppedPreview">
+                        <div class="mt-2">
+                            <img :src="croppedPreview"
+                                 class="h-20 w-full rounded-[1.4rem] border border-emerald-200 object-cover object-top shadow-sm">
+                            <p class="mt-1 text-xs font-medium text-emerald-600">✓ Immagine ritagliata — premi Salva per applicarla</p>
+                        </div>
+                    </template>
+
+                    {{-- Trigger file picker (no name — non viene inviata al server) --}}
+                    <input id="cover_image_picker"
+                           type="file"
+                           accept="image/*"
+                           class="km-input mt-2 block w-full py-2.5"
+                           @change="openCropper($event)">
+
+                    {{-- Input nascosto con name — viene riempito col blob ritagliato --}}
+                    <input type="file" name="cover_image" x-ref="coverInput" class="hidden">
+
                     <x-input-error class="mt-2" :messages="$errors->get('cover_image')" />
+
+                    {{-- Modal di ritaglio --}}
+                    <div x-show="showModal"
+                         x-cloak
+                         class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 p-4"
+                         @keydown.escape.window="cancelCrop()">
+                        <div class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+                            <h3 class="font-serif text-xl font-semibold text-stone-900">Ritaglia il banner</h3>
+                            <p class="mt-1 text-sm text-stone-500">Trascina per spostare · Scorri/pizzica per zoomare · Proporzione fissa 4:1</p>
+
+                            <div class="mt-4 overflow-hidden rounded-xl bg-stone-100" style="max-height:260px;">
+                                <img x-ref="cropImg" class="block max-w-full">
+                            </div>
+
+                            <div class="mt-5 flex justify-end gap-3">
+                                <button type="button"
+                                        @click="cancelCrop()"
+                                        class="rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 transition">
+                                    Annulla
+                                </button>
+                                <button type="button"
+                                        @click="confirmCrop()"
+                                        class="rounded-full bg-[color:var(--km-accent)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[color:var(--km-accent-strong)] transition">
+                                    Usa questo ritaglio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="md:col-span-2">
                     <x-input-label for="referral_link" :value="'Referral link personale'" />
@@ -710,8 +766,73 @@
 
 </section>
 
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" crossorigin="anonymous">
+@endpush
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" crossorigin="anonymous"></script>
+@endpush
+
 <script>
 document.addEventListener('alpine:init', () => {
+
+    /* ── Banner cropper 4:1 ────────────────────────────────────────────── */
+    Alpine.data('kmBannerCropper', () => ({
+        showModal:     false,
+        croppedPreview: null,
+        _cropper:      null,
+
+        openCropper(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.$refs.cropImg.src = e.target.result;
+                this.showModal = true;
+                this.$nextTick(() => {
+                    if (this._cropper) this._cropper.destroy();
+                    this._cropper = new Cropper(this.$refs.cropImg, {
+                        aspectRatio: 4,          // 4:1 fisso
+                        viewMode: 1,             // non uscire dal contenitore
+                        dragMode: 'move',
+                        autoCropArea: 1,
+                        guides: true,
+                        highlight: false,
+                        cropBoxResizable: true,
+                    });
+                });
+            };
+            reader.readAsDataURL(file);
+        },
+
+        confirmCrop() {
+            if (!this._cropper) return;
+            const canvas = this._cropper.getCroppedCanvas({
+                width: 1500,
+                height: 375,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            // Anteprima
+            this.croppedPreview = canvas.toDataURL('image/jpeg', 0.92);
+            // Inietta blob nell'input nascosto con name="cover_image"
+            canvas.toBlob((blob) => {
+                const file = new File([blob], 'banner.jpg', { type: 'image/jpeg' });
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                this.$refs.coverInput.files = dt.files;
+            }, 'image/jpeg', 0.92);
+            this.showModal = false;
+            this._cropper.destroy();
+            this._cropper = null;
+        },
+
+        cancelCrop() {
+            this.showModal = false;
+            if (this._cropper) { this._cropper.destroy(); this._cropper = null; }
+        },
+    }));
 
     /* ── Multi-select generico ─────────────────────────────────────────── */
     Alpine.data('kmMultiSelect', (options, initialSelected, fieldName) => ({

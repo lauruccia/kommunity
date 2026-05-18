@@ -92,6 +92,9 @@
         {{-- Modali globali (password, elimina account, ecc.) --}}
         @stack('modals')
 
+        {{-- Script aggiuntivi delle singole view --}}
+        @stack('scripts')
+
         {{-- Cookie banner GDPR (sempre presente) --}}
         @include('partials.cookie-banner')
 
