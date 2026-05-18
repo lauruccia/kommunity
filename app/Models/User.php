@@ -190,6 +190,16 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->hasMany(ProfileSuggestion::class);
     }
 
+    public function sentProfileVideoAccessRequests(): HasMany
+    {
+        return $this->hasMany(ProfileVideoAccessRequest::class, 'requester_id');
+    }
+
+    public function receivedProfileVideoAccessRequests(): HasMany
+    {
+        return $this->hasMany(ProfileVideoAccessRequest::class, 'recipient_id');
+    }
+
     public function conversations(): BelongsToMany
     {
         return $this->belongsToMany(Conversation::class, 'conversation_participants')

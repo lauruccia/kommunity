@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MemberOnepage;
 use App\Models\OneToOneReference;
 use App\Models\OneToOneRequest;
+use App\Models\ProfileVideoAccessRequest;
 use App\Models\Referral;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
@@ -32,6 +33,12 @@ class MemberOnepageController extends Controller
 
         $currentUserId = $request->user()->id;
         $memberUserId  = $onepage->user->id;
+        $videoAccessRequest = $currentUserId === $memberUserId
+            ? null
+            : ProfileVideoAccessRequest::query()
+                ->between($currentUserId, $memberUserId)
+                ->latest()
+                ->first();
 
         // Recensioni ricevute da questo membro (con testo o voto)
         $reviews = OneToOneReference::query()
@@ -49,6 +56,8 @@ class MemberOnepageController extends Controller
             'profile'         => $onepage->user->memberProfile,
             'user'            => $onepage->user,
             'reviews'         => $reviews,
+            'canViewIntroVideo' => $onepage->user->memberProfile?->canViewIntroVideo($request->user()) ?? false,
+            'videoAccessRequest' => $videoAccessRequest,
             'currentTab'      => $request->string('tab')->toString() ?: 'profile',
             'communityThreads' => $onepage->user->forumThreads()
                 ->with('category')

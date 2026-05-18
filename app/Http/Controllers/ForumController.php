@@ -160,6 +160,8 @@ class ForumController extends Controller
 
     public function show(ForumThread $thread): View
     {
+        $this->abortIfThreadOutsideActivePlanet($thread, request()->user());
+
         $thread->load([
             'category',
             'user',
@@ -174,6 +176,7 @@ class ForumController extends Controller
 
     public function reply(Request $request, ForumThread $thread): RedirectResponse
     {
+        $this->abortIfThreadOutsideActivePlanet($thread, $request->user());
         abort_if($thread->is_locked, 403);
 
         $data = $request->validate([
@@ -204,5 +207,17 @@ class ForumController extends Controller
         }
 
         return back()->with('status', 'thread-replied');
+    }
+
+    private function abortIfThreadOutsideActivePlanet(ForumThread $thread, User $user): void
+    {
+        $activePlanetId = $user->memberProfile?->active_chapter_id;
+
+        abort_if(
+            $thread->chapter_id !== null
+            && $activePlanetId !== null
+            && (int) $thread->chapter_id !== (int) $activePlanetId,
+            404
+        );
     }
 }

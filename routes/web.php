@@ -10,6 +10,7 @@ use App\Http\Controllers\MemberOnepageController;
 use App\Http\Controllers\OneToOneController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileVideoAccessController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin\CacheController;
@@ -97,6 +98,9 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
 
     Route::get('/directory', DirectoryController::class)->name('directory.index');
     Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
+    Route::post('/members/{user}/video-access', [ProfileVideoAccessController::class, 'store'])->name('profile-video-access.store');
+    Route::patch('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'respond'])->name('profile-video-access.respond');
+    Route::delete('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'revoke'])->name('profile-video-access.revoke');
 
     Route::get('/one-to-one', [OneToOneController::class, 'index'])->name('one-to-ones.index');
     Route::post('/one-to-one', [OneToOneController::class, 'store'])->middleware('throttle:10,1')->name('one-to-ones.store');

@@ -99,6 +99,6 @@ class EventPolicy
 
         return is_array($user->managed_chapter_ids ?? null)
             ? $user->managed_chapter_ids
-            : [];
+            : \App\Models\Chapter::query()->where('leader_id', $user->id)->pluck('id')->all();
     }
 }

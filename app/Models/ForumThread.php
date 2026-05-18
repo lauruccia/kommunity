@@ -15,6 +15,7 @@ class ForumThread extends Model
     protected $fillable = [
         'forum_category_id',
         'user_id',
+        'chapter_id',
         'title',
         'slug',
         'excerpt',

@@ -112,6 +112,12 @@ class Event extends Model
             ->withTimestamps();
     }
 
+    public function targetRoles(): BelongsToMany
+    {
+        return $this->belongsToMany(\Spatie\Permission\Models\Role::class, 'event_role_targets', 'event_id', 'role_id')
+            ->withTimestamps();
+    }
+
     /**
      * Verifica se un utente può vedere e partecipare a questo evento.
      * Gli admin vedono sempre tutto.
@@ -119,8 +125,9 @@ class Event extends Model
      * @param  User  $user
      * @param  int|null  $activePlanetId  ID del Pianeta attivo dell'utente
      * @param  array<int>  $userProfessionIds  ID delle professioni dell'utente
+     * @param  array<int>  $userRoleIds  ID dei ruoli dell'utente
      */
-    public function isVisibleTo(User $user, ?int $activePlanetId, array $userProfessionIds): bool
+    public function isVisibleTo(User $user, ?int $activePlanetId, array $userProfessionIds, array $userRoleIds = []): bool
     {
         // Admin e gestori-eventi vedono tutto
         if ($user->hasAnyRole(['super-admin', 'admin-community'])) {
@@ -143,6 +150,19 @@ class Event extends Model
                 && ! empty($userProfessionIds)
                 && $this->targetProfessions->pluck('id')->intersect($userProfessionIds)->isNotEmpty(),
 
+            'by_role' => ! empty($userRoleIds)
+                && $this->targetRoles->pluck('id')->intersect($userRoleIds)->isNotEmpty(),
+
+            'by_planet_and_role' => $activePlanetId !== null
+                && $this->targetPlanets->contains('id', $activePlanetId)
+                && ! empty($userRoleIds)
+                && $this->targetRoles->pluck('id')->intersect($userRoleIds)->isNotEmpty(),
+
+            'by_profession_and_role' => ! empty($userProfessionIds)
+                && $this->targetProfessions->pluck('id')->intersect($userProfessionIds)->isNotEmpty()
+                && ! empty($userRoleIds)
+                && $this->targetRoles->pluck('id')->intersect($userRoleIds)->isNotEmpty(),
+
             default => true,
         };
     }
@@ -157,6 +177,9 @@ class Event extends Model
             'by_planet'                => 'Pianeti selezionati',
             'by_profession'            => 'Professioni selezionate',
             'by_planet_and_profession' => 'Pianeti + Professioni',
+            'by_role'                  => 'Ruoli selezionati',
+            'by_planet_and_role'       => 'Pianeti + Ruoli',
+            'by_profession_and_role'   => 'Professioni + Ruoli',
             default                    => 'Tutta la community',
         };
     }

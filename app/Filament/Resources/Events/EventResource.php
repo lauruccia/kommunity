@@ -167,6 +167,38 @@ class EventResource extends Resource
                 Toggle::make('is_published')
                     ->label('Pubblicato')
                     ->required(),
+                Select::make('audience_type')
+                    ->label('Audience')
+                    ->options([
+                        'all' => 'Tutta la community',
+                        'by_planet' => 'Pianeti selezionati',
+                        'by_profession' => 'Professioni selezionate',
+                        'by_planet_and_profession' => 'Pianeti + Professioni',
+                        'by_role' => 'Ruoli selezionati',
+                        'by_planet_and_role' => 'Pianeti + Ruoli',
+                        'by_profession_and_role' => 'Professioni + Ruoli',
+                    ])
+                    ->default('all')
+                    ->required()
+                    ->helperText('Usa i target sotto per restringere visibilita e partecipazione.'),
+                Select::make('targetPlanets')
+                    ->label('Pianeti target')
+                    ->relationship('targetPlanets', 'name', fn (Builder $query) => $isAdmin ? $query->orderBy('name') : $query->whereIn('id', $chapterIds)->orderBy('name'))
+                    ->multiple()
+                    ->preload()
+                    ->helperText('Usato dalle audience per Pianeta.'),
+                Select::make('targetProfessions')
+                    ->label('Professioni target')
+                    ->relationship('targetProfessions', 'name', fn (Builder $query) => $query->where('is_active', true)->orderBy('name'))
+                    ->multiple()
+                    ->preload()
+                    ->helperText('Usato dalle audience per professione.'),
+                Select::make('targetRoles')
+                    ->label('Ruoli target')
+                    ->relationship('targetRoles', 'name', fn (Builder $query) => $query->orderBy('name'))
+                    ->multiple()
+                    ->preload()
+                    ->helperText('Esempio: seleziona leader-capitolo per eventi riservati ai leader.'),
             ]);
     }
 
@@ -211,6 +243,9 @@ class EventResource extends Resource
                 IconEntry::make('is_published')
                     ->label('Pubblicato')
                     ->boolean(),
+                TextEntry::make('audience_type')
+                    ->label('Audience')
+                    ->formatStateUsing(fn (?string $state): string => (new Event(['audience_type' => $state ?? 'all']))->audienceLabel()),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -265,6 +300,11 @@ class EventResource extends Resource
                 IconColumn::make('is_published')
                     ->label('Pubblicato')
                     ->boolean(),
+                TextColumn::make('audience_type')
+                    ->label('Audience')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => (new Event(['audience_type' => $state ?? 'all']))->audienceLabel())
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

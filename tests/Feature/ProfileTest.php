@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\City;
 use App\Models\MemberGalleryImage;
+use App\Models\ProfileVideoAccessRequest;
 use App\Models\Profession;
 use App\Models\Region;
 use App\Models\User;
@@ -178,6 +179,45 @@ class ProfileTest extends TestCase
             ->assertSessionHas('status', 'gallery-image-deleted');
         $this->assertNull(MemberGalleryImage::query()->find($galleryImage->id));
         Storage::disk('public')->assertMissing('members/gallery/current.jpg');
+    }
+
+    public function test_profile_video_access_requires_accepted_exchange(): void
+    {
+        $requester = User::factory()->create();
+        $recipient = User::factory()->create();
+
+        $requester->memberProfile()->update([
+            'intro_video_url' => 'https://youtu.be/dQw4w9WgXcQ',
+            'onboarding_completed' => true,
+            'is_active' => true,
+        ]);
+        $recipient->memberProfile()->update([
+            'intro_video_url' => 'https://youtu.be/dQw4w9WgXcQ',
+            'onboarding_completed' => true,
+            'is_active' => true,
+        ]);
+
+        $this->assertFalse($recipient->memberProfile->canViewIntroVideo($requester));
+
+        $this->actingAs($requester)
+            ->post(route('profile-video-access.store', $recipient))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'video-access-requested');
+
+        $accessRequest = ProfileVideoAccessRequest::query()
+            ->where('requester_id', $requester->id)
+            ->where('recipient_id', $recipient->id)
+            ->firstOrFail();
+
+        $this->assertSame('pending', $accessRequest->status);
+
+        $this->actingAs($recipient)
+            ->patch(route('profile-video-access.respond', $accessRequest), ['status' => 'accepted'])
+            ->assertRedirect()
+            ->assertSessionHas('status', 'video-access-accepted');
+
+        $this->assertTrue($recipient->memberProfile->fresh()->canViewIntroVideo($requester));
+        $this->assertTrue($requester->memberProfile->fresh()->canViewIntroVideo($recipient));
     }
 
     public function test_user_can_delete_their_account(): void

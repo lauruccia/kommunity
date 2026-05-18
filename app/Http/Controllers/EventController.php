@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class EventController extends Controller
 {
@@ -93,26 +94,7 @@ class EventController extends Controller
                 'registrations as interested_count'     => fn ($q) => $q->where('status', EventAttendanceStatus::Interested->value),
                 'registrations as not_interested_count' => fn ($q) => $q->where('status', EventAttendanceStatus::NotInterested->value),
             ])
-            ->when(! $this->isAdmin($user), function ($q) use ($user) {
-                $activePlanetId = $user->memberProfile?->active_chapter_id;
-                $professionIds  = $user->memberProfile?->professions()->pluck('professions.id')->toArray() ?? [];
-                $q->where(function ($inner) use ($activePlanetId, $professionIds) {
-                    $inner->where('audience_type', 'all')
-                        ->orWhere(function ($p) use ($activePlanetId) {
-                            $p->where('audience_type', 'by_planet')
-                              ->whereHas('targetPlanets', fn ($q) => $q->where('chapters.id', $activePlanetId));
-                        })
-                        ->orWhere(function ($p) use ($professionIds) {
-                            $p->where('audience_type', 'by_profession')
-                              ->whereHas('targetProfessions', fn ($q) => $q->whereIn('professions.id', $professionIds));
-                        })
-                        ->orWhere(function ($p) use ($activePlanetId, $professionIds) {
-                            $p->where('audience_type', 'by_planet_and_profession')
-                              ->whereHas('targetPlanets', fn ($q) => $q->where('chapters.id', $activePlanetId))
-                              ->whereHas('targetProfessions', fn ($q) => $q->whereIn('professions.id', $professionIds));
-                        });
-                });
-            })
+            ->tap(fn ($q) => $this->applyAudienceScope($q, $user))
             ->where('is_published', true)
             ->whereBetween('starts_at', [$queryStart, $queryEnd])
             ->orderBy('starts_at')
@@ -191,6 +173,7 @@ class EventController extends Controller
                 'registrations as not_interested_count' => fn ($q) => $q->where('status', EventAttendanceStatus::NotInterested->value),
             ])
             ->where('is_published', true)
+            ->tap(fn ($q) => $this->applyAudienceScope($q, $user))
             ->where('status', '!=', 'cancelled')
             ->where('starts_at', '>=', now())
             ->whereHas('registrations', fn ($q) => $q
@@ -209,6 +192,7 @@ class EventController extends Controller
                 ])
                 ->whereIn('id', $pendingInvitationEventIds)
                 ->where('is_published', true)
+                ->tap(fn ($q) => $this->applyAudienceScope($q, $user))
                 ->where('status', '!=', 'cancelled')
                 ->where('starts_at', '>=', now())
                 ->orderBy('starts_at')
@@ -223,6 +207,7 @@ class EventController extends Controller
                 'registrations as not_interested_count' => fn ($q) => $q->where('status', EventAttendanceStatus::NotInterested->value),
             ])
             ->where('is_published', true)
+            ->tap(fn ($q) => $this->applyAudienceScope($q, $user))
             ->where('status', '!=', 'cancelled')
             ->where('starts_at', '>=', now())
             ->orderBy('starts_at')
@@ -324,6 +309,7 @@ class EventController extends Controller
             'cities'           => $cities,
             'allUsers'         => $allUsers,
             'allChapters'      => $allChapters,
+            'roles'            => $canManage ? Role::query()->orderBy('name')->get(['id', 'name']) : collect(),
         ]);
     }
 
@@ -332,8 +318,9 @@ class EventController extends Controller
     public function show(Event $event): View
     {
         abort_unless($event->is_published, 404);
+        abort_unless($this->canViewEvent($event, auth()->user()), 404);
 
-        $event->load(['chapter', 'organizer', 'registrations.user.memberProfile']);
+        $event->load(['chapter', 'organizer', 'registrations.user.memberProfile', 'targetPlanets', 'targetProfessions', 'targetRoles']);
 
         $currentRegistration = auth()->user()?->eventRegistrations()
             ->where('event_id', $event->id)->first();
@@ -368,6 +355,7 @@ class EventController extends Controller
                     'label' => $u->name . ($u->memberProfile?->company_name ? ' — ' . $u->memberProfile->company_name : ''),
                 ])
             : collect();
+        $roles = $canManageEvent ? Role::query()->orderBy('name')->get(['id', 'name']) : collect();
 
         $invitationCount = $canManageEvent ? $event->invitations()->count() : 0;
 
@@ -382,6 +370,7 @@ class EventController extends Controller
             'regions'             => $regions,
             'cities'              => $cities,
             'allUsers'            => $allUsers,
+            'roles'               => $roles,
             'invitationCount'     => $invitationCount,
             'managedChapters'     => $managedChapters,
         ]);
@@ -410,11 +399,13 @@ class EventController extends Controller
             'meeting_url'             => ['nullable', 'url', 'max:255'],
             'capacity'                => ['nullable', 'integer', 'min:1'],
             'is_published'            => ['nullable', 'boolean'],
-            'audience_type'           => ['nullable', 'string', Rule::in(['all', 'by_planet', 'by_profession', 'by_planet_and_profession'])],
+            'audience_type'           => ['nullable', 'string', Rule::in($this->audienceTypes())],
             'target_planet_ids'       => ['nullable', 'array'],
             'target_planet_ids.*'     => ['integer', Rule::exists('chapters', 'id')],
             'target_profession_ids'   => ['nullable', 'array'],
             'target_profession_ids.*' => ['integer', Rule::exists('professions', 'id')],
+            'target_role_ids'         => ['nullable', 'array'],
+            'target_role_ids.*'       => ['integer', Rule::exists('roles', 'id')],
             'invite_target'           => ['nullable', 'string', Rule::in(['none', 'all', 'chapter', 'profession', 'category', 'city', 'region', 'users'])],
             'invite_chapter_id'       => ['nullable', Rule::exists('chapters', 'id')],
             'invite_profession_id'    => ['nullable', Rule::exists('professions', 'id')],
@@ -451,11 +442,14 @@ class EventController extends Controller
 
         // Sync pivot audience
         if (($validated['audience_type'] ?? 'all') !== 'all') {
-            if (in_array($validated['audience_type'], ['by_planet', 'by_planet_and_profession'])) {
+            if (in_array($validated['audience_type'], ['by_planet', 'by_planet_and_profession', 'by_planet_and_role'], true)) {
                 $event->targetPlanets()->sync($validated['target_planet_ids'] ?? []);
             }
-            if (in_array($validated['audience_type'], ['by_profession', 'by_planet_and_profession'])) {
+            if (in_array($validated['audience_type'], ['by_profession', 'by_planet_and_profession', 'by_profession_and_role'], true)) {
                 $event->targetProfessions()->sync($validated['target_profession_ids'] ?? []);
+            }
+            if (in_array($validated['audience_type'], ['by_role', 'by_planet_and_role', 'by_profession_and_role'], true)) {
+                $event->targetRoles()->sync($validated['target_role_ids'] ?? []);
             }
         }
 
@@ -483,11 +477,13 @@ class EventController extends Controller
             'invite_region_id'        => ['nullable', Rule::exists('regions', 'id')],
             'invite_user_ids'         => ['nullable', 'array'],
             'invite_user_ids.*'       => ['integer', Rule::exists('users', 'id')],
-            'audience_type'           => ['nullable', 'string', Rule::in(['all', 'by_planet', 'by_profession', 'by_planet_and_profession'])],
+            'audience_type'           => ['nullable', 'string', Rule::in($this->audienceTypes())],
             'target_planet_ids'       => ['nullable', 'array'],
             'target_planet_ids.*'     => ['integer', Rule::exists('chapters', 'id')],
             'target_profession_ids'   => ['nullable', 'array'],
             'target_profession_ids.*' => ['integer', Rule::exists('professions', 'id')],
+            'target_role_ids'         => ['nullable', 'array'],
+            'target_role_ids.*'       => ['integer', Rule::exists('roles', 'id')],
         ]);
 
         $count = $this->processInvitations($event, $request->user(), $validated['invite_target'], $validated);
@@ -500,6 +496,7 @@ class EventController extends Controller
     public function register(Request $request, Event $event): RedirectResponse
     {
         abort_unless($event->is_published, 404);
+        abort_unless($this->canViewEvent($event, $request->user()), 404);
 
         $validated = $request->validate([
             'status' => ['required', Rule::in(array_keys(EventAttendanceStatus::options()))],
@@ -544,6 +541,8 @@ class EventController extends Controller
 
     public function unregister(Request $request, Event $event): RedirectResponse
     {
+        abort_unless($this->canViewEvent($event, $request->user()), 404);
+
         $event->attendees()->detach($request->user()->id);
 
         return back()->with('status', 'event-unregistered');
@@ -654,6 +653,81 @@ class EventController extends Controller
     protected function isAdmin($user): bool
     {
         return $user?->hasAnyRole(['super-admin', 'admin-community']) ?? false;
+    }
+
+    protected function canViewEvent(Event $event, $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if ($this->isAdmin($user)) {
+            return true;
+        }
+
+        $event->loadMissing(['targetPlanets', 'targetProfessions', 'targetRoles']);
+
+        return $event->isVisibleTo(
+            $user,
+            $user->memberProfile?->active_chapter_id,
+            $user->memberProfile?->professions()->pluck('professions.id')->all() ?? [],
+            $user->roles()->pluck('roles.id')->all()
+        );
+    }
+
+    protected function applyAudienceScope($query, $user): void
+    {
+        if ($this->isAdmin($user)) {
+            return;
+        }
+
+        $activePlanetId = $user->memberProfile?->active_chapter_id;
+        $professionIds = $user->memberProfile?->professions()->pluck('professions.id')->all() ?? [];
+        $roleIds = $user->roles()->pluck('roles.id')->all();
+
+        $query->where(function ($inner) use ($activePlanetId, $professionIds, $roleIds): void {
+            $inner->where('audience_type', 'all')
+                ->orWhere(function ($p) use ($activePlanetId): void {
+                    $p->where('audience_type', 'by_planet')
+                        ->whereHas('targetPlanets', fn ($q) => $q->where('chapters.id', $activePlanetId));
+                })
+                ->orWhere(function ($p) use ($professionIds): void {
+                    $p->where('audience_type', 'by_profession')
+                        ->whereHas('targetProfessions', fn ($q) => $q->whereIn('professions.id', $professionIds));
+                })
+                ->orWhere(function ($p) use ($activePlanetId, $professionIds): void {
+                    $p->where('audience_type', 'by_planet_and_profession')
+                        ->whereHas('targetPlanets', fn ($q) => $q->where('chapters.id', $activePlanetId))
+                        ->whereHas('targetProfessions', fn ($q) => $q->whereIn('professions.id', $professionIds));
+                })
+                ->orWhere(function ($p) use ($roleIds): void {
+                    $p->where('audience_type', 'by_role')
+                        ->whereHas('targetRoles', fn ($q) => $q->whereIn('roles.id', $roleIds));
+                })
+                ->orWhere(function ($p) use ($activePlanetId, $roleIds): void {
+                    $p->where('audience_type', 'by_planet_and_role')
+                        ->whereHas('targetPlanets', fn ($q) => $q->where('chapters.id', $activePlanetId))
+                        ->whereHas('targetRoles', fn ($q) => $q->whereIn('roles.id', $roleIds));
+                })
+                ->orWhere(function ($p) use ($professionIds, $roleIds): void {
+                    $p->where('audience_type', 'by_profession_and_role')
+                        ->whereHas('targetProfessions', fn ($q) => $q->whereIn('professions.id', $professionIds))
+                        ->whereHas('targetRoles', fn ($q) => $q->whereIn('roles.id', $roleIds));
+                });
+        });
+    }
+
+    protected function audienceTypes(): array
+    {
+        return [
+            'all',
+            'by_planet',
+            'by_profession',
+            'by_planet_and_profession',
+            'by_role',
+            'by_planet_and_role',
+            'by_profession_and_role',
+        ];
     }
 
     protected function managedChapterIds($user): array

@@ -59,6 +59,24 @@
 
     <div x-data="{ drawer: false }" class="pb-12 pt-6">
 
+        @if (session('status'))
+            @php
+                $videoStatusMessages = [
+                    'video-access-requested' => 'Richiesta video inviata.',
+                    'video-access-accepted' => 'Scambio video accettato.',
+                    'video-access-declined' => 'Richiesta video rifiutata.',
+                    'video-access-revoked' => 'Accesso video revocato.',
+                    'video-access-own-video-required' => 'Carica prima la tua videopresentazione per richiedere uno scambio.',
+                ];
+            @endphp
+
+            @if (isset($videoStatusMessages[session('status')]))
+                <div class="mx-4 mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm text-emerald-800 sm:mx-6 lg:mx-8">
+                    {{ $videoStatusMessages[session('status')] }}
+                </div>
+            @endif
+        @endif
+
         {{-- MOBILE TOP BAR --}}
         <div class="mb-4 flex items-center justify-between px-4 sm:px-6 lg:hidden">
             <div class="min-w-0">

@@ -129,7 +129,8 @@
 {{-- Video --}}
 @if ($profile->hasVideo())
 <div class="km-panel overflow-hidden p-0">
-    @if ($profile->videoEmbedUrl())
+    @if ($canViewIntroVideo ?? false)
+        @if ($profile->videoEmbedUrl())
         <div class="mx-auto w-full bg-black {{ $profile->prefersPortraitVideo() ? 'max-w-[520px]' : '' }}" style="aspect-ratio:{{ $profile->prefersPortraitVideo() ? '9/16' : '16/9' }};">
             <iframe src="{{ $profile->videoEmbedUrl() }}"
                     class="h-full w-full bg-black"
@@ -138,7 +139,7 @@
                     allowfullscreen>
             </iframe>
         </div>
-    @elseif ($profile->introVideoUrl())
+        @elseif ($profile->introVideoUrl())
         <div x-data="{ portrait: false }" class="bg-black">
             <div class="mx-auto w-full bg-black" :class="portrait ? 'max-w-[520px]' : 'max-w-full'" :style="portrait ? 'aspect-ratio:9/16' : 'aspect-ratio:16/9'">
                 <video controls playsinline class="h-full w-full bg-black object-cover"
@@ -146,6 +147,53 @@
                     <source src="{{ $profile->introVideoUrl() }}">
                 </video>
             </div>
+        </div>
+        @endif
+    @else
+        @php
+            $viewerId = auth()->id();
+            $isPendingOutgoing = $videoAccessRequest
+                && $videoAccessRequest->status === 'pending'
+                && $videoAccessRequest->requester_id === $viewerId;
+            $isPendingIncoming = $videoAccessRequest
+                && $videoAccessRequest->status === 'pending'
+                && $videoAccessRequest->recipient_id === $viewerId;
+        @endphp
+
+        <div class="space-y-4 p-6">
+            <div>
+                <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Videopresentazione</h3>
+                <p class="mt-2 text-sm leading-6 text-stone-600">
+                    Questo video e' privato. L'accesso si sblocca solo con richiesta accettata e scambio reciproco.
+                </p>
+            </div>
+
+            @if ($isPendingIncoming)
+                <div class="grid gap-2">
+                    <form method="POST" action="{{ route('profile-video-access.respond', $videoAccessRequest) }}">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="accepted">
+                        <button type="submit" class="km-button-primary w-full justify-center">Accetta scambio video</button>
+                    </form>
+
+                    <form method="POST" action="{{ route('profile-video-access.respond', $videoAccessRequest) }}">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="declined">
+                        <button type="submit" class="km-button-secondary w-full justify-center">Rifiuta</button>
+                    </form>
+                </div>
+            @elseif ($isPendingOutgoing)
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    Richiesta inviata. In attesa di conferma.
+                </div>
+            @else
+                <form method="POST" action="{{ route('profile-video-access.store', $user) }}">
+                    @csrf
+                    <button type="submit" class="km-button-primary w-full justify-center">Richiedi accesso video</button>
+                </form>
+            @endif
         </div>
     @endif
 </div>

@@ -87,7 +87,9 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['roles', 'permissions', 'memberProfile.city', 'memberProfile.chapter']))
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->with(['roles', 'permissions', 'memberProfile.city', 'memberProfile.chapter', 'invitedBy'])
+                ->withCount('invitedUsers'))
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome')
@@ -109,6 +111,16 @@ class UserResource extends Resource
                     ->label('Pianeta')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('invitedBy.name')
+                    ->label('Invitato da')
+                    ->searchable()
+                    ->placeholder('-')
+                    ->toggleable(),
+                TextColumn::make('invited_users_count')
+                    ->label('Invitati')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('roles.name')
                     ->label('Ruoli')
                     ->badge(),

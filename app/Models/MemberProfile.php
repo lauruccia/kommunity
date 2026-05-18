@@ -268,4 +268,21 @@ class MemberProfile extends Model
     {
         return $this->videoEmbedUrl() !== null || $this->introVideoUrl() !== null;
     }
+
+    public function canViewIntroVideo(?User $viewer): bool
+    {
+        if (! $viewer || ! $this->user_id) {
+            return false;
+        }
+
+        if ((int) $viewer->id === (int) $this->user_id) {
+            return true;
+        }
+
+        if ($viewer->hasAnyRole(['super-admin', 'admin-community'])) {
+            return true;
+        }
+
+        return ProfileVideoAccessRequest::grantsAccessBetween((int) $viewer->id, (int) $this->user_id);
+    }
 }
