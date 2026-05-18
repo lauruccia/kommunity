@@ -10,6 +10,7 @@ use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -38,7 +39,12 @@ class BannerPlacementResource extends Resource
         return $schema->components([
             TextInput::make('key')->label('Chiave tecnica')->required()->unique(ignoreRecord: true),
             TextInput::make('label')->label('Etichetta')->required(),
-            TextInput::make('section')->label('Sezione sito'),
+            Select::make('section')
+                ->label('Sezione sito')
+                ->options(self::sectionOptions())
+                ->native(false)
+                ->searchable()
+                ->required(),
             Toggle::make('is_active')->label('Attivo')->default(true),
         ]);
     }
@@ -62,6 +68,20 @@ class BannerPlacementResource extends Resource
             'index' => ListBannerPlacements::route('/'),
             'create' => CreateBannerPlacement::route('/create'),
             'edit' => EditBannerPlacement::route('/{record}/edit'),
+        ];
+    }
+
+    private static function sectionOptions(): array
+    {
+        return [
+            'directory' => 'Directory membri',
+            'dashboard' => 'Dashboard',
+            'events' => 'Eventi',
+            'forum' => 'Forum',
+            'member_profile' => 'Profilo membro',
+            'one_to_ones' => 'One-to-one',
+            'referrals' => 'Referral',
+            'messages' => 'Messaggi',
         ];
     }
 }
