@@ -181,7 +181,7 @@
                         <div
                             class="member-banner relative bg-[linear-gradient(135deg,#425767_0%,#d7e3d1_100%)]"
                             @if ($onepage->coverImageUrl())
-                                style="background-image: url('{{ $onepage->coverImageUrl() }}'); background-size: cover; background-position: center top;"
+                                style="background-image: url('{{ $onepage->coverImageUrl() }}'); background-size: cover; background-position: left top;"
                             @endif
                         >
                             <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(22,31,41,0.04),rgba(22,31,41,0.28))]"></div>
