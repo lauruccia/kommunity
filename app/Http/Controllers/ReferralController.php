@@ -93,7 +93,10 @@ class ReferralController extends Controller
                     ->where(fn ($q) => $q->where('sender_id', $user->id)->orWhere('recipient_id', $user->id))
                     ->whereNotIn('status', [ReferralStatus::Won->value, ReferralStatus::Lost->value, ReferralStatus::Archived->value])
                     ->count(),
-                'value' => (float) Referral::query()->where('sender_id', $user->id)->sum('estimated_value'),
+                'won' => Referral::query()
+                    ->where(fn ($q) => $q->where('sender_id', $user->id)->orWhere('recipient_id', $user->id))
+                    ->where('status', ReferralStatus::Won->value)
+                    ->count(),
             ],
         ]);
     }

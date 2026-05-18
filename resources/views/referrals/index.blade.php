@@ -143,7 +143,7 @@
                         <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['sent'] }}</strong> <span style="color:var(--kr-muted);">Inviate</span></div>
                         <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['received'] }}</strong> <span style="color:var(--kr-muted);">Ricevute</span></div>
                         <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['open'] }}</strong> <span style="color:var(--kr-muted);">Aperte</span></div>
-                        <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">€{{ number_format($summary['value'],0,',','.') }}</strong> <span style="color:var(--kr-muted);">Pipeline</span></div>
+                        <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['won'] }}</strong> <span style="color:var(--kr-muted);">Chiuse ✓</span></div>
                     </div>
                 </div>
                 <div class="text-right text-sm" style="color:var(--kr-muted);">
@@ -297,7 +297,7 @@
                     <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div><div><div class="text-sm text-white">Inviate</div><div class="text-2xl font-semibold">{{ $summary['sent'] }}</div></div></div>
                     <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div><div><div class="text-sm text-white">Ricevute</div><div class="text-2xl font-semibold">{{ $summary['received'] }}</div></div></div>
                     <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div><div class="text-sm text-white">Aperte</div><div class="text-2xl font-semibold">{{ $summary['open'] }}</div></div></div>
-                    <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-violet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="text-sm text-white">Pipeline</div><div class="text-2xl font-semibold">€{{ number_format($summary['value'],0,',','.') }}</div></div></div>
+                    <div class="kr-card kr-stat-card"><div class="kr-stat-icon kr-icon-green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="text-sm text-white">Chiuse positivamente</div><div class="text-2xl font-semibold">{{ $summary['won'] }}</div></div></div>
                 </section>
 
                 {{-- ════════════════ TAB: RICEVUTE ════════════════ --}}
