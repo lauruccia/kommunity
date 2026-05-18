@@ -7,6 +7,7 @@ use App\Support\ResolvesPublicMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MemberOnepage extends Model
 {
@@ -42,6 +43,14 @@ class MemberOnepage extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Profilo membro collegato (stesso user_id).
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(MemberProfile::class, 'user_id', 'user_id');
     }
 
     public function coverImageUrl(): ?string
