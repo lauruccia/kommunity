@@ -289,7 +289,25 @@
                         <input type="text" name="title" value="{{ old('title') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Titolo opportunità" required>
                         <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità — contesto, obiettivo, perché questo membro può aiutare" required>{{ old('description') }}</textarea>
                         <input type="text" name="company_name" value="{{ old('company_name') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Azienda (opzionale)">
-                        <input type="hidden" name="priority" value="3">
+
+                        <div>
+                            <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:rgba(222,235,238,.55);margin-bottom:.5rem;">Priorità</p>
+                            <div id="kr-new-stars" style="display:flex;gap:.3rem;">
+                                @for ($s = 1; $s <= 5; $s++)
+                                    <button type="button" data-val="{{ $s }}"
+                                            onclick="krSetStar({{ $s }},'kr-new-stars','kr-new-priority')"
+                                            style="background:none;border:none;cursor:pointer;padding:.15rem;">
+                                        <svg width="28" height="28" viewBox="0 0 24 24"
+                                             fill="{{ old('priority','3') >= $s ? '#FCD34D' : 'none' }}"
+                                             stroke="#FCD34D" stroke-width="1.8" data-idx="{{ $s }}">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                    </button>
+                                @endfor
+                            </div>
+                            <input type="hidden" name="priority" id="kr-new-priority" value="{{ old('priority','3') }}">
+                        </div>
+
                         <button type="submit" class="kr-primary h-12 w-full rounded-xl font-semibold">Invia referenza</button>
                     </form>
                 @endif
