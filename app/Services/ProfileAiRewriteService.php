@@ -37,12 +37,13 @@ class ProfileAiRewriteService
             . $apiKey;
 
         $payload = [
-            'systemInstruction' => [
-                'parts' => [['text' => $this->instructions()]],
-            ],
             'contents' => [
                 [
-                    'parts' => [['text' => $this->buildInput($profile, $fields, $context)]],
+                    'parts' => [[
+                        'text' => $this->instructions()
+                            . "\n\n---\n\n"
+                            . $this->buildInput($profile, $fields, $context),
+                    ]],
                 ],
             ],
         ];
