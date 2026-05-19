@@ -661,6 +661,9 @@
             @if (session('status') === 'profile-updated')
                 <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2400)" class="text-sm text-stone-600">Profilo aggiornato.</p>
             @endif
+            @if (session('ai_debug'))
+                <p class="text-xs text-orange-600 font-mono bg-orange-50 px-2 py-1 rounded">🔍 {{ session('ai_debug') }}</p>
+            @endif
             @if (session('status') === 'profile-updated-ai')
                 <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="text-sm font-medium text-emerald-700">✨ Profilo aggiornato e rielaborato dall'AI.</p>
             @endif

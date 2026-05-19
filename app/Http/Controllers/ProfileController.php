@@ -128,13 +128,6 @@ class ProfileController extends Controller
 
         $aiRewrote = false;
         $shouldRewrite = $this->shouldRewriteProfileText($profile, $profileTextFields, $useAiProfileRewrite);
-        Log::warning('AI profilo: verifica rewrite', [
-            'use_ai_flag'       => $useAiProfileRewrite,
-            'profile_flag_db'   => (bool) $profile->use_ai_profile_rewrite,
-            'should_rewrite'    => $shouldRewrite,
-            'is_configured'     => $profileAiRewriteService->isConfigured(),
-            'fields_filled'     => collect($profileTextFields)->filter(fn ($v) => filled($v))->keys()->all(),
-        ]);
         if ($shouldRewrite) {
             $rewritten = $profileAiRewriteService->rewrite(
                 $profile->loadMissing(['user', 'profession', 'city']),
@@ -143,13 +136,18 @@ class ProfileController extends Controller
             );
             $aiRewrote = $profileAiRewriteService->isConfigured()
                 && collect($rewritten)->contains(fn ($v, $k) => trim((string) $v) !== trim((string) ($profileTextFields[$k] ?? '')));
-            Log::warning('AI profilo: risultato rewrite', [
-                'ai_rewrote' => $aiRewrote,
-                'fields_out' => collect($rewritten)->map(fn ($v) => $v ? mb_substr($v, 0, 60).'…' : null)->all(),
-            ]);
             $profileTextFields = $rewritten;
             $validated = array_merge($validated, $profileTextFields);
         }
+
+        // DEBUG TEMPORANEO — rimuovere dopo il test
+        session()->flash('ai_debug', implode(' | ', [
+            'checkbox=' . ($useAiProfileRewrite ? '1' : '0'),
+            'db_flag=' . ($profile->use_ai_profile_rewrite ? '1' : '0'),
+            'configured=' . ($profileAiRewriteService->isConfigured() ? '1' : '0'),
+            'should=' . ($shouldRewrite ? '1' : '0'),
+            'rewrote=' . ($aiRewrote ? '1' : '0'),
+        ]));
 
         $profileData = collect($validated)
             ->except([
