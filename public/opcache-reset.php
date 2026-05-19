@@ -1,50 +1,59 @@
 <?php
-// File temporaneo per debug deploy — DA ELIMINARE DOPO L'USO
-if (function_exists('opcache_reset')) {
-    opcache_reset();
-    echo "✅ OPcache svuotato.<br>";
-} else {
-    echo "ℹ️ OPcache non attivo su questo server.<br>";
-}
+// File temporaneo per debug — DA ELIMINARE DOPO L'USO
+$base   = '/home2/kommunity/kommunity';
+$apiKey = null;
 
-// Base path Laravel su cPanel
-$base = '/home2/kommunity/kommunity';
-
-$files = [
-    'ProfileController'     => $base . '/app/Http/Controllers/ProfileController.php',
-    'AiRewriteService'      => $base . '/app/Services/ProfileAiRewriteService.php',
-    'services.php (config)' => $base . '/config/services.php',
-];
-
-echo "<br><strong>Timestamp file sul server:</strong><br>";
-foreach ($files as $label => $path) {
-    if (file_exists($path)) {
-        echo htmlspecialchars($label) . ': ' . date('Y-m-d H:i:s', filemtime($path)) . '<br>';
-    } else {
-        echo htmlspecialchars($label) . ': FILE NON TROVATO<br>';
-    }
-}
-
-echo "<br><strong>Codice nuovo nel controller:</strong><br>";
-$controller = @file_get_contents($base . '/app/Http/Controllers/ProfileController.php');
-if ($controller === false) {
-    echo "❌ Impossibile leggere il file (permessi?)<br>";
-} else {
-    echo strpos($controller, 'AI profilo: verifica rewrite') !== false
-        ? '✅ Codice nuovo presente — deploy OK'
-        : '❌ Codice vecchio — deploy NON aggiornato';
-}
-
-echo "<br><br><strong>Contenuto .env (solo righe AI/OpenAI):</strong><br>";
+// Legge OPENAI_API_KEY dal .env
 $env = @file_get_contents($base . '/.env');
 if ($env) {
     foreach (explode("\n", $env) as $line) {
-        if (stripos($line, 'openai') !== false || stripos($line, 'gemini') !== false) {
-            // Maschera la chiave lasciando solo i primi 8 caratteri
-            $masked = preg_replace('/=(.{8}).*/', '=$1***', $line);
-            echo htmlspecialchars($masked) . '<br>';
+        if (str_starts_with(trim($line), 'OPENAI_API_KEY=')) {
+            $apiKey = trim(substr($line, strpos($line, '=') + 1), " \t\r\n\"'");
+            break;
         }
     }
-} else {
-    echo "❌ .env non leggibile<br>";
 }
+
+echo '<pre>';
+echo 'Chiave in uso: ' . ($apiKey ? substr($apiKey, 0, 10) . '***' : 'NON TROVATA') . "\n\n";
+
+if (!$apiKey) {
+    echo 'ERRORE: OPENAI_API_KEY non trovata nel .env';
+    exit;
+}
+
+// Prova i due endpoint (v1 e v1beta) con due modelli diversi
+$tests = [
+    'v1 + gemini-1.5-flash'       => "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={$apiKey}",
+    'v1beta + gemini-1.5-flash'   => "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}",
+    'v1beta + gemini-2.0-flash'   => "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}",
+    'v1beta + gemini-2.5-flash'   => "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}",
+    'v1beta + gemini-2.5-flash-preview-05-20' => "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}",
+];
+
+$payload = json_encode([
+    'contents' => [['parts' => [['text' => 'Rispondi solo con: {"ok":true}']]]],
+    'generationConfig' => ['responseMimeType' => 'application/json'],
+]);
+
+foreach ($tests as $label => $url) {
+    $ctx = stream_context_create([
+        'http' => [
+            'method'  => 'POST',
+            'header'  => "Content-Type: application/json\r\n",
+            'content' => $payload,
+            'timeout' => 10,
+            'ignore_errors' => true,
+        ],
+    ]);
+    $result = @file_get_contents($url, false, $ctx);
+    $code   = 'ERR';
+    if (isset($http_response_header)) {
+        preg_match('/HTTP\/\S+ (\d+)/', $http_response_header[0], $m);
+        $code = $m[1] ?? '?';
+    }
+    $short = $result ? substr(strip_tags($result), 0, 120) : '(nessuna risposta)';
+    echo "[{$code}] {$label}\n      {$short}\n\n";
+}
+
+echo '</pre>';
