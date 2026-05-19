@@ -31,7 +31,7 @@ class ProfileAiRewriteService
         $apiKey  = (string) config('services.openai.api_key');
         $timeout = (int) config('services.openai.timeout', 45);
 
-        $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/'
+        $endpoint = 'https://generativelanguage.googleapis.com/v1/models/'
             . $model
             . ':generateContent?key='
             . $apiKey;
@@ -44,9 +44,6 @@ class ProfileAiRewriteService
                 [
                     'parts' => [['text' => $this->buildInput($profile, $fields, $context)]],
                 ],
-            ],
-            'generationConfig' => [
-                'responseMimeType' => 'application/json',
             ],
         ];
 
@@ -99,8 +96,8 @@ Regole fondamentali:
 - Evita tono pubblicitario generico, superlativi vuoti, emoji e frasi come "leader di settore" o "appassionato di".
 - Scrivi in italiano.
 
-Rispondi SOLO con JSON valido con queste chiavi: short_bio, bio, services, skills, networking_goals.
-Non aggiungere testo fuori dal JSON.
+Rispondi SOLO con un oggetto JSON valido, senza markdown, senza ```json, senza testo prima o dopo.
+L'oggetto deve avere esattamente queste chiavi: short_bio, bio, services, skills, networking_goals.
 PROMPT;
     }
 
