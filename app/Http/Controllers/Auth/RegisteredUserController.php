@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +25,7 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
         $referralCode = request()->query('ref');
 
@@ -48,6 +49,15 @@ class RegisteredUserController extends Controller
                 ->where('token', session('chapter_invitation_token'))
                 ->where('status', 'pending')
                 ->first();
+
+            if ($chapterInvitation && ! $chapterInvitation->isValid()) {
+                $chapterInvitation = null;
+            }
+        }
+
+        if (! $chapterInvitation && ! $inviter) {
+            return Redirect::route('login')
+                ->with('error', 'La registrazione e disponibile solo tramite invito.');
         }
 
         return view('auth.register', [
@@ -65,6 +75,20 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $chapterToken = $request->session()->get('chapter_invitation_token');
+        $validChapterInvitation = null;
+
+        if ($chapterToken) {
+            $validChapterInvitation = ChapterInvitation::query()
+                ->where('token', $chapterToken)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($validChapterInvitation && ! $validChapterInvitation->isValid()) {
+                $validChapterInvitation = null;
+            }
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
@@ -87,6 +111,12 @@ class RegisteredUserController extends Controller
                 ->first();
         }
 
+        if (! $validChapterInvitation && ! $inviter) {
+            throw ValidationException::withMessages([
+                'invited_by_name' => 'Per registrarti devi usare un link di invito valido.',
+            ]);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -101,8 +131,6 @@ class RegisteredUserController extends Controller
         ]);
 
         // ── Gestione invito pianeta ───────────────────────────────────────────
-        $chapterToken = $request->session()->get('chapter_invitation_token');
-
         if (! $chapterToken && $inviter) {
             $inviterPlanetId = $inviter->activePlanetId()
                 ?? $inviter->planets()->value('chapters.id');

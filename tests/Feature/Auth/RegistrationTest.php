@@ -11,9 +11,13 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_screen_can_be_rendered(): void
+    public function test_registration_screen_can_be_rendered_with_referral(): void
     {
-        $response = $this->get('/register');
+        $inviter = User::factory()->create([
+            'referral_code' => 'invito-valido',
+        ]);
+
+        $response = $this->get('/register?ref='.$inviter->referral_code);
 
         $response->assertStatus(200);
     }
@@ -34,7 +38,7 @@ class RegistrationTest extends TestCase
         ]);
     }
 
-    public function test_direct_registration_does_not_reuse_previous_referral(): void
+    public function test_direct_registration_is_redirected_and_does_not_reuse_previous_referral(): void
     {
         $inviter = User::factory()->create([
             'name' => 'Kommunity Admin',
@@ -46,11 +50,12 @@ class RegistrationTest extends TestCase
             ->assertSee('Campo compilato automaticamente dal referral link ricevuto.');
 
         $this->get('/register')
-            ->assertDontSee('Kommunity Admin')
-            ->assertSee('Inserisci nome e cognome della persona che ti ha invitato.');
+            ->assertRedirect(route('login'));
+
+        $this->assertFalse(session()->has('registration_referral_code'));
     }
 
-    public function test_new_users_can_register(): void
+    public function test_new_users_cannot_register_without_invite(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -61,15 +66,11 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $this->assertDatabaseHas('users', [
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', [
             'email' => 'test@example.com',
-            'invited_by_name' => 'Mario Rossi',
         ]);
-        $this->assertDatabaseHas('member_profiles', [
-            'phone' => '+39 333 1234567',
-        ]);
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertSessionHasErrors(['invited_by_name']);
     }
 
     public function test_registration_from_referral_assigns_inviter_active_planet(): void
@@ -130,12 +131,17 @@ class RegistrationTest extends TestCase
 
     public function test_registration_requires_phone_and_inviter_full_name(): void
     {
+        $inviter = User::factory()->create([
+            'referral_code' => 'mario-rossi',
+        ]);
+
         $response = $this->from('/register')->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
             'invited_by_name' => 'Mario',
+            'referral_code' => $inviter->referral_code,
         ]);
 
         $response->assertRedirect('/register');

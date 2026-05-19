@@ -108,7 +108,7 @@
                 </a>
             @endforeach
             <a href="{{ route('login') }}" class="btn btn-ghost" style="padding:.58rem .95rem;font-size:.78rem">Accedi</a>
-            <a href="{{ route('register') }}" class="btn btn-primary" style="padding:.58rem .95rem;font-size:.78rem">Iscriviti</a>
+            <a href="{{ route('login') }}" class="btn btn-primary" style="padding:.58rem .95rem;font-size:.78rem">Accedi</a>
         </div>
     </div>
 </header>

@@ -1,6 +1,7 @@
 {{-- KM-MEMBER-VIEW-v2 --}}
-<x-app-layout>
+<x-app-layout :hide-navigation="! auth()->check()">
     @php
+        $viewerIsAuthenticated = auth()->check();
         $viewerIsOwner = auth()->check() && auth()->id() === $user->id;
 
         $whatsappUrl = null;
@@ -13,18 +14,18 @@
 
     <style>
         .member-banner {
-            height: 180px;
+            height: 140px;
         }
 
         @media (min-width: 640px) {
             .member-banner {
-                height: 280px;
+                height: 210px;
             }
         }
 
         @media (min-width: 1024px) {
             .member-banner {
-                height: 420px;
+                height: 280px;
             }
 
             .member-grid {
@@ -147,7 +148,7 @@
                 @include('members._sidebar')
             </div>
 
-            @unless ($viewerIsOwner)
+            @if ($viewerIsAuthenticated && ! $viewerIsOwner)
                 <div class="shrink-0 space-y-2 border-t border-stone-200 bg-white p-4">
                     {{-- Referenze ricevute sopra il pulsante --}}
                     @if (!empty($receivedReferralsCount) && $receivedReferralsCount > 0)
@@ -176,7 +177,7 @@
                         Prenota one-to-one
                     </a>
                 </div>
-            @endunless
+            @endif
         </div>
 
         {{-- MAIN LAYOUT --}}
@@ -246,7 +247,7 @@
 
                             </div>
 
-                            @unless ($viewerIsOwner)
+                            @if ($viewerIsAuthenticated && ! $viewerIsOwner)
                                 <div class="hidden flex-col items-end gap-3 sm:flex">
                                     {{-- Referenze ricevute sopra il pulsante --}}
                                     @if (!empty($receivedReferralsCount) && $receivedReferralsCount > 0)
@@ -277,7 +278,7 @@
                                         </a>
                                     </div>
                                 </div>
-                            @endunless
+                            @endif
                         </div>
                     </div>
 

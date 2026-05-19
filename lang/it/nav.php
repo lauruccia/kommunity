@@ -8,6 +8,7 @@ return [
     'forum'            => 'Forum',
     'messages'         => 'Messaggi',
     'referrals'        => 'Referenze',
+    'faq'              => 'FAQ',
     'subscription'     => 'Abbonamento',
     'admin'            => 'Gestione utenti',
     'profile'          => 'Profilo',

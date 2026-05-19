@@ -87,11 +87,11 @@ class MemberOnepageController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
-        $currentUserId = $request->user()->id;
+        $currentUserId = $request->user()?->id;
         $memberUserId  = $onepage->user->id;
         $videoAccessRequest = null;
 
-        if ($currentUserId !== $memberUserId && Schema::hasTable('profile_video_access_requests')) {
+        if ($currentUserId && $currentUserId !== $memberUserId && Schema::hasTable('profile_video_access_requests')) {
             $videoAccessRequest = ProfileVideoAccessRequest::query()
                 ->between($currentUserId, $memberUserId)
                 ->latest()
@@ -99,15 +99,17 @@ class MemberOnepageController extends Controller
         }
 
         // Recensioni ricevute da questo membro (con testo o voto)
-        $reviews = OneToOneReference::query()
-            ->with('author')
-            ->where('recipient_id', $memberUserId)
-            ->where(function ($q): void {
-                $q->whereNotNull('content')
-                  ->orWhereNotNull('rating');
-            })
-            ->latest()
-            ->get();
+        $reviews = Schema::hasTable('one_to_one_references')
+            ? OneToOneReference::query()
+                ->with('author')
+                ->where('recipient_id', $memberUserId)
+                ->where(function ($q): void {
+                    $q->whereNotNull('content')
+                      ->orWhereNotNull('rating');
+                })
+                ->latest()
+                ->get()
+            : collect();
 
         return view('members.show', [
             'onepage'         => $onepage,
@@ -122,7 +124,7 @@ class MemberOnepageController extends Controller
                 ->latest()
                 ->take(4)
                 ->get(),
-            'sharedOneToOnes' => OneToOneRequest::query()
+            'sharedOneToOnes' => $currentUserId ? OneToOneRequest::query()
                 ->with(['requester', 'recipient'])
                 ->where(function ($query) use ($currentUserId, $memberUserId): void {
                     $query
@@ -136,8 +138,8 @@ class MemberOnepageController extends Controller
                 })
                 ->latest()
                 ->take(6)
-                ->get(),
-            'sharedReferrals' => Referral::query()
+                ->get() : collect(),
+            'sharedReferrals' => $currentUserId ? Referral::query()
                 ->with(['sender', 'recipient'])
                 ->where(function ($query) use ($currentUserId, $memberUserId): void {
                     $query
@@ -151,7 +153,7 @@ class MemberOnepageController extends Controller
                 })
                 ->latest()
                 ->take(6)
-                ->get(),
+                ->get() : collect(),
             'publicEndorsements' => Referral::query()
                 ->with('sender')
                 ->where('recipient_id', $memberUserId)

@@ -139,7 +139,6 @@
         </nav>
         <div class="header-cta">
             <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Accedi</a>
-            <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Entra in Kommunity</a>
         </div>
         <button class="hamburger" aria-label="Apri menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
@@ -152,7 +151,6 @@
             <h1 id="hero-heading"><span class="title-line">Relazioni giuste.</span><span class="title-line accent">Opportunità reali.</span></h1>
             <p class="hero-body">Kommunity è l'ecosistema dove professionisti e aziende si connettono, collaborano e crescono insieme.</p>
             <div class="hero-actions">
-                <a href="{{ route('register') }}" class="btn btn-primary btn-lg">Entra in Kommunity <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
                 <a href="#come-funziona" class="btn btn-ghost btn-lg">Scopri come funziona <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .8.9 1.27 1.56.82l10.04-6.86a1 1 0 0 0 0-1.64L9.56 4.32C8.9 3.87 8 4.34 8 5.14Z"/></svg></a>
             </div>
             <div class="social-proof">
@@ -179,9 +177,9 @@
             <div class="hero-orb-icon orb-b"><svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 14v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
             <div class="hero-orb-icon orb-c"><svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 14v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
             <div class="hero-orb-icon orb-d"><svg viewBox="0 0 24 24" fill="none"><path d="M18 8a3 3 0 1 0-3-3M6 19a3 3 0 1 0 0-6m12 6a3 3 0 1 0 0-6M8.5 14.5l7-6m-7 0l7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-            <article class="hero-member-card card-marco"><span class="member-face"></span><div><p class="member-name">Marco<br>B.</p><p class="member-role">Consulente Marketing</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
-            <article class="hero-member-card card-sara"><span class="member-face face-sara"></span><div><p class="member-name">Sara<br>V.</p><p class="member-role">Graphic Designer</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
-            <article class="hero-member-card card-luca"><span class="member-face face-luca"></span><div><p class="member-name">Luca<br>R.</p><p class="member-role">Finanziario</p></div><p class="member-verified"><span></span>Professionista verificato</p><a href="{{ route('register') }}" class="connect-pill">Connettiti</a></article>
+            <article class="hero-member-card card-marco"><span class="member-face"></span><div><p class="member-name">Marco<br>B.</p><p class="member-role">Consulente Marketing</p></div><p class="member-verified"><span></span>Professionista verificato</p><span class="connect-pill">Accesso su invito</span></article>
+            <article class="hero-member-card card-sara"><span class="member-face face-sara"></span><div><p class="member-name">Sara<br>V.</p><p class="member-role">Graphic Designer</p></div><p class="member-verified"><span></span>Professionista verificato</p><span class="connect-pill">Accesso su invito</span></article>
+            <article class="hero-member-card card-luca"><span class="member-face face-luca"></span><div><p class="member-name">Luca<br>R.</p><p class="member-role">Finanziario</p></div><p class="member-verified"><span></span>Professionista verificato</p><span class="connect-pill">Accesso su invito</span></article>
         </div>
     </div>
     <span class="hero-line-bottom" aria-hidden="true"></span>
@@ -197,14 +195,14 @@
 
 <section id="community" class="km-section">
     <div class="km-wrap eco-grid">
-        <div><span class="badge badge-green" style="margin-bottom:1.2rem"><span class="badge-dot"></span>L'ecosistema Kommunity</span><h2 class="section-title">Non è un social.<br>È un sistema progettato<br>per <span class="accent">far crescere il tuo business.</span></h2><p class="section-copy">Kommunity unisce persone, competenze e opportunità in un ambiente sicuro, selezionato e orientato ai risultati.</p><a href="{{ route('register') }}" class="btn btn-ghost" style="margin-top:2rem">Scopri l'ecosistema →</a></div>
+        <div><span class="badge badge-green" style="margin-bottom:1.2rem"><span class="badge-dot"></span>L'ecosistema Kommunity</span><h2 class="section-title">Non è un social.<br>È un sistema progettato<br>per <span class="accent">far crescere il tuo business.</span></h2><p class="section-copy">Kommunity unisce persone, competenze e opportunità in un ambiente sicuro, selezionato e orientato ai risultati.</p><a href="#come-funziona" class="btn btn-ghost" style="margin-top:2rem">Scopri l'ecosistema →</a></div>
         <div class="feature-grid">@foreach($features as [$title,$copy,$icon])<article class="feat-card"><span class="feat-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none">{!! $icon !!}</svg></span><h3>{{ $title }}</h3><p>{{ $copy }}</p></article>@endforeach</div>
     </div>
 </section>
 
 <div class="stats-band"><div class="km-wrap"><div class="stats-card glass">@foreach($stats as [$value,$label])<div class="stat-cell"><strong>{{ $value }}</strong><p>{{ $label }}</p></div>@endforeach</div></div></div>
 
-<section class="km-section"><div class="km-wrap split-grid"><div><h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">Cosa dicono<br>i nostri membri</h2><p class="section-copy">Professionisti e aziende che hanno già scelto di far parte di Kommunity.</p><a href="{{ route('register') }}" class="btn btn-ghost" style="margin-top:1.75rem">Leggi tutte le testimonianze →</a></div><div class="testi-grid">@foreach($testimonials as [$quote,$name,$role,$avClass])<article class="testi-card"><div class="stars">★★★★★</div><p class="testi-quote">“{{ $quote }}”</p><div class="testi-person"><span class="tp-av tp-av-{{ $avClass }}"></span><span><strong>{{ $name }}</strong><span>{{ $role }}</span></span></div></article>@endforeach</div></div></section>
+<section class="km-section"><div class="km-wrap split-grid"><div><h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">Cosa dicono<br>i nostri membri</h2><p class="section-copy">Professionisti e aziende che hanno già scelto di far parte di Kommunity.</p><a href="#community" class="btn btn-ghost" style="margin-top:1.75rem">Scopri la community →</a></div><div class="testi-grid">@foreach($testimonials as [$quote,$name,$role,$avClass])<article class="testi-card"><div class="stars">★★★★★</div><p class="testi-quote">“{{ $quote }}”</p><div class="testi-person"><span class="tp-av tp-av-{{ $avClass }}"></span><span><strong>{{ $name }}</strong><span>{{ $role }}</span></span></div></article>@endforeach</div></div></section>
 
 <section id="community-locale" class="local-section km-section">
     <div class="km-wrap local-grid">
@@ -219,7 +217,7 @@
                 @empty
                     @foreach(['Roma','Latina','Frosinone','Viterbo','Rieti'] as $city)<span class="city-chip">{{ $city }}</span>@endforeach
                 @endforelse
-                <a href="{{ route('register') }}" class="city-chip" style="border-color:rgba(111,163,103,.55);color:var(--brand4)">Vedi tutti i Pianeti</a>
+                <span class="city-chip" style="border-color:rgba(111,163,103,.55);color:var(--brand4)">Accesso su invito</span>
             </div>
         </div>
         <div class="map-wrap">
@@ -230,16 +228,16 @@
                     <p style="font-size:1.15rem;font-weight:900;margin:0">Roma</p>
                     <p style="font-size:.76rem;color:var(--brand4);margin:.25rem 0">Pianeta attivo</p>
                     <p style="font-size:.76rem;color:var(--muted);margin:.15rem 0">48 membri nel Lazio</p>
-                    <a href="{{ route('register') }}" style="display:inline-flex;margin-top:.65rem;font-size:.78rem;font-weight:900;color:var(--brand4)">Scopri il Pianeta →</a>
+                    <span style="display:inline-flex;margin-top:.65rem;font-size:.78rem;font-weight:900;color:var(--brand4)">Accesso su invito</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section id="eventi" class="km-section"><div class="km-wrap video-grid"><div class="video-player glass"><button type="button" class="play-btn" aria-label="Guarda il video"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .8.9 1.27 1.56.82l10.04-6.86a1 1 0 0 0 0-1.64L9.56 4.32C8.9 3.87 8 4.34 8 5.14Z"/></svg></button><div class="video-brand brand-lockup" style="font-size:.95rem"><span class="brand-mark"><x-application-logo /></span><span>Kommunity</span></div></div><div><span class="badge badge-green" style="margin-bottom:1.2rem"><span class="badge-dot"></span>Scopri Kommunity</span><h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">In 60 secondi</h2><p class="section-copy">Guarda il video e scopri come Kommunity può trasformare le tue relazioni in risultati concreti.</p><a href="{{ route('register') }}" class="btn btn-ghost" style="margin-top:2rem">Guarda il video ▶</a></div></div></section>
+<section id="eventi" class="km-section"><div class="km-wrap video-grid"><div class="video-player glass"><button type="button" class="play-btn" aria-label="Guarda il video"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .8.9 1.27 1.56.82l10.04-6.86a1 1 0 0 0 0-1.64L9.56 4.32C8.9 3.87 8 4.34 8 5.14Z"/></svg></button><div class="video-brand brand-lockup" style="font-size:.95rem"><span class="brand-mark"><x-application-logo /></span><span>Kommunity</span></div></div><div><span class="badge badge-green" style="margin-bottom:1.2rem"><span class="badge-dot"></span>Scopri Kommunity</span><h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">In 60 secondi</h2><p class="section-copy">Guarda il video e scopri come Kommunity può trasformare le tue relazioni in risultati concreti.</p><a href="#come-funziona" class="btn btn-ghost" style="margin-top:2rem">Guarda il video ▶</a></div></div></section>
 
-<section class="cta-section"><div class="km-wrap cta-inner"><div><h2 class="cta-title">Pronto a trasformare<br>le relazioni in risultati?</h2><p class="cta-body">Entra oggi in Kommunity e inizia a costruire il tuo futuro professionale.</p></div><a href="{{ route('register') }}" class="btn btn-primary btn-lg">Entra in Kommunity <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></section>
+<section class="cta-section"><div class="km-wrap cta-inner"><div><h2 class="cta-title">Pronto a trasformare<br>le relazioni in risultati?</h2><p class="cta-body">Kommunity cresce tramite inviti qualificati e accessi selezionati.</p></div><a href="{{ route('login') }}" class="btn btn-primary btn-lg">Accedi <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></section>
 </main>
 
 <footer id="contatti" class="site-footer">

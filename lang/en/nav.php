@@ -8,6 +8,7 @@ return [
     'forum'            => 'Forum',
     'messages'         => 'Messages',
     'referrals'        => 'Referrals',
+    'faq'              => 'FAQ',
     'subscription'     => 'Subscription',
     'admin'            => 'Manage users',
     'profile'          => 'Profile',

@@ -58,11 +58,16 @@ Route::get('/banner/{bannerCampaign}/click', BannerClickController::class)
     ->middleware('auth')
     ->name('banners.click');
 
+// ── Pagine membro pubbliche: visibili anche da link condiviso senza login ────
+Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
+Route::get('/member/{slug}/referenze', [MemberOnepageController::class, 'referrals'])->name('members.referrals');
+
 // ── Dashboard e onboarding: accessibili senza onboarding completato ─────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('/onboarding/step', [OnboardingController::class, 'saveStep'])->name('onboarding.step');
     Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    Route::view('/faq', 'faq')->name('faq');
 });
 
 // ── Profilo: accessibile anche senza onboarding completato ───────────────────
@@ -103,8 +108,6 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
         ->name('planet.switch');
 
     Route::get('/directory', DirectoryController::class)->name('directory.index');
-    Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
-    Route::get('/member/{slug}/referenze', [MemberOnepageController::class, 'referrals'])->name('members.referrals');
     Route::post('/members/{user}/video-access', [ProfileVideoAccessController::class, 'store'])->name('profile-video-access.store');
     Route::patch('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'respond'])->name('profile-video-access.respond');
     Route::delete('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'revoke'])->name('profile-video-access.revoke');

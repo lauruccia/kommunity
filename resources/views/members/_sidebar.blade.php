@@ -127,7 +127,7 @@
 </div>
 
 {{-- Video --}}
-@if ($profile->hasVideo())
+@if ($profile->hasVideo() && auth()->check())
 <div class="km-panel overflow-hidden p-0">
     @if ($canViewIntroVideo ?? false)
         @if ($profile->videoEmbedUrl())

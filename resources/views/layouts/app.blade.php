@@ -39,7 +39,9 @@
     </head>
     <body class="font-sans antialiased text-stone-900 @stack('body-class')">
         <div class="min-h-screen">
-            @include('layouts.navigation')
+            @unless($hideNavigation ?? false)
+                @include('layouts.navigation')
+            @endunless
 
             {{-- Flash toast: top-right, auto-dismiss, contenuti nel viewport --}}
             @php

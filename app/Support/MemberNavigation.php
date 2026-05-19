@@ -49,6 +49,11 @@ class MemberNavigation
                 'route' => 'referrals.index',
                 'active' => 'referrals.*',
             ],
+            'faq' => [
+                'label' => 'nav.faq',
+                'route' => 'faq',
+                'active' => 'faq',
+            ],
             'subscription' => [
                 'label' => 'nav.subscription',
                 'route' => 'subscriptions.index',
@@ -96,9 +101,15 @@ class MemberNavigation
     {
         $enabledKeys = self::enabledKeys();
 
-        return collect(self::items())
+        $items = collect(self::items())
             ->only($enabledKeys)
             ->reject(fn (array $item): bool => ($item['requires_subscription_plans'] ?? false) && ! $hasActiveSubscriptionPlans)
             ->all();
+
+        if (! array_key_exists('faq', $items)) {
+            $items['faq'] = self::items()['faq'];
+        }
+
+        return $items;
     }
 }
