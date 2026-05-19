@@ -21,34 +21,51 @@ class ProfileAiRewriteService
             return $this->normalize($fields);
         }
 
+        $model   = (string) config('services.openai.model', 'gemini-2.0-flash');
+        $apiKey  = (string) config('services.openai.api_key');
+        $timeout = (int) config('services.openai.timeout', 45);
+
+        $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/'
+            . $model
+            . ':generateContent?key='
+            . $apiKey;
+
         $payload = [
-            'model' => (string) config('services.openai.model', 'gpt-5.2'),
-            'instructions' => $this->instructions(),
-            'input' => $this->buildInput($profile, $fields, $context),
+            'systemInstruction' => [
+                'parts' => [['text' => $this->instructions()]],
+            ],
+            'contents' => [
+                [
+                    'parts' => [['text' => $this->buildInput($profile, $fields, $context)]],
+                ],
+            ],
+            'generationConfig' => [
+                'responseMimeType' => 'application/json',
+            ],
         ];
 
         try {
-            $response = Http::withToken((string) config('services.openai.api_key'))
-                ->acceptJson()
+            $response = Http::acceptJson()
                 ->asJson()
-                ->timeout((int) config('services.openai.timeout', 30))
-                ->post('https://api.openai.com/v1/responses', $payload);
+                ->timeout($timeout)
+                ->post($endpoint, $payload);
 
             if (! $response->successful()) {
-                Log::warning('Rielaborazione AI profilo fallita', [
+                Log::warning('Rielaborazione AI profilo fallita (Gemini)', [
                     'profile_id' => $profile->getKey(),
-                    'status' => $response->status(),
-                    'body' => Str::limit($response->body(), 500),
+                    'status'     => $response->status(),
+                    'body'       => Str::limit($response->body(), 500),
                 ]);
 
                 return $this->normalize($fields);
             }
 
             return $this->mergeRewrittenFields($fields, $this->extractOutputText($response->json()));
+
         } catch (\Throwable $e) {
-            Log::warning('Rielaborazione AI profilo non disponibile', [
+            Log::warning('Rielaborazione AI profilo non disponibile (Gemini)', [
                 'profile_id' => $profile->getKey(),
-                'error' => $e->getMessage(),
+                'error'      => $e->getMessage(),
             ]);
 
             return $this->normalize($fields);
@@ -86,10 +103,10 @@ PROMPT;
     private function buildInput(MemberProfile $profile, array $fields, array $context): string
     {
         $profileContext = array_filter(array_merge([
-            'nome' => $profile->user?->name,
-            'azienda' => $profile->company_name,
+            'nome'        => $profile->user?->name,
+            'azienda'     => $profile->company_name,
             'professione' => $profile->profession?->name,
-            'citta' => $profile->city?->name,
+            'citta'       => $profile->city?->name,
         ], $context), fn ($value) => filled($value));
 
         $normalized = $this->normalize($fields);
@@ -97,15 +114,15 @@ PROMPT;
 
         return json_encode([
             'contesto_profilo' => $profileContext,
-            'istruzione' => $hasAnyText
+            'istruzione'       => $hasAnyText
                 ? 'Rielabora i testi presenti e genera quelli mancanti (null) usando il contesto.'
                 : 'Tutti i campi testo sono vuoti. Generali da zero usando esclusivamente il contesto del profilo.',
-            'testi' => $normalized,
+            'testi'            => $normalized,
             'limiti_caratteri' => [
-                'short_bio' => 500,
-                'bio' => 3000,
-                'services' => 3000,
-                'skills' => 2000,
+                'short_bio'        => 500,
+                'bio'              => 3000,
+                'services'         => 3000,
+                'skills'           => 2000,
                 'networking_goals' => 2000,
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -130,6 +147,9 @@ PROMPT;
     }
 
     /**
+     * Estrae il testo JSON dalla risposta Gemini.
+     * Struttura: candidates[0].content.parts[0].text
+     *
      * @param array<string, mixed>|null $response
      */
     private function extractOutputText(?array $response): ?string
@@ -138,17 +158,11 @@ PROMPT;
             return null;
         }
 
-        if (is_string($response['output_text'] ?? null)) {
-            return $response['output_text'];
-        }
+        // Gemini: candidates[0].content.parts[0].text
+        $text = Arr::get($response, 'candidates.0.content.parts.0.text');
 
-        foreach ((array) ($response['output'] ?? []) as $item) {
-            foreach ((array) ($item['content'] ?? []) as $content) {
-                $text = $content['text'] ?? null;
-                if (is_string($text) && trim($text) !== '') {
-                    return $text;
-                }
-            }
+        if (is_string($text) && trim($text) !== '') {
+            return $text;
         }
 
         return null;
@@ -173,10 +187,10 @@ PROMPT;
         }
 
         $limits = [
-            'short_bio' => 500,
-            'bio' => 3000,
-            'services' => 3000,
-            'skills' => 2000,
+            'short_bio'        => 500,
+            'bio'              => 3000,
+            'services'         => 3000,
+            'skills'           => 2000,
             'networking_goals' => 2000,
         ];
 

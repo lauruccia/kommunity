@@ -661,6 +661,9 @@
             @if (session('status') === 'profile-updated')
                 <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2400)" class="text-sm text-stone-600">Profilo aggiornato.</p>
             @endif
+            @if (session('status') === 'profile-updated-ai')
+                <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="text-sm font-medium text-emerald-700">✨ Profilo aggiornato e rielaborato dall'AI.</p>
+            @endif
             @if (session('status') === 'gallery-image-deleted')
                 <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2400)" class="text-sm text-stone-600">Immagine gallery eliminata.</p>
             @endif

@@ -126,12 +126,16 @@ class ProfileController extends Controller
             ->only(['short_bio', 'bio', 'services', 'skills', 'networking_goals'])
             ->all();
 
+        $aiRewrote = false;
         if ($this->shouldRewriteProfileText($profile, $profileTextFields, $useAiProfileRewrite)) {
-            $profileTextFields = $profileAiRewriteService->rewrite(
+            $rewritten = $profileAiRewriteService->rewrite(
                 $profile->loadMissing(['user', 'profession', 'city']),
                 $profileTextFields,
                 $this->buildProfileAiContext($validated)
             );
+            $aiRewrote = $profileAiRewriteService->isConfigured()
+                && collect($rewritten)->contains(fn ($v, $k) => trim((string) $v) !== trim((string) ($profileTextFields[$k] ?? '')));
+            $profileTextFields = $rewritten;
             $validated = array_merge($validated, $profileTextFields);
         }
 
@@ -220,7 +224,9 @@ class ProfileController extends Controller
             }
         }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $status = $aiRewrote ? 'profile-updated-ai' : 'profile-updated';
+
+        return Redirect::route('profile.edit')->with('status', $status);
     }
 
     /**
