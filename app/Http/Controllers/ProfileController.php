@@ -232,10 +232,14 @@ class ProfileController extends Controller
             return false;
         }
 
+        // Prima attivazione: il checkbox è appena stato spuntato.
+        // Lancia sempre il rewrite, anche se tutti i campi testo sono vuoti —
+        // l'AI genera i testi dal contesto (azienda, professione, città...).
         if (! $profile->use_ai_profile_rewrite) {
-            return collect($profileTextFields)->filter(fn ($value) => filled($value))->isNotEmpty();
+            return true;
         }
 
+        // AI già attiva in precedenza: rielabora solo se qualcosa è cambiato.
         return collect($profileTextFields)->contains(function ($value, string $field) use ($profile): bool {
             return trim((string) $value) !== trim((string) $profile->{$field});
         });

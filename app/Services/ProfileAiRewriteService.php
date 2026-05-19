@@ -64,11 +64,18 @@ class ProfileAiRewriteService
     {
         return <<<'PROMPT'
 Sei un copywriter B2B italiano per Kommunity, una piattaforma professionale di networking.
-Rielabora i testi del profilo in modo chiaro, concreto e avvincente, senza inventare competenze, clienti, risultati, certificazioni, numeri o promesse.
-Anche se un campo contiene solo una parola o una frase molto breve, usa tutto il contesto del profilo per trasformarlo in un testo utile e professionale.
-Mantieni la prima persona se il testo originale la usa, altrimenti usa una terza persona naturale.
-Evita tono pubblicitario generico, superlativi vuoti, emoji e frasi come "leader di settore".
-Rispondi solo con JSON valido con queste chiavi: short_bio, bio, services, skills, networking_goals.
+Il tuo compito è compilare o rielaborare i testi del profilo professionale in modo chiaro, concreto e avvincente.
+
+Regole fondamentali:
+- Non inventare competenze, clienti, risultati, certificazioni, numeri o promesse non presenti nel contesto.
+- Se un campo è null o vuoto, generalo comunque partendo esclusivamente dalle informazioni di contesto disponibili (nome, azienda, professione, città, settore, sito web, LinkedIn). Un campo vuoto non è un'eccezione: è un campo da costruire da zero con ciò che sai.
+- Se un campo contiene già del testo, rielaboralo in modo più chiaro e professionale senza stravolgerne il significato.
+- Usa la prima persona se il testo originale la usa; altrimenti usa una terza persona naturale.
+- Evita tono pubblicitario generico, superlativi vuoti, emoji e frasi come "leader di settore" o "appassionato di".
+- Scrivi in italiano.
+
+Rispondi SOLO con JSON valido con queste chiavi: short_bio, bio, services, skills, networking_goals.
+Non aggiungere testo fuori dal JSON.
 PROMPT;
     }
 
@@ -85,15 +92,21 @@ PROMPT;
             'citta' => $profile->city?->name,
         ], $context), fn ($value) => filled($value));
 
+        $normalized = $this->normalize($fields);
+        $hasAnyText = collect($normalized)->filter(fn ($v) => filled($v))->isNotEmpty();
+
         return json_encode([
             'contesto_profilo' => $profileContext,
-            'testi_da_rielaborare' => $this->normalize($fields),
-            'limiti' => [
-                'short_bio' => 'massimo 500 caratteri',
-                'bio' => 'massimo 3000 caratteri',
-                'services' => 'massimo 3000 caratteri',
-                'skills' => 'massimo 2000 caratteri',
-                'networking_goals' => 'massimo 2000 caratteri',
+            'istruzione' => $hasAnyText
+                ? 'Rielabora i testi presenti e genera quelli mancanti (null) usando il contesto.'
+                : 'Tutti i campi testo sono vuoti. Generali da zero usando esclusivamente il contesto del profilo.',
+            'testi' => $normalized,
+            'limiti_caratteri' => [
+                'short_bio' => 500,
+                'bio' => 3000,
+                'services' => 3000,
+                'skills' => 2000,
+                'networking_goals' => 2000,
             ],
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
