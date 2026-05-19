@@ -141,13 +141,14 @@ class ProfileController extends Controller
         }
 
         // DEBUG TEMPORANEO — rimuovere dopo il test
-        session()->flash('ai_debug', implode(' | ', [
+        session()->flash('ai_debug', implode(' | ', array_filter([
             'checkbox=' . ($useAiProfileRewrite ? '1' : '0'),
             'db_flag=' . ($profile->use_ai_profile_rewrite ? '1' : '0'),
             'configured=' . ($profileAiRewriteService->isConfigured() ? '1' : '0'),
             'should=' . ($shouldRewrite ? '1' : '0'),
             'rewrote=' . ($aiRewrote ? '1' : '0'),
-        ]));
+            $profileAiRewriteService->getLastError() ? 'ERR=' . $profileAiRewriteService->getLastError() : null,
+        ])));
 
         $profileData = collect($validated)
             ->except([

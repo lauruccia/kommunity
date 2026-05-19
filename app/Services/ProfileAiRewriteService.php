@@ -10,6 +10,12 @@ use Illuminate\Support\Str;
 
 class ProfileAiRewriteService
 {
+    private ?string $lastError = null;
+
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
+    }
     /**
      * @param array<string, mixed> $fields
      * @param array<string, mixed> $context
@@ -51,6 +57,7 @@ class ProfileAiRewriteService
                 ->post($endpoint, $payload);
 
             if (! $response->successful()) {
+                $this->lastError = 'HTTP '.$response->status().': '.Str::limit($response->body(), 300);
                 Log::warning('Rielaborazione AI profilo fallita (Gemini)', [
                     'profile_id' => $profile->getKey(),
                     'status'     => $response->status(),
@@ -63,6 +70,7 @@ class ProfileAiRewriteService
             return $this->mergeRewrittenFields($fields, $this->extractOutputText($response->json()));
 
         } catch (\Throwable $e) {
+            $this->lastError = $e->getMessage();
             Log::warning('Rielaborazione AI profilo non disponibile (Gemini)', [
                 'profile_id' => $profile->getKey(),
                 'error'      => $e->getMessage(),
