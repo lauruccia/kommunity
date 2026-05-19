@@ -2,58 +2,62 @@
 // File temporaneo per debug — DA ELIMINARE DOPO L'USO
 $base   = '/home2/kommunity/kommunity';
 $apiKey = null;
+$model  = null;
 
-// Legge OPENAI_API_KEY dal .env
+// Legge .env
 $env = @file_get_contents($base . '/.env');
 if ($env) {
     foreach (explode("\n", $env) as $line) {
-        if (str_starts_with(trim($line), 'OPENAI_API_KEY=')) {
+        $line = trim($line);
+        if (str_starts_with($line, 'OPENAI_API_KEY='))
             $apiKey = trim(substr($line, strpos($line, '=') + 1), " \t\r\n\"'");
-            break;
-        }
+        if (str_starts_with($line, 'OPENAI_PROFILE_MODEL='))
+            $model = trim(substr($line, strpos($line, '=') + 1), " \t\r\n\"'");
+    }
+}
+
+// Legge modello dal config PHP se non in .env
+if (!$model) {
+    $cfg = @file_get_contents($base . '/config/services.php');
+    if ($cfg && preg_match("/'model'\s*=>\s*env\([^,]+,\s*'([^']+)'\)/", $cfg, $m)) {
+        $model = $m[1] . ' (da config default)';
     }
 }
 
 echo '<pre>';
-echo 'Chiave in uso: ' . ($apiKey ? substr($apiKey, 0, 10) . '***' : 'NON TROVATA') . "\n\n";
+echo "Chiave : " . ($apiKey ? substr($apiKey,0,10).'***' : 'NON TROVATA') . "\n";
+echo "Modello: " . ($model ?: 'non determinato') . "\n\n";
 
-if (!$apiKey) {
-    echo 'ERRORE: OPENAI_API_KEY non trovata nel .env';
-    exit;
-}
+if (!$apiKey) { echo 'ERRORE: chiave non trovata'; exit; }
 
-// Prova i due endpoint (v1 e v1beta) con due modelli diversi
-$tests = [
-    'v1 + gemini-1.5-flash'       => "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={$apiKey}",
-    'v1beta + gemini-1.5-flash'   => "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}",
-    'v1beta + gemini-2.0-flash'   => "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}",
-    'v1beta + gemini-2.5-flash'   => "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}",
-    'v1beta + gemini-2.5-flash-preview-05-20' => "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}",
-];
-
-$payload = json_encode([
-    'contents' => [['parts' => [['text' => 'Rispondi solo con: {"ok":true}']]]],
-    'generationConfig' => ['responseMimeType' => 'application/json'],
-]);
-
-foreach ($tests as $label => $url) {
-    $ctx = stream_context_create([
-        'http' => [
-            'method'  => 'POST',
-            'header'  => "Content-Type: application/json\r\n",
-            'content' => $payload,
-            'timeout' => 10,
-            'ignore_errors' => true,
-        ],
-    ]);
-    $result = @file_get_contents($url, false, $ctx);
-    $code   = 'ERR';
-    if (isset($http_response_header)) {
-        preg_match('/HTTP\/\S+ (\d+)/', $http_response_header[0], $m);
-        $code = $m[1] ?? '?';
+// Lista modelli disponibili (v1)
+echo "=== MODELLI DISPONIBILI (v1) ===\n";
+$url = "https://generativelanguage.googleapis.com/v1/models?key={$apiKey}";
+$ctx = stream_context_create(['http' => ['timeout' => 10, 'ignore_errors' => true]]);
+$res = @file_get_contents($url, false, $ctx);
+$data = $res ? json_decode($res, true) : null;
+if (!empty($data['models'])) {
+    foreach ($data['models'] as $m) {
+        $methods = implode(', ', $m['supportedGenerationMethods'] ?? []);
+        if (str_contains($methods, 'generateContent')) {
+            echo '  ✅ ' . $m['name'] . "\n";
+        }
     }
-    $short = $result ? substr(strip_tags($result), 0, 120) : '(nessuna risposta)';
-    echo "[{$code}] {$label}\n      {$short}\n\n";
+} else {
+    echo "Errore o nessun modello: " . substr($res ?: '(nessuna risposta)', 0, 200) . "\n";
 }
+
+// Test chiamata reale con il modello rilevato (solo nome base senza " (da config default)")
+$modelName = explode(' ', $model)[0];
+echo "\n=== TEST CHIAMATA con '$modelName' su v1 ===\n";
+$testUrl = "https://generativelanguage.googleapis.com/v1/models/{$modelName}:generateContent?key={$apiKey}";
+$payload  = json_encode(['contents' => [['parts' => [['text' => 'Rispondi solo con: {"ok":true}']]]]]);
+$ctx2 = stream_context_create(['http' => [
+    'method' => 'POST', 'header' => "Content-Type: application/json\r\n",
+    'content' => $payload, 'timeout' => 10, 'ignore_errors' => true,
+]]);
+$res2 = @file_get_contents($testUrl, false, $ctx2);
+preg_match('/HTTP\/\S+ (\d+)/', $http_response_header[0] ?? '', $hm);
+echo '[' . ($hm[1] ?? '?') . '] ' . substr($res2 ?: '(nessuna risposta)', 0, 200) . "\n";
 
 echo '</pre>';
