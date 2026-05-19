@@ -43,7 +43,9 @@
 
             {{-- Flash toast: top-right, auto-dismiss, contenuti nel viewport --}}
             @php
-                $toastSuccess = session('success') ?: (session('status') === 'profile-updated' ? 'Profilo aggiornato con successo!' : null);
+                $toastSuccess = session('success')
+                    ?: (session('status') === 'profile-updated-ai' ? '✨ Profilo aggiornato e rielaborato dall\'AI!'
+                    : (session('status') === 'profile-updated' ? 'Profilo aggiornato con successo!' : null));
                 $toastError   = session('error');
                 $toastWarning = session('warning');
             @endphp

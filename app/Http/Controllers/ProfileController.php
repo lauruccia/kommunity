@@ -127,7 +127,15 @@ class ProfileController extends Controller
             ->all();
 
         $aiRewrote = false;
-        if ($this->shouldRewriteProfileText($profile, $profileTextFields, $useAiProfileRewrite)) {
+        $shouldRewrite = $this->shouldRewriteProfileText($profile, $profileTextFields, $useAiProfileRewrite);
+        Log::info('AI profilo: verifica rewrite', [
+            'use_ai_flag'       => $useAiProfileRewrite,
+            'profile_flag_db'   => $profile->use_ai_profile_rewrite,
+            'should_rewrite'    => $shouldRewrite,
+            'is_configured'     => $profileAiRewriteService->isConfigured(),
+            'fields_filled'     => collect($profileTextFields)->filter(fn ($v) => filled($v))->keys()->all(),
+        ]);
+        if ($shouldRewrite) {
             $rewritten = $profileAiRewriteService->rewrite(
                 $profile->loadMissing(['user', 'profession', 'city']),
                 $profileTextFields,
@@ -135,6 +143,10 @@ class ProfileController extends Controller
             );
             $aiRewrote = $profileAiRewriteService->isConfigured()
                 && collect($rewritten)->contains(fn ($v, $k) => trim((string) $v) !== trim((string) ($profileTextFields[$k] ?? '')));
+            Log::info('AI profilo: risultato rewrite', [
+                'ai_rewrote' => $aiRewrote,
+                'fields_out' => collect($rewritten)->map(fn ($v) => $v ? mb_substr($v, 0, 60).'…' : null)->all(),
+            ]);
             $profileTextFields = $rewritten;
             $validated = array_merge($validated, $profileTextFields);
         }
