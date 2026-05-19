@@ -127,8 +127,7 @@ class ProfileController extends Controller
             ->all();
 
         $aiRewrote = false;
-        $shouldRewrite = $this->shouldRewriteProfileText($profile, $profileTextFields, $useAiProfileRewrite);
-        if ($shouldRewrite) {
+        if ($useAiProfileRewrite) {
             $rewritten = $profileAiRewriteService->rewrite(
                 $profile->loadMissing(['user', 'profession', 'city']),
                 $profileTextFields,
@@ -139,16 +138,6 @@ class ProfileController extends Controller
             $profileTextFields = $rewritten;
             $validated = array_merge($validated, $profileTextFields);
         }
-
-        // DEBUG TEMPORANEO — rimuovere dopo il test
-        session()->flash('ai_debug', implode(' | ', array_filter([
-            'checkbox=' . ($useAiProfileRewrite ? '1' : '0'),
-            'db_flag=' . ($profile->use_ai_profile_rewrite ? '1' : '0'),
-            'configured=' . ($profileAiRewriteService->isConfigured() ? '1' : '0'),
-            'should=' . ($shouldRewrite ? '1' : '0'),
-            'rewrote=' . ($aiRewrote ? '1' : '0'),
-            $profileAiRewriteService->getLastError() ? 'ERR=' . $profileAiRewriteService->getLastError() : null,
-        ])));
 
         $profileData = collect($validated)
             ->except([
@@ -174,7 +163,9 @@ class ProfileController extends Controller
                 'show_phone' => $request->boolean('show_phone'),
                 'show_whatsapp' => $request->boolean('show_whatsapp'),
                 'allow_whatsapp_contact' => $request->boolean('allow_whatsapp_contact'),
-                'use_ai_profile_rewrite' => $useAiProfileRewrite,
+                // Il checkbox è un "esegui ora": dopo il salvataggio si azzera sempre.
+                // L'utente deve rispuntarlo se vuole un'altra rielaborazione.
+                'use_ai_profile_rewrite' => false,
                 'onboarding_completed' => $profile->onboarding_completed
                     || $request->boolean('onboarding_completed')
                     || (
@@ -243,12 +234,6 @@ class ProfileController extends Controller
     /**
      * @param array<string, mixed> $profileTextFields
      */
-    private function shouldRewriteProfileText($profile, array $profileTextFields, bool $useAiProfileRewrite): bool
-    {
-        // Se il checkbox è spuntato l'AI gira sempre: è l'utente che decide.
-        return $useAiProfileRewrite;
-    }
-
     /**
      * @param array<string, mixed> $validated
      * @return array<string, mixed>

@@ -161,11 +161,15 @@
                     <x-text-input id="company_name" name="company_name" type="text" class="mt-2 block w-full" :value="old('company_name', $profile->company_name)" />
                     <x-input-error class="mt-2" :messages="$errors->get('company_name')" />
                 </div>
-                <label class="md:col-span-2 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-                    <input type="checkbox" name="use_ai_profile_rewrite" value="1" class="mt-1 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-300" @checked(old('use_ai_profile_rewrite', $profile->use_ai_profile_rewrite))>
+                <label class="md:col-span-2 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 cursor-pointer">
+                    <input type="checkbox" name="use_ai_profile_rewrite" value="1" class="mt-1 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-300" @checked(old('use_ai_profile_rewrite', false))>
                     <span>
-                        <span class="block font-semibold">Usa l'AI per rendere il profilo piu' avvincente</span>
-                        <span class="mt-1 block text-emerald-800/80">Quando salvi, i testi di bio, chi sono, servizi, competenze e obiettivi vengono rielaborati senza inventare informazioni nuove.</span>
+                        <span class="block font-semibold">✨ Rielabora il profilo con l'AI al prossimo salvataggio</span>
+                        <span class="mt-1 block text-emerald-800/80">
+                            Spunta e salva: l'AI compila o migliora bio, chi sono, servizi, competenze e obiettivi
+                            usando solo le informazioni che hai inserito, senza inventare nulla.
+                            Il flag si deseleziona da solo dopo ogni elaborazione — rispuntalo quando vuoi una nuova rielaborazione.
+                        </span>
                     </span>
                 </label>
                 {{-- Tipologie aziende/gruppi: create da admin, selezionabili dall'utente --}}
@@ -660,9 +664,6 @@
             <x-primary-button>Salva profilo</x-primary-button>
             @if (session('status') === 'profile-updated')
                 <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2400)" class="text-sm text-stone-600">Profilo aggiornato.</p>
-            @endif
-            @if (session('ai_debug'))
-                <p class="text-xs text-orange-600 font-mono bg-orange-50 px-2 py-1 rounded">🔍 {{ session('ai_debug') }}</p>
             @endif
             @if (session('status') === 'profile-updated-ai')
                 <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="text-sm font-medium text-emerald-700">✨ Profilo aggiornato e rielaborato dall'AI.</p>
