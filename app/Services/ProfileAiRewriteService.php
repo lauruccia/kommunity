@@ -31,20 +31,22 @@ class ProfileAiRewriteService
         $apiKey  = (string) config('services.openai.api_key');
         $timeout = (int) config('services.openai.timeout', 45);
 
-        $endpoint = 'https://generativelanguage.googleapis.com/v1/models/'
+        $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/'
             . $model
             . ':generateContent?key='
             . $apiKey;
 
         $payload = [
+            'systemInstruction' => [
+                'parts' => [['text' => $this->instructions()]],
+            ],
             'contents' => [
                 [
-                    'parts' => [[
-                        'text' => $this->instructions()
-                            . "\n\n---\n\n"
-                            . $this->buildInput($profile, $fields, $context),
-                    ]],
+                    'parts' => [['text' => $this->buildInput($profile, $fields, $context)]],
                 ],
+            ],
+            'generationConfig' => [
+                'responseMimeType' => 'application/json',
             ],
         ];
 

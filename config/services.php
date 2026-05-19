@@ -47,7 +47,7 @@ return [
 
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
-        'model' => env('OPENAI_PROFILE_MODEL', 'gemini-1.5-flash'),
+        'model' => env('OPENAI_PROFILE_MODEL', 'gemini-2.5-flash'),
         'timeout' => (int) env('OPENAI_PROFILE_TIMEOUT', 30),
     ],
 
