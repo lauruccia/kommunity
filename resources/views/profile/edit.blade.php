@@ -84,6 +84,62 @@
             <div class="km-panel p-6">
                 @include('profile.partials.update-profile-information-form')
             </div>
+
+            {{-- ── Pianeti di cui faccio parte ─────────────────────────────── --}}
+            @if($userPlanets->isNotEmpty())
+            <div class="km-panel p-6">
+                <h2 class="font-serif text-lg font-semibold text-stone-900">I miei Pianeti</h2>
+                <p class="mt-1 text-sm text-stone-500">Comunità a cui appartieni all'interno di Kommunity.</p>
+
+                <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach($userPlanets as $planet)
+                    <div class="relative flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+
+                        {{-- Copertina --}}
+                        @if($planet->cover_image)
+                            <div class="h-28 w-full overflow-hidden bg-stone-100">
+                                <img src="{{ Storage::url($planet->cover_image) }}"
+                                     alt="{{ $planet->name }}"
+                                     class="h-full w-full object-cover">
+                            </div>
+                        @else
+                            <div class="flex h-28 w-full items-center justify-center bg-gradient-to-br from-[#537d4d]/20 to-[#537d4d]/5">
+                                <span class="text-4xl">🪐</span>
+                            </div>
+                        @endif
+
+                        <div class="flex flex-1 flex-col gap-2 p-4">
+                            {{-- Nome + stato attivo --}}
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="font-semibold text-stone-900 leading-snug">{{ $planet->name }}</h3>
+                                @if(optional(auth()->user()->memberProfile)->active_chapter_id === $planet->id)
+                                    <span class="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-emerald-700">Attivo</span>
+                                @endif
+                            </div>
+
+                            {{-- Descrizione --}}
+                            @if($planet->description)
+                                <p class="text-xs leading-relaxed text-stone-500 line-clamp-2">{{ $planet->description }}</p>
+                            @endif
+
+                            {{-- Leader --}}
+                            @if($planet->leaders->isNotEmpty())
+                                <div class="mt-auto pt-2 border-t border-stone-100">
+                                    <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-stone-400">
+                                        {{ $planet->leaders->count() === 1 ? 'Leader' : 'Leader' }}
+                                    </p>
+                                    <p class="mt-0.5 text-xs text-stone-600">
+                                        {{ $planet->leaders->pluck('name')->join(', ') }}
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
         </div>
     </div>
 </x-app-layout>

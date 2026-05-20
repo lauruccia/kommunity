@@ -3,4 +3,4 @@
 -- Sicuro: usa IF NOT EXISTS per evitare errori se la colonna esiste già
 
 ALTER TABLE `member_profiles`
-    ADD COLUMN IF NOT EXISTS `use_ai_profile_rewrite` TINYINT(1) NOT NULL DEFAULT 0 AFTER `networking_goals`;
+    ADD COLUMN `use_ai_profile_rewrite` TINYINT(1) NOT NULL DEFAULT 0 AFTER `networking_goals`;

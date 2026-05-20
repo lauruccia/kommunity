@@ -134,6 +134,24 @@ class Chapter extends Model
         return $this->hasMany(ChapterInvitation::class);
     }
 
+    /**
+     * Leader multipli del Pianeta (molti-a-molti via chapter_leaders).
+     * Sostituisce progressivamente il singolo leader_id.
+     */
+    public function leaders(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'chapter_leaders')
+            ->withTimestamps();
+    }
+
+    /**
+     * Ruoli definiti per questo Pianeta (es. "Presidente", "Tesoriere").
+     */
+    public function roles(): HasMany
+    {
+        return $this->hasMany(ChapterRole::class)->orderBy('sort_order')->orderBy('name');
+    }
+
     public function professionDistributionSummary(): string
     {
         $rows = $this->memberProfiles()

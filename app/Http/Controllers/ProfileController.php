@@ -39,6 +39,7 @@ class ProfileController extends Controller
         return view('profile.edit', [
             'user'              => $user,
             'profile'           => $user->memberProfile()->with(['chapter', 'categories', 'professions', 'companyInterestTypes', 'city'])->firstOrFail(),
+            'userPlanets'       => $user->planets()->with('leaders')->orderBy('name')->get(),
             'profileCompletion' => (new ProfileCompletionService())->calculate($user),
             'galleryImages'     => $user->memberGalleryImages()->get(),
             'professions'       => Profession::query()->where('is_active', true)->orderBy('name')->get(),

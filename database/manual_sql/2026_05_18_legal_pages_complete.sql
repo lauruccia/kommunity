@@ -33,13 +33,13 @@ Email: <a href="mailto:privacy@kommunity.it">privacy@kommunity.it</a></p>
   <li><strong>Dati di utilizzo della piattaforma</strong>: accessi, richieste di incontri 1:1, referral scambiati, iscrizioni a eventi, messaggi privati, interazioni nel forum, notifiche push;</li>
   <li><strong>Dati tecnici</strong>: indirizzo IP, tipo e versione del browser, sistema operativo, log di accesso, token di sessione.</li>
 </ul>
-<p>Il Titolare non tratta categorie particolari di dati ai sensi dell'art. 9 GDPR, salvo diversa indicazione esplicita.</p>
+<p>Il Titolare non tratta categorie particolari di dati ai sensi dell''art. 9 GDPR, salvo diversa indicazione esplicita.</p>
 
 <h2>3. Finalità e basi giuridiche del trattamento</h2>
 <table>
   <thead><tr><th>Finalità</th><th>Base giuridica (art. 6 GDPR)</th></tr></thead>
   <tbody>
-    <tr><td>Registrazione, gestione dell'account e fornitura del servizio Kommunity</td><td>Esecuzione del contratto (art. 6.1.b)</td></tr>
+    <tr><td>Registrazione, gestione dell''account e fornitura del servizio Kommunity</td><td>Esecuzione del contratto (art. 6.1.b)</td></tr>
     <tr><td>Gestione degli abbonamenti e degli adempimenti fiscali e contrattuali</td><td>Obbligo legale (art. 6.1.c) ed esecuzione del contratto (art. 6.1.b)</td></tr>
     <tr><td>Comunicazioni transazionali di servizio (conferma iscrizione, reset password, notifiche di sistema)</td><td>Esecuzione del contratto (art. 6.1.b)</td></tr>
     <tr><td>Sicurezza della piattaforma, prevenzione di frodi e abusi</td><td>Legittimo interesse del Titolare (art. 6.1.f)</td></tr>
@@ -54,11 +54,11 @@ Email: <a href="mailto:privacy@kommunity.it">privacy@kommunity.it</a></p>
 <ul>
   <li>Per la durata del rapporto contrattuale e, successivamente, per il periodo prescritto dalla normativa fiscale e civilistica vigente (generalmente <strong>10 anni</strong> dalla cessazione del rapporto);</li>
   <li>I dati di traffico e log tecnici per finalità di sicurezza sono conservati per un massimo di <strong>12 mesi</strong>;</li>
-  <li>In caso di cancellazione dell'account su richiesta dell'interessato, i dati di profilo vengono rimossi entro <strong>30 giorni</strong>, salvo obblighi di conservazione previsti dalla legge.</li>
+  <li>In caso di cancellazione dell''account su richiesta dell''interessato, i dati di profilo vengono rimossi entro <strong>30 giorni</strong>, salvo obblighi di conservazione previsti dalla legge.</li>
 </ul>
 
 <h2>5. Comunicazione a terzi e trasferimenti</h2>
-<p>I dati personali possono essere comunicati a soggetti terzi che, nell'ambito della prestazione dei servizi richiesti, agiscono in qualità di <strong>responsabili del trattamento</strong> ai sensi dell'art. 28 GDPR, tra cui:</p>
+<p>I dati personali possono essere comunicati a soggetti terzi che, nell''ambito della prestazione dei servizi richiesti, agiscono in qualità di <strong>responsabili del trattamento</strong> ai sensi dell''art. 28 GDPR, tra cui:</p>
 <ul>
   <li>Fornitori di servizi di hosting e infrastruttura cloud;</li>
   <li>Fornitori di servizi di posta elettronica transazionale;</li>
@@ -66,8 +66,8 @@ Email: <a href="mailto:privacy@kommunity.it">privacy@kommunity.it</a></p>
 </ul>
 <p>I dati non vengono venduti, ceduti o comunicati a terzi per finalità di marketing di terze parti. Qualora i fornitori siano stabiliti in Paesi extra-UE, il trasferimento avviene nel rispetto degli artt. 44 ss. GDPR, mediante la stipula di clausole contrattuali standard approvate dalla Commissione europea.</p>
 
-<h2>6. Diritti dell'interessato</h2>
-<p>L'interessato ha il diritto di:</p>
+<h2>6. Diritti dell''interessato</h2>
+<p>L''interessato ha il diritto di:</p>
 <ul>
   <li><strong>Accesso</strong> (art. 15 GDPR): ottenere conferma del trattamento e copia dei propri dati;</li>
   <li><strong>Rettifica</strong> (art. 16 GDPR): correggere dati inesatti o incompleti;</li>
@@ -78,13 +78,13 @@ Email: <a href="mailto:privacy@kommunity.it">privacy@kommunity.it</a></p>
   <li><strong>Revoca del consenso</strong> (ove applicabile), senza pregiudizio per la liceità del trattamento precedente alla revoca.</li>
 </ul>
 <p>Le richieste possono essere inviate a <a href="mailto:privacy@kommunity.it">privacy@kommunity.it</a>. Il Titolare risponderà entro 30 giorni dalla ricezione, prorogabili di ulteriori 60 giorni in caso di particolare complessità.</p>
-<p>L'interessato ha inoltre il diritto di proporre reclamo all'autorità di controllo competente: <a href="https://www.garanteprivacy.it/" target="_blank" rel="noopener noreferrer">Garante per la protezione dei dati personali</a>, Piazza Venezia 11 — 00187 Roma.</p>
+<p>L''interessato ha inoltre il diritto di proporre reclamo all''autorità di controllo competente: <a href="https://www.garanteprivacy.it/" target="_blank" rel="noopener noreferrer">Garante per la protezione dei dati personali</a>, Piazza Venezia 11 — 00187 Roma.</p>
 
 <h2>7. Cookie</h2>
-<p>Per le informazioni dettagliate sull'utilizzo dei cookie si rinvia alla <a href="/pagina/cookie-policy">Cookie Policy</a>.</p>
+<p>Per le informazioni dettagliate sull''utilizzo dei cookie si rinvia alla <a href="/pagina/cookie-policy">Cookie Policy</a>.</p>
 
 <h2>8. Modifiche alla presente Informativa</h2>
-<p>Il Titolare si riserva il diritto di aggiornare la presente Informativa in qualsiasi momento. Le modifiche rilevanti saranno comunicate agli utenti registrati tramite e-mail o avviso in piattaforma almeno <strong>15 giorni</strong> prima dell'entrata in vigore.</p>',
+<p>Il Titolare si riserva il diritto di aggiornare la presente Informativa in qualsiasi momento. Le modifiche rilevanti saranno comunicate agli utenti registrati tramite e-mail o avviso in piattaforma almeno <strong>15 giorni</strong> prima dell''entrata in vigore.</p>',
   'Informativa sul trattamento dei dati personali di Kommunity — KNM Srl, ai sensi del Regolamento UE 2016/679 (GDPR).',
   0, 1, 0, 1, 1,
   NOW(), NOW()
@@ -97,7 +97,7 @@ Email: <a href="mailto:privacy@kommunity.it">privacy@kommunity.it</a></p>
   '<h1>Termini e Condizioni d''uso della piattaforma Kommunity</h1>
 <p><em>Ultimo aggiornamento: 18 maggio 2026</em></p>
 
-<p>I presenti Termini e Condizioni d''uso (di seguito "<strong>Termini</strong>") disciplinano l''accesso e l''utilizzo della piattaforma Kommunity (di seguito "<strong>Piattaforma</strong>" o "<strong>Servizio</strong>"), resa disponibile da <strong>KNM Srl</strong>, con sede legale in Via Eurialo, 56 — 00181 Roma (RM), P.IVA 13273091002 (di seguito "<strong>Gesellschaft</strong>" o "<strong>Kommunity</strong>").</p>
+<p>I presenti Termini e Condizioni d''uso (di seguito "<strong>Termini</strong>") disciplinano l''accesso e l''utilizzo della piattaforma Kommunity (di seguito "<strong>Piattaforma</strong>" o "<strong>Servizio</strong>"), resa disponibile da <strong>KNM Srl</strong>, con sede legale in Via Eurialo, 56 — 00181 Roma (RM), P.IVA 13273091002 (di seguito "<strong>KNM</strong>" o "<strong>Kommunity</strong>").</p>
 <p>Completando la registrazione alla Piattaforma, l''utente dichiara di aver letto, compreso e accettato integralmente i presenti Termini. L''accesso alla Piattaforma è consentito esclusivamente a soggetti che abbiano compiuto i <strong>18 anni di età</strong> e che agiscano nell''ambito della propria attività professionale o imprenditoriale.</p>
 
 <h2>1. Oggetto del Servizio</h2>
@@ -173,38 +173,13 @@ Email: <a href="mailto:privacy@kommunity.it">privacy@kommunity.it</a></p>
 
 <table>
   <thead>
-    <tr>
-      <th>Nome del cookie</th>
-      <th>Tipologia</th>
-      <th>Finalità</th>
-      <th>Durata</th>
-    </tr>
+    <tr><th>Nome del cookie</th><th>Tipologia</th><th>Finalità</th><th>Durata</th></tr>
   </thead>
   <tbody>
-    <tr>
-      <td><code>laravel_session</code></td>
-      <td>Tecnico necessario</td>
-      <td>Mantiene attiva la sessione dell''utente autenticato. Senza questo cookie non è possibile accedere all''area riservata.</td>
-      <td>120 minuti (o fino alla chiusura del browser)</td>
-    </tr>
-    <tr>
-      <td><code>XSRF-TOKEN</code></td>
-      <td>Tecnico necessario</td>
-      <td>Protezione contro gli attacchi di tipo Cross-Site Request Forgery (CSRF). Obbligatorio per la sicurezza delle richieste al server.</td>
-      <td>Sessione</td>
-    </tr>
-    <tr>
-      <td><code>km_cookie_consent</code></td>
-      <td>Tecnico funzionale</td>
-      <td>Memorizza la scelta dell''utente in merito ai cookie, in modo da non riproporre il banner nelle visite successive.</td>
-      <td>12 mesi</td>
-    </tr>
-    <tr>
-      <td><code>locale</code></td>
-      <td>Tecnico funzionale</td>
-      <td>Memorizza la lingua dell''interfaccia selezionata dall''utente.</td>
-      <td>12 mesi</td>
-    </tr>
+    <tr><td><code>laravel_session</code></td><td>Tecnico necessario</td><td>Mantiene attiva la sessione dell''utente autenticato. Senza questo cookie non è possibile accedere all''area riservata.</td><td>120 minuti (o fino alla chiusura del browser)</td></tr>
+    <tr><td><code>XSRF-TOKEN</code></td><td>Tecnico necessario</td><td>Protezione contro gli attacchi di tipo Cross-Site Request Forgery (CSRF). Obbligatorio per la sicurezza delle richieste al server.</td><td>Sessione</td></tr>
+    <tr><td><code>km_cookie_consent</code></td><td>Tecnico funzionale</td><td>Memorizza la scelta dell''utente in merito ai cookie, in modo da non riproporre il banner nelle visite successive.</td><td>12 mesi</td></tr>
+    <tr><td><code>locale</code></td><td>Tecnico funzionale</td><td>Memorizza la lingua dell''interfaccia selezionata dall''utente.</td><td>12 mesi</td></tr>
   </tbody>
 </table>
 

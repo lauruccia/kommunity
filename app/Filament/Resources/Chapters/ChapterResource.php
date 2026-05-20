@@ -7,6 +7,8 @@ use App\Filament\Resources\Chapters\Pages\EditChapter;
 use App\Filament\Resources\Chapters\Pages\ListChapters;
 use App\Filament\Resources\Chapters\Pages\ViewChapter;
 use App\Filament\Resources\Chapters\RelationManagers\ChapterInvitationsRelationManager;
+use App\Filament\Resources\Chapters\RelationManagers\ChapterLeadersRelationManager;
+use App\Filament\Resources\Chapters\RelationManagers\ChapterRolesRelationManager;
 use App\Filament\Resources\Chapters\RelationManagers\MemberProfilesRelationManager;
 use App\Models\Chapter;
 use BackedEnum;
@@ -59,8 +61,10 @@ class ChapterResource extends Resource
                     ->label('Citta')
                     ->relationship('city', 'name'),
                 Select::make('leader_id')
-                    ->label('Leader')
-                    ->relationship('leader', 'name'),
+                    ->label('Leader principale (legacy)')
+                    ->relationship('leader', 'name')
+                    ->helperText('Campo di compatibilità. Usa la tab "Leader" per gestire più leader.')
+                    ->nullable(),
                 Select::make('max_members_per_profession')
                     ->label('Max professionisti per categoria')
                     ->options([
@@ -106,7 +110,7 @@ class ChapterResource extends Resource
                     ->label('Citta')
                     ->placeholder('-'),
                 TextEntry::make('leader.name')
-                    ->label('Leader')
+                    ->label('Leader principale (legacy)')
                     ->placeholder('-'),
                 TextEntry::make('max_members_per_profession')
                     ->label('Max membri per professione'),
@@ -194,6 +198,8 @@ class ChapterResource extends Resource
     public static function getRelations(): array
     {
         return [
+            ChapterLeadersRelationManager::class,
+            ChapterRolesRelationManager::class,
             MemberProfilesRelationManager::class,
             ChapterInvitationsRelationManager::class,
         ];
