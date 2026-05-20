@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Chapters\RelationManagers;
 
 use App\Enums\MemberProfileStatus;
+use App\Models\ChapterRole;
 use App\Models\MemberProfile;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -13,7 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class MemberProfilesRelationManager extends RelationManager
 {
@@ -39,6 +40,25 @@ class MemberProfilesRelationManager extends RelationManager
                     ->label('Professione')
                     ->placeholder('-')
                     ->sortable(),
+                // ── Ruolo nel Pianeta ────────────────────────────────────────
+                TextColumn::make('planet_role')
+                    ->label('Ruolo nel Pianeta')
+                    ->state(function (MemberProfile $record): string {
+                        $chapterId = $this->getOwnerRecord()->id;
+                        $roleId = DB::table('chapter_member_roles')
+                            ->where('chapter_id', $chapterId)
+                            ->where('user_id', $record->user_id)
+                            ->value('role_id');
+
+                        if (! $roleId) {
+                            return '—';
+                        }
+
+                        return ChapterRole::find($roleId)?->name ?? '—';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => $state === '—' ? 'gray' : 'primary')
+                    ->placeholder('—'),
                 TextColumn::make('profession_other')
                     ->label('Professione (altro)')
                     ->placeholder('-')
@@ -85,10 +105,8 @@ class MemberProfilesRelationManager extends RelationManager
                         Select::make('user_id')
                             ->label('Membro')
                             ->options(function () {
-                                // Mostra tutti gli utenti che hanno un profilo
-                                // ed esclude chi è già membro di questo pianeta
                                 $chapterId = $this->getOwnerRecord()->id;
-                                $alreadyIn = \DB::table('chapter_members')
+                                $alreadyIn = DB::table('chapter_members')
                                     ->where('chapter_id', $chapterId)
                                     ->pluck('user_id');
 
@@ -101,6 +119,16 @@ class MemberProfilesRelationManager extends RelationManager
                             })
                             ->searchable()
                             ->required(),
+                        Select::make('role_id')
+                            ->label('Ruolo nel Pianeta')
+                            ->options(function () {
+                                return ChapterRole::where('chapter_id', $this->getOwnerRecord()->id)
+                                    ->orderBy('sort_order')
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id');
+                            })
+                            ->placeholder('— Nessun ruolo —')
+                            ->helperText('Opzionale. Puoi assegnarlo anche dopo dalla lista membri.'),
                         Select::make('status')
                             ->label('Stato iscrizione')
                             ->options(['active' => 'Attivo', 'inactive' => 'Inattivo'])
@@ -110,7 +138,7 @@ class MemberProfilesRelationManager extends RelationManager
                     ->action(function (array $data): void {
                         $chapter = $this->getOwnerRecord();
 
-                        \DB::table('chapter_members')->insertOrIgnore([
+                        DB::table('chapter_members')->insertOrIgnore([
                             'chapter_id' => $chapter->id,
                             'user_id'    => $data['user_id'],
                             'status'     => $data['status'],
@@ -119,6 +147,14 @@ class MemberProfilesRelationManager extends RelationManager
                             'updated_at' => now(),
                         ]);
 
+                        // Assegna ruolo se scelto
+                        if (! empty($data['role_id'])) {
+                            DB::table('chapter_member_roles')->updateOrInsert(
+                                ['chapter_id' => $chapter->id, 'user_id' => $data['user_id']],
+                                ['role_id' => $data['role_id'], 'updated_at' => now(), 'created_at' => now()],
+                            );
+                        }
+
                         Notification::make()
                             ->title('Membro aggiunto al Pianeta.')
                             ->success()
@@ -126,6 +162,53 @@ class MemberProfilesRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
+                // ── Assegna / Cambia ruolo ───────────────────────────────────
+                Action::make('assegna_ruolo')
+                    ->label('Assegna ruolo')
+                    ->icon('heroicon-o-identification')
+                    ->color('info')
+                    ->modalHeading('Assegna ruolo nel Pianeta')
+                    ->fillForm(function (MemberProfile $record): array {
+                        $chapterId = $this->getOwnerRecord()->id;
+                        $roleId = DB::table('chapter_member_roles')
+                            ->where('chapter_id', $chapterId)
+                            ->where('user_id', $record->user_id)
+                            ->value('role_id');
+
+                        return ['role_id' => $roleId];
+                    })
+                    ->form([
+                        Select::make('role_id')
+                            ->label('Ruolo')
+                            ->options(function () {
+                                return ChapterRole::where('chapter_id', $this->getOwnerRecord()->id)
+                                    ->orderBy('sort_order')
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id');
+                            })
+                            ->placeholder('— Nessun ruolo —')
+                            ->nullable()
+                            ->helperText('Lascia vuoto per rimuovere il ruolo attuale.'),
+                    ])
+                    ->action(function (array $data, MemberProfile $record): void {
+                        $chapterId = $this->getOwnerRecord()->id;
+
+                        if (! empty($data['role_id'])) {
+                            DB::table('chapter_member_roles')->updateOrInsert(
+                                ['chapter_id' => $chapterId, 'user_id' => $record->user_id],
+                                ['role_id' => $data['role_id'], 'updated_at' => now(), 'created_at' => now()],
+                            );
+                            Notification::make()->title('Ruolo assegnato.')->success()->send();
+                        } else {
+                            DB::table('chapter_member_roles')
+                                ->where('chapter_id', $chapterId)
+                                ->where('user_id', $record->user_id)
+                                ->delete();
+                            Notification::make()->title('Ruolo rimosso.')->success()->send();
+                        }
+                    })
+                    ->visible(fn (): bool => ChapterRole::where('chapter_id', $this->getOwnerRecord()->id)->exists()),
+
                 Action::make('imposta_principale')
                     ->label('Imposta principale')
                     ->icon('heroicon-o-star')
@@ -135,11 +218,11 @@ class MemberProfilesRelationManager extends RelationManager
                         $record->active_chapter_id !== $this->getOwnerRecord()->id
                     )
                     ->action(function (MemberProfile $record): void {
-                        \App\Models\MemberProfile::$adminOverrideLimit = true;
+                        MemberProfile::$adminOverrideLimit = true;
                         try {
                             $record->update(['active_chapter_id' => $this->getOwnerRecord()->id]);
                         } finally {
-                            \App\Models\MemberProfile::$adminOverrideLimit = false;
+                            MemberProfile::$adminOverrideLimit = false;
                         }
                         Notification::make()->title('Pianeta principale aggiornato.')->success()->send();
                     }),
@@ -154,18 +237,24 @@ class MemberProfilesRelationManager extends RelationManager
                     ->action(function (MemberProfile $record): void {
                         $chapter = $this->getOwnerRecord();
 
-                        \DB::table('chapter_members')
+                        DB::table('chapter_members')
+                            ->where('chapter_id', $chapter->id)
+                            ->where('user_id', $record->user_id)
+                            ->delete();
+
+                        // Rimuovi anche il ruolo
+                        DB::table('chapter_member_roles')
                             ->where('chapter_id', $chapter->id)
                             ->where('user_id', $record->user_id)
                             ->delete();
 
                         // Se era il pianeta attivo, resetta a null
                         if ($record->active_chapter_id === $chapter->id) {
-                            \App\Models\MemberProfile::$adminOverrideLimit = true;
+                            MemberProfile::$adminOverrideLimit = true;
                             try {
                                 $record->update(['active_chapter_id' => null]);
                             } finally {
-                                \App\Models\MemberProfile::$adminOverrideLimit = false;
+                                MemberProfile::$adminOverrideLimit = false;
                             }
                         }
 
