@@ -249,6 +249,52 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             ?? Chapter::find($id);
     }
 
+    /**
+     * Verifica se l'utente ha un dato permesso all'interno di uno specifico Pianeta.
+     *
+     * Il permesso è definito sul ruolo globale (PlanetRole) assegnato all'utente
+     * in quel pianeta tramite chapter_member_roles.
+     *
+     * Esempio:
+     *   $user->hasPlanetPermission('forum.moderate', $planetId)
+     *   $user->hasPlanetPermission('members.invite', auth()->user()->activePlanetId())
+     *
+     * Super-admin e admin-community hanno sempre tutti i permessi.
+     */
+    public function hasPlanetPermission(string $permission, int $planetId): bool
+    {
+        // Gli admin hanno sempre tutto
+        if ($this->hasAnyRole(['super-admin', 'admin-community'])) {
+            return true;
+        }
+
+        $roleId = \DB::table('chapter_member_roles')
+            ->where('chapter_id', $planetId)
+            ->where('user_id', $this->id)
+            ->value('role_id');
+
+        if (! $roleId) {
+            return false;
+        }
+
+        $role = \App\Models\PlanetRole::find($roleId);
+
+        return $role?->hasPermission($permission) ?? false;
+    }
+
+    /**
+     * Restituisce il PlanetRole dell'utente in un dato Pianeta, o null.
+     */
+    public function planetRole(int $planetId): ?\App\Models\PlanetRole
+    {
+        $roleId = \DB::table('chapter_member_roles')
+            ->where('chapter_id', $planetId)
+            ->where('user_id', $this->id)
+            ->value('role_id');
+
+        return $roleId ? \App\Models\PlanetRole::find($roleId) : null;
+    }
+
     public function referralRegistrationUrl(): string
     {
         $this->ensureReferralCode();

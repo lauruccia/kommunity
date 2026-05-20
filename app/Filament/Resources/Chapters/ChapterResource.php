@@ -8,7 +8,6 @@ use App\Filament\Resources\Chapters\Pages\ListChapters;
 use App\Filament\Resources\Chapters\Pages\ViewChapter;
 use App\Filament\Resources\Chapters\RelationManagers\ChapterInvitationsRelationManager;
 use App\Filament\Resources\Chapters\RelationManagers\ChapterLeadersRelationManager;
-use App\Filament\Resources\Chapters\RelationManagers\ChapterRolesRelationManager;
 use App\Filament\Resources\Chapters\RelationManagers\MemberProfilesRelationManager;
 use App\Models\Chapter;
 use BackedEnum;
@@ -199,7 +198,6 @@ class ChapterResource extends Resource
     {
         return [
             ChapterLeadersRelationManager::class,
-            ChapterRolesRelationManager::class,
             MemberProfilesRelationManager::class,
             ChapterInvitationsRelationManager::class,
         ];

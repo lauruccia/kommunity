@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Chapters\RelationManagers;
 
 use App\Enums\MemberProfileStatus;
-use App\Models\ChapterRole;
+use App\Models\PlanetRole;
 use App\Models\MemberProfile;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -54,7 +54,7 @@ class MemberProfilesRelationManager extends RelationManager
                             return '—';
                         }
 
-                        return ChapterRole::find($roleId)?->name ?? '—';
+                        return PlanetRole::find($roleId)?->name ?? '—';
                     })
                     ->badge()
                     ->color(fn (string $state): string => $state === '—' ? 'gray' : 'primary')
@@ -122,8 +122,7 @@ class MemberProfilesRelationManager extends RelationManager
                         Select::make('role_id')
                             ->label('Ruolo nel Pianeta')
                             ->options(function () {
-                                return ChapterRole::where('chapter_id', $this->getOwnerRecord()->id)
-                                    ->orderBy('sort_order')
+                                return PlanetRole::orderBy('sort_order')
                                     ->orderBy('name')
                                     ->pluck('name', 'id');
                             })
@@ -181,8 +180,7 @@ class MemberProfilesRelationManager extends RelationManager
                         Select::make('role_id')
                             ->label('Ruolo')
                             ->options(function () {
-                                return ChapterRole::where('chapter_id', $this->getOwnerRecord()->id)
-                                    ->orderBy('sort_order')
+                                return PlanetRole::orderBy('sort_order')
                                     ->orderBy('name')
                                     ->pluck('name', 'id');
                             })
@@ -207,7 +205,7 @@ class MemberProfilesRelationManager extends RelationManager
                             Notification::make()->title('Ruolo rimosso.')->success()->send();
                         }
                     })
-                    ->visible(fn (): bool => ChapterRole::where('chapter_id', $this->getOwnerRecord()->id)->exists()),
+                    ->visible(fn (): bool => PlanetRole::exists()),
 
                 Action::make('imposta_principale')
                     ->label('Imposta principale')
