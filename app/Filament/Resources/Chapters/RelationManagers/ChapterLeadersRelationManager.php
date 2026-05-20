@@ -3,13 +3,14 @@
 namespace App\Filament\Resources\Chapters\RelationManagers;
 
 use App\Models\User;
-use Filament\Actions\AttachAction;
-use Filament\Actions\DetachAction;
-use Filament\Actions\DetachBulkAction;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class ChapterLeadersRelationManager extends RelationManager
 {
@@ -35,22 +36,68 @@ class ChapterLeadersRelationManager extends RelationManager
                     ->searchable(),
             ])
             ->headerActions([
-                AttachAction::make()
+                Action::make('aggiungi_leader')
                     ->label('Aggiungi leader')
-                    ->preloadRecordSelect()
-                    ->recordSelectOptionsQuery(
-                        fn ($query) => $query->orderBy('name')
-                    ),
+                    ->icon('heroicon-o-user-plus')
+                    ->modalHeading('Aggiungi leader al Pianeta')
+                    ->form([
+                        Select::make('user_id')
+                            ->label('Membro')
+                            ->options(function () {
+                                $chapterId = $this->getOwnerRecord()->id;
+
+                                // Esclude chi è già leader di questo pianeta
+                                $alreadyLeader = DB::table('chapter_leaders')
+                                    ->where('chapter_id', $chapterId)
+                                    ->pluck('user_id');
+
+                                return User::query()
+                                    ->whereNotIn('id', $alreadyLeader)
+                                    ->orderBy('name')
+                                    ->get()
+                                    ->mapWithKeys(fn (User $u) => [
+                                        $u->id => $u->name . ' (' . $u->email . ')',
+                                    ]);
+                            })
+                            ->searchable()
+                            ->required(),
+                    ])
+                    ->action(function (array $data): void {
+                        $chapterId = $this->getOwnerRecord()->id;
+
+                        DB::table('chapter_leaders')->insertOrIgnore([
+                            'chapter_id' => $chapterId,
+                            'user_id'    => $data['user_id'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Leader aggiunto al Pianeta.')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->recordActions([
-                DetachAction::make()
+                Action::make('rimuovi_leader')
                     ->label('Rimuovi')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading('Rimuovere il leader?')
-                    ->modalDescription('Il membro non verrà eliminato, perderà solo il ruolo di leader in questo Pianeta.'),
+                    ->modalDescription('Il membro non verrà eliminato, perderà solo il ruolo di leader in questo Pianeta.')
+                    ->action(function (User $record): void {
+                        DB::table('chapter_leaders')
+                            ->where('chapter_id', $this->getOwnerRecord()->id)
+                            ->where('user_id', $record->id)
+                            ->delete();
+
+                        Notification::make()
+                            ->title('Leader rimosso dal Pianeta.')
+                            ->success()
+                            ->send();
+                    }),
             ])
-            ->bulkActions([
-                DetachBulkAction::make()->label('Rimuovi selezionati'),
-            ]);
+            ->bulkActions([]);
     }
 }
