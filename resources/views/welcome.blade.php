@@ -134,8 +134,8 @@
     }
     $areaPinPresets = [
         'torino' => [37, 25], 'milano' => [44, 20], 'venezia' => [58, 24], 'bologna' => [53, 33],
-        'umbria' => [56, 41], 'roma' => [58, 49], 'pomezia' => [58.7, 52.5], 'napoli' => [63, 60],
-        'calabria' => [71, 74], 'sicilia' => [64, 87], 'sardegna' => [36, 68],
+        'umbria' => [55.5, 39.5], 'roma' => [57.5, 47.5], 'pomezia' => [58.2, 50.2], 'napoli' => [62.5, 58],
+        'calabria' => [70.5, 68.5], 'sicilia' => [64, 87], 'sardegna' => [36, 68],
     ];
     $activeAreaPins = $activeAreaNames->map(function ($name) use ($areaPinPresets) {
         $key = strtolower($name);
