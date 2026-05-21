@@ -106,7 +106,7 @@
                 radial-gradient(circle at 80% -10%, rgba(139,197,63,.14), transparent 30%),
                 radial-gradient(circle at 8% 22%, rgba(45,212,191,.08), transparent 32%),
                 linear-gradient(160deg, var(--km-dark) 0%, var(--km-dark-2) 60%, #073040 100%);
-            padding: 2rem 1.5rem 3.5rem;
+            padding: 1.25rem 1.5rem 2.5rem;
             text-align: center;
             position: relative;
         }
@@ -124,50 +124,50 @@
         .kc-avatar-wrap {
             position: relative;
             display: inline-block;
-            margin-bottom: .875rem;
+            margin-bottom: .625rem;
         }
 
         .kc-avatar {
-            width: 88px;
-            height: 88px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
-            border: 2.5px solid rgba(139,197,63,.35);
+            border: 2px solid rgba(139,197,63,.35);
             object-fit: cover;
             display: block;
         }
 
         .kc-avatar-initials {
-            width: 88px;
-            height: 88px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
-            border: 2.5px solid rgba(139,197,63,.35);
+            border: 2px solid rgba(139,197,63,.35);
             background: linear-gradient(135deg, #1d3a28, #2d5a3d);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem;
+            font-size: 1.4rem;
             font-weight: 500;
             color: var(--km-green);
             letter-spacing: .04em;
         }
 
         .kc-name {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--km-text);
-            margin-bottom: .25rem;
-        }
-
-        .kc-role {
-            font-size: .875rem;
-            color: var(--km-text-muted);
             margin-bottom: .2rem;
         }
 
+        .kc-role {
+            font-size: .8125rem;
+            color: var(--km-text-muted);
+            margin-bottom: .15rem;
+        }
+
         .kc-company {
-            font-size: .8rem;
+            font-size: .75rem;
             color: rgba(170,183,196,.7);
-            margin-bottom: .625rem;
+            margin-bottom: 0;
         }
 
         .kc-chapter {
@@ -194,26 +194,26 @@
         /* ── Body card ── */
         .kc-body {
             flex: 1;
-            padding: .25rem 1.25rem 1.5rem;
+            padding: .125rem 1rem .75rem;
         }
 
         /* ── Bottoni azione ── */
         .kc-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
-            gap: .5rem;
-            margin-bottom: 1.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+            gap: .4rem;
+            margin-bottom: .75rem;
         }
 
         .kc-action {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: .3rem;
+            gap: .25rem;
             background: var(--km-surface-strong);
             border: .5px solid var(--km-line);
             border-radius: var(--km-radius-sm);
-            padding: .875rem .375rem .75rem;
+            padding: .6rem .375rem .5rem;
             text-decoration: none;
             color: var(--km-muted);
             font-size: .6875rem;
@@ -300,12 +300,12 @@
         .kc-qr {
             display: flex;
             align-items: center;
-            gap: .875rem;
+            gap: .75rem;
             background: var(--km-surface-strong);
             border: .5px solid var(--km-line);
             border-radius: var(--km-radius-sm);
-            padding: .875rem;
-            margin-bottom: 1rem;
+            padding: .7rem;
+            margin-bottom: .5rem;
         }
 
         .kc-qr-img {
@@ -347,51 +347,47 @@
 
         .kc-qr-dl svg { width: 13px; height: 13px; stroke: var(--km-accent-strong); }
 
-        /* ── Bottoni principali ── */
-        .kc-btn-save {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: .5rem;
-            width: 100%;
-            padding: .875rem;
-            background: linear-gradient(135deg, var(--km-green), #5f9d42);
-            color: #061018;
-            font-family: inherit;
-            font-size: .9375rem;
-            font-weight: 600;
-            border: none;
-            border-radius: var(--km-radius-sm);
-            text-decoration: none;
-            cursor: pointer;
-            margin-bottom: .625rem;
-            transition: opacity var(--km-transition);
+        /* ── Bottoni principali (riga a 2 colonne) ── */
+        .kc-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .4rem;
+            margin-bottom: .5rem;
         }
 
-        .kc-btn-save:hover { opacity: .9; }
-        .kc-btn-save svg { width: 20px; height: 20px; stroke: #061018; }
-
+        .kc-btn-save,
         .kc-btn-share {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: .5rem;
-            width: 100%;
-            padding: .8125rem;
+            gap: .375rem;
+            padding: .75rem .5rem;
+            font-family: inherit;
+            font-size: .875rem;
+            font-weight: 600;
+            border-radius: var(--km-radius-sm);
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity var(--km-transition);
+        }
+
+        .kc-btn-save {
+            background: linear-gradient(135deg, var(--km-green), #5f9d42);
+            color: #061018;
+            border: none;
+        }
+
+        .kc-btn-save:hover { opacity: .9; }
+        .kc-btn-save svg { width: 18px; height: 18px; stroke: #061018; flex-shrink: 0; }
+
+        .kc-btn-share {
             background: transparent;
             color: var(--km-accent-strong);
-            font-family: inherit;
-            font-size: .9375rem;
-            font-weight: 600;
             border: 1.5px solid var(--km-accent);
-            border-radius: var(--km-radius-sm);
-            cursor: pointer;
-            margin-bottom: 1.25rem;
-            transition: background var(--km-transition);
         }
 
         .kc-btn-share:hover { background: var(--km-accent-soft); }
-        .kc-btn-share svg { width: 20px; height: 20px; stroke: var(--km-accent-strong); }
+        .kc-btn-share svg { width: 18px; height: 18px; stroke: var(--km-accent-strong); flex-shrink: 0; }
 
         /* Feedback copia link */
         .kc-copied {
@@ -399,14 +395,13 @@
             text-align: center;
             font-size: .75rem;
             color: var(--km-accent-strong);
-            margin-top: -.75rem;
-            margin-bottom: .75rem;
+            margin-bottom: .375rem;
         }
 
         /* ── Footer ── */
         .kc-footer {
             border-top: .5px solid var(--km-line);
-            padding: 1rem 1.25rem 1.5rem;
+            padding: .75rem 1rem 1rem;
         }
 
         /* Footer ospite: solo credits discreti */
@@ -496,17 +491,6 @@
         @if($profile?->company_name)
             <p class="kc-company">{{ $profile->company_name }}</p>
         @endif
-
-        @if($chapterName)
-            <div class="kc-chapter">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-                {{ $chapterName }}
-            </div>
-        @endif
-
-        @if($profile?->short_bio)
-            <p class="kc-bio">{{ $profile->short_bio }}</p>
-        @endif
     </div>
 
     {{-- ════════════════ BODY ════════════════ --}}
@@ -554,37 +538,6 @@
         </div>
         @endif
 
-        {{-- ── Tags professioni ── --}}
-        @if($tags->isNotEmpty())
-        <div class="kc-tags" aria-label="Specializzazioni">
-            @foreach($tags as $tag)
-                <span class="kc-tag">{{ $tag->name }}</span>
-            @endforeach
-        </div>
-        @endif
-
-        {{-- ── Info aggiuntive ── --}}
-        @if($profile?->city || $showWebsite)
-        <div class="kc-info">
-            @if($profile?->city?->name)
-            <div class="kc-info-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-                <span class="lbl">Città</span>
-                <span class="val">{{ $profile->city->name }}</span>
-            </div>
-            @endif
-            @if($showWebsite)
-            <div class="kc-info-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                <span class="lbl">Sito web</span>
-                <a class="val" href="{{ $profile->website }}" target="_blank" rel="noopener">
-                    {{ preg_replace('#^https?://(www\.)?#', '', rtrim($profile->website, '/')) }}
-                </a>
-            </div>
-            @endif
-        </div>
-        @endif
-
         {{-- ── QR code ── --}}
         <div class="kc-qr">
             <img class="kc-qr-img" src="{{ $qrUrl }}" alt="QR code profilo {{ $user->name }}" loading="lazy" width="64" height="64">
@@ -598,17 +551,17 @@
             </div>
         </div>
 
-        {{-- ── Salva contatto .vcf ── --}}
-        <a class="kc-btn-save" href="{{ route('card.vcard', $onepage->slug) }}" aria-label="Scarica il contatto di {{ $user->name }} in formato vCard">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 10a2 2 0 104 0 2 2 0 00-4 0"/><path d="M4 20c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4"/><path d="M16 8h2M16 12h2"/></svg>
-            Salva contatto
-        </a>
-
-        {{-- ── Condividi (Web Share API con fallback copia link) ── --}}
-        <button class="kc-btn-share" id="kc-share-btn" type="button" aria-label="Condividi profilo di {{ $user->name }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Condividi
-        </button>
+        {{-- ── Salva contatto + Condividi (riga a 2 colonne) ── --}}
+        <div class="kc-btn-row">
+            <a class="kc-btn-save" href="{{ route('card.vcard', $onepage->slug) }}" aria-label="Scarica il contatto di {{ $user->name }} in formato vCard">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 10a2 2 0 104 0 2 2 0 00-4 0"/><path d="M4 20c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4"/><path d="M16 8h2M16 12h2"/></svg>
+                Salva
+            </a>
+            <button class="kc-btn-share" id="kc-share-btn" type="button" aria-label="Condividi profilo di {{ $user->name }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Condividi
+            </button>
+        </div>
         <p class="kc-copied" id="kc-copied-msg" role="status" aria-live="polite">✓ Link copiato negli appunti</p>
 
     </div>{{-- /.kc-body --}}
