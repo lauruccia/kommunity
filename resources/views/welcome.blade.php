@@ -73,7 +73,7 @@
 
         /* MAPPA ITALIA COME MOCKUP */
         .local-section{background:linear-gradient(145deg,rgba(13,30,43,.94),rgba(7,17,26,.90));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.local-grid{display:grid;grid-template-columns:.86fr 1.14fr;gap:4.5rem;align-items:center}.city-chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1rem}.city-chip{padding:.52rem .88rem;border-radius:.45rem;font-size:.76rem;font-weight:800;color:rgba(220,232,240,.88);border:1px solid rgba(85,121,79,.32);background:rgba(255,255,255,.03);transition:.2s}.city-chip:hover{border-color:var(--brand4);background:rgba(111,163,103,.08);color:var(--brand4)}.map-wrap{position:relative;min-height:430px;display:flex;align-items:center;justify-content:center}.italy-map-art{position:relative;width:min(720px,100%);min-height:430px;display:flex;align-items:center;justify-content:center}.italy-map-art::before{content:"";position:absolute;inset:-12% -10%;background:radial-gradient(ellipse 56% 70% at 54% 54%,rgba(70,93,112,.22),transparent 64%),radial-gradient(ellipse 70% 48% at 65% 50%,rgba(111,163,103,.13),transparent 68%);border-radius:50%;opacity:.95}.italy-map-img{position:relative;z-index:1;width:min(610px,100%);height:auto;display:block;filter:drop-shadow(0 0 34px rgba(111,163,103,.22)) drop-shadow(0 34px 80px rgba(0,0,0,.34))}.video-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.6rem;align-items:center}.video-player{position:relative;min-height:310px;border-radius:.85rem;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(7,17,26,.9)),radial-gradient(circle at 32% 34%,rgba(70,93,112,.22),transparent 14rem)}.video-player::before{content:"";position:absolute;inset:0;background:linear-gradient(130deg,rgba(255,255,255,.07),transparent 44%),repeating-linear-gradient(90deg,transparent 0 34px,rgba(255,255,255,.022) 34px 35px)}.play-btn{position:absolute;inset:0;margin:auto;width:5.2rem;height:5.2rem;border-radius:999px;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.82);background:rgba(255,255,255,.09);color:var(--text);cursor:pointer;transition:.22s}.play-btn:hover{background:rgba(85,121,79,.22);transform:scale(1.06)}.video-brand{position:absolute;bottom:1.5rem;left:1.5rem}.cta-section{position:relative;overflow:hidden;border-top:1px solid rgba(70,93,112,.24);border-bottom:1px solid rgba(85,121,79,.30);background:radial-gradient(ellipse 55% 60% at 78% 100%,rgba(85,121,79,.28),transparent),linear-gradient(135deg,rgba(13,30,43,.95),rgba(7,17,26,.97))}.cta-section::before{content:"K";position:absolute;left:2%;bottom:-9rem;font-size:clamp(16rem,26vw,32rem);line-height:.8;font-weight:800;color:rgba(70,93,112,.12);text-shadow:0 0 60px rgba(85,121,79,.18)}.cta-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:center;padding:4rem 0}.cta-title{font-size:clamp(2rem,4.5vw,4rem);font-weight:800;line-height:1.05;letter-spacing:-.05em;margin:0}.cta-body{margin-top:1.2rem;font-size:.95rem;color:rgba(214,228,236,.80);line-height:1.75;max-width:520px}.site-footer{background:#03111a;border-top:1px solid rgba(255,255,255,.07)}.footer-grid{display:grid;grid-template-columns:1.5fr .72fr .85fr .95fr 1fr;gap:2rem;padding:2.5rem 0}.footer-col-title{font-size:.76rem;font-weight:900;color:#dce8f2;margin:0 0 .9rem}.footer-link{display:block;font-size:.76rem;color:var(--muted);margin-top:.5rem;transition:.2s}.footer-link:hover{color:var(--brand4)}.newsletter-form{display:flex;gap:.4rem;border:1px solid rgba(85,121,79,.38);border-radius:.52rem;padding:.32rem;background:rgba(255,255,255,.032)}.newsletter-form input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font-size:.77rem;padding:.52rem .65rem}.newsletter-form button{width:2.15rem;border-radius:.38rem;background:var(--brand);color:#edf5ea;font-weight:900;font-size:1rem;cursor:pointer;border:0}.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding:1.2rem 0}.footer-bottom-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;font-size:.74rem;color:#3d5060}.footer-bottom-links{display:flex;gap:1.5rem}.footer-bottom-links a{color:#3d5060}.footer-bottom-links a:hover{color:var(--muted)}
-        .map-area-pin{position:absolute;z-index:4;left:var(--x);top:var(--y);display:inline-flex;align-items:center;gap:.38rem;transform:translate(-.65rem,-50%);font-size:.68rem;font-weight:900;color:#dff5d8;text-shadow:0 2px 10px rgba(0,0,0,.75);white-space:nowrap}.map-area-pin::before{content:"";width:.78rem;height:.78rem;border-radius:999px;background:var(--brand4);box-shadow:0 0 0 5px rgba(143,207,125,.14),0 0 22px rgba(143,207,125,.92)}
+        .map-area-pin{position:absolute;z-index:4;left:var(--x);top:var(--y);display:inline-flex;align-items:center;gap:.38rem;transform:translate(-.65rem,-50%);font-size:.68rem;font-weight:900;color:#dff5d8;text-shadow:0 2px 10px rgba(0,0,0,.75);white-space:nowrap}.map-area-pin::before{content:"";width:.78rem;height:.78rem;border-radius:999px;background:var(--brand4);box-shadow:0 0 0 5px rgba(143,207,125,.14),0 0 22px rgba(143,207,125,.92)}.map-area-pin-orbit{color:rgba(223,245,216,.86)}.map-area-pin-orbit::before{width:.54rem;height:.54rem;background:#b8e86b;box-shadow:0 0 0 4px rgba(184,232,107,.10),0 0 20px rgba(184,232,107,.86)}
 
         @media(max-width:1200px){.km-wrap{width:min(100% - 2.5rem,1120px)}.hero-grid,.eco-grid,.local-grid,.video-grid{grid-template-columns:1fr}.hero::after{right:-10%;opacity:.65}.network-hero{min-height:520px}.feature-grid,.testi-grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:repeat(3,1fr)}}
         @media(max-width:860px){.site-nav{display:none}.header-cta .btn-ghost{display:none}.hamburger{display:flex}.hero{min-height:auto}.hero-grid{padding:4rem 0;gap:2.6rem}.hero h1{font-size:clamp(3rem,12vw,4.6rem)}.network-hero{min-height:430px}.hero-member-card{transform:scale(.86)}.hero-member-card.card-marco{right:2%;top:7%}.hero-member-card.card-sara{left:0;top:39%}.hero-member-card.card-luca{right:0;bottom:9%}.orb-d{display:none}.km-section{padding:3.8rem 0}.steps-grid{grid-template-columns:1fr}.step-card:not(:last-child)::after{display:none}.stats-card{grid-template-columns:repeat(2,1fr)}.stat-cell{border-right:0;border-bottom:1px solid rgba(255,255,255,.10)}.split-grid,.cta-inner{grid-template-columns:1fr}.testi-grid,.feature-grid,.footer-grid{grid-template-columns:1fr}.cta-inner .btn{width:100%}.map-wrap{min-height:auto}.italy-map-art{min-height:auto}.italy-map-img{width:100%}.map-area-pin{font-size:.62rem}.footer-bottom-inner{flex-direction:column;align-items:flex-start}}
@@ -133,19 +133,23 @@
         $activeAreaNames = collect(['Calabria', 'Kosmos', 'Roma', 'Pomezia', 'Umbria']);
     }
     $areaPinPresets = [
-        'torino' => [37, 25], 'milano' => [44, 20], 'venezia' => [58, 24], 'bologna' => [53, 33],
-        'umbria' => [55.5, 39.5], 'roma' => [57.5, 47.5], 'pomezia' => [58.2, 50.2], 'napoli' => [62.5, 58],
-        'calabria' => [70.5, 68.5], 'sicilia' => [64, 87], 'sardegna' => [36, 68],
+        'torino' => [35.5, 25], 'milano' => [42.5, 20], 'venezia' => [56.5, 24], 'bologna' => [51.5, 33],
+        'umbria' => [53.8, 41.5], 'roma' => [54.6, 49], 'pomezia' => [55.1, 51.6], 'napoli' => [59.8, 59],
+        'calabria' => [66.8, 68.4], 'sicilia' => [62.5, 86], 'sardegna' => [34.5, 68],
     ];
-    $activeAreaPins = $activeAreaNames->map(function ($name) use ($areaPinPresets) {
+    $orbitPinPresets = [[28, 37], [68, 23], [78, 42], [45, 77], [73, 83]];
+    $orbitIndex = 0;
+    $activeAreaPins = $activeAreaNames->map(function ($name) use ($areaPinPresets, $orbitPinPresets, &$orbitIndex) {
         $key = strtolower($name);
         foreach ($areaPinPresets as $needle => $preset) {
             if (str_contains($key, $needle)) {
-                return ['name' => $name, 'x' => $preset[0], 'y' => $preset[1]];
+                return ['name' => $name, 'x' => $preset[0], 'y' => $preset[1], 'orbit' => false];
             }
         }
-        return null;
-    })->filter()->values();
+        $coords = $orbitPinPresets[$orbitIndex % count($orbitPinPresets)];
+        $orbitIndex++;
+        return ['name' => $name, 'x' => $coords[0], 'y' => $coords[1], 'orbit' => true];
+    })->values();
 @endphp
 
 <div class="km-page">
@@ -243,7 +247,7 @@
             <div class="italy-map-art" aria-label="Aree attive Kommunity in Italia">
                 <img class="italy-map-img" src="{{ asset('images/italianetwork.png') }}" alt="Network professionale in Italia">
                 @foreach($activeAreaPins as $pin)
-                    <span class="map-area-pin" style="--x:{{ $pin['x'] }}%;--y:{{ $pin['y'] }}%;">{{ $pin['name'] }}</span>
+                    <span class="map-area-pin {{ $pin['orbit'] ? 'map-area-pin-orbit' : '' }}" style="--x:{{ $pin['x'] }}%;--y:{{ $pin['y'] }}%;">{{ $pin['name'] }}</span>
                 @endforeach
             </div>
         </div>
