@@ -160,9 +160,9 @@ class UserResource extends Resource
                     ->label('Profilo attivo')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('email_verified_at')
+                TextColumn::make('email_verified_datetime')
                     ->label('Verificato il')
-                    ->dateTime('d/m/Y H:i')
+                    ->getStateUsing(fn (User $record): ?string => $record->email_verified_at?->format('d/m/Y H:i'))
                     ->placeholder('No')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
@@ -172,6 +172,28 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('role')
+                    ->label('Ruolo')
+                    ->options(fn () => Role::query()->orderBy('name')->pluck('name', 'name')->all())
+                    ->query(function (Builder $query, array $data): void {
+                        if (blank($data['value'] ?? null)) {
+                            return;
+                        }
+                        $query->whereHas('roles', fn (Builder $q) => $q->where('name', $data['value']));
+                    }),
+                SelectFilter::make('email_verified')
+                    ->label('Accesso')
+                    ->options([
+                        'verified'   => 'Attivo',
+                        'unverified' => 'Da attivare',
+                    ])
+                    ->query(function (Builder $query, array $data): void {
+                        match ($data['value'] ?? null) {
+                            'verified'   => $query->whereNotNull('email_verified_at'),
+                            'unverified' => $query->whereNull('email_verified_at'),
+                            default      => null,
+                        };
+                    }),
                 SelectFilter::make('planet_id')
                     ->label('Pianeta')
                     ->options(fn () => Chapter::query()

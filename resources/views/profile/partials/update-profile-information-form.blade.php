@@ -144,42 +144,44 @@
                 </div>
                 <div class="md:col-span-2">
                     <x-input-label :value="'Link di invito'" />
-                    <p class="mt-1 text-xs text-stone-500">Scegli il Pianeta a cui vuoi invitare il nuovo membro, oppure usa il link generico.</p>
+                    <p class="mt-1 text-xs text-stone-500">Scegli il Pianeta a cui vuoi invitare, poi copia il link.</p>
 
                     @if ($userPlanets->isNotEmpty())
-                        <div class="mt-3 space-y-2">
-                            @foreach ($userPlanets as $planet)
-                                @php $planetLink = url(auth()->user()->referralRegistrationUrl($planet->slug)); @endphp
-                                <div>
-                                    <p class="mb-1 text-[0.72rem] font-semibold uppercase tracking-wide text-stone-400">Invita in <span class="text-stone-600">{{ $planet->name }}</span></p>
-                                    <div class="flex items-center gap-2">
-                                        <input type="text" readonly value="{{ $planetLink }}"
-                                               class="km-input flex-1 bg-stone-50 text-xs"
-                                               onclick="this.select()"
-                                               title="Clicca per selezionare">
-                                        <button type="button"
-                                                onclick="navigator.clipboard.writeText('{{ $planetLink }}').then(() => { this.textContent='✓ Copiato'; setTimeout(()=>this.textContent='Copia',1500); })"
-                                                class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50">
-                                            Copia
-                                        </button>
-                                    </div>
-                                </div>
-                            @endforeach
-
-                            {{-- Link generico (senza pianeta specifico) --}}
-                            @php $genericLink = url($referralLink); @endphp
-                            <div>
-                                <p class="mb-1 text-[0.72rem] font-semibold uppercase tracking-wide text-stone-400">Link generico (nessun pianeta specifico)</p>
-                                <div class="flex items-center gap-2">
-                                    <input type="text" readonly value="{{ $genericLink }}"
-                                           class="km-input flex-1 bg-stone-50 text-xs"
-                                           onclick="this.select()">
-                                    <button type="button"
-                                            onclick="navigator.clipboard.writeText('{{ $genericLink }}').then(() => { this.textContent='✓ Copiato'; setTimeout(()=>this.textContent='Copia',1500); })"
-                                            class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50">
-                                        Copia
-                                    </button>
-                                </div>
+                        @php
+                            $planetLinksData = $userPlanets->map(fn($p) => [
+                                'slug' => $p->slug,
+                                'name' => $p->name,
+                                'url'  => url(auth()->user()->referralRegistrationUrl($p->slug)),
+                            ])->values()->all();
+                        @endphp
+                        <div class="mt-3" x-data="{
+                            planets: @js($planetLinksData),
+                            generic: '{{ url($referralLink) }}',
+                            selected: '',
+                            copied: false,
+                            get currentPlanet() { return this.planets.find(p => p.slug === this.selected) || null; },
+                            get link() { return this.currentPlanet ? this.currentPlanet.url : this.generic; },
+                            copy() {
+                                navigator.clipboard.writeText(this.link).then(() => {
+                                    this.copied = true;
+                                    setTimeout(() => this.copied = false, 1500);
+                                });
+                            }
+                        }">
+                            <select x-model="selected" class="km-input">
+                                <option value="">Link generico (nessun pianeta specifico)</option>
+                                @foreach ($userPlanets as $planet)
+                                    <option value="{{ $planet->slug }}">Invita in {{ $planet->name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="mt-2 flex items-center gap-2">
+                                <input type="text" readonly :value="link"
+                                       class="km-input flex-1 bg-stone-50 text-xs"
+                                       @click="$el.select()">
+                                <button type="button"
+                                        @click="copy()"
+                                        class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50"
+                                        x-text="copied ? '✓ Copiato' : 'Copia'"></button>
                             </div>
                         </div>
                     @else
@@ -218,24 +220,16 @@
                         </span>
                     </span>
                 </label>
-                {{-- Tipologie professionisti/aziende che voglio incontrare: lista delle professioni del portale --}}
-                <div class="md:col-span-2">
+                {{-- Tipologie professionisti/aziende che voglio incontrare: multi-select --}}
+                @php
+                    $profInterestOptions = $professionsForInterest->map(fn($p) => ['id' => $p->id, 'label' => $p->name])->values()->all();
+                    $selectedInterestIds = collect(old('profession_interest_ids', $profile->professionsOfInterest->pluck('id')->all()))->map(fn($v) => (int) $v)->values()->all();
+                @endphp
+                <div class="md:col-span-2"
+                     x-data="kmMultiSelect(@js($profInterestOptions), @js($selectedInterestIds), 'profession_interest_ids')">
                     <x-input-label :value="'Tipologie di professionisti/aziende che voglio conoscere'" />
                     <p class="mt-1 text-xs text-stone-500">Seleziona le professioni con cui ti piacerebbe fare networking</p>
-                    @php $selectedInterestIds = collect(old('profession_interest_ids', $profile->professionsOfInterest->pluck('id')->all()))->map(fn($v) => (int) $v)->all(); @endphp
-                    @if ($professionsForInterest->isEmpty())
-                        <p class="mt-2 text-sm text-stone-500">Nessuna professione disponibile al momento.</p>
-                    @else
-                        <div class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                            @foreach ($professionsForInterest as $prof)
-                                @php $checked = in_array($prof->id, $selectedInterestIds, true); @endphp
-                                <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700 transition hover:bg-stone-100 {{ $checked ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : '' }}">
-                                    <input type="checkbox" name="profession_interest_ids[]" value="{{ $prof->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-300" @checked($checked)>
-                                    {{ $prof->name }}
-                                </label>
-                            @endforeach
-                        </div>
-                    @endif
+                    @include('profile.partials._multiselect')
                     <x-input-error class="mt-2" :messages="$errors->get('profession_interest_ids')" />
                 </div>
 
