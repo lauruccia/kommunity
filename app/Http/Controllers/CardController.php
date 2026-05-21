@@ -40,7 +40,10 @@ class CardController extends Controller
 
         $cardUrl = route('card.show', $slug);
 
-        return view('card.show', compact('onepage', 'profile', 'user', 'whatsappUrl', 'cardUrl'));
+        // Auto-detect lingua dal browser del visitatore
+        $locale = $request->getPreferredLanguage(['it', 'en', 'fr', 'es', 'de', 'ro']) ?? 'it';
+
+        return view('card.show', compact('onepage', 'profile', 'user', 'whatsappUrl', 'cardUrl', 'locale'));
     }
 
     /**
