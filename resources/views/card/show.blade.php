@@ -25,10 +25,13 @@
     $chapterName = $profile?->chapter?->name ?? null;
 
     // Contatti condizionali
-    $showPhone    = $profile?->show_phone && $profile->phone;
-    $showEmail    = $profile?->show_email && $user->email;
-    $showLinkedin = (bool) $profile?->linkedin_url;
-    $showWebsite  = (bool) $profile?->website;
+    $showPhone     = $profile?->show_phone && $profile->phone;
+    $showEmail     = $profile?->show_email && $user->email;
+    $showLinkedin  = (bool) $profile?->linkedin_url;
+    $showWebsite   = (bool) $profile?->website;
+    $showInstagram = (bool) $profile?->instagram_url;
+    $showFacebook  = (bool) $profile?->facebook_url;
+    $showCity      = (bool) $profile?->city?->name;
 
     // URL QR (servizio esterno, zero dipendenze server)
     $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data='
@@ -237,6 +240,8 @@
         .kc-action--email  svg { stroke: #0369a1; }
         .kc-action--li     svg { stroke: #0369a1; }
         .kc-action--web    svg { stroke: var(--km-accent-strong); }
+        .kc-action--ig     svg { stroke: #be185d; }
+        .kc-action--fb     svg { stroke: #1d4ed8; }
 
         /* ── Tags professioni ── */
         .kc-tags {
@@ -535,6 +540,42 @@
             </a>
             @endif
 
+            @if($showInstagram)
+            <a class="kc-action kc-action--ig" href="{{ $profile->instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram {{ $user->name }}" role="listitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                Instagram
+            </a>
+            @endif
+
+            @if($showFacebook)
+            <a class="kc-action kc-action--fb" href="{{ $profile->facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook {{ $user->name }}" role="listitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                Facebook
+            </a>
+            @endif
+
+        </div>
+        @endif
+
+        {{-- ── Info: città e sito web ── --}}
+        @if($showCity || $showWebsite)
+        <div class="kc-info">
+            @if($showCity)
+            <div class="kc-info-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                <span class="lbl">Città</span>
+                <span class="val">{{ $profile->city->name }}</span>
+            </div>
+            @endif
+            @if($showWebsite)
+            <div class="kc-info-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                <span class="lbl">Sito web</span>
+                <a class="val" href="{{ $profile->website }}" target="_blank" rel="noopener">
+                    {{ preg_replace('#^https?://(www\.)?#', '', rtrim($profile->website, '/')) }}
+                </a>
+            </div>
+            @endif
         </div>
         @endif
 
