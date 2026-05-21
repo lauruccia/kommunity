@@ -173,9 +173,10 @@
                               onfocus="this.style.borderColor='rgba(139,197,63,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.14)'"></textarea>
                 </div>
                 <div>
-                    <label style="display:block;font-size:.78rem;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:.4rem;letter-spacing:.06em;text-transform:uppercase;">
+                    <label style="display:block;font-size:.78rem;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:.25rem;letter-spacing:.06em;text-transform:uppercase;">
                         Obiettivi di networking
                     </label>
+                    <p style="font-size:.78rem;color:rgba(255,255,255,.45);margin:0 0 .5rem;">Cosa cerco e cosa offro</p>
                     <textarea x-model="fields.networking_goals" rows="3" placeholder="Cosa speri di ottenere da Kommunity? Nuovi clienti, partner, fornitori..."
                               style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:.9rem;padding:.75rem 1rem;color:#fff;font-size:.9rem;outline:none;resize:vertical;transition:.2s;"
                               onfocus="this.style.borderColor='rgba(139,197,63,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.14)'"></textarea>

@@ -52,12 +52,12 @@ class MemberProfileResource extends Resource
                 TextInput::make('company_name')->label('Azienda'),
                 Select::make('profession_id')
                     ->label('Professione primaria (per Pianeta)')
-                    ->relationship('profession', 'name')
+                    ->options(fn () => \App\Models\Profession::flatTree()->pluck('label', 'id'))
                     ->searchable()
                     ->preload(),
                 Select::make('professions')
                     ->label('Professioni (selezione multipla)')
-                    ->relationship('professions', 'name')
+                    ->options(fn () => \App\Models\Profession::flatTree()->pluck('label', 'id'))
                     ->multiple()
                     ->searchable()
                     ->preload(),
@@ -81,11 +81,12 @@ class MemberProfileResource extends Resource
                     ->label('Pianeta attivo (principale)')
                     ->relationship('chapter', 'name')
                     ->helperText('Il pianeta attualmente attivo per questo membro.'),
-                Select::make('all_planets_display')
+                Select::make('admin_planets')
                     ->label('Tutti i Pianeti iscritti')
                     ->options(fn () => Chapter::orderBy('name')->pluck('name', 'id'))
                     ->multiple()
-                    ->disabled()
+                    ->searchable()
+                    ->preload()
                     ->dehydrated(false)
                     ->afterStateHydrated(function (Select $component, ?MemberProfile $record): void {
                         if (! $record?->user_id) {
@@ -97,7 +98,7 @@ class MemberProfileResource extends Resource
                             ->toArray();
                         $component->state($ids);
                     })
-                    ->helperText('Solo lettura — gestisci le iscrizioni dalla scheda Pianeti nell\'utente.'),
+                    ->helperText('Aggiungi o rimuovi pianeti. Il pianeta attivo principale va impostato nel campo sopra.'),
                 Select::make('companyInterestTypes')
                     ->label('Tipologie aziende/gruppi da conoscere')
                     ->relationship('companyInterestTypes', 'name')
@@ -364,96 +365,112 @@ class MemberProfileResource extends Resource
     {
         return $table
             ->columns([
+                // ── Colonne sempre visibili (essenziali per identificare il membro) ──
                 TextColumn::make('user.name')
                     ->label('Membro')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('company_name')
                     ->label('Azienda')
                     ->searchable(),
                 TextColumn::make('profession.name')
                     ->label('Professione')
                     ->searchable(),
-                TextColumn::make('categories.name')
-                    ->label('Categorie')
-                    ->badge()
-                    ->searchable(),
                 TextColumn::make('city.name')
-                    ->label('Citta')
-                    ->searchable(),
-                TextColumn::make('region.name')
-                    ->label('Regione')
+                    ->label('Città')
                     ->searchable(),
                 TextColumn::make('chapter.name')
-                    ->label('Capitolo')
+                    ->label('Pianeta attivo')
                     ->searchable(),
-                TextColumn::make('companyInterestTypes.name')
-                    ->label('Tipologie da conoscere')
-                    ->badge(),
-                TextColumn::make('user.invited_by_name')
-                    ->label('Invitato da')
-                    ->searchable(),
-                TextColumn::make('website')
-                    ->label('Sito web')
-                    ->searchable(),
-                TextColumn::make('linkedin_url')
-                    ->label('LinkedIn')
-                    ->searchable(),
-                TextColumn::make('facebook_url')
-                    ->label('Facebook')
-                    ->searchable(),
-                TextColumn::make('instagram_url')
-                    ->label('Instagram')
-                    ->searchable(),
-                TextColumn::make('phone')
-                    ->label('Telefono')
-                    ->searchable(),
-                TextColumn::make('whatsapp_number')
-                    ->label('WhatsApp')
-                    ->searchable(),
-                IconColumn::make('show_email')
-                    ->label('Email')
-                    ->boolean(),
-                IconColumn::make('show_phone')
-                    ->label('Telefono')
-                    ->boolean(),
-                IconColumn::make('show_whatsapp')
-                    ->label('WhatsApp')
-                    ->boolean(),
-                IconColumn::make('allow_whatsapp_contact')
-                    ->label('Contatto WA')
-                    ->boolean(),
-                IconColumn::make('use_ai_profile_rewrite')
-                    ->label('AI testi')
-                    ->boolean(),
-                TextColumn::make('preferred_contact_method')
-                    ->label('Contatto preferito')
-                    ->badge()
-                    ->formatStateUsing(fn (ContactMethod|string|null $state) => $state instanceof ContactMethod ? $state->label() : $state)
-                    ->searchable(),
-                TextColumn::make('avatar')
-                    ->label('Avatar')
-                    ->searchable(),
-                TextColumn::make('logo')
-                    ->label('Logo')
-                    ->searchable(),
-                TextColumn::make('intro_video_duration_minutes')
-                    ->label('Video')
-                    ->suffix(' min')
-                    ->sortable(),
-                IconColumn::make('is_visible_in_directory')
-                    ->label('Directory')
-                    ->boolean(),
-                IconColumn::make('is_active')
-                    ->label('Attivo')
-                    ->boolean(),
-                IconColumn::make('onboarding_completed')
-                    ->label('Onboarding')
-                    ->boolean(),
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge()
                     ->formatStateUsing(fn (MemberProfileStatus|string|null $state) => $state instanceof MemberProfileStatus ? $state->label() : $state)
                     ->searchable(),
+                IconColumn::make('is_active')
+                    ->label('Attivo')
+                    ->boolean(),
+                // ── Colonne nascoste di default (visibili via toggle colonne) ──────
+                TextColumn::make('region.name')
+                    ->label('Regione')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('categories.name')
+                    ->label('Categorie')
+                    ->badge()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('user.invited_by_name')
+                    ->label('Invitato da')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('phone')
+                    ->label('Telefono')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('whatsapp_number')
+                    ->label('WhatsApp')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('website')
+                    ->label('Sito web')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('linkedin_url')
+                    ->label('LinkedIn')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('facebook_url')
+                    ->label('Facebook')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('instagram_url')
+                    ->label('Instagram')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('preferred_contact_method')
+                    ->label('Contatto preferito')
+                    ->badge()
+                    ->formatStateUsing(fn (ContactMethod|string|null $state) => $state instanceof ContactMethod ? $state->label() : $state)
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('show_email')
+                    ->label('Mostra email')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('show_phone')
+                    ->label('Mostra tel.')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('show_whatsapp')
+                    ->label('Mostra WA')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('allow_whatsapp_contact')
+                    ->label('Contatto WA')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('use_ai_profile_rewrite')
+                    ->label('AI testi')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('intro_video_duration_minutes')
+                    ->label('Video')
+                    ->suffix(' min')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('is_visible_in_directory')
+                    ->label('Directory')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('onboarding_completed')
+                    ->label('Onboarding')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('companyInterestTypes.name')
+                    ->label('Tipologie da conoscere')
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

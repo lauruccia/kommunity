@@ -101,27 +101,26 @@
 
 {{-- Presenza business --}}
 @php
-    // Fallback: M2M (categories) → legacy FK (category) → "Da definire"
-    $categoryNames = $profile->categories->pluck('name')->filter()->values();
-    if ($categoryNames->isEmpty() && $profile->category) {
-        $categoryNames = collect([$profile->category->name])->filter()->values();
-    }
+    // Professione: priorità M2M (professions) → FK (profession) → null
+    $professionName = $profile->professions->first()?->name
+        ?? $profile->profession?->name
+        ?? null;
+
+    // Pianeta principale (solo active_chapter_id, non tutti i pianeti)
+    $primaryPlanet = $profile->chapter?->name ?? null;
 @endphp
 <div class="km-panel p-6">
     <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Presenza business</h3>
     <div class="mt-4 space-y-3 text-sm text-stone-700">
+        @if ($professionName)
         <div>
-            <span class="font-semibold">Categorie:</span>
-            @if ($categoryNames->isNotEmpty())
-                {{ $categoryNames->join(', ') }}
-            @else
-                Da definire
-            @endif
+            <span class="font-semibold">Professione:</span>
+            {{ $professionName }}
         </div>
-        @if ($profile->sector)
-        <div><span class="font-semibold">Settore:</span> {{ $profile->sector->name }}</div>
         @endif
-        <div><span class="font-semibold">Pianeta:</span> {{ $profile->chapter?->name ?? 'Non assegnato' }}</div>
+        @if ($primaryPlanet)
+        <div><span class="font-semibold">Pianeta:</span> {{ $primaryPlanet }}</div>
+        @endif
         <div><span class="font-semibold">Contatto preferito:</span> {{ $profile->preferred_contact_method?->label() ?? 'Email' }}</div>
     </div>
 </div>

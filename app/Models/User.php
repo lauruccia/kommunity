@@ -295,11 +295,22 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $roleId ? \App\Models\PlanetRole::find($roleId) : null;
     }
 
-    public function referralRegistrationUrl(): string
+    /**
+     * URL di registrazione con codice referral.
+     * Se si passa un slug di pianeta, lo aggiunge come parametro ?planet=slug
+     * così il nuovo iscritto viene associato direttamente a quel Pianeta.
+     */
+    public function referralRegistrationUrl(?string $planetSlug = null): string
     {
         $this->ensureReferralCode();
 
-        return route('register', ['ref' => $this->referral_code], false);
+        $params = ['ref' => $this->referral_code];
+
+        if ($planetSlug) {
+            $params['planet'] = $planetSlug;
+        }
+
+        return route('register', $params, false);
     }
 
     public function ensureReferralCode(): string

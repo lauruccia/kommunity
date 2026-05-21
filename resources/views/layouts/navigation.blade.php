@@ -158,7 +158,8 @@
                         <svg class="h-4 w-4 shrink-0 text-[color:var(--km-accent)]" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
                         </svg>
-                        <span class="max-w-[110px] truncate text-xs">
+                        {{-- Mostra il nome del pianeta attivo senza troncamento --}}
+                        <span class="max-w-[200px] whitespace-nowrap text-xs">
                             {{ $userPlanets->firstWhere('id', $activePlanetId)?->name ?? 'Pianeta' }}
                         </span>
                         <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
@@ -166,13 +167,14 @@
                         </svg>
                     </button>
 
+                    {{-- Dropdown: larghezza adattiva, scroll se molti pianeti --}}
                     <div x-show="open" x-cloak
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 scale-95 translate-y-1"
                          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                         class="absolute right-0 top-full mt-2 min-w-[180px] origin-top-right rounded-2xl border border-stone-200 bg-white shadow-xl overflow-hidden"
-                         style="z-index:9999;">
-                        <div class="px-4 py-2.5 border-b border-stone-100">
+                         class="absolute right-0 top-full mt-2 origin-top-right rounded-2xl border border-stone-200 bg-white shadow-xl"
+                         style="z-index:9999; min-width:220px; max-width:320px; max-height:70vh; overflow-y:auto;">
+                        <div class="sticky top-0 bg-white px-4 py-2.5 border-b border-stone-100">
                             <p class="text-[10px] font-semibold uppercase tracking-widest text-stone-400">I tuoi Pianeti</p>
                         </div>
                         <div class="py-1">
@@ -189,7 +191,7 @@
                                     @else
                                         <span class="h-3.5 w-3.5 shrink-0"></span>
                                     @endif
-                                    {{ $planet->name }}
+                                    <span class="break-words">{{ $planet->name }}</span>
                                 </button>
                             </form>
                             @endforeach

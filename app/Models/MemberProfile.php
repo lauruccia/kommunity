@@ -213,6 +213,20 @@ class MemberProfile extends Model
     }
 
     /**
+     * Professioni/tipologie che il membro vuole incontrare (networking).
+     * Pivot: member_profile_profession_interest
+     */
+    public function professionsOfInterest(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Profession::class,
+            'member_profile_profession_interest',
+            'member_profile_id',
+            'profession_id'
+        );
+    }
+
+    /**
      * Slot di disponibilità per One-to-One del membro.
      * Usa user_id come FK su entrambi i lati (member_profiles.user_id = availability_slots.user_id).
      */

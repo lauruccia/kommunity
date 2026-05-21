@@ -143,9 +143,55 @@
                     </div>
                 </div>
                 <div class="md:col-span-2">
-                    <x-input-label for="referral_link" :value="'Referral link personale'" />
-                    <input id="referral_link" type="text" readonly value="{{ url($referralLink) }}" class="km-input mt-2 block w-full bg-stone-50">
-                    <p class="mt-2 text-xs text-stone-500">Condividi questo link per invitare nuovi membri. Se si registrano da qui, il campo "Invitato da" verra' compilato automaticamente.</p>
+                    <x-input-label :value="'Link di invito'" />
+                    <p class="mt-1 text-xs text-stone-500">Scegli il Pianeta a cui vuoi invitare il nuovo membro, oppure usa il link generico.</p>
+
+                    @if ($userPlanets->isNotEmpty())
+                        <div class="mt-3 space-y-2">
+                            @foreach ($userPlanets as $planet)
+                                @php $planetLink = url(auth()->user()->referralRegistrationUrl($planet->slug)); @endphp
+                                <div>
+                                    <p class="mb-1 text-[0.72rem] font-semibold uppercase tracking-wide text-stone-400">Invita in <span class="text-stone-600">{{ $planet->name }}</span></p>
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" readonly value="{{ $planetLink }}"
+                                               class="km-input flex-1 bg-stone-50 text-xs"
+                                               onclick="this.select()"
+                                               title="Clicca per selezionare">
+                                        <button type="button"
+                                                onclick="navigator.clipboard.writeText('{{ $planetLink }}').then(() => { this.textContent='✓ Copiato'; setTimeout(()=>this.textContent='Copia',1500); })"
+                                                class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50">
+                                            Copia
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            {{-- Link generico (senza pianeta specifico) --}}
+                            @php $genericLink = url($referralLink); @endphp
+                            <div>
+                                <p class="mb-1 text-[0.72rem] font-semibold uppercase tracking-wide text-stone-400">Link generico (nessun pianeta specifico)</p>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" readonly value="{{ $genericLink }}"
+                                           class="km-input flex-1 bg-stone-50 text-xs"
+                                           onclick="this.select()">
+                                    <button type="button"
+                                            onclick="navigator.clipboard.writeText('{{ $genericLink }}').then(() => { this.textContent='✓ Copiato'; setTimeout(()=>this.textContent='Copia',1500); })"
+                                            class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50">
+                                        Copia
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex items-center gap-2 mt-2">
+                            <input id="referral_link" type="text" readonly value="{{ url($referralLink) }}" class="km-input flex-1 bg-stone-50" onclick="this.select()">
+                            <button type="button"
+                                    onclick="navigator.clipboard.writeText('{{ url($referralLink) }}').then(() => { this.textContent='✓ Copiato'; setTimeout(()=>this.textContent='Copia',1500); })"
+                                    class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-50">
+                                Copia
+                            </button>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -172,23 +218,25 @@
                         </span>
                     </span>
                 </label>
-                {{-- Tipologie aziende/gruppi: create da admin, selezionabili dall'utente --}}
+                {{-- Tipologie professionisti/aziende che voglio incontrare: lista delle professioni del portale --}}
                 <div class="md:col-span-2">
-                    <x-input-label :value="'Tipologie aziende/gruppi che voglio conoscere'" />
-                    @if ($companyInterestTypes->isEmpty())
-                        <p class="mt-2 text-sm text-stone-500">Nessuna tipologia disponibile al momento.</p>
+                    <x-input-label :value="'Tipologie di professionisti/aziende che voglio conoscere'" />
+                    <p class="mt-1 text-xs text-stone-500">Seleziona le professioni con cui ti piacerebbe fare networking</p>
+                    @php $selectedInterestIds = collect(old('profession_interest_ids', $profile->professionsOfInterest->pluck('id')->all()))->map(fn($v) => (int) $v)->all(); @endphp
+                    @if ($professionsForInterest->isEmpty())
+                        <p class="mt-2 text-sm text-stone-500">Nessuna professione disponibile al momento.</p>
                     @else
-                        <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                            @foreach ($companyInterestTypes as $type)
-                                @php $checked = collect(old('company_interest_type_ids', $profile->companyInterestTypes->pluck('id')->all()))->contains($type->id); @endphp
+                        <div class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                            @foreach ($professionsForInterest as $prof)
+                                @php $checked = in_array($prof->id, $selectedInterestIds, true); @endphp
                                 <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700 transition hover:bg-stone-100 {{ $checked ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : '' }}">
-                                    <input type="checkbox" name="company_interest_type_ids[]" value="{{ $type->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-300" @checked($checked)>
-                                    {{ $type->name }}
+                                    <input type="checkbox" name="profession_interest_ids[]" value="{{ $prof->id }}" class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-300" @checked($checked)>
+                                    {{ $prof->name }}
                                 </label>
                             @endforeach
                         </div>
                     @endif
-                    <x-input-error class="mt-2" :messages="$errors->get('company_interest_type_ids')" />
+                    <x-input-error class="mt-2" :messages="$errors->get('profession_interest_ids')" />
                 </div>
 
                 {{-- In quale settore lavori: multi-select sulle professioni --}}

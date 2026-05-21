@@ -13,6 +13,30 @@ use Illuminate\Support\Str;
 
 class UserObserver
 {
+    /**
+     * Elimina profilo e dati correlati quando si cancella un utente.
+     * La FK ha già cascadeOnDelete(), ma su alcuni hosting condivisi
+     * i vincoli FK non sono sempre attivi.
+     * Questa eliminazione esplicita garantisce la pulizia in ogni caso.
+     */
+    public function deleting(User $user): void
+    {
+        // Elimina il profilo membro
+        $user->memberProfile()->delete();
+
+        // Elimina la pagina personale
+        $user->memberOnepage()->delete();
+
+        // Rimuove dai pianeti
+        \Illuminate\Support\Facades\DB::table('chapter_members')
+            ->where('user_id', $user->id)
+            ->delete();
+
+        \Illuminate\Support\Facades\DB::table('chapter_leaders')
+            ->where('user_id', $user->id)
+            ->delete();
+    }
+
     public function created(User $user): void
     {
         $user->ensureReferralCode();

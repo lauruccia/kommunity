@@ -36,13 +36,17 @@ class ProfileController extends Controller
     {
         $user = $request->user()->load(['memberProfile.professions']);
 
+        $professions = Profession::query()->where('is_active', true)->orderBy('name')->get();
+
         return view('profile.edit', [
             'user'              => $user,
-            'profile'           => $user->memberProfile()->with(['chapter', 'categories', 'professions', 'companyInterestTypes', 'city'])->firstOrFail(),
+            'profile'           => $user->memberProfile()->with(['chapter', 'categories', 'professions', 'companyInterestTypes', 'professionsOfInterest', 'city'])->firstOrFail(),
             'userPlanets'       => $user->planets()->with('leaders')->orderBy('name')->get(),
             'profileCompletion' => (new ProfileCompletionService())->calculate($user),
             'galleryImages'     => $user->memberGalleryImages()->get(),
-            'professions'       => Profession::query()->where('is_active', true)->orderBy('name')->get(),
+            'professions'       => $professions,
+            // Usato per la sezione "tipologie professionisti da conoscere"
+            'professionsForInterest' => $professions,
             'rootCategories'    => Category::query()->with(['activeChildren'])->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get(),
             'regions'           => Cache::remember('regions_list', 86400, fn () => Region::query()->orderBy('name')->get()),
             'provinces'         => Cache::remember('provinces_list', 86400, fn () => Province::query()->orderBy('name')->get()),
@@ -156,6 +160,7 @@ class ProfileController extends Controller
                 'show_read_receipts',
                 'province_id',
                 'company_interest_type_ids',
+                'profession_interest_ids',
                 'category_ids',
                 'profession_ids',
             ])
@@ -195,6 +200,7 @@ class ProfileController extends Controller
         $profile?->companyInterestTypes()->sync($validated['company_interest_type_ids'] ?? []);
         $profile?->categories()->sync($validated['category_ids'] ?? []);
         $profile?->professions()->sync($validated['profession_ids'] ?? []);
+        $profile?->professionsOfInterest()->sync($validated['profession_interest_ids'] ?? []);
 
         $onepage->update([
             'title' => $request->user()->name,
@@ -244,6 +250,7 @@ class ProfileController extends Controller
         $professionIds = collect($validated['profession_ids'] ?? [])->filter()->map(fn ($id) => (int) $id)->all();
         $categoryIds = collect($validated['category_ids'] ?? [])->filter()->map(fn ($id) => (int) $id)->all();
         $companyInterestTypeIds = collect($validated['company_interest_type_ids'] ?? [])->filter()->map(fn ($id) => (int) $id)->all();
+        $professionInterestIds = collect($validated['profession_interest_ids'] ?? [])->filter()->map(fn ($id) => (int) $id)->all();
 
         return [
             'azienda' => $validated['company_name'] ?? null,
@@ -257,6 +264,9 @@ class ProfileController extends Controller
             'tipologie_aziende_da_conoscere' => empty($companyInterestTypeIds)
                 ? null
                 : CompanyInterestType::query()->whereKey($companyInterestTypeIds)->orderBy('name')->pluck('name')->implode(', '),
+            'professioni_da_incontrare' => empty($professionInterestIds)
+                ? null
+                : Profession::query()->whereKey($professionInterestIds)->orderBy('name')->pluck('name')->implode(', '),
             'citta' => empty($validated['city_id'] ?? null)
                 ? null
                 : City::query()->whereKey($validated['city_id'])->value('name'),

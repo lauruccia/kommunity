@@ -83,6 +83,18 @@ class Chapter extends Model
     }
 
     /**
+     * Membri ATTIVI del Pianeta (da chapter_members con status=active).
+     * Usato per il conteggio corretto nella tabella admin.
+     */
+    public function activeMembers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'chapter_members')
+            ->withPivot(['status', 'joined_at'])
+            ->withTimestamps()
+            ->wherePivot('status', 'active');
+    }
+
+    /**
      * Tutti i profili membro iscritti a questo Pianeta (via chapter_members).
      * Diverso da memberProfiles() che usa active_chapter_id.
      * Usato dal MemberProfilesRelationManager per mostrare tutti i membri iscritti.

@@ -153,9 +153,9 @@ class ChapterResource extends Resource
                 TextColumn::make('max_members_per_profession')
                     ->label('Limite/professione')
                     ->sortable(),
-                TextColumn::make('member_profiles_count')
-                    ->label('Membri')
-                    ->counts('memberProfiles')
+                TextColumn::make('active_members_count')
+                    ->label('Membri attivi')
+                    ->counts('activeMembers')
                     ->sortable(),
                 ImageColumn::make('cover_image')->label('Copertina'),
                 IconColumn::make('is_active')

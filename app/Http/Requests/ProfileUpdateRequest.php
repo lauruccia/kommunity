@@ -54,6 +54,8 @@ class ProfileUpdateRequest extends FormRequest
             'region_id' => ['nullable', 'exists:regions,id'],
             'company_interest_type_ids' => ['nullable', 'array'],
             'company_interest_type_ids.*' => ['integer', 'exists:company_interest_types,id'],
+            'profession_interest_ids' => ['nullable', 'array'],
+            'profession_interest_ids.*' => ['integer', 'exists:professions,id'],
             'short_bio' => ['nullable', 'string', 'max:500'],
             'bio' => ['nullable', 'string', 'max:3000'],
             'services' => ['nullable', 'string', 'max:3000'],

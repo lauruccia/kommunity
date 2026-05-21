@@ -103,28 +103,10 @@ class UserResource extends Resource
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('memberProfile.company_name')
-                    ->label('Azienda')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('memberProfile.city.name')
-                    ->label('Citta')
-                    ->searchable()
-                    ->toggleable(),
+                // ── Sempre visibili ──────────────────────────────────────────────
                 TextColumn::make('memberProfile.chapter.name')
                     ->label('Pianeta')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('invitedBy.name')
-                    ->label('Invitato da')
-                    ->searchable()
-                    ->placeholder('-')
-                    ->toggleable(),
-                TextColumn::make('invited_users_count')
-                    ->label('Invitati')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(),
+                    ->searchable(),
                 TextColumn::make('roles.name')
                     ->label('Ruoli')
                     ->badge(),
@@ -134,11 +116,6 @@ class UserResource extends Resource
                     ->formatStateUsing(fn (?string $state): string => filled($state) ? 'Attivo' : 'Da attivare')
                     ->color(fn (?string $state): string => filled($state) ? 'success' : 'warning')
                     ->sortable(),
-                TextColumn::make('permissions.name')
-                    ->label('Permessi diretti')
-                    ->badge()
-                    ->limitList(3)
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('memberProfile.status')
                     ->label('Stato profilo')
                     ->badge()
@@ -154,8 +131,31 @@ class UserResource extends Resource
                         'pending_approval' => 'warning',
                         'suspended' => 'danger',
                         default => 'gray',
-                    })
-                    ->toggleable(),
+                    }),
+                // ── Nascoste di default ───────────────────────────────────────────
+                TextColumn::make('memberProfile.company_name')
+                    ->label('Azienda')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('memberProfile.city.name')
+                    ->label('Città')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('invitedBy.name')
+                    ->label('Invitato da')
+                    ->searchable()
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('invited_users_count')
+                    ->label('Invitati')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('permissions.name')
+                    ->label('Permessi diretti')
+                    ->badge()
+                    ->limitList(3)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('memberProfile.is_active')
                     ->label('Profilo attivo')
                     ->boolean()
@@ -164,11 +164,12 @@ class UserResource extends Resource
                     ->label('Verificato il')
                     ->dateTime('d/m/Y H:i')
                     ->placeholder('No')
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Creato il')
                     ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('planet_id')

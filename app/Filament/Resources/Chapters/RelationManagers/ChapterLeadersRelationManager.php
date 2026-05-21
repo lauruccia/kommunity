@@ -64,16 +64,40 @@ class ChapterLeadersRelationManager extends RelationManager
                     ])
                     ->action(function (array $data): void {
                         $chapterId = $this->getOwnerRecord()->id;
+                        $userId    = $data['user_id'];
 
+                        // Aggiunge come leader
                         DB::table('chapter_leaders')->insertOrIgnore([
                             'chapter_id' => $chapterId,
-                            'user_id'    => $data['user_id'],
+                            'user_id'    => $userId,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
 
+                        // Aggiunge automaticamente come membro attivo del Pianeta
+                        DB::table('chapter_members')->updateOrInsert(
+                            ['chapter_id' => $chapterId, 'user_id' => $userId],
+                            [
+                                'status'     => 'active',
+                                'joined_at'  => now(),
+                                'updated_at' => now(),
+                                'created_at' => now(),
+                            ]
+                        );
+
+                        // Imposta il pianeta come attivo sul profilo, se non ne ha uno
+                        $profile = \App\Models\MemberProfile::query()->where('user_id', $userId)->first();
+                        if ($profile && ! $profile->active_chapter_id) {
+                            \App\Models\MemberProfile::$adminOverrideLimit = true;
+                            try {
+                                $profile->update(['active_chapter_id' => $chapterId]);
+                            } finally {
+                                \App\Models\MemberProfile::$adminOverrideLimit = false;
+                            }
+                        }
+
                         Notification::make()
-                            ->title('Leader aggiunto al Pianeta.')
+                            ->title('Leader aggiunto al Pianeta e iscritto come membro.')
                             ->success()
                             ->send();
                     }),

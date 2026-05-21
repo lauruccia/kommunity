@@ -38,6 +38,12 @@ class RegisteredUserController extends Controller
 
         $inviter = User::query()->where('referral_code', $referralCode)->first();
 
+        // Gestione parametro ?planet=slug: memorizza il pianeta target in sessione
+        $planetSlug = request()->query('planet');
+        if (is_string($planetSlug) && $planetSlug !== '') {
+            session(['referral_planet_slug' => $planetSlug]);
+        }
+
         // Recupera il contesto invito-pianeta se presente in sessione
         $invitationPlanet = session('invitation_planet');
         $invitationBy     = session('invitation_by');
@@ -60,10 +66,19 @@ class RegisteredUserController extends Controller
                 ->with('error', 'La registrazione e disponibile solo tramite invito.');
         }
 
+        // Risolvi il pianeta da ?planet=slug (parametro nel link referral personalizzato)
+        $referralPlanetName = null;
+        $referralPlanetSlug = session('referral_planet_slug');
+        if ($referralPlanetSlug) {
+            $referralPlanetName = \App\Models\Chapter::query()
+                ->where('slug', $referralPlanetSlug)
+                ->value('name');
+        }
+
         return view('auth.register', [
             'referralCode'      => $inviter?->referral_code,
             'invitedByName'     => $inviter?->name ?? ($chapterInvitation?->invitedBy?->name),
-            'invitationPlanet'  => $chapterInvitation?->chapter?->name ?? $invitationPlanet,
+            'invitationPlanet'  => $chapterInvitation?->chapter?->name ?? $invitationPlanet ?? $referralPlanetName,
             'chapterInvitation' => $chapterInvitation,
         ]);
     }
@@ -132,8 +147,21 @@ class RegisteredUserController extends Controller
 
         // ── Gestione invito pianeta ───────────────────────────────────────────
         if (! $chapterToken && $inviter) {
-            $inviterPlanetId = $inviter->activePlanetId()
-                ?? $inviter->planets()->value('chapters.id');
+            // Se il link aveva ?planet=slug, usa quel pianeta specifico
+            $referralPlanetSlug = $request->session()->get('referral_planet_slug');
+            $inviterPlanetId = null;
+
+            if ($referralPlanetSlug) {
+                $inviterPlanetId = \App\Models\Chapter::query()
+                    ->where('slug', $referralPlanetSlug)
+                    ->value('id');
+            }
+
+            // Fallback: pianeta attivo dell'invitante
+            if (! $inviterPlanetId) {
+                $inviterPlanetId = $inviter->activePlanetId()
+                    ?? $inviter->planets()->value('chapters.id');
+            }
 
             if ($inviterPlanetId) {
                 MemberProfile::$adminOverrideLimit = true;
@@ -148,6 +176,8 @@ class RegisteredUserController extends Controller
                     ['status' => 'active', 'joined_at' => now(), 'updated_at' => now(), 'created_at' => now()]
                 );
             }
+
+            $request->session()->forget('referral_planet_slug');
         }
 
         event(new Registered($user));
