@@ -85,6 +85,77 @@
                 @include('profile.partials.update-profile-information-form')
             </div>
 
+            {{-- ── Biglietto da visita digitale ────────────────────────────── --}}
+            @php
+                $cardOnepage   = auth()->user()->memberOnepage;
+                $cardPublicUrl = $cardOnepage ? route('card.show', $cardOnepage->slug) : null;
+                $cardQrPreview = $cardPublicUrl
+                    ? 'https://api.qrserver.com/v1/create-qr-code/?data=' . urlencode($cardPublicUrl) . '&size=120x120&margin=4&color=263d2a&bgcolor=f6faf8'
+                    : null;
+            @endphp
+            @if($cardPublicUrl)
+            <div class="km-panel p-6">
+                <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">Biglietto da visita digitale</p>
+                        <h2 class="mt-1.5 font-serif text-lg font-semibold text-stone-900">La tua card pubblica</h2>
+                        <p class="mt-1 text-sm leading-relaxed text-stone-500">
+                            Condividi questo link — o fai scansionare il QR — per condividere i tuoi contatti senza nessuna app.
+                        </p>
+
+                        {{-- URL copiabile --}}
+                        <div class="mt-4 flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2">
+                            <span class="min-w-0 flex-1 truncate font-mono text-xs text-stone-600" id="card-url-text">{{ $cardPublicUrl }}</span>
+                            <button
+                                type="button"
+                                onclick="
+                                    navigator.clipboard.writeText('{{ $cardPublicUrl }}').then(function(){
+                                        var el = document.getElementById('card-copy-label');
+                                        el.textContent = 'Copiato!';
+                                        setTimeout(function(){ el.textContent = 'Copia'; }, 2000);
+                                    });
+                                "
+                                class="shrink-0 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition"
+                            >
+                                <span id="card-copy-label">Copia</span>
+                            </button>
+                        </div>
+
+                        {{-- Bottoni azione --}}
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <a href="{{ $cardPublicUrl }}"
+                               target="_blank"
+                               rel="noopener"
+                               class="inline-flex items-center gap-1.5 rounded-lg bg-[#55794f] px-4 py-2 text-xs font-semibold text-white hover:bg-[#426240] transition">
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Apri la card
+                            </a>
+                            <a href="https://api.qrserver.com/v1/create-qr-code/?data={{ urlencode($cardPublicUrl) }}&size=600x600&margin=16&color=263d2a&bgcolor=ffffff"
+                               target="_blank"
+                               rel="noopener"
+                               class="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition">
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Scarica QR
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Anteprima QR --}}
+                    <div class="shrink-0 self-center sm:self-auto">
+                        <div class="overflow-hidden rounded-2xl border border-stone-200 bg-white p-2 shadow-sm">
+                            <img src="{{ $cardQrPreview }}"
+                                 alt="QR code della tua card"
+                                 width="80" height="80"
+                                 class="block h-20 w-20 rounded-lg">
+                        </div>
+                        <p class="mt-1.5 text-center text-[0.65rem] text-stone-400">Scansiona per aprire</p>
+                    </div>
+
+                </div>
+            </div>
+            @endif
+
             {{-- ── Pianeti di cui faccio parte ─────────────────────────────── --}}
             @if($userPlanets->isNotEmpty())
             <div class="km-panel p-6">
