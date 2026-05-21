@@ -20,6 +20,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\CardController;
 use App\Http\Controllers\ChapterInviteController;
 use App\Http\Controllers\PlanetContextController;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,10 @@ Route::get('/banner/{bannerCampaign}/click', BannerClickController::class)
 // ── Pagine membro pubbliche: visibili anche da link condiviso senza login ────
 Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
 Route::get('/member/{slug}/referenze', [MemberOnepageController::class, 'referrals'])->name('members.referrals');
+
+// ── Biglietto da visita digitale (pubblico, nessun layout app) ───────────────
+Route::get('/card/{slug}', [CardController::class, 'show'])->name('card.show');
+Route::get('/card/{slug}/vcard', [CardController::class, 'vcard'])->name('card.vcard');
 
 // ── Dashboard e onboarding: accessibili senza onboarding completato ─────────
 Route::middleware(['auth', 'verified'])->group(function () {
