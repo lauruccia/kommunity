@@ -133,22 +133,19 @@
         $activeAreaNames = collect(['Calabria', 'Kosmos', 'Roma', 'Pomezia', 'Umbria']);
     }
     $areaPinPresets = [
-        'torino' => [35, 26], 'milano' => [42, 20], 'venezia' => [58, 24], 'bologna' => [53, 33],
-        'umbria' => [55, 41], 'roma' => [58, 49], 'pomezia' => [59, 53], 'napoli' => [63, 60],
-        'calabria' => [71, 73], 'sicilia' => [64, 88], 'sardegna' => [36, 69], 'kosmos' => [50, 30],
+        'torino' => [37, 25], 'milano' => [44, 20], 'venezia' => [58, 24], 'bologna' => [53, 33],
+        'umbria' => [56, 41], 'roma' => [58, 49], 'pomezia' => [58.7, 52.5], 'napoli' => [63, 60],
+        'calabria' => [71, 74], 'sicilia' => [64, 87], 'sardegna' => [36, 68],
     ];
-    $fallbackPins = [[48, 25], [55, 34], [58, 47], [63, 58], [70, 72], [38, 68], [62, 82], [45, 42]];
-    $activeAreaPins = $activeAreaNames->map(function ($name, $index) use ($areaPinPresets, $fallbackPins) {
+    $activeAreaPins = $activeAreaNames->map(function ($name) use ($areaPinPresets) {
         $key = strtolower($name);
-        $coords = $fallbackPins[$index % count($fallbackPins)];
         foreach ($areaPinPresets as $needle => $preset) {
             if (str_contains($key, $needle)) {
-                $coords = $preset;
-                break;
+                return ['name' => $name, 'x' => $preset[0], 'y' => $preset[1]];
             }
         }
-        return ['name' => $name, 'x' => $coords[0], 'y' => $coords[1]];
-    });
+        return null;
+    })->filter()->values();
 @endphp
 
 <div class="km-page">
