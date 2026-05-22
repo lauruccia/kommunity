@@ -104,7 +104,7 @@
                     <span style="color:#8BC53F;font-weight:900;">✓</span> Richieste di One-to-One attivate
                 </li>
                 <li style="display:flex;align-items:center;gap:.6rem;color:#AAB7C4;font-size:.85rem;">
-                    <span style="color:#8BC53F;font-weight:900;">✓</span> Accesso al forum e agli eventi
+                    <span style="color:#8BC53F;font-weight:900;">✓</span> Accesso agli eventi
                 </li>
             </ul>
             <button @click="next()"

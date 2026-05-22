@@ -25,7 +25,8 @@
                 'items' => [
                     'La pagina personale e il tuo link pubblico da condividere con clienti, partner e contatti.',
                     'Chi non ha effettuato l accesso vede solo la pagina pubblica, senza menu e senza funzioni riservate.',
-                    'Chi e loggato puo usare le azioni interne, come messaggi, one-to-one e referenze, quando disponibili.',
+                    'Chi e loggato puo usare le azioni interne, come messaggi, one-to-one e referenze business, quando disponibili.',
+                    'Nel profilo pubblico trovi due sezioni distinte: le Recensioni (valutazioni sull incontro) e le Referenze business (opportunita commerciali ricevute).',
                 ],
             ],
             [
@@ -42,6 +43,7 @@
                     'Dalla pagina di un membro o dalla sezione One-to-one puoi inviare una richiesta di incontro.',
                     'Indica un motivo chiaro e, se necessario, proponi disponibilita utili.',
                     'Gestisci lo stato della richiesta dalla sezione One-to-one.',
+                    'Quando entrambi i partecipanti confermano il completamento, si sblocca la possibilita di lasciare una Recensione reciproca visibile sul profilo pubblico.',
                 ],
             ],
             [
@@ -57,15 +59,27 @@
                 'items' => [
                     'Apri Eventi per vedere gli appuntamenti disponibili nel tuo ecosistema.',
                     'Segna il tuo interesse o la partecipazione quando richiesto.',
-                    'Usa Forum per condividere domande, spunti e contenuti utili alla community.',
+                    // Forum nascosto temporaneamente
                 ],
             ],
             [
-                'title' => '7. Referenze',
+                'title' => '7. Referenze business',
                 'items' => [
-                    'Le referenze servono a segnalare valore, affidabilita e collaborazioni riuscite.',
-                    'Puoi consultare le referenze pubbliche nella pagina personale del membro.',
-                    'Quando lasci una referenza, scrivi un testo concreto e verificabile.',
+                    'Le referenze business servono a passare un contatto o un\'opportunita commerciale a un altro membro: nome del potenziale cliente, azienda, contesto e obiettivo.',
+                    'Puoi inviare una referenza business solo a membri con cui hai completato almeno un one-to-one confermato da entrambi.',
+                    'Il destinatario gestisce lo stato della referenza: dalla presa in carico fino alla chiusura (vinta o persa).',
+                    'Le referenze chiuse con successo sono visibili sul profilo pubblico del destinatario come indicatore di reputazione business.',
+                    'Puoi inviare piu referenze allo stesso membro nel tempo, una per ogni opportunita distinta.',
+                ],
+            ],
+            [
+                'title' => '8. Recensioni',
+                'items' => [
+                    'La recensione e un giudizio sulla persona e sull\'incontro, non su un\'opportunita commerciale.',
+                    'Si sblocca automaticamente dopo che una one-to-one e stata completata e confermata da entrambi i partecipanti.',
+                    'Puoi assegnare una valutazione da 1 a 5 stelle, selezionare le competenze dimostrate e scrivere un testo libero.',
+                    'Puoi indicare se consiglieresti o meno questa persona ad altri membri della rete.',
+                    'La recensione e sempre pubblica e visibile nel profilo del membro recensito. Ogni incontro ha la sua recensione.',
                 ],
             ],
         ];

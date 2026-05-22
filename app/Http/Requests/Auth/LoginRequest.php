@@ -34,6 +34,16 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Numero massimo di tentativi di login prima del blocco.
+     */
+    protected int $maxAttempts = 5;
+
+    /**
+     * Durata del blocco in secondi dopo aver superato il limite (15 minuti).
+     */
+    protected int $decaySeconds = 900;
+
+    /**
      * Attempt to authenticate the request's credentials.
      *
      * @throws ValidationException
@@ -43,7 +53,7 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+            RateLimiter::hit($this->throttleKey(), $this->decaySeconds);
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
@@ -60,7 +70,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), $this->maxAttempts)) {
             return;
         }
 
@@ -78,6 +88,7 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the rate limiting throttle key for the request.
+     * Chiave: email (normalizzata) + IP — blocca sia per account che per IP.
      */
     public function throttleKey(): string
     {

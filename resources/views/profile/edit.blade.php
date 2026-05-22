@@ -7,7 +7,7 @@
                     <div class="flex-1">
                         <p class="text-sm font-bold text-amber-800">Completa il profilo per sbloccare la piattaforma</p>
                         <p class="mt-1 text-sm text-amber-700">
-                            Finché non salvi questa pagina con i campi essenziali compilati, non potrai accedere alle altre sezioni (directory, eventi, forum, messaggi).
+                            Finché non salvi questa pagina con i campi essenziali compilati, non potrai accedere alle altre sezioni (directory, eventi, messaggi).
                             Compila i campi qui sotto e clicca <strong>Salva</strong>.
                         </p>
                         @if(count($profileCompletion['missing']) > 0)

@@ -112,9 +112,7 @@ class ChapterInvitation extends Model
         ]);
 
         // Assegna il membro al Pianeta come pianeta attivo senza controllo limite (invito diretto)
-        MemberProfile::$adminOverrideLimit = true;
-        $user->memberProfile?->update(['active_chapter_id' => $this->chapter_id]);
-        MemberProfile::$adminOverrideLimit = false;
+        $user->memberProfile?->updateWithAdminOverride(['active_chapter_id' => $this->chapter_id]);
 
         // Registra anche in chapter_members
         \DB::table('chapter_members')->updateOrInsert(

@@ -2,7 +2,7 @@
     <div class="mb-6">
         <p class="km-portal-eyebrow">Accesso membro</p>
         <h1 class="km-portal-title mt-3 text-3xl sm:text-4xl">Entra nella tua area Kommunity</h1>
-        <p class="km-portal-muted mt-3 text-sm leading-7">Accedi per gestire profilo business, incontri, eventi, forum e messaggi.</p>
+        <p class="km-portal-muted mt-3 text-sm leading-7">Accedi per gestire profilo business, incontri, eventi e messaggi.</p>
     </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />

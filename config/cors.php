@@ -16,8 +16,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    // !! Sostituisci con il dominio reale in produzione !!
-    // es. ['https://tuodominio.it']
+    // Usa APP_URL nel .env: in produzione deve essere 'https://kommunitynetwork.com'
+    // (o il dominio cPanel esatto). Non lasciare localhost o * in produzione.
+    // DEPLOY CHECKLIST: verificare che APP_URL nel .env cPanel sia il dominio HTTPS corretto.
     'allowed_origins' => [env('APP_URL', 'http://localhost')],
 
     'allowed_origins_patterns' => [],

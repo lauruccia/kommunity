@@ -126,7 +126,7 @@
     <div class="page-body">
         <div class="km-wrap">
             <div class="prose">
-                {!! $page->content !!}
+                {!! purify($page->content) !!}
             </div>
         </div>
     </div>

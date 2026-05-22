@@ -20,15 +20,13 @@ class MemberProfile extends Model
     use ResolvesPublicMedia;
 
     /**
-     * Flag statico per bypassare il controllo limite per professione.
-     * Impostare a true SOLO nelle azioni admin/leader, reimpostare a false subito dopo.
+     * Flag d'istanza per bypassare il controllo limite per professione.
+     * Non usare direttamente: chiamare updateWithAdminOverride() che lo gestisce
+     * in modo sicuro con try/finally e non inquina lo stato globale.
      *
-     * Esempio d'uso:
-     *   MemberProfile::$adminOverrideLimit = true;
-     *   $profile->update(['active_chapter_id' => $chapterId]);
-     *   MemberProfile::$adminOverrideLimit = false;
+     * @internal
      */
-    public static bool $adminOverrideLimit = false;
+    public bool $bypassProfessionLimit = false;
 
     protected $fillable = [
         'user_id',
@@ -90,7 +88,7 @@ class MemberProfile extends Model
     {
         static::saving(function (MemberProfile $profile): void {
             // Bypass completo se l'admin ha attivato l'override
-            if (static::$adminOverrideLimit) {
+            if ($profile->bypassProfessionLimit) {
                 return;
             }
 
@@ -142,6 +140,25 @@ class MemberProfile extends Model
                 ]);
             }
         });
+    }
+
+    // ── Admin override ───────────────────────────────────────────────────────
+
+    /**
+     * Aggiorna il profilo bypassando il controllo limite per professione.
+     * Da usare SOLO nelle azioni admin/leader.
+     *
+     * Il flag è sull'istanza (non statico), quindi non inquina altre richieste
+     * in ambienti con worker persistenti (Octane, queue, ecc.).
+     */
+    public function updateWithAdminOverride(array $attributes): bool
+    {
+        $this->bypassProfessionLimit = true;
+        try {
+            return $this->update($attributes);
+        } finally {
+            $this->bypassProfessionLimit = false;
+        }
     }
 
     // ── Relazioni ────────────────────────────────────────────────────────────

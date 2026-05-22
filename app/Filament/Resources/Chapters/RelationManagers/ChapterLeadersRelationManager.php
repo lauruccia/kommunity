@@ -88,12 +88,7 @@ class ChapterLeadersRelationManager extends RelationManager
                         // Imposta il pianeta come attivo sul profilo, se non ne ha uno
                         $profile = \App\Models\MemberProfile::query()->where('user_id', $userId)->first();
                         if ($profile && ! $profile->active_chapter_id) {
-                            \App\Models\MemberProfile::$adminOverrideLimit = true;
-                            try {
-                                $profile->update(['active_chapter_id' => $chapterId]);
-                            } finally {
-                                \App\Models\MemberProfile::$adminOverrideLimit = false;
-                            }
+                            $profile->updateWithAdminOverride(['active_chapter_id' => $chapterId]);
                         }
 
                         Notification::make()

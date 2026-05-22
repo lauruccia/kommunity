@@ -34,11 +34,11 @@ class MemberNavigation
                 'route' => 'events.index',
                 'active' => 'events.*',
             ],
-            'forum' => [
-                'label' => 'nav.forum',
-                'route' => 'forum.index',
-                'active' => 'forum.*',
-            ],
+            // 'forum' => [
+            //     'label' => 'nav.forum',
+            //     'route' => 'forum.index',
+            //     'active' => 'forum.*',
+            // ],
             'messages' => [
                 'label' => 'nav.messages',
                 'route' => 'conversations.index',

@@ -139,12 +139,7 @@ class UserPlanetsRelationManager extends RelationManager
                         /** @var \App\Models\User $user */
                         $user = $this->getOwnerRecord();
 
-                        MemberProfile::$adminOverrideLimit = true;
-                        try {
-                            $user->memberProfile?->update(['active_chapter_id' => $record->id]);
-                        } finally {
-                            MemberProfile::$adminOverrideLimit = false;
-                        }
+                        $user->memberProfile?->updateWithAdminOverride(['active_chapter_id' => $record->id]);
 
                         Notification::make()
                             ->title('"' . $record->name . '" impostato come Pianeta attivo.')
@@ -175,12 +170,7 @@ class UserPlanetsRelationManager extends RelationManager
 
                         // Se era il pianeta attivo, resetta a null
                         if ($user->memberProfile?->active_chapter_id === $record->id) {
-                            MemberProfile::$adminOverrideLimit = true;
-                            try {
-                                $user->memberProfile?->update(['active_chapter_id' => null]);
-                            } finally {
-                                MemberProfile::$adminOverrideLimit = false;
-                            }
+                            $user->memberProfile?->updateWithAdminOverride(['active_chapter_id' => null]);
                         }
 
                         Notification::make()

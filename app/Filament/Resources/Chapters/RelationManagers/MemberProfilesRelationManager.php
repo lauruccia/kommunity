@@ -216,12 +216,7 @@ class MemberProfilesRelationManager extends RelationManager
                         $record->active_chapter_id !== $this->getOwnerRecord()->id
                     )
                     ->action(function (MemberProfile $record): void {
-                        MemberProfile::$adminOverrideLimit = true;
-                        try {
-                            $record->update(['active_chapter_id' => $this->getOwnerRecord()->id]);
-                        } finally {
-                            MemberProfile::$adminOverrideLimit = false;
-                        }
+                        $record->updateWithAdminOverride(['active_chapter_id' => $this->getOwnerRecord()->id]);
                         Notification::make()->title('Pianeta principale aggiornato.')->success()->send();
                     }),
 
@@ -248,12 +243,7 @@ class MemberProfilesRelationManager extends RelationManager
 
                         // Se era il pianeta attivo, resetta a null
                         if ($record->active_chapter_id === $chapter->id) {
-                            MemberProfile::$adminOverrideLimit = true;
-                            try {
-                                $record->update(['active_chapter_id' => null]);
-                            } finally {
-                                MemberProfile::$adminOverrideLimit = false;
-                            }
+                            $record->updateWithAdminOverride(['active_chapter_id' => null]);
                         }
 
                         Notification::make()->title('Membro rimosso dal Pianeta.')->success()->send();

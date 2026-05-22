@@ -340,19 +340,37 @@
         </x-dashboard.section>
 
         {{-- ═══════════════════════════════════════════════════════════════════
-             6. CONTENUTI SECONDARI (referenze) — forum temporaneamente nascosto
+             6. CONTENUTI SECONDARI (forum + referenze)
              ═══════════════════════════════════════════════════════════════════ --}}
-        <section class="grid gap-4">
-            {{-- Forum nascosto temporaneamente
+        <section class="grid gap-4 lg:grid-cols-2">
             <x-dashboard.section
                 eyebrow="Forum"
                 title="Discussioni recenti"
                 :href="route('forum.index')"
                 cta="Apri forum"
             >
-                ...
+                @forelse ($latestThreads->take(4) as $thread)
+                    <a href="{{ route('forum.show', $thread) }}"
+                       @class([
+                           'flex items-center gap-3 rounded-xl border border-white/[.08] bg-white/[.04] p-3 transition hover:border-[rgba(139,197,63,.30)]',
+                           'mt-2' => ! $loop->first,
+                       ])>
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(139,197,63,.10)] text-sm font-black text-[color:var(--km-green-2)]">
+                            #
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-bold text-white">{{ $thread->title }}</p>
+                            <p class="mt-0.5 truncate text-[11px] text-white/55">{{ $thread->category?->name ?? 'Generale' }}</p>
+                        </div>
+                        <svg class="h-4 w-4 shrink-0 text-white/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+                    </a>
+                @empty
+                    <div class="rounded-xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-5 text-center text-sm text-white/55">
+                        Nessuna discussione attiva.
+                        <a href="{{ route('forum.index') }}" class="ml-1 font-semibold text-[color:var(--km-green-2)] hover:underline">Aprine una</a>
+                    </div>
+                @endforelse
             </x-dashboard.section>
-            --}}
 
             <x-dashboard.section
                 eyebrow="Referenze inviate"

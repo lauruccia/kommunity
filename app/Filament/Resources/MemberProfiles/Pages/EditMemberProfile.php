@@ -29,13 +29,8 @@ class EditMemberProfile extends EditRecord
 
         $previousChapterId = $record->active_chapter_id;
 
-        MemberProfile::$adminOverrideLimit = true;
-
-        try {
-            $record->update($data);
-        } finally {
-            MemberProfile::$adminOverrideLimit = false;
-        }
+        /** @var MemberProfile $record */
+        $record->updateWithAdminOverride($data);
 
         $this->syncActiveChapterMembership($record, $previousChapterId);
 
