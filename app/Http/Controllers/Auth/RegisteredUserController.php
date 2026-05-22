@@ -60,11 +60,37 @@ class RegisteredUserController extends Controller
                 ->with('error', 'La registrazione e disponibile solo tramite invito.');
         }
 
-        // Il pianeta di destinazione viene sempre determinato lato server (dal pianeta attivo
-        // dell'invitante o dall'invito token). Il parametro ?planet= nell'URL viene ignorato
-        // per evitare che chiunque possa modificare il link e iscriversi a un pianeta arbitrario.
+        // Il parametro ?planet=slug è supportato per gli utenti multi-pianeta,
+        // ma viene accettato SOLO se l'invitante (ref) appartiene effettivamente a quel pianeta.
+        // In questo modo chi riceve un link non può cambiare il nome del pianeta per iscriversi
+        // a un pianeta dove l'invitante non è mai stato membro.
+        $planetSlug = request()->query('planet');
+        if (is_string($planetSlug) && $planetSlug !== '' && $inviter) {
+            $planetBelongsToInviter = \DB::table('chapter_members')
+                ->join('chapters', 'chapters.id', '=', 'chapter_members.chapter_id')
+                ->where('chapters.slug', $planetSlug)
+                ->where('chapter_members.user_id', $inviter->id)
+                ->where('chapter_members.status', 'active')
+                ->exists();
+
+            if ($planetBelongsToInviter) {
+                session(['referral_planet_slug' => $planetSlug]);
+            } else {
+                // L'invitante non appartiene al pianeta indicato: ignora il parametro
+                session()->forget('referral_planet_slug');
+            }
+        } elseif (! is_string($planetSlug) || $planetSlug === '') {
+            session()->forget('referral_planet_slug');
+        }
+
         $referralPlanetName = null;
-        if ($inviter) {
+        $referralPlanetSlug = session('referral_planet_slug');
+        if ($referralPlanetSlug) {
+            $referralPlanetName = \App\Models\Chapter::query()
+                ->where('slug', $referralPlanetSlug)
+                ->value('name');
+        } elseif ($inviter) {
+            // Fallback: mostra il pianeta attivo dell'invitante
             $inviterPlanetId = $inviter->activePlanetId()
                 ?? $inviter->planets()->value('chapters.id');
             if ($inviterPlanetId) {
@@ -146,11 +172,26 @@ class RegisteredUserController extends Controller
 
         // ── Gestione invito pianeta ───────────────────────────────────────────
         if (! $chapterToken && $inviter) {
-            // Il pianeta viene sempre determinato dal pianeta attivo dell'invitante,
-            // mai da parametri URL (per sicurezza: evita che si modifichi il link
-            // per iscriversi a pianeti arbitrari).
-            $inviterPlanetId = $inviter->activePlanetId()
-                ?? $inviter->planets()->value('chapters.id');
+            $inviterPlanetId = null;
+
+            // Usa il pianeta dalla sessione SOLO se l'invitante ne è membro attivo.
+            // Questo impedisce di modificare ?planet= nel link per iscriversi a un
+            // pianeta arbitrario: il controllo avviene sia in create() che qui in store().
+            $referralPlanetSlug = $request->session()->get('referral_planet_slug');
+            if ($referralPlanetSlug) {
+                $inviterPlanetId = DB::table('chapter_members')
+                    ->join('chapters', 'chapters.id', '=', 'chapter_members.chapter_id')
+                    ->where('chapters.slug', $referralPlanetSlug)
+                    ->where('chapter_members.user_id', $inviter->id)
+                    ->where('chapter_members.status', 'active')
+                    ->value('chapter_members.chapter_id');
+            }
+
+            // Fallback: pianeta attivo dell'invitante
+            if (! $inviterPlanetId) {
+                $inviterPlanetId = $inviter->activePlanetId()
+                    ?? $inviter->planets()->value('chapters.id');
+            }
 
             if ($inviterPlanetId) {
                 MemberProfile::$adminOverrideLimit = true;
@@ -165,6 +206,8 @@ class RegisteredUserController extends Controller
                     ['status' => 'active', 'joined_at' => now(), 'updated_at' => now(), 'created_at' => now()]
                 );
             }
+
+            $request->session()->forget('referral_planet_slug');
         }
 
         event(new Registered($user));
