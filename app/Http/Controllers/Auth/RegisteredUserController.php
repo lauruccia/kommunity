@@ -62,37 +62,44 @@ class RegisteredUserController extends Controller
 
         // Il parametro ?planet=slug è supportato per gli utenti multi-pianeta,
         // ma viene accettato SOLO se l'invitante (ref) appartiene effettivamente a quel pianeta.
-        // In questo modo chi riceve un link non può cambiare il nome del pianeta per iscriversi
-        // a un pianeta dove l'invitante non è mai stato membro.
-        // Tutto il blocco è in try-catch: un parametro malformato non deve mai causare un 500.
+        // Se il pianeta non esiste o l'invitante non ne è membro → errore esplicito, non silenzioso.
         $referralPlanetName = null;
         try {
             $planetSlug = request()->query('planet');
 
-            if (is_string($planetSlug) && $planetSlug !== '' && $inviter) {
-                // Verifica che l'invitante appartenga davvero a questo pianeta
-                $planetBelongsToInviter = \DB::table('chapter_members')
+            if (is_string($planetSlug) && $planetSlug !== '') {
+                if (! $inviter) {
+                    // Parametro planet senza invitante valido: link malformato
+                    session()->forget('referral_planet_slug');
+                    return Redirect::route('login')
+                        ->with('error', 'Il link di invito non è valido. Chiedi un nuovo link a chi ti ha invitato.');
+                }
+
+                // Verifica che il pianeta esista E che l'invitante ne sia membro attivo
+                $planetRow = \DB::table('chapter_members')
                     ->join('chapters', 'chapters.id', '=', 'chapter_members.chapter_id')
                     ->where('chapters.slug', $planetSlug)
                     ->where('chapter_members.user_id', $inviter->id)
                     ->where('chapter_members.status', 'active')
-                    ->exists();
+                    ->select('chapters.id', 'chapters.name')
+                    ->first();
 
-                if ($planetBelongsToInviter) {
+                if ($planetRow) {
                     session(['referral_planet_slug' => $planetSlug]);
-                    $referralPlanetName = \App\Models\Chapter::query()
-                        ->where('slug', $planetSlug)
-                        ->value('name');
+                    $referralPlanetName = $planetRow->name;
                 } else {
-                    // L'invitante non appartiene al pianeta indicato: ignora il parametro
+                    // Pianeta inesistente o invitante non membro: blocca con messaggio chiaro
                     session()->forget('referral_planet_slug');
+                    return Redirect::route('login')
+                        ->with('error', 'Il Pianeta specificato nel link non esiste o chi ti ha invitato non ne fa parte. Chiedi un link aggiornato.');
                 }
             } else {
                 session()->forget('referral_planet_slug');
             }
         } catch (\Throwable) {
-            // In caso di errore inatteso, ignora il parametro planet e prosegui normalmente
             session()->forget('referral_planet_slug');
+            return Redirect::route('login')
+                ->with('error', 'Il link di invito non è valido. Chiedi un nuovo link a chi ti ha invitato.');
         }
 
         return view('auth.register', [
