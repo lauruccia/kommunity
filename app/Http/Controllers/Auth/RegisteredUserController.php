@@ -64,40 +64,35 @@ class RegisteredUserController extends Controller
         // ma viene accettato SOLO se l'invitante (ref) appartiene effettivamente a quel pianeta.
         // In questo modo chi riceve un link non può cambiare il nome del pianeta per iscriversi
         // a un pianeta dove l'invitante non è mai stato membro.
-        $planetSlug = request()->query('planet');
-        if (is_string($planetSlug) && $planetSlug !== '' && $inviter) {
-            $planetBelongsToInviter = \DB::table('chapter_members')
-                ->join('chapters', 'chapters.id', '=', 'chapter_members.chapter_id')
-                ->where('chapters.slug', $planetSlug)
-                ->where('chapter_members.user_id', $inviter->id)
-                ->where('chapter_members.status', 'active')
-                ->exists();
+        // Tutto il blocco è in try-catch: un parametro malformato non deve mai causare un 500.
+        $referralPlanetName = null;
+        try {
+            $planetSlug = request()->query('planet');
 
-            if ($planetBelongsToInviter) {
-                session(['referral_planet_slug' => $planetSlug]);
+            if (is_string($planetSlug) && $planetSlug !== '' && $inviter) {
+                // Verifica che l'invitante appartenga davvero a questo pianeta
+                $planetBelongsToInviter = \DB::table('chapter_members')
+                    ->join('chapters', 'chapters.id', '=', 'chapter_members.chapter_id')
+                    ->where('chapters.slug', $planetSlug)
+                    ->where('chapter_members.user_id', $inviter->id)
+                    ->where('chapter_members.status', 'active')
+                    ->exists();
+
+                if ($planetBelongsToInviter) {
+                    session(['referral_planet_slug' => $planetSlug]);
+                    $referralPlanetName = \App\Models\Chapter::query()
+                        ->where('slug', $planetSlug)
+                        ->value('name');
+                } else {
+                    // L'invitante non appartiene al pianeta indicato: ignora il parametro
+                    session()->forget('referral_planet_slug');
+                }
             } else {
-                // L'invitante non appartiene al pianeta indicato: ignora il parametro
                 session()->forget('referral_planet_slug');
             }
-        } elseif (! is_string($planetSlug) || $planetSlug === '') {
+        } catch (\Throwable) {
+            // In caso di errore inatteso, ignora il parametro planet e prosegui normalmente
             session()->forget('referral_planet_slug');
-        }
-
-        $referralPlanetName = null;
-        $referralPlanetSlug = session('referral_planet_slug');
-        if ($referralPlanetSlug) {
-            $referralPlanetName = \App\Models\Chapter::query()
-                ->where('slug', $referralPlanetSlug)
-                ->value('name');
-        } elseif ($inviter) {
-            // Fallback: mostra il pianeta attivo dell'invitante
-            $inviterPlanetId = $inviter->activePlanetId()
-                ?? $inviter->planets()->value('chapters.id');
-            if ($inviterPlanetId) {
-                $referralPlanetName = \App\Models\Chapter::query()
-                    ->where('id', $inviterPlanetId)
-                    ->value('name');
-            }
         }
 
         return view('auth.register', [
@@ -193,4 +188,52 @@ class RegisteredUserController extends Controller
                     ?? $inviter->planets()->value('chapters.id');
             }
 
-            if ($inviterPl
+            if ($inviterPlanetId) {
+                MemberProfile::$adminOverrideLimit = true;
+                try {
+                    $user->memberProfile?->update(['active_chapter_id' => $inviterPlanetId]);
+                } finally {
+                    MemberProfile::$adminOverrideLimit = false;
+                }
+
+                DB::table('chapter_members')->updateOrInsert(
+                    ['chapter_id' => $inviterPlanetId, 'user_id' => $user->id],
+                    ['status' => 'active', 'joined_at' => now(), 'updated_at' => now(), 'created_at' => now()]
+                );
+            }
+
+            $request->session()->forget('referral_planet_slug');
+        }
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        $request->session()->forget('registration_referral_code');
+
+        if ($chapterToken) {
+            $invitation = ChapterInvitation::with(['chapter', 'invitedBy'])
+                ->where('token', $chapterToken)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($invitation && $invitation->isValid()) {
+                try {
+                    $invitation->accept($user);
+
+                    // Notifica email al leader/invitante
+                    if ($invitation->invitedBy && $invitation->invitedBy->email) {
+                        Mail::to($invitation->invitedBy->email)
+                            ->send(new InvitationAcceptedMail($invitation, $user));
+                    }
+                } catch (\Throwable) {
+                    // Non bloccare la registrazione se qualcosa va storto
+                }
+            }
+
+            $request->session()->forget('chapter_invitation_token');
+        }
+
+        return redirect(route('dashboard', absolute: false));
+    }
+}
