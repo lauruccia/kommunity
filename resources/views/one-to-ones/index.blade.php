@@ -194,23 +194,7 @@
         </style>
     @endpush
 
-    @php
-        $memberSearchItems = $members->map(fn ($member) => [
-            'id'   => $member->id,
-            'name' => $member->name,
-            'email'=> $member->email,
-            'company' => $member->memberProfile?->company_name,
-            'city'    => $member->memberProfile?->city?->name,
-            'availability_slots' => $member->availabilitySlots->map(fn ($slot) => [
-                'id'           => $slot->id,
-                'weekday'      => $slot->weekday,
-                'starts_at'    => substr($slot->starts_at, 0, 5),
-                'ends_at'      => substr($slot->ends_at, 0, 5),
-                'meeting_mode' => $slot->meeting_mode,
-                'location'     => $slot->location,
-            ])->values(),
-        ])->values();
-    @endphp
+    {{-- $memberSearchItems rimosso: la ricerca avviene via AJAX /members/search --}}
 
     <main class="km-shell-wide space-y-4 py-5 sm:py-6">
         <section class="km-dark-panel km-oto-hero px-5 py-4 sm:px-6">
@@ -1100,13 +1084,45 @@
             const submitButton = document.getElementById('one-to-one-submit');
             const availabilityContainer = document.getElementById('one-to-one-availability');
             const selectedMemberSummary = document.getElementById('one-to-one-selected-member');
-            const members = @json($memberSearchItems);
+            // ── AJAX member search — nessun precaricamento, max 20 risultati per query ──
             const weekdayLabels = @json($weekdayOptions);
+            const searchUrl    = '{{ route('members.search') }}';
+            const slotsBaseUrl = '{{ url('/members') }}';
 
             if (!modal || !openButton) return;
 
+            // Cache locale: id → dati membro (slots aggiunti dopo la selezione)
+            let memberCache = {};
+            let lastSearchResults = [];
+            let searchDebounce = null;
+
             const normalize = (v) => String(v||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-            const selectedMember = () => members.find((m) => String(m.id) === String(recipientInput.value)) || null;
+            const selectedMember = () => memberCache[recipientInput.value] || null;
+
+            const fetchMembers = async (query) => {
+                if (query.length < 2) return [];
+                try {
+                    const resp = await fetch(`${searchUrl}?q=${encodeURIComponent(query)}`, {
+                        headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+                    });
+                    if (!resp.ok) return [];
+                    const data = await resp.json();
+                    data.forEach((m) => { if (!memberCache[m.id]) memberCache[m.id] = m; });
+                    return data;
+                } catch (e) { return []; }
+            };
+
+            const fetchMemberSlots = async (memberId) => {
+                if (memberCache[memberId] && memberCache[memberId].availability_slots !== undefined) return;
+                try {
+                    const resp = await fetch(`${slotsBaseUrl}/${memberId}/slots`, {
+                        headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+                    });
+                    if (!resp.ok) return;
+                    const slots = await resp.json();
+                    if (memberCache[memberId]) memberCache[memberId].availability_slots = slots;
+                } catch (e) { /* silenzioso */ }
+            };
 
             const nextOccurrenceFor = (slot) => {
                 const now = new Date();
@@ -1132,12 +1148,13 @@
                 const m = selectedMember();
                 if (!m) { selectedMemberSummary.style.display='none'; selectedMemberSummary.innerHTML=''; return; }
                 selectedMemberSummary.style.display='block';
-                selectedMemberSummary.innerHTML=`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);">Membro selezionato</div><div style="margin-top:.3rem;font-weight:700;color:var(--km-text);">${m.name}</div><div style="font-size:.78rem;color:var(--km-text-muted);">${m.email}</div><div style="font-size:.73rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>`;
+                selectedMemberSummary.innerHTML=`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);">Membro selezionato</div><div style="margin-top:.3rem;font-weight:700;color:var(--km-text);">${m.name}</div><div style="font-size:.78rem;color:var(--km-text-muted);">${m.email||''}</div><div style="font-size:.73rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>`;
             };
 
             const renderAvailability = () => {
                 const m = selectedMember();
                 if (!m) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Seleziona un membro per vedere gli slot.</div>'; return; }
+                if (m.availability_slots === undefined) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Caricamento disponibilità…</div>'; return; }
                 if (!m.availability_slots.length) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Nessuna disponibilita\' pubblicata. Proponi un altro orario.</div>'; return; }
                 availabilityContainer.innerHTML = m.availability_slots.map((slot) => `
                     <button type="button" data-slot-id="${slot.id}" style="display:flex;width:100%;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-radius:1.1rem;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:.2s;margin-bottom:.35rem;">
@@ -1158,26 +1175,41 @@
                 });
             };
 
-            const renderMembers = () => {
-                const query = normalize(queryInput.value.trim());
-                if (query.length < 2) { resultsContainer.innerHTML=''; emptyState.style.display='none'; idleState.style.display='block'; return; }
-                const filtered = members.filter((m) => [m.name,m.email,m.company,m.city].some((v) => normalize(v).includes(query)));
+            const renderMemberList = (results) => {
                 const cur = String(recipientInput.value);
-                resultsContainer.innerHTML = filtered.map((m) => `
+                resultsContainer.innerHTML = results.map((m) => `
                     <button type="button" data-member-id="${m.id}" style="display:block;width:100%;padding:.6rem .875rem;border-radius:1.1rem;border:1px solid ${cur===String(m.id)?'rgba(139,197,63,.45)':'rgba(255,255,255,.12)'};background:${cur===String(m.id)?'rgba(139,197,63,.1)':'rgba(255,255,255,.04)'};cursor:pointer;text-align:left;transition:.15s;">
                         <div style="font-weight:700;font-size:.83rem;color:var(--km-text);">${m.name}</div>
-                        <div style="font-size:.76rem;color:var(--km-text-muted);">${m.email}</div>
+                        <div style="font-size:.76rem;color:var(--km-text-muted);">${m.email||''}</div>
                         <div style="font-size:.72rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>
                     </button>
                 `).join('');
                 idleState.style.display='none';
-                emptyState.style.display=filtered.length?'none':'block';
+                emptyState.style.display=results.length?'none':'block';
                 resultsContainer.querySelectorAll('[data-member-id]').forEach((btn) => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', async () => {
                         recipientInput.value = btn.dataset.memberId;
-                        updateSubmitState(); renderSelectedMemberSummary(); renderMembers(); renderAvailability();
+                        updateSubmitState(); renderSelectedMemberSummary();
+                        renderMemberList(lastSearchResults);
+                        renderAvailability(); // mostra "Caricamento…"
+                        await fetchMemberSlots(btn.dataset.memberId);
+                        renderAvailability(); // aggiorna con gli slot reali
                     });
                 });
+            };
+
+            const renderMembers = () => {
+                const query = normalize(queryInput.value.trim());
+                if (query.length < 2) {
+                    resultsContainer.innerHTML=''; emptyState.style.display='none'; idleState.style.display='block';
+                    return;
+                }
+                // Debounce 300ms per ridurre richieste durante la digitazione
+                clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(async () => {
+                    lastSearchResults = await fetchMembers(query);
+                    renderMemberList(lastSearchResults);
+                }, 300);
             };
 
             const openModal = () => { modal.style.display='block'; renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState(); };
@@ -1228,7 +1260,23 @@
             // - Solo se NON e' presente ?request=ID (cioe' quando vogliamo vedere il dettaglio della richiesta appena creata)
             //   non riapriamo il modale dopo un invio: cosi' UX e' chiusura+toast+dettaglio.
             @if ((int) request('compose'))
-                openModal();
+                (async () => {
+                    @if ($selectedMember)
+                        // Pre-popola la cache con il membro gia' selezionato (passato via ?member=ID)
+                        memberCache[{{ $selectedMember->id }}] = {
+                            id: {{ $selectedMember->id }},
+                            name: @json($selectedMember->name),
+                            email: @json($selectedMember->email ?? ''),
+                            company: @json($selectedMember->memberProfile?->company_name ?? null),
+                            city: @json($selectedMember->memberProfile?->city?->name ?? null),
+                        };
+                        openModal();
+                        await fetchMemberSlots({{ $selectedMember->id }});
+                        renderAvailability();
+                    @else
+                        openModal();
+                    @endif
+                })();
             @endif
         })();
     </script>

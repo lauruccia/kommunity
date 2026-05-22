@@ -118,6 +118,9 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::patch('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'respond'])->name('profile-video-access.respond');
     Route::delete('/video-access/{profileVideoAccessRequest}', [ProfileVideoAccessController::class, 'revoke'])->name('profile-video-access.revoke');
 
+    Route::get('/members/search', [OneToOneController::class, 'searchMembers'])->name('members.search');
+    Route::get('/members/{user}/slots', [OneToOneController::class, 'memberSlots'])->name('members.slots');
+
     Route::get('/one-to-one', [OneToOneController::class, 'index'])->name('one-to-ones.index');
     Route::post('/one-to-one', [OneToOneController::class, 'store'])->middleware('throttle:10,1')->name('one-to-ones.store');
     Route::patch('/one-to-one/{oneToOneRequest}/status', [OneToOneController::class, 'updateStatus'])->name('one-to-ones.status');

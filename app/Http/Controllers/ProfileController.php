@@ -36,7 +36,9 @@ class ProfileController extends Controller
     {
         $user = $request->user()->load(['memberProfile.professions']);
 
-        $professions = Profession::query()->where('is_active', true)->orderBy('name')->get();
+        $professions = Cache::remember('professions_active_list', 3600, fn () =>
+            Profession::query()->where('is_active', true)->orderBy('name')->get()
+        );
 
         return view('profile.edit', [
             'user'              => $user,
@@ -47,11 +49,15 @@ class ProfileController extends Controller
             'professions'       => $professions,
             // Usato per la sezione "tipologie professionisti da conoscere"
             'professionsForInterest' => $professions,
-            'rootCategories'    => Category::query()->with(['activeChildren'])->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get(),
+            'rootCategories'    => Cache::remember('root_categories_tree', 3600, fn () =>
+                Category::query()->with(['activeChildren'])->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get()
+            ),
             'regions'           => Cache::remember('regions_list', 86400, fn () => Region::query()->orderBy('name')->get()),
             'provinces'         => Cache::remember('provinces_list', 86400, fn () => Province::query()->orderBy('name')->get()),
             'cities'            => Cache::remember('cities_list', 86400, fn () => City::query()->orderBy('name')->get()),
-            'companyInterestTypes' => CompanyInterestType::query()->where('is_active', true)->orderBy('name')->get(),
+            'companyInterestTypes' => Cache::remember('company_interest_types_list', 3600, fn () =>
+                CompanyInterestType::query()->where('is_active', true)->orderBy('name')->get()
+            ),
             'referralLink'      => $user->referralRegistrationUrl(),
             'videoUploadLimits' => app(VideoUploadLimits::class),
         ]);

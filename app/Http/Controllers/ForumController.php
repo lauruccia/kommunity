@@ -11,6 +11,7 @@ use App\Notifications\ForumReplyNotification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
@@ -66,18 +67,21 @@ class ForumController extends Controller
 
         $planetThreadScope = fn ($q) => $q->when($activePlanetId, fn ($q) => $q->where('chapter_id', $activePlanetId));
 
-        $stats = [
-            'threads'        => ForumThread::query()->tap($planetThreadScope)->count(),
-            'posts'          => ForumPost::query()
-                ->join('forum_threads', 'forum_threads.id', '=', 'forum_posts.forum_thread_id')
-                ->when($activePlanetId, fn ($q) => $q->where('forum_threads.chapter_id', $activePlanetId))
-                ->count(),
-            'members'        => User::query()->count(),
-            'active_members' => ForumPost::query()
-                ->join('forum_threads', 'forum_threads.id', '=', 'forum_posts.forum_thread_id')
-                ->when($activePlanetId, fn ($q) => $q->where('forum_threads.chapter_id', $activePlanetId))
-                ->distinct('forum_posts.user_id')->count('forum_posts.user_id'),
-        ];
+        $cacheKey = 'forum_stats_planet_' . ($activePlanetId ?? 'all');
+        $stats = Cache::remember($cacheKey, 600, function () use ($activePlanetId, $planetThreadScope): array {
+            return [
+                'threads'        => ForumThread::query()->tap($planetThreadScope)->count(),
+                'posts'          => ForumPost::query()
+                    ->join('forum_threads', 'forum_threads.id', '=', 'forum_posts.forum_thread_id')
+                    ->when($activePlanetId, fn ($q) => $q->where('forum_threads.chapter_id', $activePlanetId))
+                    ->count(),
+                'members'        => User::query()->count(),
+                'active_members' => ForumPost::query()
+                    ->join('forum_threads', 'forum_threads.id', '=', 'forum_posts.forum_thread_id')
+                    ->when($activePlanetId, fn ($q) => $q->where('forum_threads.chapter_id', $activePlanetId))
+                    ->distinct('forum_posts.user_id')->count('forum_posts.user_id'),
+            ];
+        });
 
         $featuredThreads = ForumThread::query()
             ->with(['category', 'user.memberProfile', 'latestPost.user.memberProfile'])

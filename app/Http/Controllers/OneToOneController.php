@@ -14,6 +14,7 @@ use App\Notifications\OneToOneStatusChangedNotification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -99,21 +100,26 @@ class OneToOneController extends Controller
             }
         }
 
+        // Membri con richieste esistenti — solo per il filtro dropdown (piccolo set, no slots)
+        $userId = $request->user()->id;
+        $relatedUserIds = OneToOneRequest::query()
+            ->where(fn ($q) => $q->where('requester_id', $userId)->orWhere('recipient_id', $userId))
+            ->get(['requester_id', 'recipient_id'])
+            ->flatMap(fn ($r) => [$r->requester_id, $r->recipient_id])
+            ->unique()
+            ->filter(fn ($id) => $id !== $userId)
+            ->values();
+
+        $filterMembers = User::query()
+            ->select(['id', 'name'])
+            ->whereKey($relatedUserIds)
+            ->orderBy('name')
+            ->get();
+
         return view('one-to-ones.index', [
             'requests'         => $paginatedRequests,
             'selectedRequest'  => $selectedRequest,
-            'members'          => (function () use ($request): \Illuminate\Database\Eloquent\Collection {
-                $activePlanetId = $request->user()->memberProfile?->active_chapter_id;
-                return User::query()
-                    ->with(['memberProfile.city', 'availabilitySlots' => fn ($q) => $q->where('is_active', true)->orderBy('weekday')->orderBy('starts_at')])
-                    ->whereKeyNot($request->user()->id)
-                    ->whereHas('memberProfile', fn ($q) => $q->where('is_active', true))
-                    ->when($activePlanetId, fn ($q) =>
-                        $q->whereHas('planets', fn ($p) => $p->where('chapters.id', $activePlanetId))
-                    )
-                    ->orderBy('name')
-                    ->get();
-            })(),
+            'members'          => $filterMembers,
             'selectedMember'   => $selectedMemberId ? User::query()->with('memberProfile.city')->find($selectedMemberId) : null,
             'filters'          => $filters,
             'summary'          => [
@@ -431,5 +437,141 @@ class OneToOneController extends Controller
         $this->authorize('deleteSlot', $availabilitySlot);
         $availabilitySlot->delete();
         return back()->with('status', 'availability-deleted')->with('success', 'Slot rimosso.');
+    }
+
+    /**
+     * Ricerca AJAX membri del pianeta attivo — max 20 risultati, senza availability slots.
+     */
+    public function searchMembers(Request $request): JsonResponse
+    {
+        $q = $request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? '';
+        $activePlanetId = $request->user()->memberProfile?->active_chapter_id;
+
+        $users = User::query()
+            ->select(['id', 'name', 'email'])
+            ->with([
+                'memberProfile:user_id,city_id,company_name',
+                'memberProfile.city:id,name',
+            ])
+            ->whereKeyNot($request->user()->id)
+            ->whereHas('memberProfile', fn ($mq) => $mq->where('is_active', true))
+            ->when($activePlanetId, fn ($mq) =>
+                $mq->whereHas('planets', fn ($p) => $p->where('chapters.id', $activePlanetId))
+            )
+            ->when($q, fn ($mq) =>
+                $mq->where(fn ($n) => $n
+                    ->where('name', 'like', '%'.$q.'%')
+                    ->orWhere('email', 'like', '%'.$q.'%')
+                )
+            )
+            ->orderBy('name')
+            ->limit(20)
+            ->get()
+            ->map(fn ($user) => [
+                'id'      => $user->id,
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'company' => $user->memberProfile?->company_name,
+                'city'    => $user->memberProfile?->city?->name,
+            ]);
+
+        return response()->json($users);
+    }
+
+    /**
+     * Restituisce gli availability slots attivi di un membro — chiamata AJAX alla selezione.
+     */
+    public function memberSlots(Request $request, User $user): JsonResponse
+    {
+        $slots = AvailabilitySlot::query()
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderBy('weekday')
+            ->orderBy('starts_at')
+            ->get(['id', 'weekday', 'starts_at', 'ends_at', 'meeting_mode', 'location'])
+            ->map(fn ($slot) => [
+                'id'           => $slot->id,
+                'weekday'      => $slot->weekday,
+                'starts_at'    => substr($slot->starts_at, 0, 5),
+                'ends_at'      => substr($slot->ends_at, 0, 5),
+                'meeting_mode' => $slot->meeting_mode,
+                'location'     => $slot->location,
+            ]);
+
+        return response()->json($slots);
+    }
+}
+        ]);
+
+        return back()->with('status', 'availability-created')->with('success', 'Disponibilità aggiunta (slot di 1 ora).');
+    }
+
+    public function destroyAvailability(Request $request, AvailabilitySlot $availabilitySlot): RedirectResponse
+    {
+        $this->authorize('deleteSlot', $availabilitySlot);
+        $availabilitySlot->delete();
+        return back()->with('status', 'availability-deleted')->with('success', 'Slot rimosso.');
+    }
+
+    /**
+     * Ricerca AJAX membri del pianeta attivo — max 20 risultati, senza availability slots.
+     */
+    public function searchMembers(Request $request): JsonResponse
+    {
+        $q = $request->validate(['q' => ['nullable', 'string', 'max:100']])['q'] ?? '';
+        $activePlanetId = $request->user()->memberProfile?->active_chapter_id;
+
+        $users = User::query()
+            ->select(['id', 'name', 'email'])
+            ->with([
+                'memberProfile:user_id,city_id,company_name',
+                'memberProfile.city:id,name',
+            ])
+            ->whereKeyNot($request->user()->id)
+            ->whereHas('memberProfile', fn ($mq) => $mq->where('is_active', true))
+            ->when($activePlanetId, fn ($mq) =>
+                $mq->whereHas('planets', fn ($p) => $p->where('chapters.id', $activePlanetId))
+            )
+            ->when($q, fn ($mq) =>
+                $mq->where(fn ($n) => $n
+                    ->where('name', 'like', '%'.$q.'%')
+                    ->orWhere('email', 'like', '%'.$q.'%')
+                )
+            )
+            ->orderBy('name')
+            ->limit(20)
+            ->get()
+            ->map(fn ($user) => [
+                'id'      => $user->id,
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'company' => $user->memberProfile?->company_name,
+                'city'    => $user->memberProfile?->city?->name,
+            ]);
+
+        return response()->json($users);
+    }
+
+    /**
+     * Restituisce gli availability slots attivi di un membro — chiamata AJAX alla selezione.
+     */
+    public function memberSlots(Request $request, User $user): JsonResponse
+    {
+        $slots = AvailabilitySlot::query()
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderBy('weekday')
+            ->orderBy('starts_at')
+            ->get(['id', 'weekday', 'starts_at', 'ends_at', 'meeting_mode', 'location'])
+            ->map(fn ($slot) => [
+                'id'           => $slot->id,
+                'weekday'      => $slot->weekday,
+                'starts_at'    => substr($slot->starts_at, 0, 5),
+                'ends_at'      => substr($slot->ends_at, 0, 5),
+                'meeting_mode' => $slot->meeting_mode,
+                'location'     => $slot->location,
+            ]);
+
+        return response()->json($slots);
     }
 }
