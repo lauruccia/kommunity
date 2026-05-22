@@ -809,7 +809,11 @@
                         <button type="submit" class="km-button-primary" style="width:100%;">Aggiorna</button>
                     </form>
 
-                    {{-- ── REFERENZA (solo status=completed) ───────────────────────── --}}
+                    {{-- ══════════════════════════════════════════════════════════ --}}
+                    {{-- ── RECENSIONE (solo status=completed) ─────────────────── --}}
+                    {{-- Flusso distinto dalle referenze business (/referenze).    --}}
+                    {{-- Qui si valuta la PERSONA e l'INCONTRO, non un'opportunità.--}}
+                    {{-- ══════════════════════════════════════════════════════════ --}}
                     @if ($selectedRequest->status->value === 'completed')
                         @php
                             $myRef        = $selectedRequest->references->firstWhere('author_id', auth()->id());
@@ -817,10 +821,21 @@
                             $theirRef     = $selectedRequest->references->firstWhere('recipient_id', auth()->id());
                         @endphp
 
-                        {{-- Referenza già lasciata: mostra riepilogo --}}
+                        {{-- Separatore visivo --}}
+                        <div style="display:flex;align-items:center;gap:.75rem;margin:.25rem 0;">
+                            <div style="flex:1;height:1px;background:rgba(251,191,36,.18);"></div>
+                            <span style="font-size:.65rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:rgba(251,191,36,.55);">Recensione</span>
+                            <div style="flex:1;height:1px;background:rgba(251,191,36,.18);"></div>
+                        </div>
+                        <div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:.25rem;line-height:1.5;padding:0 .1rem;">
+                            💬 La recensione riguarda la <strong style="color:rgba(255,255,255,.5);">persona e l'incontro</strong>, non un'opportunità business.
+                            Per passare un contatto commerciale usa la sezione <a href="{{ route('referrals.index') }}" style="color:rgba(121,200,67,.7);text-decoration:underline;">Referenze business</a>.
+                        </div>
+
+                        {{-- Recensione già lasciata: mostra riepilogo --}}
                         @if ($myRef)
-                            <div class="km-dark-card" style="padding:1rem;border-color:rgba(45,212,191,.22);background:rgba(45,212,191,.04);">
-                                <p class="km-eyebrow" style="color:#5EEAD4;margin-bottom:.55rem;">✔ La tua referenza per {{ $counterpart?->name }}</p>
+                            <div class="km-dark-card" style="padding:1rem;border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.04);">
+                                <p class="km-eyebrow" style="color:#FCD34D;margin-bottom:.55rem;">✔ La tua recensione per {{ $counterpart?->name }}</p>
 
                                 {{-- Stelle --}}
                                 @if ($myRef->rating)
@@ -844,7 +859,7 @@
                                 @if (!empty($myRef->tags))
                                     <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem;">
                                         @foreach ($myRef->tags as $tag)
-                                            <span style="padding:.2rem .65rem;border-radius:999px;background:rgba(45,212,191,.15);color:#5EEAD4;border:1px solid rgba(45,212,191,.3);font-size:.72rem;font-weight:700;">{{ $tag }}</span>
+                                            <span style="padding:.2rem .65rem;border-radius:999px;background:rgba(251,191,36,.15);color:#FCD34D;border:1px solid rgba(251,191,36,.3);font-size:.72rem;font-weight:700;">{{ $tag }}</span>
                                         @endforeach
                                     </div>
                                 @endif
@@ -855,13 +870,13 @@
                                 @endif
                             </div>
                         @else
-                            {{-- Form referenza --}}
-                            <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" class="km-dark-card" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;border-color:rgba(45,212,191,.22);background:rgba(45,212,191,.03);">
+                            {{-- Form recensione --}}
+                            <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" class="km-dark-card" style="padding:1rem;display:flex;flex-direction:column;gap:.7rem;border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.03);">
                                 @csrf
                                 @method('PATCH')
                                 <div>
-                                    <p class="km-eyebrow" style="color:#5EEAD4;">Lascia una referenza</p>
-                                    <p class="km-muted" style="margin-top:.2rem;font-size:.75rem;">Per {{ $counterpart?->name }} — visibile agli altri membri.</p>
+                                    <p class="km-eyebrow" style="color:#FCD34D;">Lascia una recensione</p>
+                                    <p class="km-muted" style="margin-top:.2rem;font-size:.75rem;">Per {{ $counterpart?->name }} — visibile sul suo profilo pubblico.</p>
                                 </div>
 
                                 {{-- Rating stelle interattivo --}}
@@ -909,20 +924,20 @@
 
                                 {{-- Testo libero --}}
                                 <textarea name="ref_content" rows="3" class="km-dark-input"
-                                          placeholder="Scrivi una referenza per {{ $counterpart?->name }}…"
+                                          placeholder="Scrivi la tua recensione per {{ $counterpart?->name }}…"
                                           style="resize:vertical;"></textarea>
 
-                                <button type="submit" style="display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:1rem;background:rgba(45,212,191,.22);border:1px solid rgba(45,212,191,.5);color:#5EEAD4;font-size:.85rem;font-weight:700;cursor:pointer;">
+                                <button type="submit" style="display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:1rem;background:rgba(251,191,36,.18);border:1px solid rgba(251,191,36,.45);color:#FCD34D;font-size:.85rem;font-weight:700;cursor:pointer;">
                                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
-                                    Invia referenza
+                                    Pubblica recensione
                                 </button>
                             </form>
                         @endif
 
-                        {{-- Referenza ricevuta dall'altra parte --}}
+                        {{-- Recensione ricevuta dall'altra parte --}}
                         @if ($theirRef)
-                            <div class="km-glass-box" style="padding:.9rem;border-color:rgba(139,197,63,.18);">
-                                <p class="km-eyebrow" style="color:var(--km-green-2);margin-bottom:.5rem;">Referenza ricevuta da {{ $counterpart?->name }}</p>
+                            <div class="km-glass-box" style="padding:.9rem;border-color:rgba(251,191,36,.18);">
+                                <p class="km-eyebrow" style="color:#FCD34D;margin-bottom:.5rem;">Recensione ricevuta da {{ $counterpart?->name }}</p>
 
                                 @if ($theirRef->rating)
                                     <div style="display:flex;gap:.2rem;margin-bottom:.4rem;">
@@ -954,7 +969,7 @@
                             </div>
                         @endif
                     @endif
-                    {{-- ── fine referenza ───────────────────────────────────────────── --}}
+                    {{-- ── fine recensione ─────────────────────────────────────────── --}}
 
                 </div>
             </div>

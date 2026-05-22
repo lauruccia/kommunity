@@ -219,7 +219,7 @@
                         <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità — contesto, obiettivo, perché questo membro può aiutare" required>{{ old('description') }}</textarea>
                         <input type="text" name="company_name" value="{{ old('company_name') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Azienda (opzionale)">
                         <div>
-                            <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:rgba(222,235,238,.55);margin-bottom:.5rem;">Priorità</p>
+                            <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:rgba(222,235,238,.55);margin-bottom:.5rem;">Qualità dell'opportunità</p>
                             <div id="kr-new-stars" style="display:flex;gap:.3rem;">
                                 @for ($s = 1; $s <= 5; $s++)
                                     <button type="button" data-val="{{ $s }}" onclick="krSetStar({{ $s }},'kr-new-stars','kr-new-priority')" style="background:none;border:none;cursor:pointer;padding:.15rem;">
@@ -276,7 +276,7 @@
                             </select>
                         </label>
                         <div>
-                            <span class="mb-2 block text-sm text-white">Priorità min.</span>
+                            <span class="mb-2 block text-sm text-white">Qualità min.</span>
                             <div id="kr-filter-stars" style="display:flex;gap:.25rem;margin-top:.35rem;">
                                 @for ($s = 1; $s <= 5; $s++)
                                     <button type="button" data-val="{{ $s }}" onclick="krSetStar({{ $s }},'kr-filter-stars','kr-filter-priority')" style="background:none;border:none;cursor:pointer;padding:.1rem;">

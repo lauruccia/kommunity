@@ -288,16 +288,25 @@
 </div>
 @endif
 
-{{-- Referenze da Kommunity --}}
+{{-- Referenze business --}}
 @if (!empty($publicEndorsements) && $publicEndorsements->isNotEmpty())
 @php $sidebarEndorsements = $publicEndorsements->sortByDesc(fn($r) => in_array($r->priority, ['1','2','3','4','5'], true) ? (int)$r->priority : 3)->take(3); @endphp
 <div class="km-panel p-6">
     <div class="flex items-center justify-between">
-        <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Referenze</h3>
+        <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Referenze business</h3>
         <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-            {{ $publicEndorsements->count() }} {{ $publicEndorsements->count() === 1 ? 'referenza' : 'referenze' }}
+            {{ $publicEndorsements->count() }} {{ $publicEndorsements->count() === 1 ? 'ricevuta' : 'ricevute' }}
         </span>
     </div>
+    {{-- Contatore chiuse con successo --}}
+    @if (!empty($wonReferralsCount) && $wonReferralsCount > 0)
+    <div class="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2">
+        <svg class="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
+        </svg>
+        <span class="text-xs font-semibold text-emerald-700">{{ $wonReferralsCount }} {{ $wonReferralsCount === 1 ? 'chiusa con successo' : 'chiuse con successo' }}</span>
+    </div>
+    @endif
     <div class="mt-4 space-y-3">
         @foreach ($sidebarEndorsements as $ref)
         @php
