@@ -38,6 +38,12 @@ class RegisteredUserController extends Controller
 
         $inviter = User::query()->where('referral_code', $referralCode)->first();
 
+        // Gestione parametro ?planet=slug: memorizza il pianeta target in sessione
+        $planetSlug = request()->query('planet');
+        if (is_string($planetSlug) && $planetSlug !== '') {
+            session(['referral_planet_slug' => $planetSlug]);
+        }
+
         // Recupera il contesto invito-pianeta se presente in sessione
         $invitationPlanet = session('invitation_planet');
         $invitationBy     = session('invitation_by');
@@ -60,18 +66,13 @@ class RegisteredUserController extends Controller
                 ->with('error', 'La registrazione e disponibile solo tramite invito.');
         }
 
-        // Il pianeta di destinazione viene sempre determinato lato server (dal pianeta attivo
-        // dell'invitante o dall'invito token). Il parametro ?planet= nell'URL viene ignorato
-        // per evitare che chiunque possa modificare il link e iscriversi a un pianeta arbitrario.
+        // Risolvi il pianeta da ?planet=slug (parametro nel link referral personalizzato)
         $referralPlanetName = null;
-        if ($inviter) {
-            $inviterPlanetId = $inviter->activePlanetId()
-                ?? $inviter->planets()->value('chapters.id');
-            if ($inviterPlanetId) {
-                $referralPlanetName = \App\Models\Chapter::query()
-                    ->where('id', $inviterPlanetId)
-                    ->value('name');
-            }
+        $referralPlanetSlug = session('referral_planet_slug');
+        if ($referralPlanetSlug) {
+            $referralPlanetName = \App\Models\Chapter::query()
+                ->where('slug', $referralPlanetSlug)
+                ->value('name');
         }
 
         return view('auth.register', [
@@ -146,11 +147,21 @@ class RegisteredUserController extends Controller
 
         // ── Gestione invito pianeta ───────────────────────────────────────────
         if (! $chapterToken && $inviter) {
-            // Il pianeta viene sempre determinato dal pianeta attivo dell'invitante,
-            // mai da parametri URL (per sicurezza: evita che si modifichi il link
-            // per iscriversi a pianeti arbitrari).
-            $inviterPlanetId = $inviter->activePlanetId()
-                ?? $inviter->planets()->value('chapters.id');
+            // Se il link aveva ?planet=slug, usa quel pianeta specifico
+            $referralPlanetSlug = $request->session()->get('referral_planet_slug');
+            $inviterPlanetId = null;
+
+            if ($referralPlanetSlug) {
+                $inviterPlanetId = \App\Models\Chapter::query()
+                    ->where('slug', $referralPlanetSlug)
+                    ->value('id');
+            }
+
+            // Fallback: pianeta attivo dell'invitante
+            if (! $inviterPlanetId) {
+                $inviterPlanetId = $inviter->activePlanetId()
+                    ?? $inviter->planets()->value('chapters.id');
+            }
 
             if ($inviterPlanetId) {
                 MemberProfile::$adminOverrideLimit = true;
@@ -165,6 +176,8 @@ class RegisteredUserController extends Controller
                     ['status' => 'active', 'joined_at' => now(), 'updated_at' => now(), 'created_at' => now()]
                 );
             }
+
+            $request->session()->forget('referral_planet_slug');
         }
 
         event(new Registered($user));

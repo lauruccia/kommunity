@@ -36,14 +36,6 @@ class ChapterInviteController extends Controller
             return redirect()->route('login')->with('error', $reason);
         }
 
-        // Chi ha emesso l'invito deve essere ancora membro attivo del pianeta.
-        // Questo impedisce di usare un invito inviato da qualcuno che nel frattempo
-        // è uscito dal pianeta (o che non ne ha mai fatto parte).
-        if (! $this->inviterIsMember($invitation)) {
-            return redirect()->route('login')
-                ->with('error', 'Chi ti ha invitato non è più membro di questo Pianeta. L\'invito non è valido.');
-        }
-
         // Salva token in sessione (serve sia per utente non loggato che per loggato)
         session(['chapter_invitation_token' => $token]);
 
@@ -80,12 +72,6 @@ class ChapterInviteController extends Controller
             return redirect()->route('dashboard')->with('error', 'Invito non più valido.');
         }
 
-        // Ricontrollo appartenenza anche al momento dell'accettazione
-        if (! $this->inviterIsMember($invitation)) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Chi ti ha invitato non è più membro di questo Pianeta. L\'invito non è valido.');
-        }
-
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
@@ -107,27 +93,5 @@ class ChapterInviteController extends Controller
             'success',
             'Benvenuto nel Pianeta ' . ($invitation->chapter?->name ?? '') . '!'
         );
-    }
-
-    /**
-     * Verifica che chi ha emesso l'invito sia ancora un membro attivo del pianeta.
-     *
-     * Questo controllo impedisce due scenari di abuso:
-     *   1. Un utente che ha lasciato il pianeta ha già condiviso un link di invito.
-     *   2. Qualcuno modifica il token per usarlo su un pianeta dove l'invitante non è mai stato.
-     *      (caso teorico: il token è opaco e casuale, ma il controllo aggiunge un livello extra)
-     */
-    private function inviterIsMember(ChapterInvitation $invitation): bool
-    {
-        // Se l'invito è stato emesso dal sistema (nessun invitante), lo consideriamo valido.
-        if (! $invitation->invited_by_user_id || ! $invitation->chapter_id) {
-            return true;
-        }
-
-        return \DB::table('chapter_members')
-            ->where('chapter_id', $invitation->chapter_id)
-            ->where('user_id', $invitation->invited_by_user_id)
-            ->where('status', 'active')
-            ->exists();
     }
 }
