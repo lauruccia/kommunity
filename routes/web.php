@@ -62,6 +62,7 @@ Route::get('/banner/{bannerCampaign}/click', BannerClickController::class)
 // ── Pagine membro pubbliche: visibili anche da link condiviso senza login ────
 Route::get('/member/{slug}', [MemberOnepageController::class, 'show'])->name('members.show');
 Route::get('/member/{slug}/referenze', [MemberOnepageController::class, 'referrals'])->name('members.referrals');
+Route::get('/member/{slug}/recensioni', [MemberOnepageController::class, 'reviews'])->name('members.reviews');
 
 // ── Biglietto da visita digitale (pubblico, nessun layout app) ───────────────
 Route::get('/card/{slug}', [CardController::class, 'show'])->name('card.show');

@@ -13,59 +13,6 @@ use Illuminate\Support\Facades\Schema;
 
 class MemberOnepageController extends Controller
 {
-    public function reviews(Request $request, string $slug): View
-    {
-        $onepage = MemberOnepage::query()
-            ->with(['user.memberProfile'])
-            ->where('slug', $slug)
-            ->where('is_active', true)
-            ->firstOrFail();
-
-        $memberUserId = $onepage->user->id;
-        $sort         = $request->get('sort', 'recenti');
-
-        $query = OneToOneReference::query()
-            ->with('author')
-            ->where('recipient_id', $memberUserId)
-            ->where(function ($q): void {
-                $q->whereNotNull('content')
-                  ->orWhereNotNull('rating');
-            });
-
-        match ($sort) {
-            'migliori' => $query->orderBy('rating', 'desc'),
-            'peggiori' => $query->orderBy('rating', 'asc'),
-            default    => $query->latest(),
-        };
-
-        $reviews    = $query->paginate(12)->withQueryString();
-        $totalCount = OneToOneReference::query()
-            ->where('recipient_id', $memberUserId)
-            ->where(function ($q): void {
-                $q->whereNotNull('content')->orWhereNotNull('rating');
-            })
-            ->count();
-
-        $avgRating = (function () use ($memberUserId): ?float {
-            $ratings = OneToOneReference::query()
-                ->where('recipient_id', $memberUserId)
-                ->whereNotNull('rating')
-                ->where('rating', '>', 0)
-                ->pluck('rating');
-            return $ratings->isNotEmpty() ? round($ratings->avg(), 1) : null;
-        })();
-
-        return view('members.reviews', [
-            'onepage'    => $onepage,
-            'profile'    => $onepage->user->memberProfile,
-            'user'       => $onepage->user,
-            'reviews'    => $reviews,
-            'totalCount' => $totalCount,
-            'avgRating'  => $avgRating,
-            'sort'       => $sort,
-        ]);
-    }
-
     public function referrals(Request $request, string $slug): View
     {
         $onepage = MemberOnepage::query()
