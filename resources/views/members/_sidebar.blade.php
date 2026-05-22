@@ -106,8 +106,9 @@
         ?? $profile->profession?->name
         ?? null;
 
-    // Pianeta principale (solo active_chapter_id, non tutti i pianeti)
-    $primaryPlanet = $profile->chapter?->name ?? null;
+    // Pianeta da mostrare nel profilo: primary_chapter_id scelto dall'utente,
+    // con fallback a active_chapter_id se non ancora impostato.
+    $primaryPlanet = $profile->primaryChapter?->name ?? $profile->chapter?->name ?? null;
 @endphp
 <div class="km-panel p-6">
     <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Presenza business</h3>

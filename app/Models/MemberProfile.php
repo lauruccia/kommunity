@@ -62,6 +62,7 @@ class MemberProfile extends Model
         'intro_video_url',
         'intro_video_duration_minutes',
         'active_chapter_id',
+        'primary_chapter_id',
         'is_visible_in_directory',
         'is_active',
         'onboarding_completed',
@@ -197,6 +198,15 @@ class MemberProfile extends Model
     public function chapter(): BelongsTo
     {
         return $this->belongsTo(Chapter::class, 'active_chapter_id');
+    }
+
+    /**
+     * Pianeta scelto dall'utente come principale nel profilo pubblico.
+     * Se null, il sidebar usa chapter() come fallback.
+     */
+    public function primaryChapter(): BelongsTo
+    {
+        return $this->belongsTo(Chapter::class, 'primary_chapter_id');
     }
 
     /**

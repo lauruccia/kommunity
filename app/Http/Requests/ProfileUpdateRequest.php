@@ -76,6 +76,10 @@ class ProfileUpdateRequest extends FormRequest
             'intro_video_duration_minutes' => ['nullable', Rule::in([2, 3, 5])],
             'gallery_images' => ['nullable', 'array', 'max:12'],
             'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
+            'primary_chapter_id' => [
+                'nullable',
+                Rule::in($this->user()->planets()->pluck('chapters.id')->toArray()),
+            ],
             'preferred_contact_method' => ['nullable', Rule::in(['email', 'phone', 'whatsapp', 'platform'])],
             'show_email' => ['sometimes', 'boolean'],
             'show_phone' => ['sometimes', 'boolean'],
