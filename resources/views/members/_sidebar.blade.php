@@ -198,6 +198,74 @@
 </div>
 @endif
 
+{{-- Recensioni da Kommunity --}}
+@if (!empty($reviews) && $reviews->isNotEmpty())
+@php
+    $reviewsWithRating = $reviews->filter(fn ($r) => $r->rating > 0);
+    $sidebarAvgRating  = $reviewsWithRating->isNotEmpty()
+        ? round($reviewsWithRating->avg('rating'), 1)
+        : null;
+    $sidebarReviews = $reviews->take(3);
+@endphp
+<div class="km-panel p-6">
+    <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Recensioni</h3>
+        @if ($sidebarAvgRating)
+            <div class="flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1">
+                <span class="flex gap-0.5">
+                    @for ($i = 1; $i <= 5; $i++)
+                        <svg class="h-3 w-3 {{ $i <= floor($sidebarAvgRating) ? 'text-yellow-400' : 'text-stone-200' }}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    @endfor
+                </span>
+                <span class="text-xs font-semibold text-amber-700">{{ number_format($sidebarAvgRating, 1) }}</span>
+                <span class="text-xs text-stone-400">({{ $reviews->count() }})</span>
+            </div>
+        @else
+            <span class="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold text-stone-600">
+                {{ $reviews->count() }} {{ $reviews->count() === 1 ? 'recensione' : 'recensioni' }}
+            </span>
+        @endif
+    </div>
+
+    <div class="mt-4 space-y-3">
+        @foreach ($sidebarReviews as $review)
+        <div class="rounded-xl border border-stone-100 bg-stone-50 p-3">
+            <div class="flex items-start gap-2">
+                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-200 text-xs font-semibold text-stone-600">
+                    {{ strtoupper(substr($review->author?->name ?? '?', 0, 1)) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="max-w-[110px] truncate text-xs font-semibold text-stone-700">{{ $review->author?->name ?? 'Membro Kommunity' }}</span>
+                        @if ($review->rating)
+                            <span class="flex gap-0.5">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <svg class="h-3 w-3 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-stone-200' }}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                @endfor
+                            </span>
+                        @endif
+                        @if ($review->is_recommended)
+                            <span class="rounded-full bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700">✓</span>
+                        @endif
+                    </div>
+                    @if (!empty($review->tags))
+                        <div class="mt-1 flex flex-wrap gap-1">
+                            @foreach ($review->tags as $tag)
+                                <span class="rounded-full bg-white px-2 py-0.5 text-xs text-stone-500 ring-1 ring-stone-200">{{ $tag }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+                    @if ($review->content)
+                        <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-600">{{ $review->content }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- Referenze da Kommunity --}}
 @if (!empty($publicEndorsements) && $publicEndorsements->isNotEmpty())
 @php $sidebarEndorsements = $publicEndorsements->sortByDesc(fn($r) => in_array($r->priority, ['1','2','3','4','5'], true) ? (int)$r->priority : 3)->take(3); @endphp
