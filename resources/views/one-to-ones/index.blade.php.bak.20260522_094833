@@ -386,20 +386,7 @@
                                                 </div>
                                                 <div class="min-w-0">
                                                     <p class="truncate text-sm font-black text-white">{{ $counterpartName }}</p>
-                                                    <p class="mt-0.5 text-xs text-white/45">
-                                                        @php
-                                                            $subtitleLabel = match($requestItem->status->value) {
-                                                                'pending'     => $isReceived ? 'Da gestire'       : 'In attesa di risposta',
-                                                                'rescheduled' => $isReceived ? 'Nuova proposta'   : 'Riprogrammazione inviata',
-                                                                'accepted'    => 'Incontro confermato',
-                                                                'declined'    => $isReceived ? 'Hai rifiutato'    : 'Richiesta rifiutata',
-                                                                'cancelled'   => $isReceived ? 'Annullata dall\'altro' : 'Annullata da te',
-                                                                'completed'   => 'Completato',
-                                                                default       => $isReceived ? 'Ricevuta'         : 'Inviata',
-                                                            };
-                                                        @endphp
-                                                        {{ $subtitleLabel }}
-                                                    </p>
+                                                    <p class="mt-0.5 text-xs text-white/45">{{ $isReceived ? 'Da gestire' : 'In attesa di risposta' }}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -490,8 +477,8 @@
                                             <button type="submit" class="rounded-full border border-[rgba(139,197,63,.42)] bg-[rgba(139,197,63,.12)] px-3 py-1.5 text-xs font-black text-[color:var(--km-green-2)]">Accetta</button>
                                         </form>
                                     @endif
-                                    <a href="{{ $detailUrl }}" class="rounded-full border px-3 py-1.5 text-xs font-black transition {{ $isOpen ? 'border-[rgba(139,197,63,.5)] bg-[rgba(139,197,63,.10)] text-[color:var(--km-green-2)]' : 'border-white/[.12] bg-white/[.04] text-white/80 hover:border-[rgba(139,197,63,.35)]' }}">
-                                        {{ $isOpen ? 'Chiudi' : 'Dettagli' }}
+                                    <a href="{{ $detailUrl }}" class="rounded-full border border-white/[.12] bg-white/[.04] px-3 py-1.5 text-xs font-black text-white/80">
+                                        Dettagli
                                     </a>
                                 </div>
                             </article>
@@ -786,18 +773,12 @@
                             </div>
                             <textarea name="follow_up_notes" rows="2" class="km-dark-input" placeholder="Es. invio proposta entro venerdi, richiamo lunedi" style="resize:vertical;">{{ $sharedFollowUp }}</textarea>
                             @if (!in_array($selectedRequest->status->value, ['completed','cancelled']))
-                                {{-- Annulla in form separato: evita che il salvataggio delle note avvenga insieme all'annullamento --}}
                                 <div style="background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:1.2rem;padding:.8rem;">
                                     <p style="font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#FDA4AF;">Annulla richiesta</p>
                                     <p style="margin-top:.25rem;font-size:.75rem;color:rgba(253,164,175,.7);line-height:1.5;">Puoi annullare finche' non e' completata.</p>
-                                    <form method="POST" action="{{ route('one-to-ones.status', $selectedRequest) }}" style="margin:0;display:inline;">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="cancelled">
-                                        <button type="submit" onclick="return confirm('Sei sicuro di voler annullare questa richiesta?')" style="margin-top:.65rem;display:inline-block;padding:.35rem .9rem;border-radius:999px;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.73rem;font-weight:700;cursor:pointer;">
-                                            Annulla richiesta
-                                        </button>
-                                    </form>
+                                    <button type="submit" name="status" value="cancelled" onclick="return confirm('Sei sicuro di voler annullare questa richiesta?')" style="margin-top:.65rem;display:inline-block;padding:.35rem .9rem;border-radius:999px;border:1px solid rgba(244,63,94,.35);background:transparent;color:#FDA4AF;font-size:.73rem;font-weight:700;cursor:pointer;">
+                                        Annulla richiesta
+                                    </button>
                                 </div>
                             @endif
                         @endif

@@ -108,6 +108,7 @@
                     <div class="mt-4 flex items-center gap-2 text-xs font-black">
                         <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Tutti</a>
                         <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Non letti</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Preferiti</a>
                     </div>
                 </div>
 

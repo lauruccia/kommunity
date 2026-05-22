@@ -22,7 +22,7 @@ class ConversationController extends Controller
         $this->markUserSeen($user);
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
-            'filter' => ['nullable', 'in:all,unread'],
+            'filter' => ['nullable', 'in:all,unread,favorites'],
             'to'     => ['nullable', 'integer', 'exists:users,id'],
         ]);
 
@@ -51,7 +51,7 @@ class ConversationController extends Controller
 
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
-            'filter' => ['nullable', 'in:all,unread'],
+            'filter' => ['nullable', 'in:all,unread,favorites'],
         ]);
 
         $conversation->load([

@@ -140,6 +140,7 @@
                     <div class="mt-4 flex items-center gap-2 text-xs font-black">
                         <a href="{{ route('conversations.index') }}" class="{{ $activeFilter === 'all' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Tutti</a>
                         <a href="{{ route('conversations.index', ['filter' => 'unread']) }}" class="{{ $activeFilter === 'unread' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Non letti</a>
+                        <a href="{{ route('conversations.index', ['filter' => 'favorites']) }}" class="{{ $activeFilter === 'favorites' ? 'km-cta-primary' : 'km-cta-secondary' }} px-3 py-2">Preferiti</a>
                     </div>
                 </div>
 
@@ -339,7 +340,7 @@
                         <option value="{{ $member->id }}">{{ $member->name }}</option>
                     @endforeach
                 </select>
-                <textarea name="message" rows="5" class="km-dark-input w-full" placeholder="Scrivi il primo messaggio" required minlength="2"></textarea>
+                <textarea name="message" rows="5" class="km-dark-input w-full" placeholder="Scrivi il primo messaggio" required></textarea>
                 <button type="submit" class="km-button-primary w-full">Invia messaggio</button>
             </form>
         </div>

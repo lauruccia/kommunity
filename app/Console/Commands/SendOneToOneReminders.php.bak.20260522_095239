@@ -49,7 +49,7 @@ class SendOneToOneReminders extends Command
     {
         $requests = OneToOneRequest::query()
             ->with(['requester', 'recipient'])
-            ->where('status', OneToOneStatus::Accepted->value)  // Solo confermati: Rescheduled = orario in attesa di ri-accettazione
+            ->whereIn('status', [OneToOneStatus::Accepted->value, OneToOneStatus::Rescheduled->value])
             ->whereBetween('requested_at', [$from, $to])
             ->whereNull($sentColumn)
             ->get();

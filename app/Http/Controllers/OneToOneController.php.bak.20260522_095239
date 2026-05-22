@@ -257,16 +257,10 @@ class OneToOneController extends Controller
                 $oneToOneRequest->status = OneToOneStatus::Completed;
                 $oneToOneRequest->completed_at ??= now();
                 $statusMsg = 'one-to-one-completed';
-                $oneToOneRequest->save();
-                // Notifica l'altra parte: il primo che aveva confermato
-                // non saprebbe altrimenti che l'incontro è stato chiuso.
-                $otherUserId = $isRequester ? $oneToOneRequest->recipient_id : $oneToOneRequest->requester_id;
-                $otherUser   = User::find($otherUserId);
-                $otherUser?->notify(new OneToOneStatusChangedNotification($oneToOneRequest, OneToOneStatus::Completed, $user->name));
             } else {
                 $statusMsg = 'one-to-one-completion-confirmed';
-                $oneToOneRequest->save();
             }
+            $oneToOneRequest->save();
         }
 
         // ── FIX #5: il destinatario accetta / rifiuta / passa a rischeduled ──

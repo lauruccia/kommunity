@@ -3,12 +3,10 @@
 namespace App\Providers;
 
 use App\Models\AvailabilitySlot;
-use App\Models\Conversation;
 use App\Models\OneToOneRequest;
 use App\Models\User;
 use App\Notifications\Channels\WebPushChannel;
 use App\Observers\UserObserver;
-use App\Policies\ConversationPolicy;
 use App\Policies\OneToOnePolicy;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Gate;
@@ -32,9 +30,8 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
 
         // ── Policy registrations ─────────────────────────────────────────────
-        // Registrazione esplicita: su hosting condiviso la cache delle classi
-        // può impedire l'auto-discovery delle policy Laravel.
-        Gate::policy(Conversation::class, ConversationPolicy::class);
+        // OneToOnePolicy non segue la convenzione <Model>Policy, quindi va
+        // registrata esplicitamente per evitare 403 nell'auto-discovery.
         Gate::policy(OneToOneRequest::class, OneToOnePolicy::class);
         Gate::policy(AvailabilitySlot::class, OneToOnePolicy::class);
 
