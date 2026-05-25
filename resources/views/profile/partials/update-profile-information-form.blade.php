@@ -703,8 +703,9 @@
 
                     @php $currentVisibility = $profile->intro_video_visibility ?? 'public'; @endphp
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="flex flex-1 cursor-pointer items-start gap-3 rounded-xl border p-4 transition
+                    <div style="display:flex; gap:0.75rem; width:100%;">
+                        <label style="flex:1; min-width:0;"
+                               class="cursor-pointer flex items-start gap-3 rounded-xl border p-4 transition
                                       {{ $currentVisibility === 'public'
                                           ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
                                           : 'border-stone-200 bg-white hover:border-stone-300' }}">
@@ -716,7 +717,8 @@
                                 <p class="mt-1 text-xs text-stone-500">Chiunque visiti il tuo profilo vede il video subito, senza fare richiesta.</p>
                             </div>
                         </label>
-                        <label class="flex flex-1 cursor-pointer items-start gap-3 rounded-xl border p-4 transition
+                        <label style="flex:1; min-width:0;"
+                               class="cursor-pointer flex items-start gap-3 rounded-xl border p-4 transition
                                       {{ $currentVisibility === 'on_request'
                                           ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
                                           : 'border-stone-200 bg-white hover:border-stone-300' }}">
