@@ -136,6 +136,19 @@
 @php
     $videoIsPublic   = $profile->isVideoPublic();
     $canWatch        = $canViewIntroVideo ?? false;
+@endphp
+@if (request()->query('vdbg') === '1')
+<div style="background:#1e1b4b;color:#a5b4fc;font-family:monospace;font-size:11px;padding:10px 14px;border-radius:10px;margin-bottom:8px;line-height:1.7;">
+    <strong style="color:#818cf8">VIDEO DEBUG</strong><br>
+    visibility DB: <strong>{{ $profile->intro_video_visibility ?? 'NULL' }}</strong><br>
+    isVideoPublic(): <strong>{{ $videoIsPublic ? 'TRUE' : 'false' }}</strong><br>
+    canViewIntroVideo (dal controller): <strong>{{ ($canViewIntroVideo ?? false) ? 'TRUE' : 'false' }}</strong><br>
+    canWatch: <strong>{{ $canWatch ? 'TRUE' : 'false' }}</strong><br>
+    viewer id: <strong>{{ auth()->id() ?? 'ospite' }}</strong><br>
+    owner id (profile): <strong>{{ $profile->user_id ?? 'NULL' }}</strong><br>
+    viewer roles: <strong>{{ auth()->user() ? implode(', ', auth()->user()->getRoleNames()->toArray()) : '—' }}</strong>
+</div>
+@endif
     $viewerId        = auth()->id();
     $isPendingOutgoing = $videoAccessRequest
         && $videoAccessRequest->status === 'pending'
