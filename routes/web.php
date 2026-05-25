@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
     Route::delete('/profile/banner', [ProfileController::class, 'destroyBanner'])->name('profile.banner.destroy');
     Route::delete('/profile/video', [ProfileController::class, 'destroyVideo'])->name('profile.video.destroy');
+    Route::patch('/profile/video-visibility', [ProfileController::class, 'updateVideoVisibility'])->name('profile.video-visibility.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 

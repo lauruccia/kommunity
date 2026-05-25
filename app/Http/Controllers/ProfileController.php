@@ -345,6 +345,19 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'banner-deleted');
     }
 
+    public function updateVideoVisibility(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'intro_video_visibility' => ['required', \Illuminate\Validation\Rule::in(['public', 'on_request'])],
+        ]);
+
+        $request->user()->memberProfile()->update([
+            'intro_video_visibility' => $validated['intro_video_visibility'],
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'video-visibility-updated');
+    }
+
     public function destroyVideo(Request $request): RedirectResponse
     {
         $profile = $request->user()->memberProfile()->firstOrFail();

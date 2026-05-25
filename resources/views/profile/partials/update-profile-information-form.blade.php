@@ -676,11 +676,16 @@
 
                 </div>
 
-                {{-- ── Visibilità videopresentazione ──────────────────────────
-                     Blocco separato: vale per link YouTube/Vimeo, upload file
-                     e registrazione diretta da camera — qualunque sia il metodo.
+                {{-- ── Visibilità videopresentazione — FORM AUTONOMO ───────────────
+                     Form separato dal profilo: si salva con il suo pulsante dedicato,
+                     indipendente da qualunque altro campo (nessun campo required).
+                     Vale per link YouTube/Vimeo, upload file e registrazione camera.
                 ──────────────────────────────────────────────────────────── --}}
-                <div class="md:col-span-2 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
+                <form method="POST" action="{{ route('profile.video-visibility.update') }}"
+                      class="md:col-span-2 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
+                    @csrf
+                    @method('PATCH')
+
                     <div class="mb-3 flex items-center gap-2">
                         <svg class="h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
@@ -690,35 +695,53 @@
                         </p>
                     </div>
                     <p class="mb-4 text-xs text-stone-500">
-                        Questa impostazione vale per qualsiasi tipo di video: link YouTube/Vimeo, file caricato o registrazione dalla camera.
+                        Vale per qualsiasi tipo di video: link YouTube/Vimeo, file caricato o registrazione dalla camera.
+                        Salvato separatamente dal profilo con il pulsante qui sotto.
                     </p>
+
+                    @php $currentVisibility = $profile->intro_video_visibility ?? 'public'; @endphp
+
                     <div class="grid gap-2 sm:grid-cols-2">
                         <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
-                                      {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'public'
+                                      {{ $currentVisibility === 'public'
                                           ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
                                           : 'border-stone-200 bg-white hover:border-stone-300' }}">
                             <input type="radio" name="intro_video_visibility" value="public"
                                    class="mt-0.5 accent-[color:var(--km-accent)]"
-                                   {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'public' ? 'checked' : '' }}>
+                                   {{ $currentVisibility === 'public' ? 'checked' : '' }}>
                             <div>
                                 <p class="text-sm font-semibold text-stone-800">🌐 Visibile a tutti</p>
                                 <p class="mt-0.5 text-xs text-stone-500">Chiunque visiti il tuo profilo vede il video subito, senza fare richiesta.</p>
                             </div>
                         </label>
                         <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
-                                      {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'on_request'
+                                      {{ $currentVisibility === 'on_request'
                                           ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
                                           : 'border-stone-200 bg-white hover:border-stone-300' }}">
                             <input type="radio" name="intro_video_visibility" value="on_request"
                                    class="mt-0.5 accent-[color:var(--km-accent)]"
-                                   {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'on_request' ? 'checked' : '' }}>
+                                   {{ $currentVisibility === 'on_request' ? 'checked' : '' }}>
                             <div>
                                 <p class="text-sm font-semibold text-stone-800">🔒 Solo su richiesta</p>
                                 <p class="mt-0.5 text-xs text-stone-500">L'altro utente deve chiedere l'accesso e tu devi accettare. Da quel momento vi vedete a vicenda.</p>
                             </div>
                         </label>
                     </div>
-                </div>
+
+                    <div class="mt-4 flex items-center gap-3">
+                        <button type="submit"
+                                class="inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-[color:var(--km-accent)] focus:ring-offset-2">
+                            Salva visibilità
+                        </button>
+                        @if (session('status') === 'video-visibility-updated')
+                            <p x-data="{ show: true }" x-show="show" x-transition
+                               x-init="setTimeout(() => show = false, 2400)"
+                               class="text-sm font-medium text-emerald-700">
+                                ✓ Visibilità aggiornata — impostazione corrente: <strong>{{ $currentVisibility === 'on_request' ? 'Solo su richiesta' : 'Visibile a tutti' }}</strong>
+                            </p>
+                        @endif
+                    </div>
+                </form>
 
                 <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
                     <input type="checkbox" name="show_email" value="1" class="rounded border-stone-300 text-[color:var(--km-accent)] focus:ring-emerald-300" @checked(old('show_email', $profile->show_email))>
