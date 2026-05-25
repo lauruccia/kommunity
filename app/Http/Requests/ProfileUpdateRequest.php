@@ -73,6 +73,7 @@ class ProfileUpdateRequest extends FormRequest
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:6144'],
             'intro_video' => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/webm', 'max:'.$videoLimits->maxSizeKilobytes()],
             'intro_video_url' => ['nullable', 'string', 'max:500'],
+            'intro_video_visibility' => ['nullable', Rule::in(['public', 'on_request'])],
             'intro_video_duration_minutes' => ['nullable', Rule::in([2, 3, 5])],
             'gallery_images' => ['nullable', 'array', 'max:12'],
             'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:6144'],

@@ -58,6 +58,7 @@ class MemberProfile extends Model
         'logo',
         'intro_video',
         'intro_video_url',
+        'intro_video_visibility',
         'intro_video_duration_minutes',
         'active_chapter_id',
         'primary_chapter_id',
@@ -320,16 +321,29 @@ class MemberProfile extends Model
         return $this->videoEmbedUrl() !== null || $this->introVideoUrl() !== null;
     }
 
+    public function isVideoPublic(): bool
+    {
+        return ($this->intro_video_visibility ?? 'public') === 'public';
+    }
+
     public function canViewIntroVideo(?User $viewer): bool
     {
+        // Il video pubblico è visibile a chiunque (anche ospiti non autenticati)
+        if ($this->isVideoPublic()) {
+            return true;
+        }
+
+        // Da qui in poi: video "on_request"
         if (! $viewer || ! $this->user_id) {
             return false;
         }
 
+        // Il proprietario vede sempre il proprio video
         if ((int) $viewer->id === (int) $this->user_id) {
             return true;
         }
 
+        // Gli admin vedono sempre
         if ($viewer->hasAnyRole(['super-admin', 'admin-community'])) {
             return true;
         }

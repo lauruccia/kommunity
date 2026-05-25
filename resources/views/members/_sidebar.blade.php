@@ -127,9 +127,27 @@
 </div>
 
 {{-- Video --}}
-@if ($profile->hasVideo() && auth()->check())
+{{--
+    Logica visibilità:
+    - isVideoPublic() → visibile a tutti, anche ospiti non autenticati
+    - on_request      → solo utenti loggati, dopo richiesta accettata (scambio reciproco)
+--}}
+@if ($profile->hasVideo())
+@php
+    $videoIsPublic   = $profile->isVideoPublic();
+    $canWatch        = $canViewIntroVideo ?? false;
+    $viewerId        = auth()->id();
+    $isPendingOutgoing = $videoAccessRequest
+        && $videoAccessRequest->status === 'pending'
+        && $videoAccessRequest->requester_id === $viewerId;
+    $isPendingIncoming = $videoAccessRequest
+        && $videoAccessRequest->status === 'pending'
+        && $videoAccessRequest->recipient_id === $viewerId;
+    $isAccepted = $videoAccessRequest && $videoAccessRequest->status === 'accepted';
+@endphp
 <div class="km-panel overflow-hidden p-0">
-    @if ($canViewIntroVideo ?? false)
+    @if ($canWatch)
+        {{-- ── Video visibile ─────────────────────────────────────────── --}}
         @if ($profile->videoEmbedUrl())
         <div class="mx-auto w-full bg-black {{ $profile->prefersPortraitVideo() ? 'max-w-[520px]' : '' }}" style="aspect-ratio:{{ $profile->prefersPortraitVideo() ? '9/16' : '16/9' }};">
             <iframe src="{{ $profile->videoEmbedUrl() }}"
@@ -149,22 +167,42 @@
             </div>
         </div>
         @endif
-    @else
-        @php
-            $viewerId = auth()->id();
-            $isPendingOutgoing = $videoAccessRequest
-                && $videoAccessRequest->status === 'pending'
-                && $videoAccessRequest->requester_id === $viewerId;
-            $isPendingIncoming = $videoAccessRequest
-                && $videoAccessRequest->status === 'pending'
-                && $videoAccessRequest->recipient_id === $viewerId;
-        @endphp
 
+        {{-- Se lo scambio è attivo, mostra pulsante revoca (solo per utenti autenticati non-proprietari) --}}
+        @auth
+        @if ($viewerId && $viewerId !== $user->id && $isAccepted && $videoAccessRequest)
+        <div class="border-t border-stone-100 px-5 py-3">
+            <form method="POST" action="{{ route('profile-video-access.revoke', $videoAccessRequest) }}">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="text-xs text-stone-400 hover:text-rose-500 transition">
+                    Revoca accesso reciproco
+                </button>
+            </form>
+        </div>
+        @endif
+        @endauth
+
+    @elseif ($videoIsPublic)
+        {{-- Non dovrebbe mai arrivare qui: se pubblico canWatch è già true. --}}
+        {{-- Placeholder sicurezza. --}}
+
+    @elseif (! auth()->check())
+        {{-- ── Ospite non autenticato, video on_request ────────────────── --}}
+        <div class="space-y-3 p-6">
+            <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Videopresentazione</h3>
+            <p class="text-sm leading-6 text-stone-600">
+                Questo video è accessibile solo su richiesta. Accedi per richiedere l'accesso.
+            </p>
+        </div>
+
+    @else
+        {{-- ── Utente loggato, video on_request, accesso non ancora concesso ── --}}
         <div class="space-y-4 p-6">
             <div>
                 <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Videopresentazione</h3>
                 <p class="mt-2 text-sm leading-6 text-stone-600">
-                    Questo video e' privato. L'accesso si sblocca solo con richiesta accettata e scambio reciproco.
+                    Questo video è privato. Fai richiesta: se accettata, potrete vedere a vicenda le rispettive videopresentazioni.
                 </p>
             </div>
 
@@ -176,7 +214,6 @@
                         <input type="hidden" name="status" value="accepted">
                         <button type="submit" class="km-button-primary w-full justify-center">Accetta scambio video</button>
                     </form>
-
                     <form method="POST" action="{{ route('profile-video-access.respond', $videoAccessRequest) }}">
                         @csrf
                         @method('PATCH')

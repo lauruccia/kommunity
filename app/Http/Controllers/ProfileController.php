@@ -198,6 +198,7 @@ class ProfileController extends Controller
                 'logo' => $logo,
                 'intro_video' => $introVideo,
                 'intro_video_url' => $introVideoUrl,
+                'intro_video_visibility' => $validated['intro_video_visibility'] ?? 'public',
             ])
             ->all();
 
