@@ -678,15 +678,12 @@
 
                 </div>
 
-                {{-- ── Visibilità videopresentazione — FORM AUTONOMO ───────────────
-                     Form separato dal profilo: si salva con il suo pulsante dedicato,
-                     indipendente da qualunque altro campo (nessun campo required).
-                     Vale per link YouTube/Vimeo, upload file e registrazione camera.
+                {{-- ── Visibilità videopresentazione ────────────────────────────────
+                     Campi dentro la form principale: salvano con "Salva profilo".
+                     NON usare un <form> annidato: i browser chiudono la form esterna
+                     non appena trovano un tag <form> interno.
                 ──────────────────────────────────────────────────────────── --}}
-                <form method="POST" action="{{ route('profile.video-visibility.update') }}"
-                      class="md:col-span-2 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
-                    @csrf
-                    @method('PATCH')
+                <div class="md:col-span-2 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
 
                     <div class="mb-3 flex items-center gap-2">
                         <svg class="h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
@@ -698,7 +695,7 @@
                     </div>
                     <p class="mb-4 text-xs text-stone-500">
                         Vale per qualsiasi tipo di video: link YouTube/Vimeo, file caricato o registrazione dalla camera.
-                        Salvato separatamente dal profilo con il pulsante qui sotto.
+                        Si salva con il pulsante "Salva profilo" in fondo alla pagina.
                     </p>
 
                     @php $currentVisibility = $profile->intro_video_visibility ?? 'public'; @endphp
@@ -732,20 +729,7 @@
                         </label>
                     </div>
 
-                    <div class="mt-4 flex items-center gap-3">
-                        <button type="submit"
-                                class="inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-[color:var(--km-accent)] focus:ring-offset-2">
-                            Salva visibilità
-                        </button>
-                        @if (session('status') === 'video-visibility-updated')
-                            <p x-data="{ show: true }" x-show="show" x-transition
-                               x-init="setTimeout(() => show = false, 2400)"
-                               class="text-sm font-medium text-emerald-700">
-                                ✓ Visibilità aggiornata — impostazione corrente: <strong>{{ $currentVisibility === 'on_request' ? 'Solo su richiesta' : 'Visibile a tutti' }}</strong>
-                            </p>
-                        @endif
-                    </div>
-                </form>
+                </div>
 
                 <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
                     <input type="checkbox" name="show_email" value="1" class="rounded border-stone-300 text-[color:var(--km-accent)] focus:ring-emerald-300" @checked(old('show_email', $profile->show_email))>
