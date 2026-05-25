@@ -333,7 +333,8 @@
                 </div>
                 <div class="md:col-span-2">
                     <x-input-label for="skills" :value="'Competenze'" />
-                    <textarea id="skills" name="skills" rows="4" class="km-input mt-2">{{ old('skills', $profile->skills) }}</textarea>
+                    <p class="mt-1 text-xs text-stone-500">Descrivi il tuo percorso professionale: titoli di studio, esperienze lavorative, corsi di formazione, certificazioni e capacità tecniche o trasversali che ti contraddistinguono.</p>
+                    <textarea id="skills" name="skills" rows="4" class="km-input mt-2" placeholder="Es. Laurea in Economia, 10 anni di esperienza in marketing digitale, certificazione Google Ads, competenze in CRM e automazione, problem solving, gestione del team.">{{ old('skills', $profile->skills) }}</textarea>
                 </div>
             </div>
         </div>
@@ -346,7 +347,8 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <div class="md:col-span-2">
                     <x-input-label for="networking_goals" :value="'Obiettivi di networking'" />
-                    <textarea id="networking_goals" name="networking_goals" rows="4" class="km-input mt-2">{{ old('networking_goals', $profile->networking_goals) }}</textarea>
+                    <p class="mt-1 text-xs text-stone-500">Indica a chi puoi offrire i tuoi servizi o prodotti, e quali professionisti o realtà aziendali potrebbero essere utili a te. Essere specifici aiuta gli altri membri a capire come collaborare.</p>
+                    <textarea id="networking_goals" name="networking_goals" rows="4" class="km-input mt-2" placeholder="Es. Offro consulenza fiscale a liberi professionisti e PMI. Cerco collaborazioni con avvocati, agenti immobiliari e imprenditori nel settore retail che abbiano bisogno di ottimizzare la gestione contabile.">{{ old('networking_goals', $profile->networking_goals) }}</textarea>
                 </div>
                 <div>
                     <x-input-label for="website" :value="'Sito web'" />
