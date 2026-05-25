@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
@@ -329,50 +328,30 @@ class MemberProfile extends Model
 
     public function canViewIntroVideo(?User $viewer): bool
     {
-        $dbVisibility = $this->intro_video_visibility;
-        $isPublic     = $this->isVideoPublic();
-
-        // ── LOG DIAGNOSTICO (rimuovere dopo il debug) ────────────────────
-        Log::info('[VIDEO-VISIBILITY] canViewIntroVideo chiamato', [
-            'profile_user_id'        => $this->user_id,
-            'viewer_id'              => $viewer?->id,
-            'db_intro_video_visibility' => $dbVisibility,
-            'isVideoPublic'          => $isPublic,
-        ]);
-        // ─────────────────────────────────────────────────────────────────
-
         // Il video pubblico è visibile a chiunque (anche ospiti non autenticati)
-        if ($isPublic) {
-            Log::info('[VIDEO-VISIBILITY] → visibile: video è pubblico');
+        if ($this->isVideoPublic()) {
             return true;
         }
 
         // Da qui in poi: video "on_request"
         if (! $viewer || ! $this->user_id) {
-            Log::info('[VIDEO-VISIBILITY] → NON visibile: viewer o user_id mancante');
             return false;
         }
 
         // Il proprietario vede sempre il proprio video
         if ((int) $viewer->id === (int) $this->user_id) {
-            Log::info('[VIDEO-VISIBILITY] → visibile: è il proprietario');
             return true;
         }
 
         // Gli admin vedono sempre
         if ($viewer->hasAnyRole(['super-admin', 'admin-community'])) {
-            Log::info('[VIDEO-VISIBILITY] → visibile: viewer è admin', ['viewer_id' => $viewer->id]);
             return true;
         }
 
         if (! Schema::hasTable('profile_video_access_requests')) {
-            Log::info('[VIDEO-VISIBILITY] → NON visibile: tabella access_requests assente');
             return false;
         }
 
-        $granted = ProfileVideoAccessRequest::grantsAccessBetween((int) $viewer->id, (int) $this->user_id);
-        Log::info('[VIDEO-VISIBILITY] → grantsAccessBetween', ['result' => $granted, 'viewer_id' => $viewer->id, 'owner_id' => $this->user_id]);
-
-        return $granted;
+        return ProfileVideoAccessRequest::grantsAccessBetween((int) $viewer->id, (int) $this->user_id);
     }
 }

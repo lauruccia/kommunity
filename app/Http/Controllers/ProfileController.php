@@ -345,21 +345,7 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'banner-deleted');
     }
 
-    public function videoDebug(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $profile = $request->user()->memberProfile()->first();
-
-        return response()->json([
-            'user_id'                   => $request->user()->id,
-            'profile_id'                => $profile?->id,
-            'intro_video_visibility_db' => $profile?->intro_video_visibility,
-            'isVideoPublic'             => $profile?->isVideoPublic(),
-            'hasVideo'                  => $profile?->hasVideo(),
-            'roles'                     => $request->user()->getRoleNames(),
-        ]);
-    }
-
-    public function updateVideoVisibility(Request $request): RedirectResponse
+public function updateVideoVisibility(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'intro_video_visibility' => ['required', \Illuminate\Validation\Rule::in(['public', 'on_request'])],

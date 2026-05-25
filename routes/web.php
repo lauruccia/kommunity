@@ -86,8 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile/banner', [ProfileController::class, 'destroyBanner'])->name('profile.banner.destroy');
     Route::delete('/profile/video', [ProfileController::class, 'destroyVideo'])->name('profile.video.destroy');
     Route::patch('/profile/video-visibility', [ProfileController::class, 'updateVideoVisibility'])->name('profile.video-visibility.update');
-    Route::get('/profile/video-debug', [ProfileController::class, 'videoDebug'])->name('profile.video-debug');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // ── Notifiche e push: auth+verified ma NON richiedono onboarding completato ──
