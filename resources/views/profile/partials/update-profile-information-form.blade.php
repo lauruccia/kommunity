@@ -449,37 +449,6 @@
                         </div>
                     @endif
 
-                    {{-- Visibilità video --}}
-                    <div class="mt-4 rounded-2xl border border-stone-200 bg-white p-4">
-                        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-stone-500">Visibilità videopresentazione</p>
-                        <div class="grid gap-2 sm:grid-cols-2">
-                            <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
-                                          {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'public'
-                                              ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
-                                              : 'border-stone-200 hover:border-stone-300' }}">
-                                <input type="radio" name="intro_video_visibility" value="public"
-                                       class="mt-0.5 accent-[color:var(--km-accent)]"
-                                       {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'public' ? 'checked' : '' }}>
-                                <div>
-                                    <p class="text-sm font-semibold text-stone-800">Visibile a tutti</p>
-                                    <p class="mt-0.5 text-xs text-stone-500">Chiunque visiti il tuo profilo può vedere il video subito, senza fare richiesta.</p>
-                                </div>
-                            </label>
-                            <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
-                                          {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'on_request'
-                                              ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
-                                              : 'border-stone-200 hover:border-stone-300' }}">
-                                <input type="radio" name="intro_video_visibility" value="on_request"
-                                       class="mt-0.5 accent-[color:var(--km-accent)]"
-                                       {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'on_request' ? 'checked' : '' }}>
-                                <div>
-                                    <p class="text-sm font-semibold text-stone-800">Solo su richiesta</p>
-                                    <p class="mt-0.5 text-xs text-stone-500">L'altro utente deve richiedere l'accesso e tu devi accettare. Da quel momento vi vedete a vicenda.</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
                     {{-- Toggle guida — subito sotto il campo URL --}}
                     <button type="button" @click="guide = !guide"
                             class="mt-3 flex items-center gap-1.5 text-xs font-medium text-[color:var(--km-accent-strong)] hover:underline focus:outline-none">
@@ -706,6 +675,51 @@
                     </div>
 
                 </div>
+
+                {{-- ── Visibilità videopresentazione ──────────────────────────
+                     Blocco separato: vale per link YouTube/Vimeo, upload file
+                     e registrazione diretta da camera — qualunque sia il metodo.
+                ──────────────────────────────────────────────────────────── --}}
+                <div class="md:col-span-2 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
+                    <div class="mb-3 flex items-center gap-2">
+                        <svg class="h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-xs font-semibold uppercase tracking-[0.15em] text-stone-500">
+                            Visibilità videopresentazione
+                        </p>
+                    </div>
+                    <p class="mb-4 text-xs text-stone-500">
+                        Questa impostazione vale per qualsiasi tipo di video: link YouTube/Vimeo, file caricato o registrazione dalla camera.
+                    </p>
+                    <div class="grid gap-2 sm:grid-cols-2">
+                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
+                                      {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'public'
+                                          ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
+                                          : 'border-stone-200 bg-white hover:border-stone-300' }}">
+                            <input type="radio" name="intro_video_visibility" value="public"
+                                   class="mt-0.5 accent-[color:var(--km-accent)]"
+                                   {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'public' ? 'checked' : '' }}>
+                            <div>
+                                <p class="text-sm font-semibold text-stone-800">🌐 Visibile a tutti</p>
+                                <p class="mt-0.5 text-xs text-stone-500">Chiunque visiti il tuo profilo vede il video subito, senza fare richiesta.</p>
+                            </div>
+                        </label>
+                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
+                                      {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'on_request'
+                                          ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
+                                          : 'border-stone-200 bg-white hover:border-stone-300' }}">
+                            <input type="radio" name="intro_video_visibility" value="on_request"
+                                   class="mt-0.5 accent-[color:var(--km-accent)]"
+                                   {{ old('intro_video_visibility', $profile->intro_video_visibility ?? 'public') === 'on_request' ? 'checked' : '' }}>
+                            <div>
+                                <p class="text-sm font-semibold text-stone-800">🔒 Solo su richiesta</p>
+                                <p class="mt-0.5 text-xs text-stone-500">L'altro utente deve chiedere l'accesso e tu devi accettare. Da quel momento vi vedete a vicenda.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
                     <input type="checkbox" name="show_email" value="1" class="rounded border-stone-300 text-[color:var(--km-accent)] focus:ring-emerald-300" @checked(old('show_email', $profile->show_email))>
                     Mostra email in directory e pagina personale
