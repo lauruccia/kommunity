@@ -1,5 +1,5 @@
 {{-- ╔══════════════════════════════════════════════════════════════════╗
-     ║  KOMMUNITY — Biglietto da visita digitale  v2                    ║
+     ║  KOMMUNITY — Biglietto da visita digitale  v3                    ║
      ║  Pagina pubblica standalone: nessun layout, nessuna navigazione  ║
      ║  URL: /card/{slug}   — auto-detect lingua visitatore             ║
      ╚══════════════════════════════════════════════════════════════════╝ --}}
@@ -26,6 +26,9 @@
     $showFacebook  = (bool) $profile?->facebook_url;
     $showCity      = (bool) $profile?->city?->name;
 
+    $hasSocialFoot = $showWhatsapp || $showLinkedin || $showInstagram || $showFacebook;
+    $hasContacts   = $showPhone || $showEmail || $showWebsite || $showCity;
+
     // ── URL QR ───────────────────────────────────────────────────────
     $qrUrl         = 'https://api.qrserver.com/v1/create-qr-code/?data=' . urlencode($cardUrl) . '&size=280x280&margin=6&color=263d2a&bgcolor=f6faf8';
     $qrDownloadUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' . urlencode($cardUrl) . '&size=600x600&margin=16&color=263d2a&bgcolor=ffffff';
@@ -34,14 +37,16 @@
     $ogDescription = $profile?->short_bio
         ?? ($professionLabel ? $professionLabel . ($profile?->company_name ? ' · ' . $profile->company_name : '') : config('app.name'));
 
+    // ── Google Maps per la città ────────────────────────────────────
+    $cityMapsUrl = $showCity
+        ? 'https://maps.google.com/?q=' . urlencode($profile->city->name)
+        : null;
+
     // ── Traduzioni UI (auto-detect lingua dal controller) ────────────
     $translations = [
         'it' => [
             'save'         => 'Aggiungi ai contatti',
             'share'        => 'Condividi',
-            'contacts'     => 'Contatti',
-            'city'         => 'Città',
-            'website'      => 'Sito web',
             'qr_title'     => 'QR del profilo',
             'qr_dl'        => 'Scarica PNG',
             'already_on'   => 'Sei già su Kommunity',
@@ -55,9 +60,6 @@
         'en' => [
             'save'         => 'Add to contacts',
             'share'        => 'Share',
-            'contacts'     => 'Contacts',
-            'city'         => 'City',
-            'website'      => 'Website',
             'qr_title'     => 'Profile QR',
             'qr_dl'        => 'Download PNG',
             'already_on'   => 'You\'re on Kommunity',
@@ -71,9 +73,6 @@
         'fr' => [
             'save'         => 'Ajouter aux contacts',
             'share'        => 'Partager',
-            'contacts'     => 'Contacts',
-            'city'         => 'Ville',
-            'website'      => 'Site web',
             'qr_title'     => 'QR du profil',
             'qr_dl'        => 'Télécharger PNG',
             'already_on'   => 'Vous êtes sur Kommunity',
@@ -87,9 +86,6 @@
         'es' => [
             'save'         => 'Añadir a contactos',
             'share'        => 'Compartir',
-            'contacts'     => 'Contactos',
-            'city'         => 'Ciudad',
-            'website'      => 'Sitio web',
             'qr_title'     => 'QR del perfil',
             'qr_dl'        => 'Descargar PNG',
             'already_on'   => 'Estás en Kommunity',
@@ -103,9 +99,6 @@
         'de' => [
             'save'         => 'Zu Kontakten hinzufügen',
             'share'        => 'Teilen',
-            'contacts'     => 'Kontakte',
-            'city'         => 'Stadt',
-            'website'      => 'Webseite',
             'qr_title'     => 'Profil-QR',
             'qr_dl'        => 'PNG herunterladen',
             'already_on'   => 'Du bist auf Kommunity',
@@ -119,9 +112,6 @@
         'ro' => [
             'save'         => 'Adaugă la contacte',
             'share'        => 'Distribuie',
-            'contacts'     => 'Contacte',
-            'city'         => 'Oraș',
-            'website'      => 'Site web',
             'qr_title'     => 'QR profil',
             'qr_dl'        => 'Descarcă PNG',
             'already_on'   => 'Ești pe Kommunity',
@@ -195,7 +185,7 @@
                 radial-gradient(circle at 80% -10%, rgba(139,197,63,.14), transparent 30%),
                 radial-gradient(circle at 8% 22%, rgba(45,212,191,.08), transparent 32%),
                 linear-gradient(160deg, var(--km-dark) 0%, var(--km-dark-2) 60%, #073040 100%);
-            padding: 1.5rem 1.5rem 3rem;
+            padding: 1.25rem 1.5rem 2.75rem;
             text-align: center;
             position: relative;
         }
@@ -203,17 +193,14 @@
             content: '';
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            height: 1.75rem;
+            height: 1.5rem;
             background: var(--km-surface);
             border-radius: 1.25rem 1.25rem 0 0;
         }
-        .kc-avatar-wrap {
-            display: inline-block;
-            margin-bottom: .625rem;
-        }
+        .kc-avatar-wrap { display: inline-block; margin-bottom: .5rem; }
         .kc-avatar,
         .kc-avatar-initials {
-            width: 76px; height: 76px;
+            width: 72px; height: 72px;
             border-radius: 50%;
             border: 2px solid rgba(139,197,63,.35);
         }
@@ -221,160 +208,151 @@
         .kc-avatar-initials {
             background: linear-gradient(135deg, #1d3a28, #2d5a3d);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; font-weight: 500;
+            font-size: 1.375rem; font-weight: 500;
             color: var(--km-green); letter-spacing: .04em;
         }
-        .kc-name    { font-size: 1.25rem; font-weight: 600; color: var(--km-text); margin-bottom: .2rem; }
-        .kc-role    { font-size: .8125rem; color: var(--km-text-muted); margin-bottom: .15rem; }
-        .kc-company { font-size: .75rem; color: rgba(170,183,196,.7); }
+        .kc-name    { font-size: 1.2rem; font-weight: 600; color: var(--km-text); margin-bottom: .18rem; }
+        .kc-role    { font-size: .8rem; color: var(--km-text-muted); margin-bottom: .12rem; }
+        .kc-company { font-size: .72rem; color: rgba(170,183,196,.7); }
 
         /* ── BODY ─────────────────────────────────────────────────── */
-        .kc-body { flex: 1; padding: .25rem 1rem 1rem; }
+        .kc-body { flex: 1; padding: .2rem .875rem .75rem; }
 
-        /* Bottone primario: Aggiungi ai contatti */
+        /* Bottone primario */
         .kc-btn-save {
             display: flex; align-items: center; justify-content: center; gap: .4rem;
-            width: 100%; padding: .8rem 1rem;
+            width: 100%; padding: .75rem 1rem;
             background: linear-gradient(135deg, var(--km-green), #5f9d42);
             color: #061018; font-family: inherit; font-size: .9375rem; font-weight: 600;
             border: none; border-radius: var(--km-radius-sm);
             text-decoration: none; cursor: pointer;
-            margin-bottom: .875rem;
+            margin-bottom: .75rem;
             transition: opacity var(--km-transition);
         }
         .kc-btn-save:hover { opacity: .9; }
-        .kc-btn-save svg { width: 18px; height: 18px; stroke: #061018; flex-shrink: 0; }
-
-        /* ── Social circles ───────────────────────────────────────── */
-        .kc-socials {
-            display: flex; flex-wrap: wrap;
-            justify-content: center; gap: .625rem;
-            margin-bottom: .875rem;
-        }
-        .kc-social {
-            width: 46px; height: 46px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            text-decoration: none;
-            border: .5px solid var(--km-line);
-            transition: opacity var(--km-transition);
-            flex-shrink: 0;
-        }
-        .kc-social:hover { opacity: .75; }
-        .kc-social svg   { width: 20px; height: 20px; }
-
-        .kc-social--phone { background: #dbe7d8; }
-        .kc-social--phone svg { stroke: var(--km-accent-strong); }
-        .kc-social--wa    { background: #dcfce7; }
-        .kc-social--wa    svg { stroke: #16a34a; }
-        .kc-social--email { background: #dbeafe; }
-        .kc-social--email svg { stroke: #1d4ed8; }
-        .kc-social--li    { background: #dbeafe; }
-        .kc-social--li    svg { stroke: #1d4ed8; }
-        .kc-social--web   { background: #dbe7d8; }
-        .kc-social--web   svg { stroke: var(--km-accent-strong); }
-        .kc-social--ig    { background: #fce7f3; }
-        .kc-social--ig    svg { stroke: #be185d; }
-        .kc-social--fb    { background: #dbeafe; }
-        .kc-social--fb    svg { stroke: #1d4ed8; }
+        .kc-btn-save svg { width: 17px; height: 17px; stroke: #061018; flex-shrink: 0; }
 
         /* ── Sezione CONTATTI ─────────────────────────────────────── */
-        .kc-section-label {
-            font-size: .65rem; font-weight: 600;
-            letter-spacing: .12em; text-transform: uppercase;
-            color: var(--km-muted);
-            padding: 0 .25rem .5rem;
-        }
         .kc-contacts {
             background: var(--km-surface-strong);
             border: .5px solid var(--km-line);
             border-radius: var(--km-radius-sm);
-            padding: .125rem .875rem;
-            margin-bottom: .875rem;
+            padding: .1rem .75rem;
+            margin-bottom: .625rem;
         }
         .kc-contact-row {
             display: flex; align-items: center; gap: .625rem;
-            padding: .6rem 0;
+            padding: .55rem 0;
             border-bottom: .5px solid var(--km-line);
             font-size: .8125rem; color: var(--km-ink);
             text-decoration: none;
         }
         .kc-contact-row:last-child { border-bottom: none; }
-        .kc-contact-row svg {
-            width: 15px; height: 15px;
-            stroke: var(--km-muted); flex-shrink: 0;
-        }
-        a.kc-contact-row { color: var(--km-ink); }
         a.kc-contact-row:hover { color: var(--km-accent-strong); }
-        a.kc-contact-row:hover svg { stroke: var(--km-accent-strong); }
-        .kc-contact-muted { color: var(--km-muted); font-size: .75rem; }
+        a.kc-contact-row:hover .kc-ci { opacity: .8; }
+
+        /* Icona cerchio inline */
+        .kc-ci {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .kc-ci svg { width: 13px; height: 13px; }
+        .kc-ci--phone { background: #dbe7d8; }
+        .kc-ci--phone svg { stroke: #3b6d11; }
+        .kc-ci--email { background: #dbeafe; }
+        .kc-ci--email svg { stroke: #1d4ed8; }
+        .kc-ci--web   { background: #dbe7d8; }
+        .kc-ci--web   svg { stroke: #3b6d11; }
+        .kc-ci--city  { background: #f3f4f6; }
+        .kc-ci--city  svg { stroke: var(--km-muted); }
 
         /* ── QR section ───────────────────────────────────────────── */
         .kc-qr {
-            display: flex; align-items: center; gap: .75rem;
+            display: flex; align-items: center; gap: .625rem;
             background: var(--km-surface-strong);
             border: .5px solid var(--km-line);
             border-radius: var(--km-radius-sm);
-            padding: .7rem; margin-bottom: .625rem;
+            padding: .55rem; margin-bottom: .5rem;
         }
         .kc-qr-img {
-            width: 58px; height: 58px; flex-shrink: 0;
-            border-radius: .5rem; border: .5px solid var(--km-line-strong);
+            width: 52px; height: 52px; flex-shrink: 0;
+            border-radius: .4rem; border: .5px solid var(--km-line-strong);
             object-fit: cover; background: #fff;
         }
-        .kc-qr-info h4   { font-size: .8rem; font-weight: 600; color: var(--km-ink); margin-bottom: .15rem; }
-        .kc-qr-info p    { font-size: .65rem; color: var(--km-muted); margin-bottom: .4rem; word-break: break-all; }
+        .kc-qr-info h4   { font-size: .78rem; font-weight: 600; color: var(--km-ink); margin-bottom: .1rem; }
+        .kc-qr-info p    { font-size: .63rem; color: var(--km-muted); margin-bottom: .35rem; word-break: break-all; }
         .kc-qr-dl {
             display: inline-flex; align-items: center; gap: .25rem;
-            font-size: .65rem; font-weight: 500;
+            font-size: .63rem; font-weight: 500;
             color: var(--km-accent-strong); background: var(--km-accent-soft);
-            border-radius: .375rem; padding: .2rem .55rem; text-decoration: none;
+            border-radius: .375rem; padding: .18rem .5rem; text-decoration: none;
         }
-        .kc-qr-dl svg { width: 11px; height: 11px; stroke: var(--km-accent-strong); }
+        .kc-qr-dl svg { width: 10px; height: 10px; stroke: var(--km-accent-strong); }
 
         /* Bottone condividi */
         .kc-btn-share {
             display: flex; align-items: center; justify-content: center; gap: .4rem;
-            width: 100%; padding: .75rem;
+            width: 100%; padding: .7rem;
             background: transparent; color: var(--km-accent-strong);
             font-family: inherit; font-size: .9375rem; font-weight: 600;
             border: 1.5px solid var(--km-accent); border-radius: var(--km-radius-sm);
-            cursor: pointer; margin-bottom: .25rem;
+            cursor: pointer; margin-bottom: .5rem;
             transition: background var(--km-transition);
         }
         .kc-btn-share:hover { background: var(--km-accent-soft); }
-        .kc-btn-share svg { width: 18px; height: 18px; stroke: var(--km-accent-strong); flex-shrink: 0; }
+        .kc-btn-share svg { width: 17px; height: 17px; stroke: var(--km-accent-strong); flex-shrink: 0; }
 
         .kc-copied {
             display: none; text-align: center;
-            font-size: .75rem; color: var(--km-accent-strong);
-            padding: .25rem 0;
+            font-size: .72rem; color: var(--km-accent-strong);
+            padding: .2rem 0 .1rem;
         }
+
+        /* ── Social in fondo (cerchi neutri 30px, nessuna label) ─── */
+        .kc-socials-foot {
+            display: flex; flex-wrap: wrap;
+            justify-content: center; gap: .5rem;
+            padding: .5rem 0 .25rem;
+            border-top: .5px solid var(--km-line);
+        }
+        .kc-sf {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none;
+            background: var(--km-surface-strong);
+            border: .5px solid var(--km-line);
+            transition: opacity var(--km-transition);
+            flex-shrink: 0;
+        }
+        .kc-sf:hover { opacity: .7; }
+        .kc-sf svg { width: 15px; height: 15px; stroke: var(--km-muted); }
 
         /* ── Footer ───────────────────────────────────────────────── */
         .kc-footer {
             border-top: .5px solid var(--km-line);
-            padding: .75rem 1rem 1.25rem;
+            padding: .625rem .875rem 1rem;
         }
         .kc-footer-guest {
             display: flex; align-items: center; justify-content: center; gap: .375rem;
-            font-size: .75rem; color: var(--km-muted);
+            font-size: .72rem; color: var(--km-muted);
         }
         .kc-footer-guest a { color: var(--km-accent); text-decoration: none; font-weight: 500; }
         .kc-footer-logged p {
-            font-size: .75rem; color: var(--km-muted);
-            text-align: center; margin-bottom: .625rem;
+            font-size: .72rem; color: var(--km-muted);
+            text-align: center; margin-bottom: .5rem;
         }
         .kc-footer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
         .kc-footer-btn {
             display: flex; align-items: center; justify-content: center; gap: .35rem;
-            padding: .6rem .5rem; border-radius: .75rem;
-            font-family: inherit; font-size: .8rem; font-weight: 600;
+            padding: .55rem .5rem; border-radius: .75rem;
+            font-family: inherit; font-size: .78rem; font-weight: 600;
             text-decoration: none; cursor: pointer; border: none;
             transition: opacity var(--km-transition);
         }
         .kc-footer-btn:hover { opacity: .85; }
-        .kc-footer-btn svg { width: 15px; height: 15px; }
+        .kc-footer-btn svg { width: 14px; height: 14px; }
         .kc-footer-btn--primary { background: linear-gradient(135deg, var(--km-green), #5f9d42); color: #061018; }
         .kc-footer-btn--primary svg { stroke: #061018; }
         .kc-footer-btn--secondary { background: var(--km-surface-strong); color: var(--km-ink); border: .5px solid var(--km-line-strong); }
@@ -405,7 +383,7 @@
     {{-- ════════ BODY ════════ --}}
     <div class="kc-body">
 
-        {{-- Aggiungi ai contatti (bottone primario) --}}
+        {{-- Aggiungi ai contatti --}}
         <a class="kc-btn-save"
            href="{{ route('card.vcard', $onepage->slug) }}"
            aria-label="{{ $t['save'] }} — {{ $user->name }}">
@@ -413,94 +391,44 @@
             {{ $t['save'] }}
         </a>
 
-        {{-- Icone social circolari --}}
-        @if($showPhone || $showWhatsapp || $showEmail || $showLinkedin || $showWebsite || $showInstagram || $showFacebook)
-        <div class="kc-socials" role="list" aria-label="{{ $t['contacts'] }}">
-
-            @if($showPhone)
-            <a class="kc-social kc-social--phone" href="tel:{{ $profile->phone }}" aria-label="Chiama {{ $user->name }}" role="listitem">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-            </a>
-            @endif
-
-            @if($showWhatsapp)
-            <a class="kc-social kc-social--wa" href="{{ $whatsappUrl }}" target="_blank" rel="noopener" aria-label="WhatsApp {{ $user->name }}" role="listitem">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-            </a>
-            @endif
-
-            @if($showEmail)
-            <a class="kc-social kc-social--email" href="mailto:{{ $user->email }}" aria-label="Email {{ $user->name }}" role="listitem">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </a>
-            @endif
-
-            @if($showLinkedin)
-            <a class="kc-social kc-social--li" href="{{ $profile->linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn {{ $user->name }}" role="listitem">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-            </a>
-            @endif
-
-            @if($showInstagram)
-            <a class="kc-social kc-social--ig" href="{{ $profile->instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram {{ $user->name }}" role="listitem">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-            </a>
-            @endif
-
-            @if($showFacebook)
-            <a class="kc-social kc-social--fb" href="{{ $profile->facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook {{ $user->name }}" role="listitem">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
-            </a>
-            @endif
-
-            @if($showWebsite)
-            <a class="kc-social kc-social--web" href="{{ $profile->website }}" target="_blank" rel="noopener" aria-label="{{ $t['website'] }} {{ $user->name }}" role="listitem">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-            </a>
-            @endif
-
-        </div>
-        @endif
-
-        {{-- Sezione CONTATTI: valori reali leggibili --}}
-        @if($showPhone || $showWhatsapp || $showEmail || $showWebsite || $showCity)
-        <p class="kc-section-label">{{ $t['contacts'] }}</p>
+        {{-- Contatti: valori cliccabili, nessuna label ──────────────── --}}
+        @if($hasContacts)
         <div class="kc-contacts">
 
             @if($showPhone)
             <a class="kc-contact-row" href="tel:{{ $profile->phone }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                <span class="kc-ci kc-ci--phone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                </span>
                 {{ $profile->phone }}
-            </a>
-            @endif
-
-            @if($showWhatsapp && !$showPhone)
-            {{-- mostra WA come numero solo se il telefono non è già visibile --}}
-            <a class="kc-contact-row" href="{{ $whatsappUrl }}" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-                {{ $profile->whatsapp_number }}
             </a>
             @endif
 
             @if($showEmail)
             <a class="kc-contact-row" href="mailto:{{ $user->email }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span class="kc-ci kc-ci--email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
                 {{ $user->email }}
             </a>
             @endif
 
             @if($showWebsite)
             <a class="kc-contact-row" href="{{ $profile->website }}" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                <span class="kc-ci kc-ci--web">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                </span>
                 {{ preg_replace('#^https?://(www\.)?#', '', rtrim($profile->website, '/')) }}
             </a>
             @endif
 
             @if($showCity)
-            <div class="kc-contact-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <a class="kc-contact-row" href="{{ $cityMapsUrl }}" target="_blank" rel="noopener">
+                <span class="kc-ci kc-ci--city">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                </span>
                 {{ $profile->city->name }}
-            </div>
+            </a>
             @endif
 
         </div>
@@ -508,7 +436,7 @@
 
         {{-- QR code --}}
         <div class="kc-qr">
-            <img class="kc-qr-img" src="{{ $qrUrl }}" alt="QR code {{ $user->name }}" loading="lazy" width="58" height="58">
+            <img class="kc-qr-img" src="{{ $qrUrl }}" alt="QR code {{ $user->name }}" loading="lazy" width="52" height="52">
             <div class="kc-qr-info">
                 <h4>{{ $t['qr_title'] }}</h4>
                 <p>{{ parse_url($cardUrl, PHP_URL_HOST) }}/card/{{ $onepage->slug }}</p>
@@ -525,6 +453,37 @@
             {{ $t['share'] }}
         </button>
         <p class="kc-copied" id="kc-copied-msg" role="status" aria-live="polite">✓ Link copiato</p>
+
+        {{-- Social in fondo — cerchi neutri 30px, nessuna label ─────── --}}
+        @if($hasSocialFoot)
+        <div class="kc-socials-foot" role="list" aria-label="Social">
+
+            @if($showWhatsapp)
+            <a class="kc-sf" href="{{ $whatsappUrl }}" target="_blank" rel="noopener" aria-label="WhatsApp" role="listitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            </a>
+            @endif
+
+            @if($showLinkedin)
+            <a class="kc-sf" href="{{ $profile->linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn" role="listitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+            @endif
+
+            @if($showInstagram)
+            <a class="kc-sf" href="{{ $profile->instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram" role="listitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            @endif
+
+            @if($showFacebook)
+            <a class="kc-sf" href="{{ $profile->facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook" role="listitem">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            @endif
+
+        </div>
+        @endif
 
     </div>{{-- /.kc-body --}}
 
@@ -567,7 +526,7 @@
             @endif
         @else
             <div class="kc-footer-guest">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--km-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--km-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                 {{ $t['powered_by'] }} <a href="{{ route('home') }}" target="_blank" rel="noopener">Kommunity</a>
             </div>
         @endauth
