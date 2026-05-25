@@ -701,29 +701,29 @@
 
                     @php $currentVisibility = $profile->intro_video_visibility ?? 'public'; @endphp
 
-                    <div class="grid gap-2 sm:grid-cols-2">
-                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex flex-1 cursor-pointer items-start gap-3 rounded-xl border p-4 transition
                                       {{ $currentVisibility === 'public'
                                           ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
                                           : 'border-stone-200 bg-white hover:border-stone-300' }}">
                             <input type="radio" name="intro_video_visibility" value="public"
-                                   class="mt-0.5 accent-[color:var(--km-accent)]"
+                                   class="mt-0.5 shrink-0 accent-[color:var(--km-accent)]"
                                    {{ $currentVisibility === 'public' ? 'checked' : '' }}>
                             <div>
                                 <p class="text-sm font-semibold text-stone-800">🌐 Visibile a tutti</p>
-                                <p class="mt-0.5 text-xs text-stone-500">Chiunque visiti il tuo profilo vede il video subito, senza fare richiesta.</p>
+                                <p class="mt-1 text-xs text-stone-500">Chiunque visiti il tuo profilo vede il video subito, senza fare richiesta.</p>
                             </div>
                         </label>
-                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition
+                        <label class="flex flex-1 cursor-pointer items-start gap-3 rounded-xl border p-4 transition
                                       {{ $currentVisibility === 'on_request'
                                           ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
                                           : 'border-stone-200 bg-white hover:border-stone-300' }}">
                             <input type="radio" name="intro_video_visibility" value="on_request"
-                                   class="mt-0.5 accent-[color:var(--km-accent)]"
+                                   class="mt-0.5 shrink-0 accent-[color:var(--km-accent)]"
                                    {{ $currentVisibility === 'on_request' ? 'checked' : '' }}>
                             <div>
                                 <p class="text-sm font-semibold text-stone-800">🔒 Solo su richiesta</p>
-                                <p class="mt-0.5 text-xs text-stone-500">L'altro utente deve chiedere l'accesso e tu devi accettare. Da quel momento vi vedete a vicenda.</p>
+                                <p class="mt-1 text-xs text-stone-500">L'altro utente deve chiedere l'accesso e tu devi accettare. Da quel momento vi vedete a vicenda.</p>
                             </div>
                         </label>
                     </div>
