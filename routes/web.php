@@ -149,6 +149,8 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'storeMessage'])->middleware('throttle:30,1')->name('conversations.messages.store');
 
     Route::get('/i-miei-inviti', [MyInvitesController::class, 'index'])->name('my.invites');
+    Route::post('/i-miei-inviti/invita', [MyInvitesController::class, 'invite'])->middleware('throttle:10,1')->name('my.invites.invite');
+    Route::delete('/i-miei-inviti/invita/{invitation}', [MyInvitesController::class, 'revoke'])->name('my.invites.revoke');
 
     Route::get('/referenze', [ReferralController::class, 'index'])->name('referrals.index');
     Route::post('/referenze', [ReferralController::class, 'store'])->middleware('throttle:10,1')->name('referrals.store');
