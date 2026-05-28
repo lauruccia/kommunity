@@ -38,7 +38,7 @@ class NewMemberVerifiedNotification extends Notification implements ShouldQueue
             ->line('**Nome:** ' . $member->name)
             ->line('**Email:** ' . $member->email)
             ->line('**Invitato da:** ' . ($member->invitedBy?->name ?? $member->invited_by_name ?? '—'))
-            ->line('**Capitolo:** ' . ($profile?->chapter?->name ?? '—'))
+            ->line('**Pianeta:** ' . ($profile?->chapter?->name ?? '—'))
             ->line('Il profilo è ora visibile in directory con status **Attivo**.')
             ->action('Visualizza scheda membro', $adminUrl)
             ->line('Se necessario, puoi sospendere o modificare il profilo dal pannello admin.')

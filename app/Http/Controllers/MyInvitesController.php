@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\SubscriptionStatus;
 use App\Mail\ChapterInvitationMail;
+use App\Models\Chapter;
 use App\Models\ChapterInvitation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,8 +38,12 @@ class MyInvitesController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        // Pianeti dell'utente (per il form di invito)
-        $userPlanets = $user->planets()->orderBy('name')->get(['chapters.id', 'chapters.name']);
+        // Pianeti disponibili per il form di invito:
+        // admin/super-admin vedono tutti i pianeti, gli utenti normali solo i propri.
+        $isAdmin     = $user->hasAnyRole(['super-admin', 'admin-community']);
+        $userPlanets = $isAdmin
+            ? Chapter::orderBy('name')->get(['id', 'name'])
+            : $user->planets()->orderBy('name')->get(['chapters.id', 'chapters.name']);
 
         // Statistiche
         $stats = [
@@ -61,8 +66,14 @@ class MyInvitesController extends Controller
             'message'    => ['nullable', 'string', 'max:500'],
         ]);
 
-        // Verifica che l'utente appartenga al Pianeta selezionato
-        $chapter = $user->planets()->where('chapters.id', $request->chapter_id)->first();
+        // Verifica appartenenza al Pianeta selezionato.
+        // Admin/super-admin possono invitare su qualsiasi pianeta senza essere membri.
+        $isAdmin = $user->hasAnyRole(['super-admin', 'admin-community']);
+        if ($isAdmin) {
+            $chapter = Chapter::find($request->chapter_id);
+        } else {
+            $chapter = $user->planets()->where('chapters.id', $request->chapter_id)->first();
+        }
         if (! $chapter) {
             return back()->withErrors(['chapter_id' => 'Non appartieni a questo Pianeta.'])->withInput();
         }

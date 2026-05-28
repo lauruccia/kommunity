@@ -51,7 +51,7 @@ class NewMemberConciergeAlertNotification extends Notification implements Should
             ->line('Si è appena registrato un nuovo membro su Kommunity:')
             ->line('• **Nome:** ' . $newMember->name)
             ->line('• **Email:** ' . $newMember->email)
-            ->line('• **Capitolo:** ' . ($newMember->memberProfile?->chapter?->name ?? '—'))
+            ->line('• **Pianeta:** ' . ($newMember->memberProfile?->chapter?->name ?? '—'))
             ->line('• **Invitato da:** ' . ($newMember->invitedBy?->name ?? $newMember->invited_by_name ?? '—'))
             ->line('Per massimizzare l\'attivazione, prendi contatto entro 24 ore con una chiamata o un breve Loom personalizzato.')
             ->action('Apri scheda membro', $adminUrl)

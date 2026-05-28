@@ -116,11 +116,20 @@ class ChapterInviteController extends Controller
      *   1. Un utente che ha lasciato il pianeta ha già condiviso un link di invito.
      *   2. Qualcuno modifica il token per usarlo su un pianeta dove l'invitante non è mai stato.
      *      (caso teorico: il token è opaco e casuale, ma il controllo aggiunge un livello extra)
+     *
+     * Eccezione: admin e super-admin possono invitare su qualsiasi pianeta
+     * senza essere membri attivi — il controllo è sempre superato per questi ruoli.
      */
     private function inviterIsMember(ChapterInvitation $invitation): bool
     {
         // Se l'invito è stato emesso dal sistema (nessun invitante), lo consideriamo valido.
         if (! $invitation->invited_by_user_id || ! $invitation->chapter_id) {
+            return true;
+        }
+
+        // Admin/super-admin possono invitare su qualsiasi pianeta.
+        $inviter = \App\Models\User::find($invitation->invited_by_user_id);
+        if ($inviter && $inviter->hasAnyRole(['super-admin', 'admin-community'])) {
             return true;
         }
 
