@@ -11,7 +11,7 @@
 <div class="pb-12">
     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
-        {{-- Feedback flash --}}
+        {{-- Flash --}}
         @if (session('invite_success'))
             <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3.5 text-sm font-medium text-emerald-700">
                 ✓ {{ session('invite_success') }}
@@ -52,23 +52,20 @@
                         <input id="invite_email" type="email" name="email"
                                value="{{ old('email') }}"
                                placeholder="amico@esempio.com"
-                               class="km-input w-full {{ $errors->has('email') ? 'border-rose-400' : '' }}">
+                               class="km-input w-full{{ $errors->has('email') ? ' border-rose-400' : '' }}">
                         @error('email')
                             <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
                         @enderror
                     </div>
-
                     <div>
                         <label for="invite_chapter" class="block text-xs font-medium text-stone-600 mb-1">Pianeta *</label>
                         @if ($userPlanets->isEmpty())
                             <p class="text-xs text-stone-400 italic mt-2">Non appartieni ancora a nessun Pianeta.</p>
                         @else
                             <select id="invite_chapter" name="chapter_id"
-                                    class="km-input w-full {{ $errors->has('chapter_id') ? 'border-rose-400' : '' }}">
+                                    class="km-input w-full{{ $errors->has('chapter_id') ? ' border-rose-400' : '' }}">
                                 @foreach ($userPlanets as $planet)
-                                    <option value="{{ $planet->id }}" @selected(old('chapter_id') == $planet->id)>
-                                        {{ $planet->name }}
-                                    </option>
+                                    <option value="{{ $planet->id }}" @selected(old('chapter_id') == $planet->id)>{{ $planet->name }}</option>
                                 @endforeach
                             </select>
                             @error('chapter_id')
@@ -79,7 +76,9 @@
                 </div>
 
                 <div>
-                    <label for="invite_message" class="block text-xs font-medium text-stone-600 mb-1">Messaggio personale <span class="text-stone-400">(facoltativo)</span></label>
+                    <label for="invite_message" class="block text-xs font-medium text-stone-600 mb-1">
+                        Messaggio personale <span class="text-stone-400">(facoltativo)</span>
+                    </label>
                     <textarea id="invite_message" name="message" rows="2"
                               placeholder="Ciao! Ti invito a entrare nella mia rete professionale su Kommunity…"
                               class="km-input w-full resize-none">{{ old('message') }}</textarea>
@@ -88,7 +87,7 @@
                 @if ($userPlanets->isNotEmpty())
                     <button type="submit"
                             class="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition"
-                            style="background: linear-gradient(135deg,#537d4d,#3f6239);">
+                            style="background:linear-gradient(135deg,#537d4d,#3f6239);">
                         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
@@ -101,14 +100,16 @@
 
         {{-- ── Tabella inviti via email ─────────────────────────────────────────── --}}
         <div class="km-panel mt-5 overflow-hidden p-0">
-            <div class="border-b border-stone-200 bg-stone-50 px-5 py-3 flex items-center justify-between">
+
+            {{-- Intestazione sezione --}}
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1.25rem; background:#fafaf9; border-bottom:1px solid #e7e5e4;">
                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Inviti via email inviati</p>
-                <span class="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-semibold text-stone-600">{{ $sentInvitations->count() }}</span>
+                <span style="background:#e7e5e4; border-radius:9999px; padding:0.1rem 0.6rem; font-size:0.7rem; font-weight:700; color:#78716c;">{{ $sentInvitations->count() }}</span>
             </div>
 
             @if ($sentInvitations->isEmpty())
-                <div class="flex flex-col items-center justify-center gap-2 px-6 py-10 text-center">
-                    <svg class="h-8 w-8 text-stone-300" viewBox="0 0 20 20" fill="currentColor">
+                <div style="display:flex; flex-direction:column; align-items:center; padding:2.5rem 1.5rem; text-align:center; gap:0.5rem;">
+                    <svg style="width:2rem;height:2rem;color:#d6d3d1;" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                     </svg>
@@ -116,158 +117,168 @@
                     <p class="text-xs text-stone-400">Usa il form qui sopra per invitare qualcuno direttamente.</p>
                 </div>
             @else
-                {{-- Header tabella --}}
-                <div class="border-b border-stone-200 bg-stone-50/60 px-5 py-2.5">
-                    <div class="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-400">
-                        <span>Email · Pianeta</span>
-                        <span class="hidden sm:block text-center w-20">Inviato</span>
-                        <span class="text-center w-24">Stato</span>
-                        <span class="w-16"></span>
-                    </div>
-                </div>
-
-                <div class="divide-y divide-stone-100">
-                    @foreach ($sentInvitations as $inv)
-                        @php
-                            $statusColor = match($inv->status) {
-                                'accepted' => 'bg-emerald-100 text-emerald-700',
-                                'pending'  => 'bg-amber-100 text-amber-700',
-                                'expired'  => 'bg-stone-100 text-stone-500',
-                                'revoked'  => 'bg-rose-100 text-rose-600',
-                                default    => 'bg-stone-100 text-stone-500',
-                            };
-                            $statusLabel = match($inv->status) {
-                                'accepted' => '✓ Accettato',
-                                'pending'  => '⏳ In attesa',
-                                'expired'  => 'Scaduto',
-                                'revoked'  => 'Annullato',
-                                default    => ucfirst($inv->status),
-                            };
-                        @endphp
-                        <div class="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 px-5 py-3">
-                            <div class="min-w-0">
-                                <p class="truncate text-sm font-semibold text-stone-800">{{ $inv->email }}</p>
-                                <p class="mt-0.5 text-xs text-stone-400">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#fafaf9; border-bottom:1px solid #e7e5e4;">
+                            <th style="padding:0.5rem 1.25rem; text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;">Email</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;">Pianeta</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600; white-space:nowrap;">Data</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;">Stato</th>
+                            <th style="padding:0.5rem 1.25rem; width:5rem;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($sentInvitations as $inv)
+                            @php
+                                $bgColor = match($inv->status) {
+                                    'accepted' => '#d1fae5',
+                                    'pending'  => '#fef3c7',
+                                    'expired'  => '#f5f5f4',
+                                    'revoked'  => '#fee2e2',
+                                    default    => '#f5f5f4',
+                                };
+                                $txtColor = match($inv->status) {
+                                    'accepted' => '#065f46',
+                                    'pending'  => '#92400e',
+                                    'expired'  => '#78716c',
+                                    'revoked'  => '#991b1b',
+                                    default    => '#78716c',
+                                };
+                                $label = match($inv->status) {
+                                    'accepted' => '✓ Accettato',
+                                    'pending'  => '⏳ In attesa',
+                                    'expired'  => 'Scaduto',
+                                    'revoked'  => 'Annullato',
+                                    default    => ucfirst($inv->status),
+                                };
+                            @endphp
+                            <tr style="border-bottom:1px solid #f5f5f4;">
+                                <td style="padding:0.75rem 1.25rem; font-size:0.875rem; font-weight:600; color:#1c1917; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    {{ $inv->email }}
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; font-size:0.8rem; color:#78716c; white-space:nowrap;">
                                     {{ $inv->chapter?->name ?? '—' }}
-                                    <span class="sm:hidden">· {{ $inv->created_at->format('d/m/Y') }}</span>
-                                </p>
-                            </div>
-
-                            <span class="hidden sm:block w-20 text-center text-xs text-stone-500">
-                                {{ $inv->created_at->format('d/m/Y') }}
-                            </span>
-
-                            <span class="flex w-24 justify-center">
-                                <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $statusColor }}">
-                                    {{ $statusLabel }}
-                                </span>
-                            </span>
-
-                            <span class="flex w-16 justify-end">
-                                @if ($inv->status === 'pending')
-                                    <form method="POST" action="{{ route('my.invites.revoke', $inv) }}"
-                                          onsubmit="return confirm('Annullare questo invito?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="text-xs font-medium text-rose-500 hover:text-rose-700 hover:underline">
-                                            Annulla
-                                        </button>
-                                    </form>
-                                @endif
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; font-size:0.8rem; color:#78716c; text-align:center; white-space:nowrap;">
+                                    {{ $inv->created_at->format('d/m/Y') }}
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; text-align:center;">
+                                    <span style="display:inline-block; background:{{ $bgColor }}; color:{{ $txtColor }}; border-radius:9999px; padding:0.2rem 0.75rem; font-size:0.75rem; font-weight:600; white-space:nowrap;">
+                                        {{ $label }}
+                                    </span>
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; text-align:right;">
+                                    @if ($inv->status === 'pending')
+                                        <form method="POST" action="{{ route('my.invites.revoke', $inv) }}"
+                                              onsubmit="return confirm('Annullare questo invito?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    style="font-size:0.75rem; font-weight:600; color:#ef4444; background:none; border:none; cursor:pointer; padding:0;">
+                                                Annulla
+                                            </button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             @endif
         </div>
 
         {{-- ── Tabella registrati via link referral ────────────────────────────── --}}
         <div class="km-panel mt-5 overflow-hidden p-0">
-            <div class="border-b border-stone-200 bg-stone-50 px-5 py-3 flex items-center justify-between">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1.25rem; background:#fafaf9; border-bottom:1px solid #e7e5e4;">
                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Registrati tramite il tuo link</p>
-                <span class="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-semibold text-stone-600">{{ $invitedUsers->count() }}</span>
+                <span style="background:#e7e5e4; border-radius:9999px; padding:0.1rem 0.6rem; font-size:0.7rem; font-weight:700; color:#78716c;">{{ $invitedUsers->count() }}</span>
             </div>
 
             @if ($invitedUsers->isEmpty())
-                <div class="flex flex-col items-center justify-center gap-2 px-6 py-10 text-center">
-                    <svg class="h-8 w-8 text-stone-300" viewBox="0 0 20 20" fill="currentColor">
+                <div style="display:flex; flex-direction:column; align-items:center; padding:2.5rem 1.5rem; text-align:center; gap:0.5rem;">
+                    <svg style="width:2rem;height:2rem;color:#d6d3d1;" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 14.094A5.973 5.973 0 004 17v1H1v-1a3 3 0 013.75-2.906z"/>
                     </svg>
                     <p class="text-sm font-semibold text-stone-600">Nessuno ancora</p>
                     <p class="text-xs text-stone-400">Condividi il tuo link dal profilo per far crescere la rete.</p>
                 </div>
             @else
-                {{-- Header --}}
-                <div class="border-b border-stone-200 bg-stone-50/60 px-5 py-2.5">
-                    <div class="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-4 text-xs font-semibold uppercase tracking-[0.12em] text-stone-400">
-                        <span>Membro</span>
-                        <span class="hidden sm:block text-center w-20">Registrato</span>
-                        <span class="text-center w-10" title="Email verificata">Email</span>
-                        <span class="text-center w-10" title="Profilo completato">Profilo</span>
-                        <span class="text-center w-10" title="Abbonamento">Abb.</span>
-                    </div>
-                </div>
-
-                <div class="divide-y divide-stone-100">
-                    @foreach ($invitedUsers as $invited)
-                        @php
-                            $emailVerified   = (bool) $invited->email_verified_at;
-                            $profileComplete = (bool) $invited->memberProfile?->onboarding_completed;
-                            $hasSubscription = $invited->subscriptions->isNotEmpty();
-                            $slug            = $invited->memberOnepage?->slug;
-                        @endphp
-                        <div class="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-4 px-5 py-3">
-                            <div class="min-w-0">
-                                @if ($slug)
-                                    <a href="{{ route('members.show', $slug) }}"
-                                       class="truncate text-sm font-semibold text-stone-800 hover:text-[color:var(--km-accent-strong)] transition">
-                                        {{ $invited->name }}
-                                    </a>
-                                @else
-                                    <span class="truncate text-sm font-semibold text-stone-800">{{ $invited->name }}</span>
-                                @endif
-                                <p class="mt-0.5 text-xs text-stone-400 sm:hidden">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#fafaf9; border-bottom:1px solid #e7e5e4;">
+                            <th style="padding:0.5rem 1.25rem; text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;">Membro</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600; white-space:nowrap;">Registrato</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;" title="Email verificata">Email</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;" title="Profilo completato">Profilo</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;" title="Abbonamento">Abb.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($invitedUsers as $invited)
+                            @php
+                                $emailVerified   = (bool) $invited->email_verified_at;
+                                $profileComplete = (bool) $invited->memberProfile?->onboarding_completed;
+                                $hasSubscription = $invited->subscriptions->isNotEmpty();
+                                $slug            = $invited->memberOnepage?->slug;
+                            @endphp
+                            <tr style="border-bottom:1px solid #f5f5f4;">
+                                <td style="padding:0.75rem 1.25rem;">
+                                    @if ($slug)
+                                        <a href="{{ route('members.show', $slug) }}"
+                                           style="font-size:0.875rem; font-weight:600; color:#1c1917; text-decoration:none;"
+                                           onmouseover="this.style.color='var(--km-accent-strong)'"
+                                           onmouseout="this.style.color='#1c1917'">
+                                            {{ $invited->name }}
+                                        </a>
+                                    @else
+                                        <span style="font-size:0.875rem; font-weight:600; color:#1c1917;">{{ $invited->name }}</span>
+                                    @endif
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; font-size:0.8rem; color:#78716c; text-align:center; white-space:nowrap;">
                                     {{ $invited->created_at->format('d/m/Y') }}
-                                </p>
-                            </div>
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; text-align:center;" title="{{ $emailVerified ? 'Email verificata' : 'Non verificata' }}">
+                                    @if ($emailVerified)
+                                        <svg style="width:1rem;height:1rem;color:#10b981;display:inline-block;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg style="width:1rem;height:1rem;color:#d6d3d1;display:inline-block;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; text-align:center;" title="{{ $profileComplete ? 'Profilo completato' : 'Non completato' }}">
+                                    @if ($profileComplete)
+                                        <svg style="width:1rem;height:1rem;color:#0ea5e9;display:inline-block;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg style="width:1rem;height:1rem;color:#d6d3d1;display:inline-block;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                </td>
+                                <td style="padding:0.75rem 1.25rem; text-align:center;" title="{{ $hasSubscription ? 'Con abbonamento' : 'Nessun abbonamento' }}">
+                                    @if ($hasSubscription)
+                                        <svg style="width:1rem;height:1rem;color:#f59e0b;display:inline-block;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg style="width:1rem;height:1rem;color:#d6d3d1;display:inline-block;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
 
-                            <span class="hidden sm:block w-20 text-center text-xs text-stone-500">
-                                {{ $invited->created_at->format('d/m/Y') }}
-                            </span>
-
-                            <span class="flex w-10 justify-center" title="{{ $emailVerified ? 'Email verificata' : 'Non verificata' }}">
-                                @if ($emailVerified)
-                                    <svg class="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                @else
-                                    <svg class="h-4 w-4 text-stone-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
-                                @endif
-                            </span>
-
-                            <span class="flex w-10 justify-center" title="{{ $profileComplete ? 'Profilo completato' : 'Non completato' }}">
-                                @if ($profileComplete)
-                                    <svg class="h-4 w-4 text-sky-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                @else
-                                    <svg class="h-4 w-4 text-stone-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
-                                @endif
-                            </span>
-
-                            <span class="flex w-10 justify-center" title="{{ $hasSubscription ? 'Con abbonamento' : 'Nessun abbonamento' }}">
-                                @if ($hasSubscription)
-                                    <svg class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                @else
-                                    <svg class="h-4 w-4 text-stone-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
-                                @endif
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-
-                <div class="border-t border-stone-100 bg-stone-50 px-5 py-3">
-                    <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs text-stone-400">
-                        <span class="flex items-center gap-1"><svg class="h-3.5 w-3.5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg> Email verificata</span>
-                        <span class="flex items-center gap-1"><svg class="h-3.5 w-3.5 text-sky-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg> Profilo completato</span>
-                        <span class="flex items-center gap-1"><svg class="h-3.5 w-3.5 text-amber-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg> Abbonamento attivo</span>
+                {{-- Legenda --}}
+                <div style="border-top:1px solid #f5f5f4; background:#fafaf9; padding:0.625rem 1.25rem;">
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem 1.25rem;">
+                        <span style="display:flex; align-items:center; gap:0.25rem; font-size:0.7rem; color:#a8a29e;">
+                            <svg style="width:0.875rem;height:0.875rem;color:#10b981;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                            Email verificata
+                        </span>
+                        <span style="display:flex; align-items:center; gap:0.25rem; font-size:0.7rem; color:#a8a29e;">
+                            <svg style="width:0.875rem;height:0.875rem;color:#0ea5e9;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                            Profilo completato
+                        </span>
+                        <span style="display:flex; align-items:center; gap:0.25rem; font-size:0.7rem; color:#a8a29e;">
+                            <svg style="width:0.875rem;height:0.875rem;color:#f59e0b;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                            Abbonamento attivo
+                        </span>
                     </div>
                 </div>
             @endif

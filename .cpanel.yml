@@ -60,3 +60,6 @@ deployment:
     - /bin/find $DEPLOYPATH/fonts  -type f -exec /bin/chmod 644 {} \;
     - /bin/find $DEPLOYPATH/build  -type f -exec /bin/chmod 644 {} \;
     - /bin/find $DEPLOYPATH/brand  -type f -exec /bin/chmod 644 {} \;
+
+    # ── Svuota cache view Blade compilate (forza ricompilazione a ogni deploy) ─
+    - /bin/find /home2/kommunity/kommunity/storage/framework/views -name "*.php" -type f -delete 2>/dev/null || true
