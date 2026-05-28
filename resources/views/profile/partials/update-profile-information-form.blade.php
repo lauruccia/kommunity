@@ -144,7 +144,7 @@
                 </div>
                 <div class="md:col-span-2">
                     <x-input-label :value="'Link di invito'" />
-                    <p class="mt-1 text-xs text-stone-500">Scegli il Pianeta a cui vuoi invitare, poi copia il link.</p>
+                    <p class="mt-1 text-xs text-stone-500">Scegli il Pianeta a cui vuoi invitare, poi copia o condividi su WhatsApp.</p>
 
                     @if ($userPlanets->isNotEmpty())
                         @php
@@ -161,6 +161,7 @@
                             copied: false,
                             get currentPlanet() { return this.planets.find(p => p.slug === this.selected) || null; },
                             get link() { return this.currentPlanet ? this.currentPlanet.url : this.generic; },
+                            get whatsappUrl() { return 'https://wa.me/?text=' + encodeURIComponent('Ciao! Ti invito a unirti alla mia rete su Kommunity 👋\n' + this.link); },
                             copy() {
                                 navigator.clipboard.writeText(this.link).then(() => {
                                     this.copied = true;
@@ -182,9 +183,15 @@
                                         @click="copy()"
                                         class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition hover:bg-stone-50"
                                         x-text="copied ? '✓ Copiato' : 'Copia'"></button>
+                                <a :href="whatsappUrl" target="_blank" rel="noopener"
+                                   class="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#25D366] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1ebe5e]">
+                                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.05 4.91A9.82 9.82 0 0012.03 2C6.56 2 2.12 6.43 2.12 11.9c0 1.75.46 3.46 1.33 4.96L2 22l5.29-1.39a9.9 9.9 0 004.74 1.2h.01c5.47 0 9.9-4.44 9.9-9.91a9.83 9.83 0 00-2.89-6.99zm-7.02 15.22h-.01a8.23 8.23 0 01-4.19-1.14l-.3-.18-3.14.82.84-3.06-.2-.31a8.2 8.2 0 01-1.26-4.36c0-4.53 3.69-8.22 8.24-8.22a8.16 8.16 0 015.82 2.41 8.16 8.16 0 012.4 5.82c0 4.54-3.69 8.22-8.2 8.22zm4.5-6.16c-.25-.12-1.47-.72-1.7-.8-.23-.09-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.17-.28.19-.53.07-.25-.12-1.03-.38-1.96-1.22-.73-.64-1.22-1.43-1.36-1.67-.14-.24-.01-.37.11-.49.11-.11.25-.28.37-.42.12-.14.16-.24.25-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.86-.2-.48-.41-.42-.56-.42h-.48c-.16 0-.43.06-.65.31-.22.25-.86.84-.86 2.05 0 1.2.88 2.37 1 2.53.12.17 1.73 2.64 4.19 3.7.58.25 1.03.39 1.38.5.58.18 1.11.16 1.53.1.47-.07 1.47-.6 1.68-1.19.21-.59.21-1.09.14-1.19-.06-.1-.22-.16-.47-.28z"/></svg>
+                                    WhatsApp
+                                </a>
                             </div>
                         </div>
                     @else
+                        @php $staticWaUrl = 'https://wa.me/?text=' . urlencode('Ciao! Ti invito a unirti alla mia rete su Kommunity 👋' . "\n" . url($referralLink)); @endphp
                         <div class="flex items-center gap-2 mt-2">
                             <input id="referral_link" type="text" readonly value="{{ url($referralLink) }}" class="km-input flex-1 bg-stone-50" onclick="this.select()">
                             <button type="button"
@@ -192,8 +199,21 @@
                                     class="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-50">
                                 Copia
                             </button>
+                            <a href="{{ $staticWaUrl }}" target="_blank" rel="noopener"
+                               class="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#25D366] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#1ebe5e]">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.05 4.91A9.82 9.82 0 0012.03 2C6.56 2 2.12 6.43 2.12 11.9c0 1.75.46 3.46 1.33 4.96L2 22l5.29-1.39a9.9 9.9 0 004.74 1.2h.01c5.47 0 9.9-4.44 9.9-9.91a9.83 9.83 0 00-2.89-6.99zm-7.02 15.22h-.01a8.23 8.23 0 01-4.19-1.14l-.3-.18-3.14.82.84-3.06-.2-.31a8.2 8.2 0 01-1.26-4.36c0-4.53 3.69-8.22 8.24-8.22a8.16 8.16 0 015.82 2.41 8.16 8.16 0 012.4 5.82c0 4.54-3.69 8.22-8.2 8.22zm4.5-6.16c-.25-.12-1.47-.72-1.7-.8-.23-.09-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.17-.28.19-.53.07-.25-.12-1.03-.38-1.96-1.22-.73-.64-1.22-1.43-1.36-1.67-.14-.24-.01-.37.11-.49.11-.11.25-.28.37-.42.12-.14.16-.24.25-.4.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.86-.2-.48-.41-.42-.56-.42h-.48c-.16 0-.43.06-.65.31-.22.25-.86.84-.86 2.05 0 1.2.88 2.37 1 2.53.12.17 1.73 2.64 4.19 3.7.58.25 1.03.39 1.38.5.58.18 1.11.16 1.53.1.47-.07 1.47-.6 1.68-1.19.21-.59.21-1.09.14-1.19-.06-.1-.22-.16-.47-.28z"/></svg>
+                                WhatsApp
+                            </a>
                         </div>
                     @endif
+
+                    {{-- Link al monitor inviti --}}
+                    <div class="mt-2">
+                        <a href="{{ route('my.invites') }}" class="inline-flex items-center gap-1 text-xs font-medium text-[color:var(--km-accent-strong)] hover:underline">
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                            Monitora i tuoi inviti
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -399,6 +419,48 @@
                                 Video attivo
                             </span>
                         @endif
+                    </div>
+
+                    {{-- ── Visibilità videopresentazione — PRIMA del campo URL ────────── --}}
+                    @php $currentVisibility = $profile->intro_video_visibility ?? 'public'; @endphp
+                    <div class="mb-5 rounded-xl border border-stone-200 bg-white p-4">
+                        <div class="mb-2 flex items-center gap-2">
+                            <svg class="h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-stone-500">Visibilità videopresentazione</p>
+                        </div>
+                        <p class="mb-3 text-xs text-stone-500">
+                            Scegli <strong>prima di caricare o registrare</strong> chi potrà vedere il tuo video. Si salva con "Salva profilo".
+                        </p>
+                        <div style="display:flex; gap:0.75rem; width:100%;">
+                            <label style="flex:1; min-width:0;"
+                                   class="cursor-pointer flex items-start gap-3 rounded-xl border p-3 transition
+                                          {{ $currentVisibility === 'public'
+                                              ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
+                                              : 'border-stone-200 bg-stone-50 hover:border-stone-300' }}">
+                                <input type="radio" name="intro_video_visibility" value="public"
+                                       class="mt-0.5 shrink-0 accent-[color:var(--km-accent)]"
+                                       {{ $currentVisibility === 'public' ? 'checked' : '' }}>
+                                <div>
+                                    <p class="text-sm font-semibold text-stone-800">🌐 Visibile a tutti</p>
+                                    <p class="mt-1 text-xs text-stone-500">Chiunque visiti il tuo profilo vede il video subito.</p>
+                                </div>
+                            </label>
+                            <label style="flex:1; min-width:0;"
+                                   class="cursor-pointer flex items-start gap-3 rounded-xl border p-3 transition
+                                          {{ $currentVisibility === 'on_request'
+                                              ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
+                                              : 'border-stone-200 bg-stone-50 hover:border-stone-300' }}">
+                                <input type="radio" name="intro_video_visibility" value="on_request"
+                                       class="mt-0.5 shrink-0 accent-[color:var(--km-accent)]"
+                                       {{ $currentVisibility === 'on_request' ? 'checked' : '' }}>
+                                <div>
+                                    <p class="text-sm font-semibold text-stone-800">🔒 Solo su richiesta</p>
+                                    <p class="mt-1 text-xs text-stone-500">L'altro utente chiede l'accesso e tu accetti.</p>
+                                </div>
+                            </label>
+                        </div>
                     </div>
 
                     {{-- Campo URL --}}
@@ -674,59 +736,6 @@
                         <template x-if="state === 'error'">
                             <p class="mt-2 text-sm text-rose-600" x-text="errorMsg"></p>
                         </template>
-                    </div>
-
-                </div>
-
-                {{-- ── Visibilità videopresentazione ────────────────────────────────
-                     Campi dentro la form principale: salvano con "Salva profilo".
-                     NON usare un <form> annidato: i browser chiudono la form esterna
-                     non appena trovano un tag <form> interno.
-                ──────────────────────────────────────────────────────────── --}}
-                <div class="md:col-span-2 rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
-
-                    <div class="mb-3 flex items-center gap-2">
-                        <svg class="h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
-                        </svg>
-                        <p class="text-xs font-semibold uppercase tracking-[0.15em] text-stone-500">
-                            Visibilità videopresentazione
-                        </p>
-                    </div>
-                    <p class="mb-4 text-xs text-stone-500">
-                        Vale per qualsiasi tipo di video: link YouTube/Vimeo, file caricato o registrazione dalla camera.
-                        Si salva con il pulsante "Salva profilo" in fondo alla pagina.
-                    </p>
-
-                    @php $currentVisibility = $profile->intro_video_visibility ?? 'public'; @endphp
-
-                    <div style="display:flex; gap:0.75rem; width:100%;">
-                        <label style="flex:1; min-width:0;"
-                               class="cursor-pointer flex items-start gap-3 rounded-xl border p-4 transition
-                                      {{ $currentVisibility === 'public'
-                                          ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
-                                          : 'border-stone-200 bg-white hover:border-stone-300' }}">
-                            <input type="radio" name="intro_video_visibility" value="public"
-                                   class="mt-0.5 shrink-0 accent-[color:var(--km-accent)]"
-                                   {{ $currentVisibility === 'public' ? 'checked' : '' }}>
-                            <div>
-                                <p class="text-sm font-semibold text-stone-800">🌐 Visibile a tutti</p>
-                                <p class="mt-1 text-xs text-stone-500">Chiunque visiti il tuo profilo vede il video subito, senza fare richiesta.</p>
-                            </div>
-                        </label>
-                        <label style="flex:1; min-width:0;"
-                               class="cursor-pointer flex items-start gap-3 rounded-xl border p-4 transition
-                                      {{ $currentVisibility === 'on_request'
-                                          ? 'border-[color:var(--km-accent)] bg-[color:var(--km-accent-light)]'
-                                          : 'border-stone-200 bg-white hover:border-stone-300' }}">
-                            <input type="radio" name="intro_video_visibility" value="on_request"
-                                   class="mt-0.5 shrink-0 accent-[color:var(--km-accent)]"
-                                   {{ $currentVisibility === 'on_request' ? 'checked' : '' }}>
-                            <div>
-                                <p class="text-sm font-semibold text-stone-800">🔒 Solo su richiesta</p>
-                                <p class="mt-1 text-xs text-stone-500">L'altro utente deve chiedere l'accesso e tu devi accettare. Da quel momento vi vedete a vicenda.</p>
-                            </div>
-                        </label>
                     </div>
 
                 </div>
