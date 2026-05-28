@@ -25,8 +25,11 @@ class OneToOneReceivedNotification extends Notification implements ShouldQueue
     {
         $requester = $this->oneToOneRequest->requester;
         return [
-            'title' => '🤝 Nuova richiesta 1:1',
-            'body'  => 'Da ' . ($requester->name ?? 'un membro') . ' — ' . \Illuminate\Support\Str::limit($this->oneToOneRequest->goal, 80),
+            'title' => __('push.one_to_one_received_title'),
+            'body'  => __('push.one_to_one_received_body', [
+                'name' => $requester->name ?? '—',
+                'goal' => \Illuminate\Support\Str::limit($this->oneToOneRequest->goal, 80),
+            ]),
             'url'   => route('one-to-ones.index', ['request' => $this->oneToOneRequest->id]),
             'tag'   => 'one-to-one-' . $this->oneToOneRequest->id,
         ];

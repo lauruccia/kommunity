@@ -24,7 +24,7 @@ class ReferralReceivedNotification extends Notification implements ShouldQueue
     public function toWebPush(object $notifiable): array
     {
         return [
-            'title' => '🔗 Nuovo referral da ' . $this->referral->sender->name,
+            'title' => __('push.referral_received_title', ['name' => $this->referral->sender->name]),
             'body'  => mb_strimwidth($this->referral->title, 0, 100, '…'),
             'url'   => route('referrals.index'),
             'tag'   => 'referral-' . $this->referral->id,

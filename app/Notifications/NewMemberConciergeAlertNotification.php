@@ -32,8 +32,8 @@ class NewMemberConciergeAlertNotification extends Notification implements Should
     public function toWebPush(object $notifiable): array
     {
         return [
-            'title' => '🟢 Nuovo membro Kommunity',
-            'body'  => 'Concierge entro 24h: ' . $this->newMember->name,
+            'title' => __('push.new_member_concierge_title'),
+            'body'  => __('push.new_member_concierge_body', ['name' => $this->newMember->name]),
             'url'   => '/admin/users/' . $this->newMember->getKey() . '/edit',
             'tag'   => 'concierge-' . $this->newMember->getKey(),
             'requireInteraction' => true,

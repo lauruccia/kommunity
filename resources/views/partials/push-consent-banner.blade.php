@@ -5,33 +5,34 @@
        2. il browser supporta Web Push
        3. l'utente non ha già accettato/rifiutato (km_push_choice cookie)
      Posizionato sopra il cookie banner (z-index 1100 vs 1000).
+     Bilingue: usa le chiavi push.* di lang/it/ e lang/en/.
    ───────────────────────────────────────────────────────────────────────── --}}
 @if(\App\Services\Features::enabled('pwa_push'))
 <div id="km-push-banner"
      role="dialog"
-     aria-label="{{ __('Attiva notifiche push') }}"
+     aria-label="{{ __('push.banner_aria') }}"
      style="position:fixed;top:1rem;right:1rem;max-width:380px;background:#0b0d12;color:#fff;border:1px solid rgba(158,240,199,.25);border-radius:14px;padding:1rem 1.15rem;box-shadow:0 12px 32px rgba(0,0,0,.45);z-index:1100;display:none;font-family:'Plus Jakarta Sans',system-ui,sans-serif;">
     <p style="margin:0 0 .35rem;font-size:.92rem;font-weight:700;letter-spacing:-.01em;">
-        🔔 {{ __('Notifiche immediate') }}
+        {{ __('push.banner_title') }}
     </p>
     <p style="margin:0 0 .85rem;font-size:.78rem;line-height:1.5;color:rgba(255,255,255,.78);">
-        {{ __('Vuoi essere avvisata subito di nuove richieste 1:1, messaggi e referral? Puoi disattivarle quando vuoi dal tuo profilo.') }}
+        {{ __('push.banner_body') }}
     </p>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
         <button type="button"
                 data-km-push="enable"
                 style="background:#9ef0c7;color:#0b0d12;border:none;border-radius:999px;padding:.5rem 1rem;font-weight:700;font-size:.78rem;cursor:pointer;">
-            {{ __('Attiva') }}
+            {{ __('push.banner_enable') }}
         </button>
         <button type="button"
                 data-km-push="later"
                 style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.5rem 1rem;font-weight:600;font-size:.78rem;cursor:pointer;">
-            {{ __('Più tardi') }}
+            {{ __('push.banner_later') }}
         </button>
         <button type="button"
                 data-km-push="never"
                 style="background:transparent;color:rgba(255,255,255,.55);border:none;font-size:.72rem;cursor:pointer;text-decoration:underline;margin-left:auto;align-self:center;">
-            {{ __('Mai') }}
+            {{ __('push.banner_never') }}
         </button>
     </div>
     <p id="km-push-status"
@@ -44,6 +45,13 @@
     const banner    = document.getElementById('km-push-banner');
     const statusEl  = document.getElementById('km-push-status');
     const COOKIE    = 'km_push_choice';
+
+    // Stringhe localizzate — iniettate da Blade
+    const STR = {
+        enabling: @json(__('push.banner_enabling')),
+        enabled:  @json(__('push.banner_enabled')),
+        failed:   @json(__('push.banner_failed')),
+    };
 
     if (!banner) return;
 
@@ -70,7 +78,6 @@
         const choice = readCookie(COOKIE);
         if (choice === 'never' || choice === 'enabled') return;
         // 'later' lo rimostriamo dopo 7 giorni → cookie scade
-        // (writeCookie lo fa con TTL 7d quando si clicca later)
 
         const state = await window.KommunityPush.getState();
         if (state === 'granted-sub' || state === 'denied') return;
@@ -85,14 +92,14 @@
         const action = target.getAttribute('data-km-push');
 
         if (action === 'enable') {
-            statusEl.textContent = 'Attivazione in corso...';
+            statusEl.textContent = STR.enabling;
             const result = await window.KommunityPush.subscribe();
             if (result.ok) {
                 writeCookie(COOKIE, 'enabled', 365);
-                statusEl.textContent = '✓ Notifiche attivate.';
+                statusEl.textContent = STR.enabled;
                 setTimeout(() => banner.style.display = 'none', 1500);
             } else {
-                statusEl.textContent = 'Non è stato possibile attivare (' + result.reason + ').';
+                statusEl.textContent = STR.failed + ' (' + result.reason + ').';
             }
         }
         if (action === 'later') {

@@ -36,11 +36,16 @@ class OneToOneReminderNotification extends Notification implements ShouldQueue
         $other = $notifiable->id === $this->request->requester_id
             ? $this->request->recipient
             : $this->request->requester;
-        $when = $this->request->requested_at?->locale('it')->isoFormat('HH:mm');
+        $when = $this->request->requested_at?->locale(app()->getLocale())->isoFormat('HH:mm');
 
         return [
-            'title' => $this->window === '1h' ? '⏰ 1:1 fra un\'ora' : '📅 1:1 domani',
-            'body'  => 'Con ' . ($other?->name ?? '...') . ($when ? ' alle ' . $when : ''),
+            'title' => $this->window === '1h'
+                ? __('push.one_to_one_reminder_1h_title')
+                : __('push.one_to_one_reminder_24h_title'),
+            'body'  => __('push.one_to_one_reminder_body', [
+                'name' => $other?->name ?? '…',
+                'when' => $when ? __('push.one_to_one_reminder_at', ['time' => $when]) : '',
+            ]),
             'url'   => route('one-to-ones.index', ['request' => $this->request->id]),
             'tag'   => 'one-to-one-reminder-' . $this->request->id . '-' . $this->window,
             'requireInteraction' => $this->window === '1h',

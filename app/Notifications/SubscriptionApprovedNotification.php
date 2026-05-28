@@ -24,8 +24,10 @@ class SubscriptionApprovedNotification extends Notification implements ShouldQue
     public function toWebPush(object $notifiable): array
     {
         return [
-            'title' => '🎉 Abbonamento approvato',
-            'body'  => 'Il tuo abbonamento ' . ($this->subscription->plan?->name ?? 'Kommunity') . ' è stato approvato.',
+            'title' => __('push.subscription_approved_title'),
+            'body'  => __('push.subscription_approved_body', [
+                'plan' => $this->subscription->plan?->name ?? 'Kommunity',
+            ]),
             'url'   => route('subscriptions.index'),
             'tag'   => 'subscription-' . $this->subscription->id,
             'requireInteraction' => true,
