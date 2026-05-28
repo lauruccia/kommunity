@@ -201,6 +201,16 @@
                 @endif
                 @endauth
 
+                @guest
+                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    <a href="{{ route('login') }}"
+                       class="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 hover:text-stone-900">
+                        Accedi
+                    </a>
+                </div>
+                @endguest
+
+                @auth
                 <div class="relative z-50 hidden sm:ms-6 sm:flex sm:items-center">
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
@@ -258,6 +268,7 @@
                         </x-slot>
                     </x-dropdown>
                 </div>
+                @endauth
 
                 <div class="-me-1 flex items-center self-start pt-1 sm:hidden">
                     <button @click="open = ! open" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl p-2 text-stone-500 transition hover:bg-stone-100 hover:text-stone-700 focus:outline-none">
@@ -278,6 +289,21 @@
                     @endforeach
                 </div>
 
+                @guest
+                <div class="border-t border-stone-200 pt-4 px-4 pb-2">
+                    <a href="{{ route('login') }}"
+                       class="flex w-full items-center justify-center rounded-2xl py-3.5 text-base font-semibold text-white shadow-sm"
+                       style="background: linear-gradient(135deg,#537d4d,#3f6239);">
+                        Accedi
+                    </a>
+                    <p class="mt-3 text-center text-sm text-stone-500">
+                        Non hai un account?
+                        <a href="{{ route('register') }}" class="font-semibold text-[color:var(--km-accent-strong)] hover:underline">Registrati</a>
+                    </p>
+                </div>
+                @endguest
+
+                @auth
                 <div class="border-t border-stone-200 pt-4">
                     <div class="flex items-center justify-between px-4">
                         <div>
@@ -330,6 +356,7 @@
                         </form>
                     </div>
                 </div>
+                @endauth
             </div>
         </div>
     </div>
