@@ -119,13 +119,13 @@
         <p>La tua sessione è scaduta per inattività. Ricarica la pagina per continuare da dove eri rimasto.</p>
 
         <div class="buttons">
-            <button class="btn-primary" onclick="window.location.reload()">
+            <a href="{{ url('/') }}" class="btn-primary">
                 ↺ Ricarica la pagina
-            </button>
+            </a>
             <a href="{{ url('/') }}" class="btn-secondary">← Torna alla home</a>
         </div>
 
-        <p class="countdown" id="countdown">La pagina si ricaricherà automaticamente tra <strong id="sec">10</strong> secondi.</p>
+        <p class="countdown" id="countdown">Verrai reindirizzato automaticamente tra <strong id="sec">10</strong> secondi.</p>
     </div>
 
     <script>
@@ -134,7 +134,7 @@
         const interval = setInterval(function () {
             s--;
             if (el) el.textContent = s;
-            if (s <= 0) { clearInterval(interval); window.location.reload(); }
+            if (s <= 0) { clearInterval(interval); window.location.href = '{{ url('/') }}'; }
         }, 1000);
     </script>
 </body>

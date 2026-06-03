@@ -222,7 +222,7 @@
 
             <x-dashboard.quick-action
                 href="{{ route('conversations.index') }}"
-                title="Scrivi un membro"
+                title="Invia un messaggio"
                 desc="Apri una conversazione privata"
                 tone="teal"
             >
