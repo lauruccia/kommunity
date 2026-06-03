@@ -36,6 +36,10 @@ Route::post('/invita/{token}/accetta', [ChapterInviteController::class, 'accept'
     ->name('chapter.invite.accept');
 
 Route::get('/', function () {
+    // Utenti già autenticati → dashboard
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
     // Passa capitoli e pagine CMS alla homepage
     $chapters  = \App\Models\Chapter::with('city')
         ->where('is_active', true)
