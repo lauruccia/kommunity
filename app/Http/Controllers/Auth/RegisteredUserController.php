@@ -196,12 +196,7 @@ class RegisteredUserController extends Controller
             }
 
             if ($inviterPlanetId) {
-                MemberProfile::$adminOverrideLimit = true;
-                try {
-                    $user->memberProfile?->update(['active_chapter_id' => $inviterPlanetId]);
-                } finally {
-                    MemberProfile::$adminOverrideLimit = false;
-                }
+                $user->memberProfile?->updateWithAdminOverride(['active_chapter_id' => $inviterPlanetId]);
 
                 DB::table('chapter_members')->updateOrInsert(
                     ['chapter_id' => $inviterPlanetId, 'user_id' => $user->id],
