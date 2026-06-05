@@ -229,29 +229,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     /**
      * ID del Pianeta attivo (contesto corrente di navigazione).
      * Corrisponde a member_profiles.active_chapter_id.
-     *
-     * Fallback automatico: se active_chapter_id non è impostato ma l'utente
-     * appartiene a un solo Pianeta, lo usa come attivo (e lo persiste).
      */
     public function activePlanetId(): ?int
     {
-        if ($id = $this->memberProfile?->active_chapter_id) {
-            return $id;
-        }
-
-        // Fallback: unico pianeta → diventa automaticamente quello attivo
-        $planetIds = $this->planets()->pluck('chapters.id');
-        if ($planetIds->count() === 1) {
-            $singleId = $planetIds->first();
-            // Persisti per evitare la query extra alle chiamate successive
-            $this->memberProfile?->updateQuietly(['active_chapter_id' => $singleId]);
-            if ($this->memberProfile) {
-                $this->memberProfile->active_chapter_id = $singleId;
-            }
-            return $singleId;
-        }
-
-        return null;
+        return $this->memberProfile?->active_chapter_id;
     }
 
     /**

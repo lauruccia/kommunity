@@ -40,18 +40,10 @@ class CardController extends Controller
 
         $cardUrl = route('card.show', $slug);
 
-        // Pianeta attivo dell'utente (con fallback al singolo pianeta)
-        $activePlanet = $user->activePlanet();
-
-        // URL di registrazione con referral dell'utente della card,
-        // incluso il pianeta (se disponibile) così il nuovo iscritto
-        // viene associato direttamente a quel Pianeta.
-        $referralUrl = $user->referralRegistrationUrl($activePlanet?->slug);
-
         // Auto-detect lingua dal browser del visitatore
         $locale = $request->getPreferredLanguage(['it', 'en', 'fr', 'es', 'de', 'ro']) ?? 'it';
 
-        return view('card.show', compact('onepage', 'profile', 'user', 'whatsappUrl', 'cardUrl', 'locale', 'activePlanet', 'referralUrl'));
+        return view('card.show', compact('onepage', 'profile', 'user', 'whatsappUrl', 'cardUrl', 'locale'));
     }
 
     /**

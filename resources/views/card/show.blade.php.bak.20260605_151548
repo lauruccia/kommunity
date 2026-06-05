@@ -45,106 +45,82 @@
     // ── Traduzioni UI (auto-detect lingua dal controller) ────────────
     $translations = [
         'it' => [
-            'save'           => 'Aggiungi ai contatti',
-            'share'          => 'Condividi',
-            'qr_title'       => 'QR del profilo',
-            'qr_dl'          => 'Scarica PNG',
-            'already_on'     => 'Sei già su Kommunity',
-            'connect_with'   => 'Connettiti con',
-            'write'          => 'Scrivi',
-            'full_profile'   => 'Profilo completo',
-            'your_card'      => 'Questa è la tua card',
-            'edit_profile'   => 'Modifica profilo',
-            'powered_by'     => 'Powered by',
-            'view_on_komm'   => 'Vedi il profilo su Kommunity',
-            'cta_card'       => 'Crea il tuo biglietto da visita digitale',
-            'cta_register'   => 'Registrati con l\'invito di',
-            'cta_planet'     => 'Entrerai nel Pianeta',
+            'save'         => 'Aggiungi ai contatti',
+            'share'        => 'Condividi',
+            'qr_title'     => 'QR del profilo',
+            'qr_dl'        => 'Scarica PNG',
+            'already_on'   => 'Sei già su Kommunity',
+            'connect_with' => 'Connettiti con',
+            'write'        => 'Scrivi',
+            'full_profile' => 'Profilo completo',
+            'your_card'    => 'Questa è la tua card',
+            'edit_profile' => 'Modifica profilo',
+            'powered_by'   => 'Powered by',
         ],
         'en' => [
-            'save'           => 'Add to contacts',
-            'share'          => 'Share',
-            'qr_title'       => 'Profile QR',
-            'qr_dl'          => 'Download PNG',
-            'already_on'     => 'You\'re on Kommunity',
-            'connect_with'   => 'Connect with',
-            'write'          => 'Message',
-            'full_profile'   => 'Full profile',
-            'your_card'      => 'This is your card',
-            'edit_profile'   => 'Edit profile',
-            'powered_by'     => 'Powered by',
-            'view_on_komm'   => 'View profile on Kommunity',
-            'cta_card'       => 'Create your digital business card',
-            'cta_register'   => 'Join with the invite of',
-            'cta_planet'     => 'You\'ll join the Planet',
+            'save'         => 'Add to contacts',
+            'share'        => 'Share',
+            'qr_title'     => 'Profile QR',
+            'qr_dl'        => 'Download PNG',
+            'already_on'   => 'You\'re on Kommunity',
+            'connect_with' => 'Connect with',
+            'write'        => 'Message',
+            'full_profile' => 'Full profile',
+            'your_card'    => 'This is your card',
+            'edit_profile' => 'Edit profile',
+            'powered_by'   => 'Powered by',
         ],
         'fr' => [
-            'save'           => 'Ajouter aux contacts',
-            'share'          => 'Partager',
-            'qr_title'       => 'QR du profil',
-            'qr_dl'          => 'Télécharger PNG',
-            'already_on'     => 'Vous êtes sur Kommunity',
-            'connect_with'   => 'Connectez-vous avec',
-            'write'          => 'Écrire',
-            'full_profile'   => 'Profil complet',
-            'your_card'      => 'C\'est votre carte',
-            'edit_profile'   => 'Modifier le profil',
-            'powered_by'     => 'Propulsé par',
-            'view_on_komm'   => 'Voir le profil sur Kommunity',
-            'cta_card'       => 'Créez votre carte de visite digitale',
-            'cta_register'   => 'Inscrivez-vous avec l\'invitation de',
-            'cta_planet'     => 'Vous rejoindrez la Planète',
+            'save'         => 'Ajouter aux contacts',
+            'share'        => 'Partager',
+            'qr_title'     => 'QR du profil',
+            'qr_dl'        => 'Télécharger PNG',
+            'already_on'   => 'Vous êtes sur Kommunity',
+            'connect_with' => 'Connectez-vous avec',
+            'write'        => 'Écrire',
+            'full_profile' => 'Profil complet',
+            'your_card'    => 'C\'est votre carte',
+            'edit_profile' => 'Modifier le profil',
+            'powered_by'   => 'Propulsé par',
         ],
         'es' => [
-            'save'           => 'Añadir a contactos',
-            'share'          => 'Compartir',
-            'qr_title'       => 'QR del perfil',
-            'qr_dl'          => 'Descargar PNG',
-            'already_on'     => 'Estás en Kommunity',
-            'connect_with'   => 'Conéctate con',
-            'write'          => 'Escribir',
-            'full_profile'   => 'Perfil completo',
-            'your_card'      => 'Esta es tu tarjeta',
-            'edit_profile'   => 'Editar perfil',
-            'powered_by'     => 'Desarrollado por',
-            'view_on_komm'   => 'Ver perfil en Kommunity',
-            'cta_card'       => 'Crea tu tarjeta de visita digital',
-            'cta_register'   => 'Regístrate con la invitación de',
-            'cta_planet'     => 'Entrarás al Planeta',
+            'save'         => 'Añadir a contactos',
+            'share'        => 'Compartir',
+            'qr_title'     => 'QR del perfil',
+            'qr_dl'        => 'Descargar PNG',
+            'already_on'   => 'Estás en Kommunity',
+            'connect_with' => 'Conéctate con',
+            'write'        => 'Escribir',
+            'full_profile' => 'Perfil completo',
+            'your_card'    => 'Esta es tu tarjeta',
+            'edit_profile' => 'Editar perfil',
+            'powered_by'   => 'Desarrollado por',
         ],
         'de' => [
-            'save'           => 'Zu Kontakten hinzufügen',
-            'share'          => 'Teilen',
-            'qr_title'       => 'Profil-QR',
-            'qr_dl'          => 'PNG herunterladen',
-            'already_on'     => 'Du bist auf Kommunity',
-            'connect_with'   => 'Verbinde dich mit',
-            'write'          => 'Schreiben',
-            'full_profile'   => 'Vollständiges Profil',
-            'your_card'      => 'Das ist deine Karte',
-            'edit_profile'   => 'Profil bearbeiten',
-            'powered_by'     => 'Bereitgestellt von',
-            'view_on_komm'   => 'Profil auf Kommunity ansehen',
-            'cta_card'       => 'Erstelle deine digitale Visitenkarte',
-            'cta_register'   => 'Registriere dich mit der Einladung von',
-            'cta_planet'     => 'Du trittst dem Planeten bei',
+            'save'         => 'Zu Kontakten hinzufügen',
+            'share'        => 'Teilen',
+            'qr_title'     => 'Profil-QR',
+            'qr_dl'        => 'PNG herunterladen',
+            'already_on'   => 'Du bist auf Kommunity',
+            'connect_with' => 'Verbinde dich mit',
+            'write'        => 'Schreiben',
+            'full_profile' => 'Vollständiges Profil',
+            'your_card'    => 'Das ist deine Karte',
+            'edit_profile' => 'Profil bearbeiten',
+            'powered_by'   => 'Bereitgestellt von',
         ],
         'ro' => [
-            'save'           => 'Adaugă la contacte',
-            'share'          => 'Distribuie',
-            'qr_title'       => 'QR profil',
-            'qr_dl'          => 'Descarcă PNG',
-            'already_on'     => 'Ești pe Kommunity',
-            'connect_with'   => 'Conectează-te cu',
-            'write'          => 'Scrie',
-            'full_profile'   => 'Profil complet',
-            'your_card'      => 'Acesta este cardul tău',
-            'edit_profile'   => 'Editează profilul',
-            'powered_by'     => 'Oferit de',
-            'view_on_komm'   => 'Vezi profilul pe Kommunity',
-            'cta_card'       => 'Creează-ți cartea de vizită digitală',
-            'cta_register'   => 'Înregistrează-te cu invitația lui',
-            'cta_planet'     => 'Vei intra în Planeta',
+            'save'         => 'Adaugă la contacte',
+            'share'        => 'Distribuie',
+            'qr_title'     => 'QR profil',
+            'qr_dl'        => 'Descarcă PNG',
+            'already_on'   => 'Ești pe Kommunity',
+            'connect_with' => 'Conectează-te cu',
+            'write'        => 'Scrie',
+            'full_profile' => 'Profil complet',
+            'your_card'    => 'Acesta este cardul tău',
+            'edit_profile' => 'Editează profilul',
+            'powered_by'   => 'Oferit de',
         ],
     ];
 
@@ -359,31 +335,10 @@
             padding: .625rem .875rem 1rem;
         }
         .kc-footer-guest {
-            text-align: center;
+            display: flex; align-items: center; justify-content: center; gap: .375rem;
             font-size: .72rem; color: var(--km-muted);
         }
-        .kc-footer-guest p { margin-bottom: .3rem; }
         .kc-footer-guest a { color: var(--km-accent); text-decoration: none; font-weight: 500; }
-        .kc-footer-guest a:hover { text-decoration: underline; }
-        .kc-footer-planet {
-            display: inline-flex; align-items: center; gap: .25rem;
-            margin-top: .2rem; font-size: .67rem; color: var(--km-muted);
-        }
-
-        /* Link profilo Kommunity nel body */
-        .kc-profile-link {
-            display: flex; align-items: center; justify-content: center; gap: .35rem;
-            width: 100%; padding: .55rem 1rem;
-            background: var(--km-surface-strong);
-            border: .5px solid var(--km-line);
-            border-radius: var(--km-radius-sm);
-            font-family: inherit; font-size: .8125rem; font-weight: 500;
-            color: var(--km-accent-strong); text-decoration: none;
-            margin-bottom: .625rem;
-            transition: opacity var(--km-transition);
-        }
-        .kc-profile-link:hover { opacity: .8; }
-        .kc-profile-link svg { width: 14px; height: 14px; stroke: var(--km-accent-strong); flex-shrink: 0; }
         .kc-footer-logged p {
             font-size: .72rem; color: var(--km-muted);
             text-align: center; margin-bottom: .5rem;
@@ -479,13 +434,18 @@
         </div>
         @endif
 
-        {{-- Link al profilo su Kommunity --}}
-        <a class="kc-profile-link"
-           href="{{ route('members.show', $onepage->slug) }}"
-           target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-            {{ $t['view_on_komm'] }}
-        </a>
+        {{-- QR code --}}
+        <div class="kc-qr">
+            <img class="kc-qr-img" src="{{ $qrUrl }}" alt="QR code {{ $user->name }}" loading="lazy" width="52" height="52">
+            <div class="kc-qr-info">
+                <h4>{{ $t['qr_title'] }}</h4>
+                <p>{{ parse_url($cardUrl, PHP_URL_HOST) }}/card/{{ $onepage->slug }}</p>
+                <a class="kc-qr-dl" href="{{ $qrDownloadUrl }}" target="_blank" rel="noopener" aria-label="{{ $t['qr_dl'] }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    {{ $t['qr_dl'] }}
+                </a>
+            </div>
+        </div>
 
         {{-- Condividi --}}
         <button class="kc-btn-share" id="kc-share-btn" type="button" aria-label="{{ $t['share'] }}">
@@ -566,19 +526,8 @@
             @endif
         @else
             <div class="kc-footer-guest">
-                <p>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--km-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    {{ $t['cta_card'] }}
-                </p>
-                <a href="{{ $referralUrl }}" target="_blank" rel="noopener">
-                    {{ $t['cta_register'] }} {{ explode(' ', $user->name)[0] }}
-                </a>
-                @if($activePlanet)
-                <div class="kc-footer-planet">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                    {{ $t['cta_planet'] }}: <strong>{{ $activePlanet->name }}</strong>
-                </div>
-                @endif
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--km-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                {{ $t['powered_by'] }} <a href="{{ route('home') }}" target="_blank" rel="noopener">Kommunity</a>
             </div>
         @endauth
     </div>
