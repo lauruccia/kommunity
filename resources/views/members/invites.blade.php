@@ -65,7 +65,7 @@
                             <select id="invite_chapter" name="chapter_id"
                                     class="km-input w-full{{ $errors->has('chapter_id') ? ' border-rose-400' : '' }}">
                                 @foreach ($userPlanets as $planet)
-                                    <option value="{{ $planet->id }}" @selected(old('chapter_id') == $planet->id)>{{ $planet->name }}</option>
+                                    <option value="{{ $planet->id }}" @selected(old('chapter_id', $defaultPlanetId) == $planet->id)>{{ $planet->name }}</option>
                                 @endforeach
                             </select>
                             @error('chapter_id')

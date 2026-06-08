@@ -53,7 +53,12 @@ class MyInvitesController extends Controller
             'link_subscribed' => $invitedUsers->filter(fn ($u) => $u->subscriptions->isNotEmpty())->count(),
         ];
 
-        return view('members.invites', compact('invitedUsers', 'sentInvitations', 'userPlanets', 'stats'));
+        // Pianeta di default per il form: primary_chapter_id, poi active_chapter_id, poi primo della lista
+        $defaultPlanetId = $user->memberProfile?->primary_chapter_id
+            ?? $user->memberProfile?->active_chapter_id
+            ?? $userPlanets->first()?->id;
+
+        return view('members.invites', compact('invitedUsers', 'sentInvitations', 'userPlanets', 'stats', 'defaultPlanetId'));
     }
 
     public function invite(Request $request): RedirectResponse
