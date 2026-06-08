@@ -599,12 +599,6 @@
                 </div>
             </div>
             @endif
-        @else
-            <div class="kc-footer-guest">
-                <a href="{{ $referralUrl }}" target="_blank" rel="noopener">
-                    {{ $t['cta_card'] }}
-                </a>
-            </div>
         @endauth
     </div>
 
