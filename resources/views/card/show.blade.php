@@ -26,7 +26,7 @@
     $showFacebook  = (bool) $profile?->facebook_url;
     $showCity      = (bool) $profile?->city?->name;
 
-    $hasSocialFoot = $showWhatsapp || $showLinkedin || $showInstagram || $showFacebook;
+    $hasSocialFoot = true;
     $hasContacts   = $showPhone || $showEmail || $showWebsite || $showCity;
 
     // ── URL QR ───────────────────────────────────────────────────────
@@ -57,7 +57,7 @@
             'edit_profile'   => 'Modifica profilo',
             'powered_by'     => 'Powered by',
             'view_on_komm'   => 'Vedi il profilo su Kommunity',
-            'cta_card'       => 'Crea il tuo biglietto da visita digitale',
+            'cta_card'       => 'Crea anche tu il biglietto da visita digitale',
             'cta_register'   => 'Registrati con l\'invito di',
             'cta_planet'     => 'Entrerai nel Pianeta',
         ],
@@ -74,7 +74,7 @@
             'edit_profile'   => 'Edit profile',
             'powered_by'     => 'Powered by',
             'view_on_komm'   => 'View profile on Kommunity',
-            'cta_card'       => 'Create your digital business card',
+            'cta_card'       => 'Create your digital business card too',
             'cta_register'   => 'Join with the invite of',
             'cta_planet'     => 'You\'ll join the Planet',
         ],
@@ -91,7 +91,7 @@
             'edit_profile'   => 'Modifier le profil',
             'powered_by'     => 'Propulsé par',
             'view_on_komm'   => 'Voir le profil sur Kommunity',
-            'cta_card'       => 'Créez votre carte de visite digitale',
+            'cta_card'       => 'Créez vous aussi votre carte de visite digitale',
             'cta_register'   => 'Inscrivez-vous avec l\'invitation de',
             'cta_planet'     => 'Vous rejoindrez la Planète',
         ],
@@ -108,7 +108,7 @@
             'edit_profile'   => 'Editar perfil',
             'powered_by'     => 'Desarrollado por',
             'view_on_komm'   => 'Ver perfil en Kommunity',
-            'cta_card'       => 'Crea tu tarjeta de visita digital',
+            'cta_card'       => 'Crea también tu tarjeta de visita digital',
             'cta_register'   => 'Regístrate con la invitación de',
             'cta_planet'     => 'Entrarás al Planeta',
         ],
@@ -125,7 +125,7 @@
             'edit_profile'   => 'Profil bearbeiten',
             'powered_by'     => 'Bereitgestellt von',
             'view_on_komm'   => 'Profil auf Kommunity ansehen',
-            'cta_card'       => 'Erstelle deine digitale Visitenkarte',
+            'cta_card'       => 'Erstelle auch du deine digitale Visitenkarte',
             'cta_register'   => 'Registriere dich mit der Einladung von',
             'cta_planet'     => 'Du trittst dem Planeten bei',
         ],
@@ -142,7 +142,7 @@
             'edit_profile'   => 'Editează profilul',
             'powered_by'     => 'Oferit de',
             'view_on_komm'   => 'Vezi profilul pe Kommunity',
-            'cta_card'       => 'Creează-ți cartea de vizită digitală',
+            'cta_card'       => 'Creează și tu cartea de vizită digitală',
             'cta_register'   => 'Înregistrează-te cu invitația lui',
             'cta_planet'     => 'Vei intra în Planeta',
         ],
@@ -186,7 +186,7 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--km-bg);
+            background: var(--km-surface);
             color: var(--km-ink);
             min-height: 100dvh;
             display: flex;
@@ -240,7 +240,13 @@
         .kc-company { font-size: .72rem; color: rgba(170,183,196,.7); }
 
         /* ── BODY ─────────────────────────────────────────────────── */
-        .kc-body { flex: 1; padding: .2rem .875rem .75rem; }
+        .kc-body {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            padding: .2rem .875rem .75rem;
+            background: var(--km-surface);
+        }
 
         /* Bottone primario */
         .kc-btn-save {
@@ -333,15 +339,15 @@
             padding: .2rem 0 .1rem;
         }
 
-        /* ── Social in fondo (cerchi neutri 30px, nessuna label) ─── */
+        /* ── Social in fondo (cerchi neutri, nessuna label) ─── */
         .kc-socials-foot {
             display: flex; flex-wrap: wrap;
-            justify-content: center; gap: .5rem;
-            padding: .5rem 0 .25rem;
+            justify-content: center; gap: .65rem;
+            padding: .65rem 0 .35rem;
             border-top: .5px solid var(--km-line);
         }
         .kc-sf {
-            width: 30px; height: 30px;
+            width: 42px; height: 42px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             text-decoration: none;
@@ -351,18 +357,23 @@
             flex-shrink: 0;
         }
         .kc-sf:hover { opacity: .7; }
-        .kc-sf svg { width: 15px; height: 15px; stroke: var(--km-muted); }
+        .kc-sf svg { width: 21px; height: 21px; stroke: var(--km-muted); }
+        .kc-sf-img {
+            width: 23px; height: 23px;
+            object-fit: contain;
+            display: block;
+        }
 
         /* ── Footer ───────────────────────────────────────────────── */
         .kc-footer {
             border-top: .5px solid var(--km-line);
+            background: var(--km-surface);
             padding: .625rem .875rem 1rem;
         }
         .kc-footer-guest {
             text-align: center;
             font-size: .72rem; color: var(--km-muted);
         }
-        .kc-footer-guest p { margin-bottom: .3rem; }
         .kc-footer-guest a { color: var(--km-accent); text-decoration: none; font-weight: 500; }
         .kc-footer-guest a:hover { text-decoration: underline; }
         .kc-footer-planet {
@@ -494,9 +505,17 @@
         </button>
         <p class="kc-copied" id="kc-copied-msg" role="status" aria-live="polite">✓ Link copiato</p>
 
-        {{-- Social in fondo — cerchi neutri 30px, nessuna label ─────── --}}
+        {{-- Social in fondo — cerchi neutri, nessuna label ─────── --}}
         @if($hasSocialFoot)
         <div class="kc-socials-foot" role="list" aria-label="Social">
+
+            <a class="kc-sf"
+               href="{{ route('members.show', $onepage->slug) }}"
+               target="_blank" rel="noopener"
+               aria-label="Profilo Kommunity"
+               role="listitem">
+                <img class="kc-sf-img" src="{{ asset('brand/kommunity-mark.png') }}" alt="" aria-hidden="true">
+            </a>
 
             @if($showWhatsapp)
             <a class="kc-sf" href="{{ $whatsappUrl }}" target="_blank" rel="noopener" aria-label="WhatsApp" role="listitem">
@@ -566,19 +585,9 @@
             @endif
         @else
             <div class="kc-footer-guest">
-                <p>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--km-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    {{ $t['cta_card'] }}
-                </p>
                 <a href="{{ $referralUrl }}" target="_blank" rel="noopener">
-                    {{ $t['cta_register'] }} {{ explode(' ', $user->name)[0] }}
+                    {{ $t['cta_card'] }}
                 </a>
-                @if($activePlanet)
-                <div class="kc-footer-planet">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                    {{ $t['cta_planet'] }}: <strong>{{ $activePlanet->name }}</strong>
-                </div>
-                @endif
             </div>
         @endauth
     </div>

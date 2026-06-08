@@ -42,12 +42,6 @@
 
         {{-- COLONNA DESTRA: form --}}
         <div>
-            <div class="mb-5">
-                <p class="text-xs uppercase tracking-[0.24em] text-white/50">Registrazione</p>
-                <h2 class="mt-2 font-serif text-xl font-semibold text-white">Crea il tuo account</h2>
-                <p class="mt-1.5 text-sm text-white/55">Compila i campi per completare la richiesta di accesso.</p>
-            </div>
-
             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                 @csrf
 
