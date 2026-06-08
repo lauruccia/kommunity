@@ -10,6 +10,14 @@
             $whatsappUrl = 'https://wa.me/' . preg_replace('/\D+/', '', $profile->whatsapp_number)
                 . '?text=' . urlencode('Ciao ' . $user->name . ', ti contatto dalla tua pagina su Kommunity.');
         }
+
+        $profileContentIsNewer = $profile?->updated_at
+            && $onepage?->updated_at
+            && $profile->updated_at->gt($onepage->updated_at);
+
+        $publicText = fn ($onepageValue, $profileValue) => $profileContentIsNewer
+            ? ($profileValue ?: $onepageValue)
+            : ($onepageValue ?: $profileValue);
     @endphp
 
     <style>
@@ -240,7 +248,7 @@
                                     <p class="mt-1 text-sm text-stone-600">{{ $profsLabel }}</p>
                                 @endif
 
-                                @php $shortBio = $onepage->intro_text ?: $profile->short_bio; @endphp
+                                @php $shortBio = $publicText($onepage->intro_text, $profile->short_bio); @endphp
                                 @if ($shortBio)
                                     <p class="mt-2 text-sm italic text-stone-500">{{ $shortBio }}</p>
                                 @endif
@@ -286,7 +294,7 @@
                     <div class="km-panel p-5 sm:p-6">
                         <div class="grid gap-8">
 
-                            @php $aboutText = $onepage->about_text ?: $profile->bio; @endphp
+                            @php $aboutText = $publicText($onepage->about_text, $profile->bio); @endphp
                             @if ($aboutText)
                             <div>
                                 <h2 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
@@ -297,7 +305,7 @@
                             @endif
 
                             @php
-                                $servicesText = $onepage->services_text ?: $profile->services;
+                                $servicesText = $publicText($onepage->services_text, $profile->services);
                                 $skillsList   = $profile->skills
                                     ? collect(explode(',', $profile->skills))->map(fn ($s) => trim($s))->filter()
                                     : collect();

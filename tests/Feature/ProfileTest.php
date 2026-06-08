@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\MemberProfiles\Pages\EditMemberProfile;
 use App\Models\City;
 use App\Models\MemberGalleryImage;
+use App\Models\MemberProfile;
 use App\Models\ProfileVideoAccessRequest;
 use App\Models\Profession;
 use App\Models\Region;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -67,6 +70,63 @@ class ProfileTest extends TestCase
         $this->assertSame('Bio breve aggiornata', $onepage->intro_text);
         $this->assertSame('Testo chi sono aggiornato', $onepage->about_text);
         $this->assertSame('Servizi aggiornati', $onepage->services_text);
+    }
+
+    public function test_admin_profile_update_syncs_public_onepage_texts(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Test Membro',
+        ]);
+
+        $region = Region::query()->create([
+            'name' => 'Lazio',
+            'slug' => 'lazio',
+            'code' => 'LAZ',
+        ]);
+        $city = City::query()->create([
+            'name' => 'Roma',
+            'slug' => 'roma',
+            'region_id' => $region->id,
+            'province' => 'RM',
+        ]);
+        $profession = Profession::query()->create([
+            'name' => 'Assistenza tecnologica',
+            'slug' => 'assistenza-tecnologica',
+            'is_active' => true,
+        ]);
+
+        $profile = $user->memberProfile()->firstOrFail();
+        $user->memberOnepage()->update([
+            'hero_subtitle' => 'Sottotitolo vecchio',
+            'intro_text' => 'Bio breve vecchia',
+            'about_text' => 'Bio vecchia',
+            'services_text' => 'Servizi vecchi',
+        ]);
+
+        $page = new class extends EditMemberProfile {
+            public function updateRecord(MemberProfile $record, array $data): Model
+            {
+                $this->data = ['admin_planets' => null];
+
+                return $this->handleRecordUpdate($record, $data);
+            }
+        };
+
+        $page->updateRecord($profile, [
+            'city_id' => $city->id,
+            'region_id' => $region->id,
+            'profession_id' => $profession->id,
+            'short_bio' => 'Bio breve admin',
+            'bio' => 'Bio admin',
+            'services' => 'Servizi admin',
+        ]);
+
+        $onepage = $user->memberOnepage()->firstOrFail();
+
+        $this->assertSame('Assistenza tecnologica · Roma', $onepage->hero_subtitle);
+        $this->assertSame('Bio breve admin', $onepage->intro_text);
+        $this->assertSame('Bio admin', $onepage->about_text);
+        $this->assertSame('Servizi admin', $onepage->services_text);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void

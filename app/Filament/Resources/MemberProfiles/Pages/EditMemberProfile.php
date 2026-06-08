@@ -39,20 +39,43 @@ class EditMemberProfile extends EditRecord
             $this->syncAdminPlanets($record, array_map('intval', (array) $adminPlanets));
         }
 
-        // Salva il banner sulla pagina personale del membro (MemberOnepage)
-        if ($coverImage !== false && $record->user_id) {
-            $onepage = MemberOnepage::firstOrNew(['user_id' => $record->user_id]);
-            $onepage->cover_image = $coverImage ?: null;
-            // Valori minimi obbligatori se il record viene creato ora
-            if (! $onepage->exists) {
-                $onepage->slug = 'membro-' . $record->user_id;
-                $onepage->visibility = 'members_only';
-                $onepage->is_active = false;
-            }
-            $onepage->save();
-        }
+        $this->syncPublicOnepage($record, $coverImage);
 
         return $record;
+    }
+
+    private function syncPublicOnepage(MemberProfile $record, mixed $coverImage): void
+    {
+        if (! $record->user_id) {
+            return;
+        }
+
+        $record->refresh()->loadMissing(['city', 'profession', 'user']);
+
+        $onepage = MemberOnepage::firstOrNew(['user_id' => $record->user_id]);
+
+        if (! $onepage->exists) {
+            $onepage->slug = $record->user?->referral_code ?: 'membro-' . $record->user_id;
+            $onepage->title = $record->user?->name;
+            $onepage->hero_title = $record->user?->name;
+            $onepage->cta_text = 'Prenota un incontro one-to-one';
+            $onepage->template = 'minimal-professional';
+            $onepage->visibility = 'registered_users';
+            $onepage->is_active = false;
+            $onepage->seo_title = trim(($record->user?->name ?: 'Membro') . ' | Kommunity');
+            $onepage->seo_description = 'Mini sito professionale di ' . ($record->user?->name ?: 'questo membro') . ' su Kommunity.';
+        }
+
+        $onepage->hero_subtitle = trim(($record->profession?->name ?? 'Professionista') . ' · ' . ($record->city?->name ?? 'Italia'));
+        $onepage->intro_text = $record->short_bio;
+        $onepage->about_text = $record->bio;
+        $onepage->services_text = $record->services;
+
+        if ($coverImage !== false) {
+            $onepage->cover_image = $coverImage ?: null;
+        }
+
+        $onepage->save();
     }
 
     /**
