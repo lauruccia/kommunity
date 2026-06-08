@@ -368,7 +368,7 @@
         .kc-footer {
             border-top: .5px solid var(--km-line);
             background: var(--km-surface);
-            padding: .625rem .875rem 1rem;
+            padding: .625rem .875rem .9rem;
         }
         .kc-footer-guest {
             text-align: center;
@@ -381,16 +381,17 @@
             width: 100%;
             min-height: 42px;
             padding: .65rem .9rem;
-            border-radius: var(--km-radius-sm);
-            background: linear-gradient(135deg, var(--km-green), #5f9d42);
-            color: #061018;
+            border-radius: .75rem;
+            background: var(--km-accent-soft);
+            border: .5px solid rgba(66, 98, 64, .18);
+            color: var(--km-accent-strong);
             text-decoration: none;
             font-size: .82rem;
-            font-weight: 700;
+            font-weight: 650;
             line-height: 1.25;
-            box-shadow: 0 10px 24px rgba(139, 197, 63, .22);
+            box-shadow: 0 6px 16px rgba(66, 98, 64, .08);
         }
-        .kc-footer-guest a:hover { opacity: .9; }
+        .kc-footer-guest a:hover { background: rgba(139, 197, 63, .18); }
         .kc-footer-planet {
             display: inline-flex; align-items: center; gap: .25rem;
             margin-top: .2rem; font-size: .67rem; color: var(--km-muted);
