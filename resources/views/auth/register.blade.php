@@ -42,6 +42,10 @@
 
         {{-- COLONNA DESTRA: form --}}
         <div>
+            <div class="mb-5">
+                <p class="text-xs uppercase tracking-[0.24em] text-white/50">Registrazione</p>
+            </div>
+
             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                 @csrf
 

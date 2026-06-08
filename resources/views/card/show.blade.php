@@ -374,8 +374,23 @@
             text-align: center;
             font-size: .72rem; color: var(--km-muted);
         }
-        .kc-footer-guest a { color: var(--km-accent); text-decoration: none; font-weight: 500; }
-        .kc-footer-guest a:hover { text-decoration: underline; }
+        .kc-footer-guest a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 42px;
+            padding: .65rem .9rem;
+            border-radius: var(--km-radius-sm);
+            background: linear-gradient(135deg, var(--km-green), #5f9d42);
+            color: #061018;
+            text-decoration: none;
+            font-size: .82rem;
+            font-weight: 700;
+            line-height: 1.25;
+            box-shadow: 0 10px 24px rgba(139, 197, 63, .22);
+        }
+        .kc-footer-guest a:hover { opacity: .9; }
         .kc-footer-planet {
             display: inline-flex; align-items: center; gap: .25rem;
             margin-top: .2rem; font-size: .67rem; color: var(--km-muted);
