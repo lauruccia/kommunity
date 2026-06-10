@@ -172,12 +172,12 @@
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 scale-95 translate-y-1"
                          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                         class="absolute right-0 top-full mt-2 origin-top-right rounded-2xl border border-stone-200 bg-white shadow-xl"
-                         style="z-index:9999; min-width:220px; max-width:320px; max-height:70vh; overflow-y:auto;">
-                        <div class="sticky top-0 bg-white px-4 py-2.5 border-b border-stone-100">
+                         class="absolute right-0 top-full mt-2 origin-top-right rounded-2xl border border-stone-200 bg-white shadow-xl flex flex-col"
+                         style="z-index:9999; min-width:220px; max-width:320px;">
+                        <div class="shrink-0 bg-white px-4 py-2.5 border-b border-stone-100 rounded-t-2xl">
                             <p class="text-[10px] font-semibold uppercase tracking-widest text-stone-400">I tuoi Pianeti</p>
                         </div>
-                        <div class="py-1">
+                        <div class="py-1 overflow-y-auto" style="max-height:260px;">
                             @foreach ($userPlanets as $planet)
                             <form method="POST" action="{{ route('planet.switch', $planet) }}">
                                 @csrf
