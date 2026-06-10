@@ -12,8 +12,10 @@ use App\Models\SubscriptionPlan;
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -232,7 +234,40 @@ class MemberSubscriptionResource extends Resource
 
                 EditAction::make(),
             ])
-            ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    BulkAction::make('exportCsv')
+                        ->label('Esporta CSV')
+                        ->icon(Heroicon::OutlinedArrowDownTray)
+                        ->color('info')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records): \Symfony\Component\HttpFoundation\StreamedResponse {
+                            $filename = 'abbonamenti_' . now()->format('Ymd_His') . '.csv';
+                            return response()->streamDownload(function () use ($records): void {
+                                $handle = fopen('php://output', 'w');
+                                fputcsv($handle, ['ID', 'Membro', 'Email', 'Piano', 'Stato', 'Metodo pagamento', 'Riferimento', 'Inizio', 'Scadenza', 'Richiesto il', 'Approvato il', 'Note admin']);
+                                foreach ($records as $sub) {
+                                    fputcsv($handle, [
+                                        $sub->id,
+                                        $sub->user?->name ?? '',
+                                        $sub->user?->email ?? '',
+                                        $sub->plan?->name ?? '',
+                                        $sub->status instanceof SubscriptionStatus ? $sub->status->label() : ($sub->status ?? ''),
+                                        $sub->payment_method instanceof PaymentMethod ? $sub->payment_method->label() : ($sub->payment_method ?? ''),
+                                        $sub->payment_reference ?? '',
+                                        $sub->starts_at?->format('d/m/Y') ?? '',
+                                        $sub->ends_at?->format('d/m/Y') ?? 'Nessuna scadenza',
+                                        $sub->requested_at?->format('d/m/Y H:i') ?? '',
+                                        $sub->approved_at?->format('d/m/Y H:i') ?? '',
+                                        $sub->admin_notes ?? '',
+                                    ]);
+                                }
+                                fclose($handle);
+                            }, $filename, ['Content-Type' => 'text/csv']);
+                        }),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

@@ -16,6 +16,7 @@ use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\Admin\BannerReportController;
+use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PushSubscriptionController;
@@ -177,6 +178,18 @@ Route::middleware([
         Route::post('/cache/clear', [CacheController::class, 'clear'])->name('cache.clear');
         Route::get('/banner-campaigns/{bannerCampaign}/export', [BannerReportController::class, 'export'])
             ->name('banner-campaigns.export');
+    });
+
+// ── Admin: impersona utente (start: solo super-admin | stop: qualsiasi auth) ──
+Route::middleware(['auth', 'verified'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::post('/impersonate/{user}', [ImpersonateController::class, 'start'])
+            ->name('impersonate.start')
+            ->middleware('role:super-admin');
+        Route::post('/impersonate/stop', [ImpersonateController::class, 'stop'])
+            ->name('impersonate.stop');
     });
 
 require __DIR__.'/auth.php';

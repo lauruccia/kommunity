@@ -39,6 +39,22 @@
     </head>
     <body class="font-sans antialiased text-stone-900 @stack('body-class')">
         <div class="min-h-screen">
+            {{-- Banner impersonificazione: visibile quando un admin sta navigando come un altro utente --}}
+            @if(session('impersonating_admin_id'))
+                <div class="bg-amber-500 text-white text-sm font-semibold px-4 py-2 flex items-center justify-between sticky top-0 z-50 shadow">
+                    <span>
+                        🎭 Stai navigando come <strong>{{ auth()->user()->name }}</strong> ({{ auth()->user()->email }}).
+                        Sei loggato come admin in modalità impersonificazione.
+                    </span>
+                    <form method="POST" action="/admin/impersonate/stop" class="inline">
+                        @csrf
+                        <button type="submit" class="ml-4 bg-white text-amber-700 rounded px-3 py-1 text-xs font-bold hover:bg-amber-100 transition">
+                            Esci dall'impersonificazione →
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             @unless($hideNavigation ?? false)
                 @include('layouts.navigation')
             @endunless

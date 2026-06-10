@@ -7,6 +7,8 @@ use App\Filament\Resources\Events\Pages\CreateEvent;
 use App\Filament\Resources\Events\Pages\EditEvent;
 use App\Filament\Resources\Events\Pages\ListEvents;
 use App\Filament\Resources\Events\Pages\ViewEvent;
+use App\Filament\Resources\Events\RelationManagers\EventInvitationsRelationManager;
+use App\Filament\Resources\Events\RelationManagers\EventRegistrationsRelationManager;
 use App\Models\Chapter;
 use App\Models\Event;
 use BackedEnum;
@@ -328,7 +330,10 @@ class EventResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            EventRegistrationsRelationManager::class,
+            EventInvitationsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

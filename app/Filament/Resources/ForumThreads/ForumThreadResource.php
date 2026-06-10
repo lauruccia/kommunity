@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ForumThreads;
 use App\Filament\Resources\ForumThreads\Pages\CreateForumThread;
 use App\Filament\Resources\ForumThreads\Pages\EditForumThread;
 use App\Filament\Resources\ForumThreads\Pages\ListForumThreads;
+use App\Filament\Resources\ForumThreads\RelationManagers\ForumPostsRelationManager;
 use App\Models\ForumThread;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -73,7 +74,9 @@ class ForumThreadResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ForumPostsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

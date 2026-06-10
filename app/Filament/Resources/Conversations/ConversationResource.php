@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Conversations;
 use App\Filament\Resources\Conversations\Pages\CreateConversation;
 use App\Filament\Resources\Conversations\Pages\EditConversation;
 use App\Filament\Resources\Conversations\Pages\ListConversations;
+use App\Filament\Resources\Conversations\RelationManagers\ConversationMessagesRelationManager;
 use App\Models\Conversation;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -63,7 +64,9 @@ class ConversationResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ConversationMessagesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

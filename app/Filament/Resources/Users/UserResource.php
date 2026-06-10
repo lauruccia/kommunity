@@ -268,6 +268,24 @@ class UserResource extends Resource
                         ]);
                     }),
                 EditAction::make(),
+                Action::make('impersona')
+                    ->label('Impersona')
+                    ->icon(Heroicon::OutlinedIdentification)
+                    ->color('gray')
+                    ->visible(fn (User $record): bool =>
+                        (auth()->user()?->hasRole('super-admin') ?? false)
+                        && ! $record->hasRole('super-admin')
+                        && ! auth()->user()?->is($record)
+                    )
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (User $record): string => 'Impersonare ' . $record->name . '?')
+                    ->modalDescription('Accederai all\'area membri come questo utente. Un banner giallo in cima alla pagina ti permetterà di uscire.')
+                    ->action(function (User $record): void {
+                        $adminId = auth()->id();
+                        \Illuminate\Support\Facades\Auth::login($record);
+                        session()->put('impersonating_admin_id', $adminId);
+                    })
+                    ->successRedirectUrl(fn (): string => route('dashboard')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -310,6 +328,32 @@ class UserResource extends Resource
                             }
                         }),
                     DeleteBulkAction::make(),
+                    BulkAction::make('exportCsv')
+                        ->label('Esporta CSV')
+                        ->icon(Heroicon::OutlinedArrowDownTray)
+                        ->color('info')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records): \Symfony\Component\HttpFoundation\StreamedResponse {
+                            $filename = 'utenti_' . now()->format('Ymd_His') . '.csv';
+                            return response()->streamDownload(function () use ($records): void {
+                                $handle = fopen('php://output', 'w');
+                                fputcsv($handle, ['ID', 'Nome', 'Email', 'Pianeta', 'Ruoli', 'Stato', 'Professione', 'Città', 'Registrato il']);
+                                foreach ($records as $user) {
+                                    fputcsv($handle, [
+                                        $user->id,
+                                        $user->name,
+                                        $user->email,
+                                        $user->memberProfile?->chapter?->name ?? '',
+                                        $user->roles->pluck('name')->implode(', '),
+                                        filled($user->email_verified_at) ? 'Attivo' : 'Da attivare',
+                                        $user->memberProfile?->profession?->name ?? '',
+                                        $user->memberProfile?->city?->name ?? '',
+                                        $user->created_at?->format('d/m/Y H:i') ?? '',
+                                    ]);
+                                }
+                                fclose($handle);
+                            }, $filename, ['Content-Type' => 'text/csv']);
+                        }),
                 ]),
             ]);
     }
