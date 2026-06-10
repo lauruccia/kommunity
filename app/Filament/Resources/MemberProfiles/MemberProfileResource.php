@@ -478,17 +478,17 @@ class MemberProfileResource extends Resource
                     ->label('Onboarding')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('companyInterestTypes.name')
+                TextColumn::make('company_interest_types_count')
+                    ->counts('companyInterestTypes')
                     ->label('Tipologie da conoscere')
-                    ->badge()
-                    ->limit(3)
                     ->tooltip(fn ($record) => $record->companyInterestTypes->pluck('name')->join(', '))
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('professionsOfInterest.name')
+                TextColumn::make('professions_of_interest_count')
+                    ->counts('professionsOfInterest')
                     ->label('Professioni da conoscere')
-                    ->badge()
-                    ->limit(3)
                     ->tooltip(fn ($record) => $record->professionsOfInterest->pluck('name')->join(', '))
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
