@@ -486,7 +486,7 @@ class MemberProfileResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('professions_of_interest_count')
                     ->counts('professionsOfInterest')
-                    ->label('Professionisti da conoscere')
+                    ->label('P/A')
                     ->tooltip(fn ($record) => $record->professionsOfInterest->pluck('name')->join(', '))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
