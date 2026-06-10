@@ -104,6 +104,12 @@ class MemberProfileResource extends Resource
                     ->relationship('companyInterestTypes', 'name')
                     ->multiple()
                     ->preload(),
+                Select::make('professionsOfInterest')
+                    ->label('Professioni da conoscere (networking)')
+                    ->options(fn () => \App\Models\Profession::flatTree()->pluck('label', 'id'))
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
                 Textarea::make('bio')
                     ->label('Bio')
                     ->columnSpanFull(),
@@ -259,8 +265,13 @@ class MemberProfileResource extends Resource
                     ->label('Pianeta')
                     ->placeholder('-'),
                 TextEntry::make('companyInterestTypes.name')
-                    ->label('Tipologie da conoscere')
-                    ->badge(),
+                    ->label('Tipologie aziende/gruppi da conoscere')
+                    ->badge()
+                    ->placeholder('-'),
+                TextEntry::make('professionsOfInterest.name')
+                    ->label('Professioni da conoscere (networking)')
+                    ->badge()
+                    ->placeholder('-'),
                 TextEntry::make('user.invited_by_name')
                     ->label('Invitato da')
                     ->placeholder('-'),
@@ -468,7 +479,11 @@ class MemberProfileResource extends Resource
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('companyInterestTypes.name')
-                    ->label('Tipologie da conoscere')
+                    ->label('Tipologie aziende/gruppi da conoscere')
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('professionsOfInterest.name')
+                    ->label('Professioni da conoscere')
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
