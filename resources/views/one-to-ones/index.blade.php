@@ -989,8 +989,12 @@
                         @method('PATCH')
                         <label style="display:block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);margin-bottom:.5rem;">Nuova data e ora</label>
                         <input type="datetime-local" name="propose_new_datetime"
-                               value="{{ optional($selectedRequest->requested_at)->format('Y-m-d\TH:i') }}"
-                               class="km-dark-input" style="width:100%;" required>
+                               value="{{ old('propose_new_datetime', '') }}"
+                               min="{{ now()->format('Y-m-d\TH:i') }}"
+                               class="km-dark-input" style="width:100%;cursor:pointer;" required>
+                        @error('propose_new_datetime')
+                            <p style="margin-top:.4rem;font-size:.75rem;color:#FDA4AF;">{{ $message }}</p>
+                        @enderror
                         <div style="display:flex;gap:.6rem;margin-top:1rem;">
                             <button type="button" onclick="document.getElementById('km-reschedule-modal').style.display='none'"
                                     class="km-button-secondary" style="flex:1;">
@@ -1229,6 +1233,11 @@
             // Chiudi reschedule modal cliccando lo sfondo
             const rsModal = document.getElementById('km-reschedule-modal');
             if (rsModal) rsModal.addEventListener('click', (e) => { if (e.target === rsModal) rsModal.style.display = 'none'; });
+
+            // Riapri il reschedule modal se c'è un errore di validazione su propose_new_datetime
+            @if ($errors->has('propose_new_datetime'))
+                if (rsModal) rsModal.style.display = 'flex';
+            @endif
 
             renderMembers(); renderSelectedMemberSummary(); renderAvailability(); updateSubmitState();
 

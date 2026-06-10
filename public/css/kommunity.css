@@ -290,6 +290,7 @@ body { -webkit-font-smoothing: antialiased; }
     font-family: inherit;
     outline: none;
     transition: border-color var(--km-transition);
+    color-scheme: dark;
 }
 .km-dark-input::placeholder { color: var(--km-text-muted); }
 .km-dark-input:focus { border-color: rgba(139, 197, 63, .50); }
