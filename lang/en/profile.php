@@ -60,4 +60,12 @@ return [
     'interactions_one_to_one_session' => 'One-to-one session',
     'interactions_referral_sent'      => 'Sent by you',
     'interactions_referral_received'  => 'Received by you',
+
+    // One-to-one status
+    'oto_status_accepted'   => 'Accepted',
+    'oto_status_confirmed'  => 'Confirmed',
+    'oto_status_completed'  => 'Completed',
+    'oto_status_pending'    => 'Pending',
+    'oto_status_declined'   => 'Declined',
+    'oto_status_cancelled'  => 'Cancelled',
 ];

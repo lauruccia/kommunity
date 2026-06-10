@@ -60,4 +60,12 @@ return [
     'interactions_one_to_one_session' => 'Sessione one-to-one',
     'interactions_referral_sent'      => 'Inviato da te',
     'interactions_referral_received'  => 'Ricevuto da te',
+
+    // Stato one-to-one
+    'oto_status_accepted'   => 'Accettato',
+    'oto_status_confirmed'  => 'Confermato',
+    'oto_status_completed'  => 'Completato',
+    'oto_status_pending'    => 'In attesa',
+    'oto_status_declined'   => 'Rifiutato',
+    'oto_status_cancelled'  => 'Annullato',
 ];

@@ -74,15 +74,18 @@
                     @php
                         $otoStatus = $oto->status ?? null;
                         $otoStatusClass = match($otoStatus) {
-                            'accepted', 'confirmed' => 'bg-emerald-50 text-emerald-700',
-                            'pending'               => 'bg-amber-50 text-amber-700',
-                            'declined', 'cancelled' => 'bg-rose-50 text-rose-700',
-                            default                 => 'bg-stone-100 text-stone-500',
+                            'accepted', 'confirmed', 'completed' => 'bg-emerald-50 text-emerald-700',
+                            'pending'                            => 'bg-amber-50 text-amber-700',
+                            'declined', 'cancelled'              => 'bg-rose-50 text-rose-700',
+                            default                              => 'bg-stone-100 text-stone-500',
                         };
+                        $otoStatusLabel = $otoStatus
+                            ? __('profile.oto_status_' . $otoStatus, [], null) ?: ucfirst($otoStatus)
+                            : null;
                     @endphp
-                    @if ($otoStatus)
+                    @if ($otoStatusLabel)
                     <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium {{ $otoStatusClass }}">
-                        {{ $otoStatus }}
+                        {{ $otoStatusLabel }}
                     </span>
                     @endif
                 </div>
