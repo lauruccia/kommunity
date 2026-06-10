@@ -105,7 +105,7 @@ class MemberProfileResource extends Resource
                     ->multiple()
                     ->preload(),
                 Select::make('professionsOfInterest')
-                    ->label('Professioni da conoscere (networking)')
+                    ->label('Professionisti da conoscere (networking)')
                     ->options(fn () => \App\Models\Profession::flatTree()->pluck('label', 'id'))
                     ->multiple()
                     ->searchable()
@@ -269,7 +269,7 @@ class MemberProfileResource extends Resource
                     ->badge()
                     ->placeholder('-'),
                 TextEntry::make('professionsOfInterest.name')
-                    ->label('Professioni da conoscere (networking)')
+                    ->label('Professionisti da conoscere (networking)')
                     ->badge()
                     ->placeholder('-'),
                 TextEntry::make('user.invited_by_name')
@@ -486,7 +486,7 @@ class MemberProfileResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('professions_of_interest_count')
                     ->counts('professionsOfInterest')
-                    ->label('Professioni da conoscere')
+                    ->label('Professionisti da conoscere')
                     ->tooltip(fn ($record) => $record->professionsOfInterest->pluck('name')->join(', '))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
