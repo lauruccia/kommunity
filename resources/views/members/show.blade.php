@@ -227,7 +227,7 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-4 px-5 pb-6 pt-16 sm:flex-row sm:items-end sm:justify-between sm:px-6">
+                        <div class="flex flex-col gap-4 px-5 pb-6 pt-16 sm:flex-row sm:items-start sm:justify-between sm:px-6">
                             <div class="min-w-0">
                                 <h1 class="font-serif text-2xl font-semibold text-stone-950 sm:text-3xl">
                                     {{ $onepage->hero_title ?: $user->name }}

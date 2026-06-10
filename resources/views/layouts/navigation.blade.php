@@ -36,7 +36,7 @@
                         </a>
                     </div>
 
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <div class="hidden flex-nowrap space-x-6 sm:-my-px sm:ms-8 sm:flex">
                         @foreach ($memberNavigationItems as $item)
                             <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['active'])">
                                 {{ __($item['label']) }}
