@@ -72,15 +72,20 @@
                         {{ $oto->title ?? __('profile.interactions_one_to_one_session') }}
                     </p>
                     @php
-                        $otoStatus = $oto->status ?? null;
+                        $otoStatusRaw = $oto->status ?? null;
+                        $otoStatus = $otoStatusRaw instanceof \App\Enums\OneToOneStatus
+                            ? $otoStatusRaw->value
+                            : ($otoStatusRaw ?? null);
                         $otoStatusClass = match($otoStatus) {
                             'accepted', 'confirmed', 'completed' => 'bg-emerald-50 text-emerald-700',
-                            'pending'                            => 'bg-amber-50 text-amber-700',
+                            'pending', 'rescheduled'             => 'bg-amber-50 text-amber-700',
                             'declined', 'cancelled'              => 'bg-rose-50 text-rose-700',
                             default                              => 'bg-stone-100 text-stone-500',
                         };
                         $otoStatusLabel = $otoStatus
-                            ? __('profile.oto_status_' . $otoStatus, [], null) ?: ucfirst($otoStatus)
+                            ? (__('profile.oto_status_' . $otoStatus) !== 'profile.oto_status_' . $otoStatus
+                                ? __('profile.oto_status_' . $otoStatus)
+                                : ucfirst($otoStatus))
                             : null;
                     @endphp
                     @if ($otoStatusLabel)

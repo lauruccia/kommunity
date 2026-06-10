@@ -67,5 +67,6 @@ return [
     'oto_status_completed'  => 'Completato',
     'oto_status_pending'    => 'In attesa',
     'oto_status_declined'   => 'Rifiutato',
-    'oto_status_cancelled'  => 'Annullato',
+    'oto_status_cancelled'    => 'Annullato',
+    'oto_status_rescheduled'  => 'Riprogrammato',
 ];
