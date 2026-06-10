@@ -479,12 +479,16 @@ class MemberProfileResource extends Resource
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('companyInterestTypes.name')
-                    ->label('Tipologie aziende/gruppi da conoscere')
+                    ->label('Tipologie da conoscere')
                     ->badge()
+                    ->limit(3)
+                    ->tooltip(fn ($record) => $record->companyInterestTypes->pluck('name')->join(', '))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('professionsOfInterest.name')
                     ->label('Professioni da conoscere')
                     ->badge()
+                    ->limit(3)
+                    ->tooltip(fn ($record) => $record->professionsOfInterest->pluck('name')->join(', '))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
