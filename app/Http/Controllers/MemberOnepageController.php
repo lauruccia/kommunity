@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Conversation;
+use App\Models\EventRegistration;
 use App\Models\MemberOnepage;
 use App\Models\OneToOneReference;
 use App\Models\OneToOneRequest;
@@ -223,6 +225,23 @@ class MemberOnepageController extends Controller
                 ->where('is_public', true)
                 ->where('status', 'won')
                 ->count(),
+            // Conversazione privata tra i due (ultimo messaggio)
+            'sharedConversation' => $currentUserId ? Conversation::query()
+                ->whereHas('participants', fn ($q) => $q->where('users.id', $currentUserId))
+                ->whereHas('participants', fn ($q) => $q->where('users.id', $memberUserId))
+                ->with(['lastMessage.user'])
+                ->latest('updated_at')
+                ->first() : null,
+
+            // Co-partecipazione eventi (eventi a cui entrambi sono iscritti)
+            'sharedEvents' => $currentUserId ? \App\Models\Event::query()
+                ->whereHas('registrations', fn ($q) => $q->where('user_id', $currentUserId))
+                ->whereHas('registrations', fn ($q) => $q->where('user_id', $memberUserId))
+                ->with(['registrations' => fn ($q) => $q->where('user_id', $currentUserId)])
+                ->orderByDesc('starts_at')
+                ->take(4)
+                ->get() : collect(),
+
             'receivedReferralsAvgPriority' => (function () use ($memberUserId): ?float {
                 $rows = Referral::query()
                     ->where('recipient_id', $memberUserId)

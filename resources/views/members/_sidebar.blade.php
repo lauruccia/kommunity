@@ -389,3 +389,8 @@
     @endif
 </div>
 @endif
+
+{{-- Interazioni con questo membro (solo per utenti autenticati non-proprietari) --}}
+@if (auth()->check() && auth()->id() !== $user->id)
+    @include('members._interactions')
+@endif

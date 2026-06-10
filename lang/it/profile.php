@@ -47,4 +47,17 @@ return [
     'save'                 => "Salva profilo",
     'saved'                => "Profilo aggiornato.",
     'gallery_deleted'      => "Immagine gallery eliminata.",
+
+    // Sidebar interazioni
+    'interactions_title'              => 'Le nostre interazioni',
+    'interactions_messages'           => 'Messaggi',
+    'interactions_one_to_one'         => 'One-to-One',
+    'interactions_referrals'          => 'Referral',
+    'interactions_events'             => 'Eventi in comune',
+    'interactions_open'               => 'Apri chat',
+    'interactions_view_all'           => 'Vedi tutti',
+    'interactions_total'              => 'totali',
+    'interactions_one_to_one_session' => 'Sessione one-to-one',
+    'interactions_referral_sent'      => 'Inviato da te',
+    'interactions_referral_received'  => 'Ricevuto da te',
 ];

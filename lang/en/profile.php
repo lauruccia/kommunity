@@ -47,4 +47,17 @@ return [
     'save'                 => "Save profile",
     'saved'                => "Profile updated.",
     'gallery_deleted'      => "Gallery image deleted.",
+
+    // Sidebar interactions
+    'interactions_title'              => 'Our interactions',
+    'interactions_messages'           => 'Messages',
+    'interactions_one_to_one'         => 'One-to-One',
+    'interactions_referrals'          => 'Referrals',
+    'interactions_events'             => 'Shared events',
+    'interactions_open'               => 'Open chat',
+    'interactions_view_all'           => 'View all',
+    'interactions_total'              => 'total',
+    'interactions_one_to_one_session' => 'One-to-one session',
+    'interactions_referral_sent'      => 'Sent by you',
+    'interactions_referral_received'  => 'Received by you',
 ];
