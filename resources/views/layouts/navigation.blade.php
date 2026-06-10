@@ -177,7 +177,7 @@
                         <div class="shrink-0 bg-white px-4 py-2.5 border-b border-stone-100 rounded-t-2xl">
                             <p class="text-[10px] font-semibold uppercase tracking-widest text-stone-400">I tuoi Pianeti</p>
                         </div>
-                        <div class="py-1 overflow-y-auto" style="max-height:260px;">
+                        <div class="py-1" style="max-height:132px; overflow-y:scroll;">
                             @foreach ($userPlanets as $planet)
                             <form method="POST" action="{{ route('planet.switch', $planet) }}">
                                 @csrf
