@@ -256,7 +256,7 @@ class MemberProfileResource extends Resource
                     ->label('Regione')
                     ->placeholder('-'),
                 TextEntry::make('chapter.name')
-                    ->label('Capitolo')
+                    ->label('Pianeta')
                     ->placeholder('-'),
                 TextEntry::make('companyInterestTypes.name')
                     ->label('Tipologie da conoscere')
