@@ -34,6 +34,7 @@ class PlanetContextController extends Controller
         // Invalida la cache della directory (ordine random per pianeta)
         \Illuminate\Support\Facades\Cache::forget('directory.random_ids.v1');
 
-        return redirect()->back()->with('planet_switched', $chapter->name);
+        return redirect()->route('planet.chat.show', $chapter)
+            ->with('planet_switched', $chapter->name);
     }
 }
