@@ -27,7 +27,7 @@ class PlanetChatController extends Controller
 
         $messages = PlanetChatMessage::query()
             ->where('chapter_id', $chapter->id)
-            ->with('user:id,name,profile_photo_path')
+            ->with('user:id,name', 'user.memberProfile:user_id,avatar')
             ->orderBy('id')
             ->latest('id')
             ->take(80)
@@ -67,7 +67,7 @@ class PlanetChatController extends Controller
             'body'       => $validated['body'],
         ]);
 
-        $message->load('user:id,name,profile_photo_path');
+        $message->load('user:id,name', 'user.memberProfile:user_id,avatar');
 
         // Notifica push agli altri membri attivi
         $this->notifyMembers($chapter, $message);
@@ -93,7 +93,7 @@ class PlanetChatController extends Controller
         $query = PlanetChatMessage::query()
             ->where('chapter_id', $chapter->id)
             ->where('id', '>', $sinceId)
-            ->with('user:id,name,profile_photo_path')
+            ->with('user:id,name', 'user.memberProfile:user_id,avatar')
             ->orderBy('id', 'desc')
             ->take($limit);
 
@@ -155,9 +155,7 @@ class PlanetChatController extends Controller
             'created_at' => $message->created_at->format('H:i'),
             'date'       => $message->created_at->format('d/m/Y'),
             'author'     => $user?->name ?? '—',
-            'avatar'     => $user?->profile_photo_path
-                                ? asset('storage/' . $user->profile_photo_path)
-                                : null,
+            'avatar'     => $user?->memberProfile?->avatarUrl(),
             'initials'   => $user ? mb_strtoupper(mb_substr($user->name, 0, 1)) : '?',
         ];
     }
