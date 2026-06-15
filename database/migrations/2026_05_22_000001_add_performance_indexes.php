@@ -124,17 +124,29 @@ return new class extends Migration
      */
     private function addIndexIfMissing(string $table, string $name, array $cols): void
     {
-        $exists = DB::select("
-            SELECT 1
-            FROM information_schema.STATISTICS
-            WHERE table_schema = DATABASE()
-              AND table_name   = ?
-              AND index_name   = ?
-            LIMIT 1
-        ", [$table, $name]);
+        $driver = DB::getDriverName();
 
-        if (! empty($exists)) {
-            return; // già presente
+        if ($driver === 'mysql' || $driver === 'mariadb') {
+            $exists = DB::select("
+                SELECT 1
+                FROM information_schema.STATISTICS
+                WHERE table_schema = DATABASE()
+                  AND table_name   = ?
+                  AND index_name   = ?
+                LIMIT 1
+            ", [$table, $name]);
+
+            if (! empty($exists)) {
+                return; // già presente
+            }
+        } else {
+            // SQLite: controlla gli indici via PRAGMA
+            $indexes = DB::select("PRAGMA index_list(`{$table}`)");
+            foreach ($indexes as $idx) {
+                if ($idx->name === $name) {
+                    return; // già presente
+                }
+            }
         }
 
         Schema::table($table, function (Blueprint $t) use ($name, $cols): void {

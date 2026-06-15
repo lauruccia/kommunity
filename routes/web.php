@@ -24,6 +24,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\ChapterInviteController;
 use App\Http\Controllers\MyInvitesController;
+use App\Http\Controllers\PlanetChatController;
 use App\Http\Controllers\PlanetContextController;
 use Illuminate\Support\Facades\Route;
 
@@ -112,6 +113,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/abbonamento', [SubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::post('/abbonamento', [SubscriptionController::class, 'request'])->name('subscriptions.request');
     Route::delete('/abbonamento/{subscription}', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+
+    // ── Chat di gruppo Pianeta (no onboarding required: accesso gestito dal controller) ──
+    Route::get('/pianeta/chat', [PlanetChatController::class, 'redirect'])->name('planet.chat.redirect');
+    Route::get('/pianeta/{chapter}/chat', [PlanetChatController::class, 'show'])->name('planet.chat.show');
+    Route::post('/pianeta/{chapter}/chat', [PlanetChatController::class, 'store'])->name('planet.chat.store');
+    Route::get('/pianeta/{chapter}/chat/poll', [PlanetChatController::class, 'poll'])->name('planet.chat.poll');
 });
 
 // ── Sezioni riservate: richiede onboarding completato ────────────────────────

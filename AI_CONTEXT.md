@@ -18,7 +18,7 @@ Questo progetto è già stato analizzato.
 - Viste: `resources/views/` (layouts/, components/, partials/, dashboard, forum, events, members, one-to-ones, conversations, notifications, onboarding, subscriptions, referrals, card, invito, directory, …)
 - Componenti principali: Filament Resources in `app/Filament/Resources/`, View composers in `app/View/`
 - Middleware: Laravel standard + Spatie permission + `auth` + `verified`
-- Modelli principali (46 totali): `User`, `Chapter`, `ChapterMember`, `ChapterRole`, `ChapterInvitation`, `ChapterJoinRequest`, `PlanetRole`, `MemberProfile`, `MemberOnepage`, `MemberGalleryImage`, `ForumCategory`, `ForumThread`, `ForumPost`, `ForumCategoryProposal`, `Conversation`, `Message`, `OneToOneRequest`, `OneToOneNote`, `OneToOneFollowup`, `OneToOneReference`, `Event`, `EventRegistration`, `EventInvitation`, `SubscriptionPlan`, `MemberSubscription`, `BannerCampaign`, `BannerCreative`, `BannerPlacement`, `BannerClick`, `BannerImpression`, `Advertiser`, `PushSubscription`, `FeatureFlag`, `Referral`, `Page`, `SiteSetting`, `City`, `Province`, `Region`, `Sector`, `Category`, `Profession`, `AvailabilitySlot`, `ProfileSuggestion`, `ProfileVideoAccessRequest`, `CompanyInterestType`
+- Modelli principali (47 totali): `User`, `Chapter`, `ChapterMember`, `ChapterRole`, `ChapterInvitation`, `ChapterJoinRequest`, `PlanetRole`, `MemberProfile`, `MemberOnepage`, `MemberGalleryImage`, `ForumCategory`, `ForumThread`, `ForumPost`, `ForumCategoryProposal`, `Conversation`, `Message`, `OneToOneRequest`, `OneToOneNote`, `OneToOneFollowup`, `OneToOneReference`, `Event`, `EventRegistration`, `EventInvitation`, `SubscriptionPlan`, `MemberSubscription`, `BannerCampaign`, `BannerCreative`, `BannerPlacement`, `BannerClick`, `BannerImpression`, `Advertiser`, `PushSubscription`, `FeatureFlag`, `Referral`, `Page`, `SiteSetting`, `City`, `Province`, `Region`, `Sector`, `Category`, `Profession`, `AvailabilitySlot`, `ProfileSuggestion`, `ProfileVideoAccessRequest`, `CompanyInterestType`
 
 ## Flussi da non rompere
 - Login: Laravel Breeze, sessioni, email verification (`routes/auth.php`)
@@ -26,6 +26,7 @@ Questo progetto è già stato analizzato.
 - Pagamenti: `SubscriptionPlan`, `MemberSubscription` — gestione abbonamenti
 - Dashboard: `DashboardController` → `resources/views/dashboard.blade.php`
 - Invio notifiche: `PushSubscription`, service worker `public/sw.js`, `app/Services/WebPush/`
+- Chat pianeta: `PlanetChatController` + polling JSON + push via `WebPushService`
 - API: nessuna API pubblica — tutto via web routes
 
 ## Enums (`app/Enums/`)
@@ -44,10 +45,10 @@ Questo progetto è già stato analizzato.
 Advertisers, AvailabilitySlots, BannerCampaigns, BannerCreatives, BannerPlacements, Categories, Chapters, Cities, CompanyInterestTypes, Conversations, Events, FeatureFlags, ForumCategories, ForumCategoryProposals, ForumThreads, MemberOnepages, MemberProfiles, MemberSubscriptions, OneToOneRequests, Pages, Permissions, PlanetRoles, Professions, ProfileSuggestions, Referrals, Regions, Roles, Sectors, SubscriptionPlans, Users
 
 ## Migrazioni
-42 migrazioni in `database/migrations/`
+43 migrazioni in `database/migrations/`
 
 ## i18n
-- `lang/it/` e `lang/en/`: `auth.php`, `directory.php`, `nav.php`, `profile.php`, `push.php`, `subscription.php`, `validation.php`
+- `lang/it/` e `lang/en/`: `auth.php`, `directory.php`, `nav.php`, `planet_chat.php`, `profile.php`, `push.php`, `subscription.php`, `validation.php`
 
 ## Convenzioni
 - Non modificare `.env` (né locale né produzione).

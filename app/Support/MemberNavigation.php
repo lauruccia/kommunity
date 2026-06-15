@@ -44,6 +44,11 @@ class MemberNavigation
                 'route' => 'conversations.index',
                 'active' => 'conversations.*',
             ],
+            'planet_chat' => [
+                'label' => 'nav.planet_chat',
+                'route' => 'planet.chat.redirect',
+                'active' => 'planet.chat.*',
+            ],
             'referrals' => [
                 'label' => 'nav.referrals',
                 'route' => 'referrals.index',

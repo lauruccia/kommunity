@@ -8,6 +8,7 @@ return [
     'forum'            => 'Forum',
     'messages'         => 'Messages',
     'referrals'        => 'Referrals',
+    'planet_chat'      => 'Planet Chat',
     'faq'              => 'FAQ',
     'subscription'     => 'Subscription',
     'admin'            => 'Manage users',
