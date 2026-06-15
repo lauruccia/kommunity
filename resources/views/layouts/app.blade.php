@@ -99,8 +99,11 @@
         @unless(request()->routeIs('planet.chat.*'))
         @php
             $_fabUser       = auth()->user();
+            // Usa il pianeta attivo scelto dall'utente, con fallback al primo membro attivo
+            $_fabActiveId   = $_fabUser->memberProfile?->active_chapter_id;
             $_fabMembership = \App\Models\ChapterMember::where('user_id', $_fabUser->id)
                 ->where('status', 'active')
+                ->when($_fabActiveId, fn($q) => $q->where('chapter_id', $_fabActiveId))
                 ->with('chapter:id,name')
                 ->first();
             $fabChapterId   = $_fabMembership?->chapter_id;
