@@ -116,11 +116,7 @@
                 $fabUnread = min($fabUnread, 99);
             }
         @endphp
-        {{-- DEBUG TEMPORANEO --}}
-        <div style="position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:8px 12px;font-size:11px;z-index:9999;border-radius:6px;">
-            uid={{ auth()->id() }} | chapter={{ $fabChapterId ?? 'NULL' }} | unread={{ $fabUnread ?? 0 }}
-        </div>
-        @if($fabChapterId)
+@if($fabChapterId)
         <div class="km-chat-fab"
              x-data="kmChatPopup({
                  pollUrl:       '{{ route('planet.chat.poll', $fabChapterId) }}',
