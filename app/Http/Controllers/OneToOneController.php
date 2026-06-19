@@ -275,20 +275,27 @@ class OneToOneController extends Controller
             }
         }
 
-        // ── FIX #5: il destinatario accetta / rifiuta / passa a rischeduled ──
-        if ($isRecipient && isset($data['status']) && in_array($data['status'], [
+        // ── Accetta / Rifiuta ────────────────────────────────────────────────
+        // Pending      → risponde il destinatario.
+        // Rescheduled  → risponde la CONTROPARTE di chi ha proposto la variazione.
+        //                Se l'altro conferma, l'incontro è subito Accettato: non si
+        //                attende un'ulteriore conferma di chi ha proposto l'orario.
+        if (isset($data['status']) && in_array($data['status'], [
             OneToOneStatus::Accepted->value,
             OneToOneStatus::Declined->value,
-            OneToOneStatus::Rescheduled->value,
         ], true)) {
-            if (! in_array($oneToOneRequest->status, [OneToOneStatus::Pending, OneToOneStatus::Rescheduled], true)) {
-                return back()->with('error', 'Non puoi modificare lo stato di un incontro già accettato o completato.');
+            if (! $oneToOneRequest->canRespondTo($user->id)) {
+                return back()->with('error', 'Non puoi modificare lo stato di questo incontro.');
             }
             $oneToOneRequest->status = OneToOneStatus::from($data['status']);
+            // Variazione orario chiusa: azzera il proponente.
+            $oneToOneRequest->rescheduled_by = null;
             $oneToOneRequest->save();
 
-            $requester = User::find($oneToOneRequest->requester_id);
-            $requester?->notify(new OneToOneStatusChangedNotification($oneToOneRequest, $oneToOneRequest->status, $user->name));
+            // Notifica l'altra parte (può essere il mittente o il destinatario).
+            $otherUserId = $isRecipient ? $oneToOneRequest->requester_id : $oneToOneRequest->recipient_id;
+            $otherUser   = User::find($otherUserId);
+            $otherUser?->notify(new OneToOneStatusChangedNotification($oneToOneRequest, $oneToOneRequest->status, $user->name));
         }
 
         // ── Note post-incontro (solo destinatario) ───────────────────────────
@@ -324,10 +331,12 @@ class OneToOneController extends Controller
         // e l'altro riceve notifica per confermare/rifiutare.
         if (filled($data['propose_new_datetime'] ?? null)
             && ! in_array($oneToOneRequest->status, [OneToOneStatus::Completed, OneToOneStatus::Cancelled], true)
+            && ! $oneToOneRequest->completionStarted()
         ) {
             $newDt = Carbon::parse($data['propose_new_datetime']);
-            $oneToOneRequest->requested_at = $newDt;
-            $oneToOneRequest->status       = OneToOneStatus::Rescheduled;
+            $oneToOneRequest->requested_at  = $newDt;
+            $oneToOneRequest->status        = OneToOneStatus::Rescheduled;
+            $oneToOneRequest->rescheduled_by = $user->id; // chi propone; confermerà la controparte
             $oneToOneRequest->save();
             $statusMsg = 'one-to-one-rescheduled';
 

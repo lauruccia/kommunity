@@ -28,6 +28,7 @@ class OneToOneRequest extends Model
         'completed_at',
         'follow_up_notes',
         'status',
+        'rescheduled_by',
     ];
 
     protected function casts(): array
@@ -65,6 +66,37 @@ class OneToOneRequest extends Model
     {
         return $this->requester_completed_at !== null
             && $this->recipient_completed_at !== null;
+    }
+
+    /**
+     * Almeno un partecipante ha confermato il completamento.
+     * Quando è true non è più possibile riprogrammare/annullare l'incontro.
+     */
+    public function completionStarted(): bool
+    {
+        return $this->requester_completed_at !== null
+            || $this->recipient_completed_at !== null;
+    }
+
+    /**
+     * L'utente può accettare/rifiutare la richiesta?
+     * - status Pending      → solo il destinatario
+     * - status Rescheduled  → la parte che NON ha proposto la riprogrammazione
+     *                         (fallback legacy: il destinatario se rescheduled_by è NULL)
+     */
+    public function canRespondTo(int $userId): bool
+    {
+        if ($this->status === OneToOneStatus::Pending) {
+            return $this->recipient_id === $userId;
+        }
+
+        if ($this->status === OneToOneStatus::Rescheduled) {
+            return $this->rescheduled_by
+                ? (int) $this->rescheduled_by !== $userId
+                : $this->recipient_id === $userId;
+        }
+
+        return false;
     }
 
     public function requester(): BelongsTo

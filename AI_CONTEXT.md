@@ -61,6 +61,9 @@ Advertisers, AvailabilitySlots, BannerCampaigns, BannerCreatives, BannerPlacemen
 - Creare copia `.bak` prima di modificare qualsiasi file.
 - Quando modifichi qualcosa, aggiorna questo file.
 
+## Ultime modifiche
+Data: 2026-06-19 — One-to-one: la conferma di completamento (anche di una sola parte) blocca riprogrammazione/annullamento (`OneToOneRequest::completionStarted()`); nuova colonna `one_to_one_requests.rescheduled_by` + `canRespondTo()` per far confermare la riprogrammazione alla controparte (passa subito ad Accettato). Fix CSS hover `.km-button-secondary` su tema scuro in `kommunity.css`. Semplificata `auth/verify-email`. Dettagli in `CHANGELOG_AI.md`.
+
 ## Ultima analisi
 Data: 2026-06-10
 Cosa è stato analizzato: struttura completa del progetto (46 modelli, controller, 30 risorse Filament, enums, policies, services, observers, rotte, viste, 42 migrazioni)

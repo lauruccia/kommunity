@@ -393,7 +393,7 @@
                                         <td><span class="km-oto-status" style="{{ $statusVars }}">{{ $requestItem->status->label() }}</span></td>
                                         <td>
                                             <div class="flex flex-wrap justify-end gap-1.5">
-                                                @if ($isReceived && $isPending)
+                                                @if ($requestItem->canRespondTo(auth()->id()))
                                                     <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" class="m-0">
                                                         @csrf
                                                         @method('PATCH')
@@ -466,7 +466,7 @@
                                     <span class="text-right">{{ $requestItem->meeting_mode === 'online' ? 'Online' : 'In presenza' }}</span>
                                 </div>
                                 <div class="mt-4 flex flex-wrap justify-end gap-2">
-                                    @if ($isReceived && $isPending)
+                                    @if ($requestItem->canRespondTo(auth()->id()))
                                         <form method="POST" action="{{ route('one-to-ones.status', $requestItem) }}" class="m-0">
                                             @csrf
                                             @method('PATCH')
@@ -710,8 +710,14 @@
 
                     {{-- Barra azioni: Accetta / Rifiuta / Proponi nuovo orario — tutti sulla stessa riga --}}
                     @php
-                        $showAcceptDecline = $isRecipient && in_array($selectedRequest->status->value, ['pending','rescheduled'], true);
-                        $showReschedule    = ! in_array($selectedRequest->status->value, ['completed','cancelled'], true);
+                        // Accetta/Rifiuta: lo vede chi DEVE rispondere (destinatario se pending,
+                        // controparte di chi ha proposto se riprogrammato).
+                        $showAcceptDecline = $selectedRequest->canRespondTo(auth()->id());
+                        // Una volta che almeno un partecipante conferma il completamento,
+                        // non è più possibile riprogrammare/modificare l'incontro.
+                        $completionStarted = $selectedRequest->completionStarted();
+                        $showReschedule    = ! in_array($selectedRequest->status->value, ['completed','cancelled'], true)
+                                             && ! $completionStarted;
                     @endphp
                     @if ($showAcceptDecline || $showReschedule)
                         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;">
@@ -769,7 +775,7 @@
                                 <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Prossima azione concordata dopo il contatto.</p>
                             </div>
                             <textarea name="follow_up_notes" rows="2" class="km-dark-input" placeholder="Es. invio proposta entro venerdi, richiamo lunedi" style="resize:vertical;">{{ $sharedFollowUp }}</textarea>
-                            @if (!in_array($selectedRequest->status->value, ['completed','cancelled']))
+                            @if (!in_array($selectedRequest->status->value, ['completed','cancelled']) && ! $completionStarted)
                                 {{-- Annulla in form separato: evita che il salvataggio delle note avvenga insieme all'annullamento --}}
                                 <div style="background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);border-radius:1.2rem;padding:.8rem;">
                                     <p style="font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#FDA4AF;">Annulla richiesta</p>
@@ -961,7 +967,7 @@
     @endif
 
     {{-- RESCHEDULE MODAL --}}
-    @if ($selectedRequest && ! in_array($selectedRequest->status->value, ['completed','cancelled'], true))
+    @if ($selectedRequest && ! in_array($selectedRequest->status->value, ['completed','cancelled'], true) && ! $selectedRequest->completionStarted())
         <div id="km-reschedule-modal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(2,11,18,.82);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:1.5rem;">
             <div class="km-dark-modal" style="width:100%;max-width:26rem;border-radius:1.5rem;overflow:hidden;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.25rem;border-bottom:1px solid var(--km-line-dark);background:rgba(3,24,34,.92);backdrop-filter:blur(20px);">

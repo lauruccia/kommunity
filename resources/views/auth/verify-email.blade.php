@@ -2,12 +2,7 @@
     <div class="mb-6">
         <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Verifica email</p>
         <h1 class="mt-3 font-serif text-2xl font-semibold sm:text-3xl lg:text-4xl text-stone-950">Attiva il tuo account</h1>
-        <p class="mt-3 text-sm leading-7 text-stone-600">Prima di iniziare, verifica il tuo indirizzo email dal link che ti abbiamo appena inviato. Se non l'hai ricevuto, puoi richiederne subito uno nuovo.</p>
-    </div>
-
-    <div class="mb-6 rounded-3xl border border-[rgba(70,93,112,0.14)] bg-[linear-gradient(135deg,rgba(255,255,255,0.86)_0%,rgba(228,238,227,0.88)_100%)] px-5 py-4 text-sm leading-6 text-[color:var(--km-deep-strong)]">
-        <p class="font-semibold">Account in attesa di attivazione</p>
-        <p class="mt-1">Se non ricevi email automatiche, il tuo account può essere attivato direttamente da un amministratore. Contatta l'amministrazione e chiedi l'abilitazione manuale.</p>
+        <p class="mt-3 text-sm leading-7 text-stone-600">Clicca sul link ricevuto per email per verificare il tuo indirizzo e attivare l'account. Potrai quindi accedere alla tua area riservata.</p>
     </div>
 
     @if (session('status') == 'verification-link-sent')

@@ -54,7 +54,7 @@
                 <p class="mt-1.5 line-clamp-2 text-xs leading-5 text-white/70">{{ $request->goal }}</p>
             @endif
 
-            @if ($isReceived && $isPending)
+            @if ($request->canRespondTo($currentUserId))
                 <div class="mt-2.5 flex flex-wrap gap-1.5">
                     <form method="POST" action="{{ route('one-to-ones.status', $request) }}" class="inline">
                         @csrf
