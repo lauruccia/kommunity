@@ -317,6 +317,31 @@
                         @endif
                     </div>
 
+                    {{-- ── Switcher Pianeta (mobile) — visibile solo con più Pianeti ─── --}}
+                    @if (isset($userPlanets) && $userPlanets->count() > 1)
+                        <div class="mt-3 border-t border-stone-200 px-4 pt-3">
+                            <p class="mb-2 text-[10px] font-semibold uppercase tracking-widest text-stone-400">Cambia Pianeta</p>
+                            <div class="space-y-1">
+                                @foreach ($userPlanets as $planet)
+                                    <form method="POST" action="{{ route('planet.switch', $planet) }}">
+                                        @csrf
+                                        <button type="submit"
+                                                class="flex min-h-[44px] w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-base transition hover:bg-stone-50 {{ $planet->id === $activePlanetId ? 'bg-stone-50 font-semibold text-[color:var(--km-accent)]' : 'text-stone-700' }}">
+                                            @if ($planet->id === $activePlanetId)
+                                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                            @else
+                                                <span class="h-4 w-4 shrink-0"></span>
+                                            @endif
+                                            <span class="break-words">{{ $planet->name }}</span>
+                                        </button>
+                                    </form>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="mt-3 space-y-1">
                         <x-responsive-nav-link :href="route('profile.edit')">
                             {{ __('nav.profile') }}
