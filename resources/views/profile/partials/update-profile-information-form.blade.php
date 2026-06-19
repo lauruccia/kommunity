@@ -313,29 +313,31 @@
                      x-data="kmLocationPicker('{{ old('region_id', $profile->region_id ?? '') }}', '{{ old('province_id', $profile->city?->province_id ?? '') }}', '{{ old('city_id', $profile->city_id ?? '') }}')">
                     <div class="grid gap-4 sm:grid-cols-3">
                         <div>
-                            <x-input-label for="region_id" :value="'Regione'" />
+                            <x-input-label for="region_id" :value="'Regione *'" />
                             <select id="region_id" name="region_id" class="km-input mt-2"
-                                    x-model="regionId" @change="changeRegion()">
-                                <option value="">Tutte le regioni</option>
+                                    x-model="regionId" @change="changeRegion()" required>
+                                <option value="">Seleziona regione</option>
                                 <template x-for="r in regions" :key="r.id">
                                     <option :value="r.id" x-text="r.name" :selected="regionId == r.id"></option>
                                 </template>
                             </select>
+                            <x-input-error class="mt-2" :messages="$errors->get('region_id')" />
                         </div>
                         <div>
-                            <x-input-label :value="'Provincia'" />
-                            <select name="province_id" class="km-input mt-2"
-                                    x-model="provinceId" @change="changeProvince()">
-                                <option value="">Tutte le province</option>
+                            <x-input-label for="province_id" :value="'Provincia *'" />
+                            <select id="province_id" name="province_id" class="km-input mt-2"
+                                    x-model="provinceId" @change="changeProvince()" required>
+                                <option value="">Seleziona provincia</option>
                                 <template x-for="p in filteredProvinces" :key="p.id">
                                     <option :value="p.id" x-text="p.name" :selected="provinceId == p.id"></option>
                                 </template>
                             </select>
+                            <x-input-error class="mt-2" :messages="$errors->get('province_id')" />
                         </div>
                         <div>
                             <x-input-label for="city_id" :value="'Città *'" />
                             <select id="city_id" name="city_id" class="km-input mt-2"
-                                    x-model="cityId" required>
+                                    x-model="cityId" @change="changeCity()" required>
                                 <option value="">Seleziona città</option>
                                 <template x-for="c in filteredCities" :key="c.id">
                                     <option :value="c.id" x-text="c.name" :selected="cityId == c.id"></option>
@@ -343,6 +345,7 @@
                             </select>
                         </div>
                     </div>
+                    <p class="mt-2 text-xs text-stone-500">Selezionando la città, regione e provincia vengono compilate in automatico.</p>
                     <x-input-error class="mt-2" :messages="$errors->get('city_id')" />
                 </div>
                 <div class="md:col-span-2">
@@ -1004,6 +1007,14 @@ document.addEventListener('alpine:init', () => {
         },
         changeRegion()   { this.provinceId = ''; this.cityId = ''; },
         changeProvince() { this.cityId = ''; },
+        // Selezionando la città, compila in automatico provincia e regione.
+        changeCity() {
+            if (!this.cityId) return;
+            const city = this.cities.find(c => String(c.id) === String(this.cityId));
+            if (!city) return;
+            if (city.region_id != null)   this.regionId   = String(city.region_id);
+            if (city.province_id != null) this.provinceId = String(city.province_id);
+        },
     }));
 
     /* ── Video recorder dalla camera ────────────────────────────────────── */

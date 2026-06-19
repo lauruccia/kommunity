@@ -20,6 +20,20 @@ class ProfileUpdateRequest extends FormRequest
                 'last_name' => $this->input('last_name') ?: ($parts[1] ?? ''),
             ]);
         }
+
+        // Auto-compila regione e provincia dalla città selezionata: ogni comune
+        // appartiene sempre a una provincia e a una regione, quindi i due campi
+        // vengono derivati dalla città per garantirne coerenza e obbligatorietà.
+        if ($this->filled('city_id')) {
+            $city = \App\Models\City::query()->find($this->input('city_id'));
+
+            if ($city) {
+                $this->merge([
+                    'region_id' => $city->region_id,
+                    'province_id' => $city->province_id,
+                ]);
+            }
+        }
     }
 
     /**
@@ -51,7 +65,8 @@ class ProfileUpdateRequest extends FormRequest
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['integer', 'exists:categories,id'],
             'city_id' => ['required', 'exists:cities,id'],
-            'region_id' => ['nullable', 'exists:regions,id'],
+            'region_id' => ['required', 'exists:regions,id'],
+            'province_id' => ['required', 'exists:provinces,id'],
             'company_interest_type_ids' => ['nullable', 'array'],
             'company_interest_type_ids.*' => ['integer', 'exists:company_interest_types,id'],
             'profession_interest_ids' => ['nullable', 'array'],
