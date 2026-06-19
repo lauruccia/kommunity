@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'auto_title' => 'Referral for :client',
+
     'status' => [
         'sent'             => 'Sent',
         'in_progress'      => 'In progress',

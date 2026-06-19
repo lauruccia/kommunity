@@ -17,6 +17,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ReferralController extends Controller
@@ -86,19 +88,11 @@ class ReferralController extends Controller
         }
 
         return view('referrals.index', [
-            'members' => User::query()
-                ->with('memberProfile')
-                ->whereKeyNot($user->id)
-                ->whereIn('id', $eligibleMemberIds)
+            'planetMembers' => User::query()
+                ->whereIn('id', $this->planetMemberIds($user))
                 ->whereHas('memberProfile', fn ($q) => $q->where('is_active', true))
                 ->orderBy('name')
-                ->get(),
-            'clientMembers' => User::query()
-                ->with('memberProfile')
-                ->whereKeyNot($user->id)
-                ->whereHas('memberProfile', fn ($q) => $q->where('is_active', true))
-                ->orderBy('name')
-                ->get(),
+                ->get(['id', 'name']),
             'sentReferrals' => $sentQuery->latest()->paginate(20, ['*'], 'inviate')->withQueryString(),
             'receivedReferrals' => $receivedQuery->latest()->paginate(20, ['*'], 'ricevute')->withQueryString(),
             'clientReferrals' => $clientQuery->latest()->paginate(20, ['*'], 'segnalato')->withQueryString(),
@@ -131,26 +125,29 @@ class ReferralController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $userId            = $request->user()->id;
-        $eligibleMemberIds = $this->eligibleRecipientIds($userId);
+        $user          = $request->user();
+        $userId        = $user->id;
+        $planetMembers = $this->planetMemberIds($user);
+
         $data = $request->validate([
             'recipient_id'   => ['required', 'exists:users,id', 'different:'.$userId],
             'client_user_id' => ['required', 'exists:users,id', 'different:'.$userId, 'different:recipient_id'],
-            'title'        => ['required', 'string', 'max:255'],
-            'description'  => ['required', 'string', 'max:5000'],
-            'company_name' => ['nullable', 'string', 'max:255'],
-            'contact_name' => ['nullable', 'string', 'max:255'],
-            'estimated_value' => ['nullable', 'numeric', 'min:0'],
-            'priority' => ['nullable', Rule::in(['1', '2', '3', '4', '5'])],
-            'notes'    => ['nullable', 'string', 'max:3000'],
+            'description'    => ['required', 'string', 'max:5000'],
+            'notes'          => ['nullable', 'string', 'max:3000'],
         ]);
 
-        // Il professionista deve essere un contatto con cui ho un one-to-one completato.
-        abort_unless(in_array((int) $data['recipient_id'], $eligibleMemberIds, true), 403);
+        // Professionista e cliente devono essere membri dello stesso Pianeta.
+        abort_unless(
+            $planetMembers->contains((int) $data['recipient_id']) && $planetMembers->contains((int) $data['client_user_id']),
+            403
+        );
+
+        $client = User::find($data['client_user_id']);
 
         $referral = Referral::query()->create([
             ...$data,
-            'priority'  => $data['priority'] ?? '3',
+            'title'     => __('referrals.auto_title', ['client' => $client?->name ?? '—']),
+            'priority'  => '3',
             'sender_id' => $userId,
             'status'    => ReferralStatus::Sent,
             'is_public' => true,
@@ -337,6 +334,28 @@ class ReferralController extends Controller
     private function admins()
     {
         return User::query()->whereHas('roles', fn ($q) => $q->whereIn('name', ['super-admin', 'admin-community']))->get();
+    }
+
+    /**
+     * ID dei membri che condividono almeno un Pianeta attivo con l'utente
+     * (esclude se stesso). Sono i candidati selezionabili come professionista o cliente.
+     */
+    private function planetMemberIds(User $user): Collection
+    {
+        $planetIds = $user->planets()->pluck('chapters.id');
+
+        if ($planetIds->isEmpty()) {
+            return collect();
+        }
+
+        return DB::table('chapter_members')
+            ->whereIn('chapter_id', $planetIds)
+            ->where('status', 'active')
+            ->where('user_id', '!=', $user->id)
+            ->pluck('user_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
     }
 
     private function eligibleRecipientIds(int $userId): array

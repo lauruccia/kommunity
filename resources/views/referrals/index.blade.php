@@ -54,6 +54,13 @@
         .kr-primary { background:linear-gradient(135deg,var(--kr-green-2),var(--kr-green)); color:#f8fff5; }
         .kr-green-text { color: var(--kr-green); }
 
+        /* ── Combobox ricerca membri ── */
+        [x-cloak] { display:none !important; }
+        .kr-combo-list { position:absolute; z-index:40; left:0; right:0; margin-top:4px; max-height:240px; overflow:auto; border-radius:12px; border:1px solid var(--kr-line-strong); background:#04222d; box-shadow:0 18px 50px rgba(0,0,0,.45); }
+        .kr-combo-item { display:block; width:100%; text-align:left; padding:10px 14px; font-size:.9rem; color:var(--kr-text); background:none; border:none; cursor:pointer; }
+        .kr-combo-item:hover { background:rgba(121,200,67,.16); color:#a7ea76; }
+        .kr-combo-empty { padding:10px 14px; font-size:.85rem; color:var(--kr-soft); }
+
         /* ── Tab nav ── */
         .kr-tabs { display:flex; gap:4px; background:rgba(2,24,33,.6); border:1px solid var(--kr-line); border-radius:14px; padding:5px; flex-wrap:wrap; }
         .kr-tab { padding:8px 18px; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; border-radius:10px; border:none; background:none; color:var(--kr-muted); cursor:pointer; transition:all .18s; white-space:nowrap; }
@@ -102,7 +109,7 @@
         .kr-icon-violet { background:rgba(120,105,240,.18); color:#9ca3ff; }
 
         /* ── Filter grid ── */
-        .kr-filter-grid { display:grid; grid-template-columns:minmax(240px,1fr) 170px 160px 100px; gap:14px; align-items:end; }
+        .kr-filter-grid { display:grid; grid-template-columns:minmax(240px,1fr) 170px 100px; gap:14px; align-items:end; }
 
         /* ── Hero ── */
         .kr-hero { margin-bottom:20px; padding:24px 28px; }
@@ -207,49 +214,52 @@
                     </div>
                 @endif
 
-                @if ($members->isEmpty())
+                @if ($planetMembers->isEmpty())
                     <div class="mt-5 flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/[.025] px-6 text-center">
                         <svg class="kr-green-text" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-                        <h3 class="mt-4 font-semibold text-white">Nessun utente idoneo</h3>
-                        <p class="mt-2 text-sm leading-6" style="color:var(--kr-muted);">Completa un one-to-one per sbloccare questa funzione.</p>
+                        <h3 class="mt-4 font-semibold text-white">Nessun membro nel tuo Pianeta</h3>
+                        <p class="mt-2 text-sm leading-6" style="color:var(--kr-muted);">Quando ci saranno altri membri nel tuo Pianeta potrai creare segnalazioni.</p>
                     </div>
                 @else
+                    @php $kmPlanetMembers = $planetMembers->map(fn ($m) => ['id' => $m->id, 'name' => $m->name])->values(); @endphp
                     <form method="POST" action="{{ route('referrals.store') }}" class="mt-6 space-y-4">
                         @csrf
-                        <div>
+                        {{-- Professionista: ricerca con autocompletamento --}}
+                        <div x-data="kmCombo({ field: 'recipient_id', items: @js($kmPlanetMembers) })" class="relative">
                             <label class="mb-1 block text-sm font-semibold text-white">{{ __('referrals.form.professional') }}</label>
-                            <select name="recipient_id" class="kr-input h-12 w-full rounded-xl px-4" required>
-                                <option value="">{{ __('referrals.form.professional_ph') }}</option>
-                                @foreach ($members as $member)
-                                    <option value="{{ $member->id }}" @selected((string) old('recipient_id') === (string) $member->id)>{{ $member->name }}</option>
-                                @endforeach
-                            </select>
-                            <p class="mt-1 text-xs" style="color:var(--kr-soft);">{{ __('referrals.form.professional_help') }}</p>
+                            <input type="hidden" name="recipient_id" :value="selectedId">
+                            <input type="text" x-model="query" @focus="open = true" @input="open = true"
+                                   x-ref="input" autocomplete="off"
+                                   placeholder="{{ __('referrals.form.professional_ph') }}"
+                                   class="kr-input h-12 w-full rounded-xl px-4">
+                            <div x-show="open && query.trim().length >= 2" x-cloak @click.outside="open = false"
+                                 class="kr-combo-list">
+                                <template x-for="item in filtered" :key="item.id">
+                                    <button type="button" @click="select(item)" class="kr-combo-item" x-text="item.name"></button>
+                                </template>
+                                <div x-show="filtered.length === 0" class="kr-combo-empty">Nessun risultato</div>
+                            </div>
+                            <p class="mt-1 text-xs" style="color:var(--kr-soft);">Scrivi almeno 2 lettere del nome.</p>
                         </div>
-                        <div>
+                        {{-- Cliente: ricerca con autocompletamento --}}
+                        <div x-data="kmCombo({ field: 'client_user_id', items: @js($kmPlanetMembers) })" class="relative">
                             <label class="mb-1 block text-sm font-semibold text-white">{{ __('referrals.form.client') }}</label>
-                            <select name="client_user_id" class="kr-input h-12 w-full rounded-xl px-4" required>
-                                <option value="">{{ __('referrals.form.client_ph') }}</option>
-                                @foreach ($clientMembers as $member)
-                                    <option value="{{ $member->id }}" @selected((string) old('client_user_id') === (string) $member->id)>{{ $member->name }}</option>
-                                @endforeach
-                            </select>
+                            <input type="hidden" name="client_user_id" :value="selectedId">
+                            <input type="text" x-model="query" @focus="open = true" @input="open = true"
+                                   autocomplete="off"
+                                   placeholder="{{ __('referrals.form.client_ph') }}"
+                                   class="kr-input h-12 w-full rounded-xl px-4">
+                            <div x-show="open && query.trim().length >= 2" x-cloak @click.outside="open = false"
+                                 class="kr-combo-list">
+                                <template x-for="item in filtered" :key="item.id">
+                                    <button type="button" @click="select(item)" class="kr-combo-item" x-text="item.name"></button>
+                                </template>
+                                <div x-show="filtered.length === 0" class="kr-combo-empty">Nessun risultato</div>
+                            </div>
                             <p class="mt-1 text-xs" style="color:var(--kr-soft);">{{ __('referrals.form.client_help') }}</p>
                         </div>
-                        <input type="text" name="title" value="{{ old('title') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Titolo opportunità" required>
-                        <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità — contesto, obiettivo, perché questo professionista può aiutare il cliente" required>{{ old('description') }}</textarea>
-                        <input type="text" name="company_name" value="{{ old('company_name') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Azienda del cliente (opzionale)">
-                        <div>
-                            <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:rgba(222,235,238,.55);margin-bottom:.5rem;">Qualità dell'opportunità</p>
-                            <div id="kr-new-stars" style="display:flex;gap:.3rem;">
-                                @for ($s = 1; $s <= 5; $s++)
-                                    <button type="button" data-val="{{ $s }}" onclick="krSetStar({{ $s }},'kr-new-stars','kr-new-priority')" style="background:none;border:none;cursor:pointer;padding:.15rem;">
-                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="{{ old('priority','3') >= $s ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8" data-idx="{{ $s }}"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    </button>
-                                @endfor
-                            </div>
-                            <input type="hidden" name="priority" id="kr-new-priority" value="{{ old('priority','3') }}">
-                        </div>
+                        {{-- Messaggio della segnalazione --}}
+                        <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Scrivi la segnalazione — es. «Ti segnalo Fabbro, ha bisogno di un commercialista per la sua attività»" required>{{ old('description') }}</textarea>
                         <button type="submit" class="kr-primary h-12 w-full rounded-xl font-semibold">{{ __('referrals.form.submit') }}</button>
                     </form>
                 @endif
@@ -302,18 +312,6 @@
                                 @endforeach
                             </select>
                         </label>
-                        <div>
-                            <span class="mb-2 block text-sm text-white">Qualità min.</span>
-                            <div id="kr-filter-stars" style="display:flex;gap:.25rem;margin-top:.35rem;">
-                                @for ($s = 1; $s <= 5; $s++)
-                                    <button type="button" data-val="{{ $s }}" onclick="krSetStar({{ $s }},'kr-filter-stars','kr-filter-priority')" style="background:none;border:none;cursor:pointer;padding:.1rem;">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ ($filters['priority'] ?? '0') >= $s ? '#FCD34D' : 'none' }}" stroke="#FCD34D" stroke-width="1.8" data-idx="{{ $s }}"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    </button>
-                                @endfor
-                                <button type="button" onclick="krClearStar('kr-filter-stars','kr-filter-priority')" style="background:none;border:none;cursor:pointer;font-size:.72rem;font-weight:700;color:rgba(222,235,238,.45);padding:.1rem .4rem;">✕</button>
-                            </div>
-                            <input type="hidden" name="priority" id="kr-filter-priority" value="{{ $filters['priority'] ?? '' }}">
-                        </div>
                         <button type="submit" class="kr-primary h-14 rounded-xl px-5 font-semibold">Filtra</button>
                     </form>
                 </section>
@@ -341,9 +339,6 @@
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="kr-dir-badge kr-dir-in">← Ricevuta</span>
                                         <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
-                                        <span style="display:inline-flex;gap:.1rem;">
-                                            @for ($s=1;$s<=5;$s++)<svg width="12" height="12" viewBox="0 0 24 24" fill="{{ $s<=$stars?'#FCD34D':'none' }}" stroke="#FCD34D" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>@endfor
-                                        </span>
                                         @if ($referral->is_public)
                                             <span class="kr-endorse-badge kr-endorse-on">★ Pubblica</span>
                                         @endif
@@ -431,9 +426,6 @@
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="kr-dir-badge kr-dir-out">→ Inviata</span>
                                         <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
-                                        <span style="display:inline-flex;gap:.1rem;">
-                                            @for ($s=1;$s<=5;$s++)<svg width="12" height="12" viewBox="0 0 24 24" fill="{{ $s<=$stars?'#FCD34D':'none' }}" stroke="#FCD34D" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>@endfor
-                                        </span>
                                         @if ($referral->approved_value !== null)
                                             <span class="kr-value-pill kr-value-approved">✓ {{ $eur($referral->approved_value) }}</span>
                                         @elseif ($referral->declared_value !== null)
@@ -795,6 +787,26 @@
     </div>
 
     <script>
+        // ── Combobox ricerca membri (Alpine) ───────────────────────────────
+        function kmCombo(config) {
+            return {
+                items: config.items || [],
+                query: '',
+                open: false,
+                selectedId: '',
+                get filtered() {
+                    const q = this.query.trim().toLowerCase();
+                    if (q.length < 2) return [];
+                    return this.items.filter(i => i.name.toLowerCase().includes(q)).slice(0, 25);
+                },
+                select(item) {
+                    this.selectedId = String(item.id);
+                    this.query = item.name;
+                    this.open = false;
+                },
+            };
+        }
+
         // ── Declare value modal ────────────────────────────────────────────
         function openDeclareModal(btn) {
             document.getElementById('kr-d-title').textContent  = btn.dataset.title || '';

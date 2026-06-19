@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'auto_title' => 'Segnalazione per :client',
+
     'status' => [
         'sent'             => 'Inviata',
         'in_progress'      => 'In corso',
