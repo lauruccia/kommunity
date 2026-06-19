@@ -24,6 +24,7 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
   2. Riprogrammazione: aggiunta colonna `rescheduled_by` per tracciare chi propone. Ora a confermare la nuova proposta è la CONTROPARTE; quando conferma, l'incontro passa subito ad "Accettato" senza attendere il proponente. Pulsante "Accetta" mostrato a chi deve rispondere anche in lista e in dashboard (`canRespondTo()`).
   3. CSS: fix hover del pulsante `.km-button-secondary` su tema scuro (era bianco su bianco, illeggibile) — override in `kommunity.css` scoped a `body.km-bg-dark` (nessun build necessario).
   4. Schermata verifica email post-registrazione semplificata.
+  5. Modale "Nuova richiesta": campo "Oppure proponi data e ora" reso sempre visibile (riquadro etichettato) anche quando il membro ha slot; slot disponibilità mostrati in griglia multi-colonna invece di uno per riga.
 - Bug "completare un 1:1 ne completa un altro": INDAGATO. L'unico codice che scrive `*_completed_at`/`status=completed` è `OneToOneController::updateStatus`, che opera sul singolo record vincolato dalla route `{oneToOneRequest}`. Nessun update massivo / observer / comando schedulato / azione Filament tocca più record. Non riproducibile via codice (probabile dato pregresso o incontri reciproci). Nessuna modifica necessaria.
 - Motivazione: richieste utente (Laura) test one-to-one
 - SQL eseguito: NO — eseguire manualmente in phpMyAdmin:

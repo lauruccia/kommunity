@@ -1052,12 +1052,23 @@
                                     <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Scegli uno slot o proponi un orario libero.</p>
                                     <div id="one-to-one-availability" style="margin-top:.75rem;"></div>
                                 </div>
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
-                                    <input type="datetime-local" id="one-to-one-requested-at" name="requested_at" value="{{ old('requested_at') }}" class="km-dark-input">
-                                    <select id="one-to-one-meeting-mode" name="meeting_mode" class="km-dark-input">
-                                        <option value="online" @selected(old('meeting_mode','online')==='online')>Online</option>
-                                        <option value="in_person" @selected(old('meeting_mode')==='in_person')>In presenza</option>
-                                    </select>
+                                {{-- Proposta orario libero: sempre visibile, anche quando il membro ha slot prenotabili --}}
+                                <div style="padding:.875rem 1rem;border-radius:1.1rem;border:1px solid rgba(245,158,11,.28);background:rgba(245,158,11,.06);">
+                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:#FCD34D;">Oppure proponi data e ora</p>
+                                    <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Fuori dagli slot: la richiesta verrà inviata e dovrà essere confermata dal membro.</p>
+                                    <div style="margin-top:.65rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+                                        <label style="display:flex;flex-direction:column;gap:.3rem;">
+                                            <span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--km-text-muted);">Data e ora</span>
+                                            <input type="datetime-local" id="one-to-one-requested-at" name="requested_at" value="{{ old('requested_at') }}" class="km-dark-input">
+                                        </label>
+                                        <label style="display:flex;flex-direction:column;gap:.3rem;">
+                                            <span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--km-text-muted);">Modalita'</span>
+                                            <select id="one-to-one-meeting-mode" name="meeting_mode" class="km-dark-input">
+                                                <option value="online" @selected(old('meeting_mode','online')==='online')>Online</option>
+                                                <option value="in_person" @selected(old('meeting_mode')==='in_person')>In presenza</option>
+                                            </select>
+                                        </label>
+                                    </div>
                                 </div>
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
                                     <input type="url" name="meeting_link" value="{{ old('meeting_link') }}" class="km-dark-input" placeholder="Link meeting online">
@@ -1166,15 +1177,16 @@
                 if (!m) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Seleziona un membro per vedere gli slot.</div>'; return; }
                 if (m.availability_slots === undefined) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Caricamento disponibilità…</div>'; return; }
                 if (!m.availability_slots.length) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Nessuna disponibilita\' pubblicata. Proponi un altro orario.</div>'; return; }
-                availabilityContainer.innerHTML = m.availability_slots.map((slot) => `
-                    <button type="button" data-slot-id="${slot.id}" style="display:flex;width:100%;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;border-radius:1.1rem;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:.2s;margin-bottom:.35rem;">
+                availabilityContainer.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem;">${m.availability_slots.map((slot) => `
+                    <button type="button" data-slot-id="${slot.id}" style="display:flex;flex-direction:column;gap:.5rem;align-items:flex-start;padding:.65rem .8rem;border-radius:1.1rem;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:.2s;">
                         <div>
-                            <div style="font-weight:700;font-size:.82rem;color:var(--km-text);">${weekdayLabels[slot.weekday]||'Giorno'} · ${slot.starts_at} - ${slot.ends_at}</div>
-                            <div style="margin-top:.15rem;font-size:.75rem;color:var(--km-text-muted);">${slot.meeting_mode==='online'?'Online':'In presenza'}${slot.location?' · '+slot.location:''}</div>
+                            <div style="font-weight:700;font-size:.8rem;color:var(--km-text);">${weekdayLabels[slot.weekday]||'Giorno'}</div>
+                            <div style="margin-top:.1rem;font-size:.78rem;color:var(--km-text);">${slot.starts_at} - ${slot.ends_at}</div>
+                            <div style="margin-top:.15rem;font-size:.72rem;color:var(--km-text-muted);">${slot.meeting_mode==='online'?'Online':'In presenza'}${slot.location?' · '+slot.location:''}</div>
                         </div>
-                        <span style="flex-shrink:0;padding:.2rem .65rem;border-radius:999px;background:rgba(139,197,63,.15);color:var(--km-green-2);border:1px solid rgba(139,197,63,.3);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;">Prenota</span>
+                        <span style="padding:.18rem .6rem;border-radius:999px;background:rgba(139,197,63,.15);color:var(--km-green-2);border:1px solid rgba(139,197,63,.3);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;">Prenota</span>
                     </button>
-                `).join('');
+                `).join('')}</div>`;
                 availabilityContainer.querySelectorAll('[data-slot-id]').forEach((btn) => {
                     btn.addEventListener('click', () => {
                         const slot = m.availability_slots.find((s) => String(s.id)===String(btn.dataset.slotId));
