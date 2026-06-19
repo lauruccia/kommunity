@@ -199,7 +199,7 @@
         <div x-show="step === 3" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0" class="px-7 pb-8 pt-4">
             <p style="color:#9AD84A;font-size:.68rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;">Step 3</p>
             <h2 style="margin-top:.4rem;font-size:1.4rem;font-weight:900;color:#fff;">La tua presenza online</h2>
-            <p style="margin-top:.35rem;color:#AAB7C4;font-size:.83rem;line-height:1.6;">Dove ti trovano gli altri membri.</p>
+            <p style="margin-top:.35rem;color:#AAB7C4;font-size:.83rem;line-height:1.6;">Dove ti trovano gli altri utenti.</p>
 
             <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:1rem;">
                 <div>
@@ -236,7 +236,7 @@
         <div x-show="step === 4" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0" class="px-7 pb-8 pt-4">
             <p style="color:#9AD84A;font-size:.68rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;">Step 4</p>
             <h2 style="margin-top:.4rem;font-size:1.4rem;font-weight:900;color:#fff;">Come contattarti</h2>
-            <p style="margin-top:.35rem;color:#AAB7C4;font-size:.83rem;line-height:1.6;">Come preferisci essere raggiunto dai membri.</p>
+            <p style="margin-top:.35rem;color:#AAB7C4;font-size:.83rem;line-height:1.6;">Come preferisci essere raggiunto dagli utenti.</p>
 
             <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:1rem;">
                 <div>

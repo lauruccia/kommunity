@@ -81,7 +81,7 @@
                         {{-- Mittente + stelle --}}
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-sm font-semibold text-stone-800">
-                                {{ $referral->sender?->name ?? 'Membro Kommunity' }}
+                                {{ $referral->sender?->name ?? 'Utente Kommunity' }}
                             </span>
                             <span class="flex gap-0.5">
                                 @for ($i = 1; $i <= 5; $i++)

@@ -44,9 +44,9 @@ class PendingConciergeWidget extends BaseWidget
                     ->latest('concierge_assigned_at')
                     ->limit(20)
             )
-            ->emptyStateHeading('Nessun nuovo membro da contattare 🎉')
+            ->emptyStateHeading('Nessun nuovo utente da contattare 🎉')
             ->columns([
-                TextColumn::make('name')->label('Membro')->searchable()->weight('bold'),
+                TextColumn::make('name')->label('Utente')->searchable()->weight('bold'),
                 TextColumn::make('email')->label('Email')->copyable()->size('xs'),
                 TextColumn::make('memberProfile.chapter.name')->label('Capitolo')->placeholder('—'),
                 TextColumn::make('invitedBy.name')->label('Invitato da')->placeholder('—'),

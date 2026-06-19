@@ -86,7 +86,7 @@
                         <table class="min-w-[42rem] divide-y divide-white/10 text-sm sm:min-w-full">
                             <thead class="bg-white/[.045] text-left uppercase tracking-[0.18em] text-white/60">
                                 <tr>
-                                    <th class="px-5 py-4 font-medium">Membro</th>
+                                    <th class="px-5 py-4 font-medium">Utente</th>
                                     <th class="px-5 py-4 font-medium">Azienda</th>
                                     <th class="px-5 py-4 font-medium">Risposta</th>
                                     <th class="px-5 py-4 font-medium">Aggiornato</th>
@@ -218,12 +218,12 @@
                     </div>
 
                     <button @click="open = !open" class="mt-4 w-full rounded-full border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/15">
-                        <span x-text="open ? 'Chiudi' : 'Invita membri'"></span>
+                        <span x-text="open ? 'Chiudi' : 'Invita utenti'"></span>
                     </button>
 
                     <div x-show="open" x-transition class="mt-4 space-y-3">
                         <input type="text" x-model.debounce.200ms="userSearch"
-                               placeholder="Cerca membro..."
+                               placeholder="Cerca utente..."
                                class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-emerald-500">
 
                         <div class="max-h-48 space-y-1 overflow-y-auto">

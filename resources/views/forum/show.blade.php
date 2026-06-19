@@ -64,7 +64,7 @@
                     <div class="grid lg:grid-cols-[230px_minmax(0,1fr)]">
                         <aside class="border-b border-white/10 bg-white/[.045] px-5 py-5 lg:border-b-0 lg:border-r">
                             <div class="text-lg font-semibold text-white">{{ $post->user?->name ?? 'Utente eliminato' }}</div>
-                            <div class="mt-2 text-sm text-white/60">{{ $post->user->memberProfile?->company_name ?: 'Membro Kommunity' }}</div>
+                            <div class="mt-2 text-sm text-white/60">{{ $post->user->memberProfile?->company_name ?: 'Utente Kommunity' }}</div>
                             @if ($post->user->memberProfile?->city?->name)
                                 <div class="mt-1 text-xs uppercase tracking-[0.14em] text-white/45">{{ $post->user?->memberProfile?->city?->name ?? '' }}</div>
                             @endif
@@ -165,7 +165,7 @@
 
                 document.querySelectorAll('[data-quote-post]').forEach((button) => {
                     button.addEventListener('click', () => {
-                        const author = button.dataset.postAuthor || 'Membro';
+                        const author = button.dataset.postAuthor || 'Utente';
                         const content = (button.dataset.postContent || '').trim();
                         const excerpt = content.length > 220 ? `${content.slice(0, 220)}...` : content;
                         parentInput.value = button.dataset.postId || '';

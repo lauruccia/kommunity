@@ -40,6 +40,6 @@ return [
     'event_reminder_title' => '📅 Domani: :title',
 
     // NewMemberConciergeAlert
-    'new_member_concierge_title' => '🟢 Nuovo membro Kommunity',
+    'new_member_concierge_title' => '🟢 Nuovo utente Kommunity',
     'new_member_concierge_body'  => 'Concierge entro 24h: :name',
 ];

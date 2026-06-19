@@ -80,7 +80,7 @@
                         {{-- Nome + badge raccomanda --}}
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-sm font-semibold text-stone-800">
-                                {{ $review->author?->name ?? 'Membro Kommunity' }}
+                                {{ $review->author?->name ?? 'Utente Kommunity' }}
                             </span>
                             @if ($review->is_recommended)
                                 <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">

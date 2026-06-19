@@ -17,7 +17,7 @@
                     'Vai su Profilo dal menu in alto.',
                     'Inserisci dati professionali, categorie, competenze, descrizione e contatti visibili.',
                     'Carica foto, logo e banner: sono gli elementi che rendono riconoscibile la tua pagina personale.',
-                    'Salva le modifiche e controlla l anteprima dal link alla tua pagina membro.',
+                    'Salva le modifiche e controlla l anteprima dal link alla tua pagina utente.',
                 ],
             ],
             [
@@ -30,17 +30,17 @@
                 ],
             ],
             [
-                'title' => '3. Trova altri membri',
+                'title' => '3. Trova altri utenti',
                 'items' => [
                     'Apri K-Members per consultare la directory dei professionisti attivi.',
                     'Usa filtri e informazioni di profilo per individuare persone compatibili con i tuoi obiettivi.',
-                    'Apri la pagina personale di un membro per leggere presentazione, servizi, contatti e referenze pubbliche.',
+                    'Apri la pagina personale di un utente per leggere presentazione, servizi, contatti e referenze pubbliche.',
                 ],
             ],
             [
                 'title' => '4. Prenota un one-to-one',
                 'items' => [
-                    'Dalla pagina di un membro o dalla sezione One-to-one puoi inviare una richiesta di incontro.',
+                    'Dalla pagina di un utente o dalla sezione One-to-one puoi inviare una richiesta di incontro.',
                     'Indica un motivo chiaro e, se necessario, proponi disponibilita utili.',
                     'Gestisci lo stato della richiesta dalla sezione One-to-one.',
                     'Quando entrambi i partecipanti confermano il completamento, si sblocca la possibilita di lasciare una Recensione reciproca visibile sul profilo pubblico.',
@@ -49,7 +49,7 @@
             [
                 'title' => '5. Messaggi e relazioni',
                 'items' => [
-                    'Usa Messaggi per continuare una conversazione avviata con un membro.',
+                    'Usa Messaggi per continuare una conversazione avviata con un utente.',
                     'Mantieni le conversazioni focalizzate su collaborazioni, appuntamenti e opportunita concrete.',
                     'Le notifiche in alto ti segnalano aggiornamenti importanti.',
                 ],
@@ -65,11 +65,11 @@
             [
                 'title' => '7. Referenze business',
                 'items' => [
-                    'Le referenze business servono a passare un contatto o un\'opportunita commerciale a un altro membro: nome del potenziale cliente, azienda, contesto e obiettivo.',
-                    'Puoi inviare una referenza business solo a membri con cui hai completato almeno un one-to-one confermato da entrambi.',
+                    'Le referenze business servono a passare un contatto o un\'opportunita commerciale a un altro utente: nome del potenziale cliente, azienda, contesto e obiettivo.',
+                    'Puoi inviare una referenza business solo a utenti con cui hai completato almeno un one-to-one confermato da entrambi.',
                     'Il destinatario gestisce lo stato della referenza: dalla presa in carico fino alla chiusura (vinta o persa).',
                     'Le referenze chiuse con successo sono visibili sul profilo pubblico del destinatario come indicatore di reputazione business.',
-                    'Puoi inviare piu referenze allo stesso membro nel tempo, una per ogni opportunita distinta.',
+                    'Puoi inviare piu referenze allo stesso utente nel tempo, una per ogni opportunita distinta.',
                 ],
             ],
             [
@@ -78,8 +78,8 @@
                     'La recensione e un giudizio sulla persona e sull\'incontro, non su un\'opportunita commerciale.',
                     'Si sblocca automaticamente dopo che una one-to-one e stata completata e confermata da entrambi i partecipanti.',
                     'Puoi assegnare una valutazione da 1 a 5 stelle, selezionare le competenze dimostrate e scrivere un testo libero.',
-                    'Puoi indicare se consiglieresti o meno questa persona ad altri membri della rete.',
-                    'La recensione e sempre pubblica e visibile nel profilo del membro recensito. Ogni incontro ha la sua recensione.',
+                    'Puoi indicare se consiglieresti o meno questa persona ad altri utenti della rete.',
+                    'La recensione e sempre pubblica e visibile nel profilo dell\'utente recensito. Ogni incontro ha la sua recensione.',
                 ],
             ],
         ];

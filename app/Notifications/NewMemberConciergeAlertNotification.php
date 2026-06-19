@@ -46,15 +46,15 @@ class NewMemberConciergeAlertNotification extends Notification implements Should
         $adminUrl  = url('/admin/users/' . $newMember->getKey() . '/edit');
 
         return (new MailMessage)
-            ->subject('🟢 Nuovo membro Kommunity — Concierge entro 24h')
+            ->subject('🟢 Nuovo utente Kommunity — Concierge entro 24h')
             ->greeting('Ciao ' . $notifiable->name . '!')
-            ->line('Si è appena registrato un nuovo membro su Kommunity:')
+            ->line('Si è appena registrato un nuovo utente su Kommunity:')
             ->line('• **Nome:** ' . $newMember->name)
             ->line('• **Email:** ' . $newMember->email)
             ->line('• **Pianeta:** ' . ($newMember->memberProfile?->chapter?->name ?? '—'))
             ->line('• **Invitato da:** ' . ($newMember->invitedBy?->name ?? $newMember->invited_by_name ?? '—'))
             ->line('Per massimizzare l\'attivazione, prendi contatto entro 24 ore con una chiamata o un breve Loom personalizzato.')
-            ->action('Apri scheda membro', $adminUrl)
+            ->action('Apri scheda utente', $adminUrl)
             ->line('Quando hai completato il contatto, segna l\'utente come "Concierge completato" dal pannello admin.')
             ->salutation('Il sistema Kommunity');
     }
@@ -63,7 +63,7 @@ class NewMemberConciergeAlertNotification extends Notification implements Should
     {
         return [
             'type'         => 'new_member_concierge_alert',
-            'title'        => 'Nuovo membro: ' . $this->newMember->name,
+            'title'        => 'Nuovo utente: ' . $this->newMember->name,
             'body'         => 'Da contattare entro 24h per l\'onboarding concierge.',
             'url'          => '/admin/users/' . $this->newMember->getKey() . '/edit',
             'icon'         => '🟢',

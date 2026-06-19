@@ -207,7 +207,7 @@
                 <table style="width:100%; border-collapse:collapse;">
                     <thead>
                         <tr style="background:#fafaf9; border-bottom:1px solid #e7e5e4;">
-                            <th style="padding:0.5rem 1.25rem; text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;">Membro</th>
+                            <th style="padding:0.5rem 1.25rem; text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;">Utente</th>
                             <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600; white-space:nowrap;">Registrato</th>
                             <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;" title="Email verificata">Email</th>
                             <th style="padding:0.5rem 1.25rem; text-align:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; color:#a8a29e; font-weight:600;" title="Profilo completato">Profilo</th>

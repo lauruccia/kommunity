@@ -1,5 +1,5 @@
 {{--
-    Partial: contenuto sidebar profilo membro.
+    Partial: contenuto sidebar profilo utente.
     Usato sia nel <aside> desktop che nel drawer mobile.
     Variabili richieste: $user, $profile, $whatsappUrl
 --}}
@@ -281,7 +281,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex flex-wrap items-center gap-1.5">
-                        <span class="max-w-[110px] truncate text-xs font-semibold text-stone-700">{{ $review->author?->name ?? 'Membro Kommunity' }}</span>
+                        <span class="max-w-[110px] truncate text-xs font-semibold text-stone-700">{{ $review->author?->name ?? 'Utente Kommunity' }}</span>
                         @if ($review->is_recommended)
                             <span class="rounded-full bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700">✓ Raccomanda</span>
                         @endif
@@ -361,7 +361,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                        <span class="text-xs font-semibold text-stone-700 truncate max-w-[100px]">{{ $ref->sender?->name ?? 'Membro' }}</span>
+                        <span class="text-xs font-semibold text-stone-700 truncate max-w-[100px]">{{ $ref->sender?->name ?? 'Utente' }}</span>
                         <span class="flex gap-0.5">
                             @for ($si = 1; $si <= 5; $si++)
                                 <svg class="h-3 w-3 {{ $si <= $refStars ? 'text-yellow-400' : 'text-stone-200' }}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>

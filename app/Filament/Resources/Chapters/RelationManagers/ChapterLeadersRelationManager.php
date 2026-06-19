@@ -42,7 +42,7 @@ class ChapterLeadersRelationManager extends RelationManager
                     ->modalHeading('Aggiungi leader al Pianeta')
                     ->form([
                         Select::make('user_id')
-                            ->label('Membro')
+                            ->label('Utente')
                             ->options(function () {
                                 $chapterId = $this->getOwnerRecord()->id;
 
@@ -92,7 +92,7 @@ class ChapterLeadersRelationManager extends RelationManager
                         }
 
                         Notification::make()
-                            ->title('Leader aggiunto al Pianeta e iscritto come membro.')
+                            ->title('Leader aggiunto al Pianeta e iscritto come utente.')
                             ->success()
                             ->send();
                     }),
@@ -104,7 +104,7 @@ class ChapterLeadersRelationManager extends RelationManager
                     ->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading('Rimuovere il leader?')
-                    ->modalDescription('Il membro non verrà eliminato, perderà solo il ruolo di leader in questo Pianeta.')
+                    ->modalDescription('L\'utente non verrà eliminato, perderà solo il ruolo di leader in questo Pianeta.')
                     ->action(function (User $record): void {
                         DB::table('chapter_leaders')
                             ->where('chapter_id', $this->getOwnerRecord()->id)

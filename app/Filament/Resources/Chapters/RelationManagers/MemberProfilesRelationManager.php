@@ -24,7 +24,7 @@ class MemberProfilesRelationManager extends RelationManager
      */
     protected static string $relationship = 'allMemberProfiles';
 
-    protected static ?string $title = 'Membri del Pianeta';
+    protected static ?string $title = 'Utenti del Pianeta';
 
     public function table(Table $table): Table
     {
@@ -33,7 +33,7 @@ class MemberProfilesRelationManager extends RelationManager
             ->defaultSort('id', 'asc')
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Membro')
+                    ->label('Utente')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('profession.name')
@@ -98,12 +98,12 @@ class MemberProfilesRelationManager extends RelationManager
             ->filters([])
             ->headerActions([
                 Action::make('aggiungi_membro')
-                    ->label('Aggiungi membro')
+                    ->label('Aggiungi utente')
                     ->icon('heroicon-o-user-plus')
-                    ->modalHeading('Assegna membro al Pianeta')
+                    ->modalHeading('Assegna utente al Pianeta')
                     ->form([
                         Select::make('user_id')
-                            ->label('Membro')
+                            ->label('Utente')
                             ->options(function () {
                                 $chapterId = $this->getOwnerRecord()->id;
                                 $alreadyIn = DB::table('chapter_members')
@@ -127,7 +127,7 @@ class MemberProfilesRelationManager extends RelationManager
                                     ->pluck('name', 'id');
                             })
                             ->placeholder('— Nessun ruolo —')
-                            ->helperText('Opzionale. Puoi assegnarlo anche dopo dalla lista membri.'),
+                            ->helperText('Opzionale. Puoi assegnarlo anche dopo dalla lista utenti.'),
                         Select::make('status')
                             ->label('Stato iscrizione')
                             ->options(['active' => 'Attivo', 'inactive' => 'Inattivo'])
@@ -155,7 +155,7 @@ class MemberProfilesRelationManager extends RelationManager
                         }
 
                         Notification::make()
-                            ->title('Membro aggiunto al Pianeta.')
+                            ->title('Utente aggiunto al Pianeta.')
                             ->success()
                             ->send();
                     }),
@@ -211,7 +211,7 @@ class MemberProfilesRelationManager extends RelationManager
                     ->label('Imposta principale')
                     ->icon('heroicon-o-star')
                     ->color('warning')
-                    ->tooltip('Imposta questo come Pianeta principale del membro')
+                    ->tooltip('Imposta questo come Pianeta principale dell\'utente')
                     ->visible(fn (MemberProfile $record): bool =>
                         $record->active_chapter_id !== $this->getOwnerRecord()->id
                     )
@@ -225,8 +225,8 @@ class MemberProfilesRelationManager extends RelationManager
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Rimuovere il membro dal Pianeta?')
-                    ->modalDescription('Il membro non sarà eliminato, ma perderà l\'accesso a questo Pianeta.')
+                    ->modalHeading('Rimuovere l\'utente dal Pianeta?')
+                    ->modalDescription('L\'utente non sarà eliminato, ma perderà l\'accesso a questo Pianeta.')
                     ->action(function (MemberProfile $record): void {
                         $chapter = $this->getOwnerRecord();
 
@@ -246,7 +246,7 @@ class MemberProfilesRelationManager extends RelationManager
                             $record->updateWithAdminOverride(['active_chapter_id' => null]);
                         }
 
-                        Notification::make()->title('Membro rimosso dal Pianeta.')->success()->send();
+                        Notification::make()->title('Utente rimosso dal Pianeta.')->success()->send();
                     }),
             ])
             ->bulkActions([]);

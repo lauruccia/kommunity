@@ -29,14 +29,14 @@
         <p>Ottima notizia! Il tuo invito al Pianeta <strong>{{ $chapter?->name }}</strong> è stato accettato.</p>
 
         <div class="info-box">
-            <p class="label">Nuovo membro</p>
+            <p class="label">Nuovo utente</p>
             <p class="value">{{ $newUser->name }}</p>
             <p class="label">Email</p>
             <p class="value" style="margin-bottom:0;">{{ $newUser->email }}</p>
         </div>
 
         <p>{{ $newUser->name }} è ora parte del Pianeta <strong>{{ $chapter?->name }}</strong> e potrà accedere a tutti i contenuti di Kommunity.</p>
-        <p>Puoi visualizzare i dettagli del nuovo membro dal pannello di amministrazione.</p>
+        <p>Puoi visualizzare i dettagli del nuovo utente dal pannello di amministrazione.</p>
     </div>
     <div class="footer">
         <p>© {{ date('Y') }} Kommunity — tutti i diritti riservati</p>

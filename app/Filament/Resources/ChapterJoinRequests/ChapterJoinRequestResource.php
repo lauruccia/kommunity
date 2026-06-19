@@ -61,7 +61,7 @@ class ChapterJoinRequestResource extends Resource
                 ->latest())
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Membro')
+                    ->label('Utente')
                     ->weight('bold')
                     ->searchable()
                     ->description(fn (ChapterJoinRequest $r): string => $r->user?->email ?? ''),
@@ -143,7 +143,7 @@ class ChapterJoinRequestResource extends Resource
                     ->action(function (ChapterJoinRequest $record): void {
                         $profile = $record->user?->memberProfile;
                         if (! $profile) {
-                            Notification::make()->title('Profilo membro non trovato.')->danger()->send();
+                            Notification::make()->title('Profilo utente non trovato.')->danger()->send();
                             return;
                         }
                         $profile->update(['active_chapter_id' => $record->chapter_id]);
@@ -170,7 +170,7 @@ class ChapterJoinRequestResource extends Resource
                     ->action(function (ChapterJoinRequest $record): void {
                         $profile = $record->user?->memberProfile;
                         if (! $profile) {
-                            Notification::make()->title('Profilo membro non trovato.')->danger()->send();
+                            Notification::make()->title('Profilo utente non trovato.')->danger()->send();
                             return;
                         }
                         $profile->forceFill(['active_chapter_id' => $record->chapter_id])->save();

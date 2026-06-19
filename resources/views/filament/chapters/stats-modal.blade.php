@@ -39,7 +39,7 @@
         </h3>
 
         @if($professions->isEmpty())
-            <p class="text-sm text-gray-400 italic">Nessun membro con professione assegnata.</p>
+            <p class="text-sm text-gray-400 italic">Nessun utente con professione assegnata.</p>
         @else
             <div class="space-y-2">
                 @foreach($professions as $row)

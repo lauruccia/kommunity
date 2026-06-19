@@ -64,8 +64,8 @@ class PlanetRole extends Model
     {
         return [
             'forum.moderate'  => 'Forum – moderare post e thread',
-            'members.invite'  => 'Membri – inviare inviti al pianeta',
-            'members.manage'  => 'Membri – aggiungere e rimuovere membri',
+            'members.invite'  => 'Utenti – inviare inviti al pianeta',
+            'members.manage'  => 'Utenti – aggiungere e rimuovere utenti',
             'events.manage'   => 'Eventi – creare e gestire eventi del pianeta',
             'content.pin'     => 'Contenuti – mettere in evidenza',
             'announcements'   => 'Annunci – pubblicare annunci nel pianeta',

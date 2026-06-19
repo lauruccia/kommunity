@@ -36,7 +36,7 @@
 
             @if($alreadyMember)
                 <div class="rounded-lg p-4 text-sm" style="background:rgba(154,216,74,0.1); border:1px solid rgba(154,216,74,0.3); color:#9ad84a;">
-                    Sei già membro del Pianeta <strong>{{ $invitation->chapter?->name }}</strong>.
+                    Sei già utente del Pianeta <strong>{{ $invitation->chapter?->name }}</strong>.
                 </div>
                 <div class="mt-4">
                     <a href="{{ route('dashboard') }}"

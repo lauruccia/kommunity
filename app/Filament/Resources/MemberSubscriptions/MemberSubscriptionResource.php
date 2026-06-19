@@ -33,9 +33,9 @@ use Filament\Tables\Table;
 class MemberSubscriptionResource extends Resource
 {
     protected static ?string $model = MemberSubscription::class;
-    protected static ?string $navigationLabel = 'Abbonamenti membri';
+    protected static ?string $navigationLabel = 'Abbonamenti utenti';
     protected static ?string $modelLabel = 'abbonamento';
-    protected static ?string $pluralModelLabel = 'abbonamenti membri';
+    protected static ?string $pluralModelLabel = 'abbonamenti utenti';
     protected static string|\UnitEnum|null $navigationGroup = 'Abbonamenti';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
@@ -48,7 +48,7 @@ class MemberSubscriptionResource extends Resource
     {
         return $schema->components([
             Select::make('user_id')
-                ->label('Membro')
+                ->label('Utente')
                 ->relationship('user', 'name')
                 ->searchable()
                 ->preload()
@@ -79,7 +79,7 @@ class MemberSubscriptionResource extends Resource
                 ->maxLength(255),
 
             Textarea::make('payment_notes')
-                ->label('Note membro')
+                ->label('Note utente')
                 ->rows(2),
 
             DateTimePicker::make('trial_ends_at')
@@ -103,7 +103,7 @@ class MemberSubscriptionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Membro')
+                    ->label('Utente')
                     ->searchable()
                     ->sortable(),
 
@@ -246,7 +246,7 @@ class MemberSubscriptionResource extends Resource
                             $filename = 'abbonamenti_' . now()->format('Ymd_His') . '.csv';
                             return response()->streamDownload(function () use ($records): void {
                                 $handle = fopen('php://output', 'w');
-                                fputcsv($handle, ['ID', 'Membro', 'Email', 'Piano', 'Stato', 'Metodo pagamento', 'Riferimento', 'Inizio', 'Scadenza', 'Richiesto il', 'Approvato il', 'Note admin']);
+                                fputcsv($handle, ['ID', 'Utente', 'Email', 'Piano', 'Stato', 'Metodo pagamento', 'Riferimento', 'Inizio', 'Scadenza', 'Richiesto il', 'Approvato il', 'Note admin']);
                                 foreach ($records as $sub) {
                                     fputcsv($handle, [
                                         $sub->id,

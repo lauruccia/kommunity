@@ -254,10 +254,10 @@
                                     <form method="GET" class="km-oto-filter-form">
                                         <label class="col-span-6 md:col-span-3">
                                             <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Cerca</span>
-                                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input" placeholder="Membro o obiettivo">
+                                            <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="km-dark-input" placeholder="Utente o obiettivo">
                                         </label>
                                         <label class="col-span-6 md:col-span-3">
-                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Membro</span>
+                                            <span class="mb-1.5 block text-[10px] font-black uppercase tracking-[.16em] text-white/45">Utente</span>
                                             <select name="member" class="km-dark-input">
                                                 <option value="">Tutti</option>
                                                 @foreach ($members as $member)
@@ -324,7 +324,7 @@
                             <thead>
                                 <tr>
                                     <th>Tipo</th>
-                                    <th>Membro</th>
+                                    <th>Utente</th>
                                     <th>Obiettivo</th>
                                     <th>Data</th>
                                     <th>Modalita'</th>
@@ -941,7 +941,7 @@
 
                                 @if ($theirRef->is_recommended !== null)
                                     <p style="font-size:.78rem;color:var(--km-text-muted);margin-bottom:.35rem;">
-                                        {{ $theirRef->is_recommended ? '👍 Ti consiglia agli altri membri' : '👎 Non ti consiglia agli altri membri' }}
+                                        {{ $theirRef->is_recommended ? '👍 Ti consiglia agli altri utenti' : '👎 Non ti consiglia agli altri utenti' }}
                                     </p>
                                 @endif
 
@@ -1023,18 +1023,18 @@
                 <div style="display:flex;flex-shrink:0;align-items:center;justify-content:space-between;gap:1rem;padding:1.1rem 1.5rem;border-bottom:1px solid var(--km-line-dark);">
                     <div>
                         <p class="km-eyebrow">Nuova richiesta</p>
-                        <h2 style="margin-top:.3rem;font-size:1.3rem;font-weight:800;color:var(--km-text);">Cerca membro e invia one-to-one</h2>
+                        <h2 style="margin-top:.3rem;font-size:1.3rem;font-weight:800;color:var(--km-text);">Cerca utente e invia one-to-one</h2>
                     </div>
                     <button type="button" data-close-one-to-one-modal class="km-button-secondary">Chiudi</button>
                 </div>
 
                 <div class="km-oto-modal-grid" style="display:grid;min-height:0;flex:1;grid-template-columns:300px 1fr;overflow:hidden;">
                     <div class="km-oto-modal-sidebar" style="display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--km-line-dark);padding:1.25rem;">
-                        <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-text-muted);">Ricerca membro</label>
+                        <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-text-muted);">Ricerca utente</label>
                         <input id="one-to-one-member-query" type="text" class="km-dark-input" style="margin-top:.6rem;" placeholder="Nome, email, azienda, citta'">
                         <p class="km-muted" style="margin-top:.4rem;font-size:.73rem;">Almeno 2 caratteri per cercare.</p>
                         <div id="one-to-one-member-results" style="margin-top:.75rem;flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.35rem;"></div>
-                        <p id="one-to-one-member-empty" style="display:none;margin-top:.75rem;padding:1rem;border-radius:1.2rem;border:1px dashed rgba(255,255,255,.15);font-size:.8rem;color:var(--km-text-muted);">Nessun membro trovato.</p>
+                        <p id="one-to-one-member-empty" style="display:none;margin-top:.75rem;padding:1rem;border-radius:1.2rem;border:1px dashed rgba(255,255,255,.15);font-size:.8rem;color:var(--km-text-muted);">Nessun utente trovato.</p>
                         <p id="one-to-one-member-idle" style="margin-top:.75rem;padding:1rem;border-radius:1.2rem;border:1px dashed rgba(255,255,255,.15);font-size:.8rem;color:var(--km-text-muted);">Scrivi almeno 2 caratteri.</p>
                     </div>
 
@@ -1048,14 +1048,14 @@
                                     Slot libero = prenotazione immediata. Fuori slot = richiesta da confermare.
                                 </div>
                                 <div style="padding:.875rem 1rem;border-radius:1.1rem;border:1px solid var(--km-line-dark);background:rgba(255,255,255,.03);">
-                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-text-muted);">Disponibilita' del membro</p>
+                                    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--km-text-muted);">Disponibilita' dell'utente</p>
                                     <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Scegli uno slot o proponi un orario libero.</p>
                                     <div id="one-to-one-availability" style="margin-top:.75rem;"></div>
                                 </div>
                                 {{-- Proposta orario libero: sempre visibile, anche quando il membro ha slot prenotabili --}}
                                 <div style="padding:.875rem 1rem;border-radius:1.1rem;border:1px solid rgba(245,158,11,.28);background:rgba(245,158,11,.06);">
                                     <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:#FCD34D;">Oppure proponi data e ora</p>
-                                    <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Fuori dagli slot: la richiesta verrà inviata e dovrà essere confermata dal membro.</p>
+                                    <p class="km-muted" style="margin-top:.25rem;font-size:.75rem;">Fuori dagli slot: la richiesta verrà inviata e dovrà essere confermata dall'utente.</p>
                                     <div style="margin-top:.65rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
                                         <label style="display:flex;flex-direction:column;gap:.3rem;">
                                             <span style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--km-text-muted);">Data e ora</span>
@@ -1169,12 +1169,12 @@
                 const m = selectedMember();
                 if (!m) { selectedMemberSummary.style.display='none'; selectedMemberSummary.innerHTML=''; return; }
                 selectedMemberSummary.style.display='block';
-                selectedMemberSummary.innerHTML=`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);">Membro selezionato</div><div style="margin-top:.3rem;font-weight:700;color:var(--km-text);">${m.name}</div><div style="font-size:.78rem;color:var(--km-text-muted);">${m.email||''}</div><div style="font-size:.73rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>`;
+                selectedMemberSummary.innerHTML=`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--km-text-muted);">Utente selezionato</div><div style="margin-top:.3rem;font-weight:700;color:var(--km-text);">${m.name}</div><div style="font-size:.78rem;color:var(--km-text-muted);">${m.email||''}</div><div style="font-size:.73rem;color:var(--km-text-muted);">${m.company||'Azienda non indicata'}${m.city?' · '+m.city:''}</div>`;
             };
 
             const renderAvailability = () => {
                 const m = selectedMember();
-                if (!m) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Seleziona un membro per vedere gli slot.</div>'; return; }
+                if (!m) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Seleziona un utente per vedere gli slot.</div>'; return; }
                 if (m.availability_slots === undefined) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Caricamento disponibilità…</div>'; return; }
                 if (!m.availability_slots.length) { availabilityContainer.innerHTML='<div style="padding:.7rem 1rem;border-radius:1rem;border:1px dashed rgba(255,255,255,.15);font-size:.78rem;color:var(--km-text-muted);">Nessuna disponibilita\' pubblicata. Proponi un altro orario.</div>'; return; }
                 availabilityContainer.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem;">${m.availability_slots.map((slot) => `

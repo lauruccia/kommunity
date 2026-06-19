@@ -29,7 +29,7 @@ class MemberOnepageResource extends Resource
     protected static ?string $navigationLabel = 'Pagine personali';
     protected static ?string $modelLabel = 'pagina personale';
     protected static ?string $pluralModelLabel = 'pagine personali';
-    protected static string|\UnitEnum|null $navigationGroup = 'Membri';
+    protected static string|\UnitEnum|null $navigationGroup = 'Utenti';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
     public static function form(Schema $schema): Schema
@@ -38,7 +38,7 @@ class MemberOnepageResource extends Resource
 
             // ── IMPOSTAZIONI ──────────────────────────────────────────────────
             Select::make('user_id')
-                ->label('Membro')
+                ->label('Utente')
                 ->relationship('user', 'name')
                 ->required(),
             TextInput::make('slug')
@@ -63,28 +63,28 @@ class MemberOnepageResource extends Resource
                 ->helperText('Se vuoto usa il nome dell\'azienda del profilo.'),
             Textarea::make('intro_text')
                 ->label('Testo breve sotto il nome (corsivo)')
-                ->helperText('Se vuoto usa la bio breve del profilo membro.')
+                ->helperText('Se vuoto usa la bio breve del profilo utente.')
                 ->rows(2)
                 ->columnSpanFull(),
 
             // ── CONTENUTI — sezione "Chi sono" ────────────────────────────────
             Textarea::make('about_text')
                 ->label('Chi sono')
-                ->helperText('Visualizzata nella sezione "Chi sono" del profilo pubblico. Se vuoto usa la bio del profilo membro.')
+                ->helperText('Visualizzata nella sezione "Chi sono" del profilo pubblico. Se vuoto usa la bio del profilo utente.')
                 ->rows(6)
                 ->columnSpanFull(),
 
             // ── CONTENUTI — sezione "Servizi" ─────────────────────────────────
             Textarea::make('services_text')
                 ->label('Servizi')
-                ->helperText('Visualizzata nella sezione "Servizi" del profilo pubblico. Se vuoto usa i servizi del profilo membro.')
+                ->helperText('Visualizzata nella sezione "Servizi" del profilo pubblico. Se vuoto usa i servizi del profilo utente.')
                 ->rows(4)
                 ->columnSpanFull(),
 
             // ── CONTENUTI — sezione "Competenze" (da MemberProfile.skills) ────
             Textarea::make('profile_skills')
                 ->label('Competenze')
-                ->helperText('Visualizzata nella sezione "Competenze" del profilo pubblico. Campo skills del profilo membro (separare con virgola).')
+                ->helperText('Visualizzata nella sezione "Competenze" del profilo pubblico. Campo skills del profilo utente (separare con virgola).')
                 ->rows(3)
                 ->columnSpanFull()
                 ->afterStateHydrated(function (Textarea $component, ?MemberOnepage $record): void {
@@ -94,7 +94,7 @@ class MemberOnepageResource extends Resource
             // ── CONTENUTI — sezione "Obiettivi di networking" (da MemberProfile) ─
             Textarea::make('profile_networking_goals')
                 ->label('Obiettivi di networking')
-                ->helperText('Visualizzata nella sezione "Obiettivi di networking" del profilo pubblico. Campo networking_goals del profilo membro.')
+                ->helperText('Visualizzata nella sezione "Obiettivi di networking" del profilo pubblico. Campo networking_goals del profilo utente.')
                 ->rows(3)
                 ->columnSpanFull()
                 ->afterStateHydrated(function (Textarea $component, ?MemberOnepage $record): void {
@@ -136,7 +136,7 @@ class MemberOnepageResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Membro')
+                    ->label('Utente')
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')

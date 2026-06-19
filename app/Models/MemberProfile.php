@@ -137,7 +137,7 @@ class MemberProfile extends Model
                 }
 
                 throw ValidationException::withMessages([
-                    'active_chapter_id' => 'Il Pianeta "' . $chapter->name . '" ha raggiunto il limite di ' . $chapter->max_members_per_profession . ' professionisti per questa categoria. Il membro è stato messo in lista d\'attesa.',
+                    'active_chapter_id' => 'Il Pianeta "' . $chapter->name . '" ha raggiunto il limite di ' . $chapter->max_members_per_profession . ' professionisti per questa categoria. L\'utente è stato messo in lista d\'attesa.',
                 ]);
             }
         });

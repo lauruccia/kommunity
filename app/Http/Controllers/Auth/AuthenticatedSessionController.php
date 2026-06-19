@@ -35,7 +35,7 @@ class AuthenticatedSessionController extends Controller
             $request->session()->forget('url.intended');
 
             return redirect()->route('dashboard')
-                ->with('warning', 'Hai effettuato l\'accesso come membro. Per entrare in amministrazione usa un account admin.');
+                ->with('warning', 'Hai effettuato l\'accesso come utente. Per entrare in amministrazione usa un account admin.');
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

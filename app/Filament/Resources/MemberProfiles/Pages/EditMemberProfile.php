@@ -62,8 +62,8 @@ class EditMemberProfile extends EditRecord
             $onepage->template = 'minimal-professional';
             $onepage->visibility = 'registered_users';
             $onepage->is_active = false;
-            $onepage->seo_title = trim(($record->user?->name ?: 'Membro') . ' | Kommunity');
-            $onepage->seo_description = 'Mini sito professionale di ' . ($record->user?->name ?: 'questo membro') . ' su Kommunity.';
+            $onepage->seo_title = trim(($record->user?->name ?: 'Utente') . ' | Kommunity');
+            $onepage->seo_description = 'Mini sito professionale di ' . ($record->user?->name ?: 'questo utente') . ' su Kommunity.';
         }
 
         $onepage->hero_subtitle = trim(($record->profession?->name ?? 'Professionista') . ' · ' . ($record->city?->name ?? 'Italia'));

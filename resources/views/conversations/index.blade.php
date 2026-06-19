@@ -188,7 +188,7 @@
             <form method="POST" action="{{ route('conversations.start') }}" class="space-y-4 px-5 py-5">
                 @csrf
                 <select name="recipient_id" class="km-dark-input h-12 w-full" required>
-                    <option value="">Seleziona membro</option>
+                    <option value="">Seleziona utente</option>
                     @foreach ($members as $member)
                         <option value="{{ $member->id }}" @selected((int) ($prefillRecipientId ?? 0) === $member->id)>{{ $member->name }}</option>
                     @endforeach

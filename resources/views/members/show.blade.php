@@ -100,7 +100,7 @@
                 type="button"
                 @click="drawer = true"
                 class="ms-3 flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50 active:scale-95"
-                aria-label="Apri info membro"
+                aria-label="Apri info utente"
             >
                 <svg class="h-4 w-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
@@ -135,7 +135,7 @@
                         @if ($profile->professions->isNotEmpty())
                             {{ $profile->professions->pluck('name')->first() }}
                         @else
-                            {{ $profile->profession?->name ?? 'Membro Kommunity' }}
+                            {{ $profile->profession?->name ?? 'Utente Kommunity' }}
                         @endif
                     </p>
                 </div>

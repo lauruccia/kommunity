@@ -10,7 +10,7 @@ return [
     'per_month'          => "/mese",
     'per_year'           => "/anno",
     'trial_days'         => ":days giorni di prova gratuita",
-    'includes_directory' => "Presenza nella directory membri",
+    'includes_directory' => "Presenza nella directory utenti",
     'includes_page'      => "Pagina personale dedicata",
     'full_plan'          => "Piano completo",
     'request_plan'       => "Richiedi questo piano",

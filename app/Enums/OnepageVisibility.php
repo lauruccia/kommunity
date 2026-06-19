@@ -11,7 +11,7 @@ enum OnepageVisibility: string
     public function label(): string
     {
         return match ($this) {
-            self::MembersOnly => 'Solo membri',
+            self::MembersOnly => 'Solo utenti',
             self::RegisteredUsers => 'Utenti registrati',
             self::PublicPreview => 'Anteprima pubblica',
         };

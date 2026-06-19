@@ -83,7 +83,7 @@
                 <h1 class="mt-2 font-serif text-2xl font-semibold sm:text-3xl">Kommunity business interna</h1>
             </div>
             <div class="shrink-0 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
-                {{ $members->total() }} membri attivi
+                {{ $members->total() }} utenti attivi
             </div>
         </div>
     </div>
@@ -416,7 +416,7 @@
                 {{-- Barra info + selettore "per pagina" --}}
                 <div class="km-panel flex flex-wrap items-center justify-between gap-3 px-4 py-2">
                     <span class="text-sm text-stone-500">
-                        {{ $members->total() }} {{ $members->total() === 1 ? 'membro trovato' : 'membri trovati' }}
+                        {{ $members->total() }} {{ $members->total() === 1 ? 'utente trovato' : 'utenti trovati' }}
                     </span>
 
                     <form method="GET" class="flex items-center gap-2">

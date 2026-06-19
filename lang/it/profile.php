@@ -3,7 +3,7 @@
 return [
     // Sezioni
     'identity_title'       => "Identità e contatti",
-    'identity_desc'        => "Dati base del membro e canali di contatto da usare nelle schede directory.",
+    'identity_desc'        => "Dati base dell'utente e canali di contatto da usare nelle schede directory.",
     'business_title'       => "Profilo business",
     'business_desc'        => "Informazioni che definiscono posizionamento, mercato e ricerca nella directory.",
     'digital_title'        => "Presenza digitale e networking",

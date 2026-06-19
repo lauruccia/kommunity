@@ -103,7 +103,7 @@
             <div class="relative z-[1] flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="min-w-0">
                     <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[color:var(--km-green-2)]">
-                        Dashboard membro{{ $chapterName ? ' · ' . $chapterName : '' }}
+                        Dashboard utente{{ $chapterName ? ' · ' . $chapterName : '' }}
                     </p>
                     <h1 class="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl">
                         Ciao {{ $firstName }},
@@ -195,7 +195,7 @@
             <x-dashboard.kpi
                 label="Conversazioni"
                 value="{{ $recentMessages->count() }}"
-                sub="Messaggi recenti tra membri"
+                sub="Messaggi recenti tra utenti"
                 tone="green"
                 href="{{ route('conversations.index') }}"
             >
@@ -212,7 +212,7 @@
             <x-dashboard.quick-action
                 href="{{ route('one-to-ones.index', ['compose' => 1]) }}"
                 title="Nuovo one-to-one"
-                desc="Cerca un membro e invia richiesta"
+                desc="Cerca un utente e invia richiesta"
                 tone="green"
             >
                 <x-slot name="icon">
@@ -234,7 +234,7 @@
             <x-dashboard.quick-action
                 href="{{ route('referrals.index') }}"
                 title="Invia una referenza"
-                desc="Connetti due membri per opportunita'"
+                desc="Connetti due utenti per opportunita'"
                 tone="amber"
             >
                 <x-slot name="icon">
@@ -260,7 +260,7 @@
                 @empty
                     <div class="rounded-xl border border-dashed border-white/[.10] bg-white/[.02] px-4 py-6 text-center">
                         <p class="text-sm text-white/65">Nessuna richiesta ricevuta.</p>
-                        <p class="mt-1 text-xs text-white/40">Apri la directory per scoprire altri membri e proporre un incontro.</p>
+                        <p class="mt-1 text-xs text-white/40">Apri la directory per scoprire altri utenti e proporre un incontro.</p>
                         <a href="{{ route('directory.index') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[color:var(--km-green-2)] hover:underline">
                             Vai alla directory &rarr;
                         </a>

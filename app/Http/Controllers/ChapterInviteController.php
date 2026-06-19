@@ -41,7 +41,7 @@ class ChapterInviteController extends Controller
         // è uscito dal pianeta (o che non ne ha mai fatto parte).
         if (! $this->inviterIsMember($invitation)) {
             return redirect()->route('login')
-                ->with('error', 'Chi ti ha invitato non è più membro di questo Pianeta. L\'invito non è valido.');
+                ->with('error', 'Chi ti ha invitato non è più utente di questo Pianeta. L\'invito non è valido.');
         }
 
         // Salva token in sessione (serve sia per utente non loggato che per loggato)
@@ -83,7 +83,7 @@ class ChapterInviteController extends Controller
         // Ricontrollo appartenenza anche al momento dell'accettazione
         if (! $this->inviterIsMember($invitation)) {
             return redirect()->route('dashboard')
-                ->with('error', 'Chi ti ha invitato non è più membro di questo Pianeta. L\'invito non è valido.');
+                ->with('error', 'Chi ti ha invitato non è più utente di questo Pianeta. L\'invito non è valido.');
         }
 
         /** @var \App\Models\User $user */

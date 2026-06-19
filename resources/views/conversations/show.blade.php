@@ -292,7 +292,7 @@
                         @endif
                     </div>
                     <h2 class="mt-4 text-xl font-black text-white">{{ $otherParticipant?->name ?? $conversation->subject }}</h2>
-                    <p class="mt-1 text-sm text-white/55">{{ $role ?: ($company ?: 'Membro Kommunity') }}</p>
+                    <p class="mt-1 text-sm text-white/55">{{ $role ?: ($company ?: 'Utente Kommunity') }}</p>
                     <p class="mt-1 text-xs {{ $isOnline ? 'text-[color:var(--km-green-2)]' : 'text-white/45' }}">{{ $presenceLabel }}</p>
                 </div>
 
@@ -334,7 +334,7 @@
             <form method="POST" action="{{ route('conversations.start') }}" class="space-y-4 px-5 py-5">
                 @csrf
                 <select name="recipient_id" class="km-dark-input h-12 w-full" required>
-                    <option value="">Seleziona membro</option>
+                    <option value="">Seleziona utente</option>
                     @foreach ($members as $member)
                         <option value="{{ $member->id }}">{{ $member->name }}</option>
                     @endforeach

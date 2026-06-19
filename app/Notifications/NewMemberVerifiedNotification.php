@@ -32,15 +32,15 @@ class NewMemberVerifiedNotification extends Notification implements ShouldQueue
         $adminUrl = url('/admin/member-profiles/' . ($profile?->getKey() ?? '') . '/edit');
 
         return (new MailMessage)
-            ->subject('✅ Nuovo membro attivo — ' . $member->name)
+            ->subject('✅ Nuovo utente attivo — ' . $member->name)
             ->greeting('Ciao ' . $notifiable->name . '!')
-            ->line('Un nuovo membro ha confermato la propria email ed è stato **auto-approvato** nella directory Kommunity:')
+            ->line('Un nuovo utente ha confermato la propria email ed è stato **auto-approvato** nella directory Kommunity:')
             ->line('**Nome:** ' . $member->name)
             ->line('**Email:** ' . $member->email)
             ->line('**Invitato da:** ' . ($member->invitedBy?->name ?? $member->invited_by_name ?? '—'))
             ->line('**Pianeta:** ' . ($profile?->chapter?->name ?? '—'))
             ->line('Il profilo è ora visibile in directory con status **Attivo**.')
-            ->action('Visualizza scheda membro', $adminUrl)
+            ->action('Visualizza scheda utente', $adminUrl)
             ->line('Se necessario, puoi sospendere o modificare il profilo dal pannello admin.')
             ->salutation('Il sistema Kommunity');
     }
@@ -49,7 +49,7 @@ class NewMemberVerifiedNotification extends Notification implements ShouldQueue
     {
         return [
             'type'          => 'new_member_verified',
-            'title'         => '✅ Nuovo membro attivo: ' . $this->newMember->name,
+            'title'         => '✅ Nuovo utente attivo: ' . $this->newMember->name,
             'body'          => $this->newMember->name . ' ha verificato la email ed è ora visibile in directory.',
             'url'           => '/admin/member-profiles',
             'icon'          => '✅',

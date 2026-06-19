@@ -25,7 +25,7 @@ use Filament\Support\Icons\Heroicon;
  */
 class SiteSettingsPage extends Page
 {
-    protected static ?string $navigationLabel = 'Menu area membri';
+    protected static ?string $navigationLabel = 'Menu area utenti';
     protected static ?string $title = 'Impostazioni sito';
     protected static string|\UnitEnum|null $navigationGroup = 'Sito';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBars3;
@@ -76,7 +76,7 @@ class SiteSettingsPage extends Page
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Menu area membri')
+                Section::make('Menu area utenti')
                     ->description('Scegli quali voci mostrare nel menu superiore dell’area riservata. Le pagine restano raggiungibili via URL, ma non appaiono nel menu.')
                     ->schema([
                         CheckboxList::make('member_navigation_items')

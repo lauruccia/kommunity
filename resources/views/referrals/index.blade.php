@@ -137,7 +137,7 @@
                 </div>
                 <div>
                     <p class="kr-green-text text-sm font-semibold uppercase tracking-[.35em]">Referenze business</p>
-                    <h1 class="mt-3 text-3xl font-semibold text-white">Opportunità e introduzioni tra membri</h1>
+                    <h1 class="mt-3 text-3xl font-semibold text-white">Opportunità e introduzioni tra utenti</h1>
                     <p class="mt-2 text-base" style="color:var(--kr-muted);">Invia opportunità, traccia lo stato e costruisci relazioni significative in Kommunity.</p>
                     <div class="mt-5 flex flex-wrap gap-3">
                         <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm"><strong class="text-white">{{ $summary['sent'] }}</strong> <span style="color:var(--kr-muted);">Inviate</span></div>
@@ -191,7 +191,7 @@
             {{-- ── SIDEBAR FORM ──────────────────────────────────────────── --}}
             <aside class="kr-card p-5">
                 <h2 class="text-xl font-semibold text-white">Nuova referenza</h2>
-                <p class="mt-3 text-sm leading-6" style="color:var(--kr-muted);">Puoi inviare una referenza solo a membri con cui hai un one-to-one completato e confermato da entrambi.</p>
+                <p class="mt-3 text-sm leading-6" style="color:var(--kr-muted);">Puoi inviare una referenza solo a utenti con cui hai un one-to-one completato e confermato da entrambi.</p>
 
                 @if ($errors->any())
                     <div class="mt-4 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
@@ -203,7 +203,7 @@
                 @if ($members->isEmpty())
                     <div class="mt-5 flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/[.025] px-6 text-center">
                         <svg class="kr-green-text" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-                        <h3 class="mt-4 font-semibold text-white">Nessun membro idoneo</h3>
+                        <h3 class="mt-4 font-semibold text-white">Nessun utente idoneo</h3>
                         <p class="mt-2 text-sm leading-6" style="color:var(--kr-muted);">Completa un one-to-one per sbloccare questa funzione.</p>
                     </div>
                 @else
@@ -216,7 +216,7 @@
                             @endforeach
                         </select>
                         <input type="text" name="title" value="{{ old('title') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Titolo opportunità" required>
-                        <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità — contesto, obiettivo, perché questo membro può aiutare" required>{{ old('description') }}</textarea>
+                        <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità — contesto, obiettivo, perché questo utente può aiutare" required>{{ old('description') }}</textarea>
                         <input type="text" name="company_name" value="{{ old('company_name') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Azienda (opzionale)">
                         <div>
                             <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:rgba(222,235,238,.55);margin-bottom:.5rem;">Qualità dell'opportunità</p>

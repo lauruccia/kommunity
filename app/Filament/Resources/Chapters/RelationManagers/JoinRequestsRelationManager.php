@@ -83,13 +83,13 @@ class JoinRequestsRelationManager extends RelationManager
                     ->visible(fn (ChapterJoinRequest $record) => in_array($record->status, ['pending', 'waitlist']))
                     ->requiresConfirmation()
                     ->modalHeading('Approvare la richiesta?')
-                    ->modalDescription('Il membro verrà assegnato a questo Pianeta. Se il limite professione è raggiunto, usa "Approva con override".')
+                    ->modalDescription('L\'utente verrà assegnato a questo Pianeta. Se il limite professione è raggiunto, usa "Approva con override".')
                     ->action(function (ChapterJoinRequest $record): void {
                         $profile = $record->user?->memberProfile;
 
                         if (! $profile) {
                             Notification::make()
-                                ->title('Errore: profilo membro non trovato.')
+                                ->title('Errore: profilo utente non trovato.')
                                 ->danger()
                                 ->send();
                             return;
@@ -111,7 +111,7 @@ class JoinRequestsRelationManager extends RelationManager
                             );
 
                             Notification::make()
-                                ->title('Richiesta approvata — membro assegnato al Pianeta.')
+                                ->title('Richiesta approvata — utente assegnato al Pianeta.')
                                 ->success()
                                 ->send();
                         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -168,7 +168,7 @@ class JoinRequestsRelationManager extends RelationManager
                     ->form([
                         Textarea::make('rejection_reason')
                             ->label('Motivo del rifiuto (opzionale)')
-                            ->placeholder('Inserisci un motivo da comunicare al membro...'),
+                            ->placeholder('Inserisci un motivo da comunicare all\'utente...'),
                     ])
                     ->action(function (ChapterJoinRequest $record, array $data): void {
                         $record->update([

@@ -16,7 +16,7 @@
         <div class="grid gap-6 lg:grid-cols-2">
             <div>
                 <h2 class="font-serif text-2xl font-semibold text-stone-950">Identita' e contatti</h2>
-                <p class="mt-2 text-sm leading-7 text-stone-600">Dati base del membro e canali di contatto da usare nelle schede directory.</p>
+                <p class="mt-2 text-sm leading-7 text-stone-600">Dati base dell'utente e canali di contatto da usare nelle schede directory.</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
@@ -373,7 +373,7 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <div class="md:col-span-2">
                     <x-input-label for="networking_goals" :value="'Obiettivi di networking'" />
-                    <p class="mt-1 text-xs text-stone-500">Indica a chi puoi offrire i tuoi servizi o prodotti, e quali professionisti o realtà aziendali potrebbero essere utili a te. Essere specifici aiuta gli altri membri a capire come collaborare.</p>
+                    <p class="mt-1 text-xs text-stone-500">Indica a chi puoi offrire i tuoi servizi o prodotti, e quali professionisti o realtà aziendali potrebbero essere utili a te. Essere specifici aiuta gli altri utenti a capire come collaborare.</p>
                     <textarea id="networking_goals" name="networking_goals" rows="4" class="km-input mt-2" placeholder="Es. Offro consulenza fiscale a liberi professionisti e PMI. Cerco collaborazioni con avvocati, agenti immobiliari e imprenditori nel settore retail che abbiano bisogno di ottimizzare la gestione contabile.">{{ old('networking_goals', $profile->networking_goals) }}</textarea>
                 </div>
                 <div>

@@ -33,7 +33,7 @@ class AvailabilitySlotResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('user_id')->label('Membro')->relationship('user', 'name')->required(),
+            Select::make('user_id')->label('Utente')->relationship('user', 'name')->required(),
             Select::make('weekday')->label('Giorno')->options([
                 1 => 'Lunedi',
                 2 => 'Martedi',
@@ -59,7 +59,7 @@ class AvailabilitySlotResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')->label('Membro')->searchable(),
+                TextColumn::make('user.name')->label('Utente')->searchable(),
                 TextColumn::make('weekday')->label('Giorno')->formatStateUsing(fn ($state) => [
                     1 => 'Lunedi', 2 => 'Martedi', 3 => 'Mercoledi', 4 => 'Giovedi', 5 => 'Venerdi', 6 => 'Sabato', 7 => 'Domenica',
                 ][$state] ?? $state),

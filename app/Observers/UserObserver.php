@@ -42,7 +42,7 @@ class UserObserver
         $user->ensureReferralCode();
 
         $user->memberProfile()->create([
-            'short_bio' => 'Nuovo membro della kommunity Kommunity.',
+            'short_bio' => 'Nuovo utente della kommunity Kommunity.',
             'preferred_contact_method' => ContactMethod::Email,
             'is_visible_in_directory' => true,
             'is_active' => false,
@@ -55,7 +55,7 @@ class UserObserver
             'title' => $user->name,
             'hero_title' => $user->name,
             'hero_subtitle' => 'Profilo professionale in costruzione',
-            'intro_text' => 'Questo spazio verrà popolato con la presentazione professionale del membro.',
+            'intro_text' => 'Questo spazio verrà popolato con la presentazione professionale dell\'utente.',
             'about_text' => 'Kommunity genera automaticamente un mini sito personale per ogni iscritto.',
             'services_text' => 'Servizi e competenze saranno aggiornati durante l\'onboarding.',
             'cta_text' => 'Richiedi un incontro one-to-one',

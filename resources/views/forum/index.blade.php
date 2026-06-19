@@ -234,7 +234,7 @@
                 </div>
                 <div>
                     <h1 class="text-[2rem] font-semibold leading-tight text-white">Forum</h1>
-                    <p class="mt-1 text-base" style="color: var(--kf-muted);">Forum operativo per topic, risposte, opportunità e confronto tra membri.</p>
+                    <p class="mt-1 text-base" style="color: var(--kf-muted);">Forum operativo per topic, risposte, opportunità e confronto tra utenti.</p>
                 </div>
             </div>
 
@@ -249,7 +249,7 @@
                 </div>
                 <div class="kf-card flex items-center gap-4 px-5 py-4">
                     <div class="kf-icon h-12 w-12 kf-icon-slate"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-                    <div><div class="text-xs uppercase tracking-[.18em]" style="color: var(--kf-soft);">Membri attivi</div><div class="text-3xl font-semibold" style="color: var(--kf-green);">{{ $activeMembers }}</div></div>
+                    <div><div class="text-xs uppercase tracking-[.18em]" style="color: var(--kf-soft);">Utenti attivi</div><div class="text-3xl font-semibold" style="color: var(--kf-green);">{{ $activeMembers }}</div></div>
                 </div>
             </div>
         </header>
@@ -414,7 +414,7 @@
                 <section class="kf-card p-5">
                     <h2 class="mb-5 text-sm font-semibold uppercase tracking-[.12em] text-white">Statistiche forum</h2>
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between"><span class="text-white/85">Membri attivi</span><strong>{{ $activeMembers }}</strong></div>
+                        <div class="flex items-center justify-between"><span class="text-white/85">Utenti attivi</span><strong>{{ $activeMembers }}</strong></div>
                         <div class="flex items-center justify-between"><span class="text-white/85">Topic totali</span><strong>{{ $totalTopics }}</strong></div>
                         <div class="flex items-center justify-between"><span class="text-white/85">Post totali</span><strong>{{ $totalPosts }}</strong></div>
                         <div class="flex items-center justify-between"><span class="text-white/85">Visite totali</span><strong>{{ number_format($totalVisits, 0, ',', '.') }}</strong></div>

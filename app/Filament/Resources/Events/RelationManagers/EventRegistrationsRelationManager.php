@@ -25,7 +25,7 @@ class EventRegistrationsRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Membro')
+                    ->label('Utente')
                     ->weight('bold')
                     ->searchable(),
                 TextColumn::make('user.email')

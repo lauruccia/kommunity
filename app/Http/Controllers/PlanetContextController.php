@@ -25,7 +25,7 @@ class PlanetContextController extends Controller
         $isMember = $user->planets()->where('chapters.id', $chapter->id)->exists();
 
         if (! $isMember) {
-            abort(403, 'Non sei membro di questo Pianeta.');
+            abort(403, 'Non sei utente di questo Pianeta.');
         }
 
         // Aggiorna il pianeta attivo senza triggerare il listener profession-limit

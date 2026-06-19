@@ -14,7 +14,7 @@
                 Abbonamento richiesto
             </h1>
             <p style="margin-top:.75rem;font-size:.95rem;line-height:1.7;color:var(--km-text-muted);">
-                L'accesso alla Directory dei membri è riservato agli abbonati.
+                L'accesso alla Directory degli utenti è riservato agli abbonati.
                 Scegli un piano per connetterti con tutti i professionisti di Kommunity.
             </p>
 

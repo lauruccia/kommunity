@@ -103,11 +103,11 @@ class BannerPlacementResource extends Resource
     private static function sectionOptions(): array
     {
         return [
-            'directory' => 'Directory membri',
+            'directory' => 'Directory utenti',
             'dashboard' => 'Dashboard',
             'events' => 'Eventi',
             'forum' => 'Forum',
-            'member_profile' => 'Profilo membro',
+            'member_profile' => 'Profilo utente',
             'one_to_ones' => 'One-to-one',
             'referrals' => 'Referral',
             'messages' => 'Messaggi',

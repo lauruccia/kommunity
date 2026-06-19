@@ -95,7 +95,7 @@ class SubscriptionPlanResource extends Resource
                 ->default(0),
 
             Toggle::make('is_active')
-                ->label('Piano attivo (visibile ai membri)')
+                ->label('Piano attivo (visibile agli utenti)')
                 ->default(true),
 
             Repeater::make('features')

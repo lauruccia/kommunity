@@ -27,7 +27,7 @@
         <div class="km-panel p-6">
             <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                 <div class="min-w-0 flex-1">
-                    <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Onboarding membro</p>
+                    <p class="text-xs uppercase tracking-[0.24em] text-stone-500">Onboarding utente</p>
                     <h1 class="mt-3 font-serif text-2xl font-semibold text-stone-950 sm:text-3xl lg:text-4xl">Completa il profilo business e le preferenze di networking</h1>
                     <p class="mt-3 text-sm leading-7 text-stone-600">
                         Questa area alimenta directory interna, pagina personale, contatti rapidi, richieste one-to-one e visibilità nella kommunity.

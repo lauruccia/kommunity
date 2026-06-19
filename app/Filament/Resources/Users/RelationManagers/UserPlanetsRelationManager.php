@@ -108,7 +108,7 @@ class UserPlanetsRelationManager extends RelationManager
 
                         if ($alreadyMember) {
                             Notification::make()
-                                ->title('L\'utente è già membro di questo Pianeta.')
+                                ->title('L\'utente è già iscritto a questo Pianeta.')
                                 ->warning()
                                 ->send();
                             return;
@@ -158,7 +158,7 @@ class UserPlanetsRelationManager extends RelationManager
                     ->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading('Rimuovere dal Pianeta?')
-                    ->modalDescription('Il membro non sarà eliminato, ma perderà l\'accesso a questo Pianeta.')
+                    ->modalDescription('L\'utente non sarà eliminato, ma perderà l\'accesso a questo Pianeta.')
                     ->action(function (Chapter $record): void {
                         /** @var \App\Models\User $user */
                         $user = $this->getOwnerRecord();

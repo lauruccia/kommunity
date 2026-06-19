@@ -39,7 +39,7 @@ class UserResource extends Resource
     protected static ?string $navigationLabel = 'Utenti';
     protected static ?string $modelLabel = 'utente';
     protected static ?string $pluralModelLabel = 'utenti';
-    protected static string|\UnitEnum|null $navigationGroup = 'Membri';
+    protected static string|\UnitEnum|null $navigationGroup = 'Utenti';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
     public static function canViewAny(): bool
@@ -279,7 +279,7 @@ class UserResource extends Resource
                     )
                     ->requiresConfirmation()
                     ->modalHeading(fn (User $record): string => 'Impersonare ' . $record->name . '?')
-                    ->modalDescription('Accederai all\'area membri come questo utente. Un banner giallo in cima alla pagina ti permetterà di uscire.')
+                    ->modalDescription('Accederai all\'area utenti come questo utente. Un banner giallo in cima alla pagina ti permetterà di uscire.')
                     ->action(function (User $record): void {
                         $adminId = auth()->id();
                         \Illuminate\Support\Facades\Auth::login($record);

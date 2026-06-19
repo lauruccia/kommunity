@@ -24,7 +24,16 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
   2. Riprogrammazione: aggiunta colonna `rescheduled_by` per tracciare chi propone. Ora a confermare la nuova proposta è la CONTROPARTE; quando conferma, l'incontro passa subito ad "Accettato" senza attendere il proponente. Pulsante "Accetta" mostrato a chi deve rispondere anche in lista e in dashboard (`canRespondTo()`).
   3. CSS: fix hover del pulsante `.km-button-secondary` su tema scuro (era bianco su bianco, illeggibile) — override in `kommunity.css` scoped a `body.km-bg-dark` (nessun build necessario).
   4. Schermata verifica email post-registrazione semplificata.
-  5. Modale "Nuova richiesta": campo "Oppure proponi data e ora" reso sempre visibile (riquadro etichettato) anche quando il membro ha slot; slot disponibilità mostrati in griglia multi-colonna invece di uno per riga.
+  5. Modale "Nuova richiesta": campo "Oppure proponi data e ora" reso sempre visibile (riquadro etichettato) anche quando l'utente ha slot; slot disponibilità mostrati in griglia multi-colonna invece di uno per riga.
+
+## 2026-06-19 — Terminologia: "membro/membri" → "utente/utenti"
+
+- Cosa è cambiato: sostituito il testo visibile "membro/membri" con "utente/utenti" in tutto il sito utente E nel pannello admin (label Filament, notifiche, email, enum, messaggi flash, lang/it). Gestita l'elisione degli articoli (es. "del membro"→"dell'utente", "ai membri"→"agli utenti", "il membro"→"l'utente").
+- NON modificati (per non rompere nulla): il ruolo Spatie `'membro'` (assegnato alla registrazione, controllato dalle policy), i seed degli slug/referral (`'membro-'.id`, `?: 'membro'`), le chiavi permessi (`members.*`), gli identificatori interni (es. action key `aggiungi_membro`) e i commenti nel codice.
+- File: ~70 file tra `app/Filament`, `app/Notifications`, `app/Http/Controllers`, `app/Models`, `app/Enums`, `app/Observers`, `resources/views/**`, `lang/it/**`.
+- Nota tecnica: `resources/views/one-to-ones/index.blade.php` conteneva un byte UTF-8 troncato (in una riga di commento decorativa `─`) che aveva causato un troncamento del file in coda durante un'edit precedente; coda ripristinata dal backup di inizio sessione e file reso UTF-8 valido. Backup: `.bak.*`, `.bak2.*`, `.bak3.*`, `.truncated.*`.
+- SQL eseguito: NO
+- Bilingue: invariate le stringhe EN (`lang/en/`) che usano già "member/members".
 - Bug "completare un 1:1 ne completa un altro": INDAGATO. L'unico codice che scrive `*_completed_at`/`status=completed` è `OneToOneController::updateStatus`, che opera sul singolo record vincolato dalla route `{oneToOneRequest}`. Nessun update massivo / observer / comando schedulato / azione Filament tocca più record. Non riproducibile via codice (probabile dato pregresso o incontri reciproci). Nessuna modifica necessaria.
 - Motivazione: richieste utente (Laura) test one-to-one
 - SQL eseguito: NO — eseguire manualmente in phpMyAdmin:

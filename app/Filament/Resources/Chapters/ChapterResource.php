@@ -67,21 +67,21 @@ class ChapterResource extends Resource
                 Select::make('max_members_per_profession')
                     ->label('Max professionisti per categoria')
                     ->options([
-                        1 => '1 membro',
-                        2 => '2 membri',
-                        3 => '3 membri',
-                        4 => '4 membri',
-                        5 => '5 membri',
+                        1 => '1 utente',
+                        2 => '2 utenti',
+                        3 => '3 utenti',
+                        4 => '4 utenti',
+                        5 => '5 utenti',
                     ])
                     ->default(3)
                     ->required()
-                    ->helperText('Se il limite viene superato, il membro va in lista d\'attesa automaticamente.'),
+                    ->helperText('Se il limite viene superato, l\'utente va in lista d\'attesa automaticamente.'),
                 Toggle::make('enforce_profession_limit')
                     ->label('Attiva limitazioni professionisti')
                     ->helperText('Se disattivato, il limite per categoria viene ignorato e chiunque può iscriversi.'),
                 Toggle::make('is_invite_only')
                     ->label('Solo su invito')
-                    ->helperText('Se attivo, solo i membri invitati direttamente possono iscriversi.'),
+                    ->helperText('Se attivo, solo gli utenti invitati direttamente possono iscriversi.'),
                 FileUpload::make('cover_image')
                     ->label('Immagine copertina')
                     ->image()
@@ -112,7 +112,7 @@ class ChapterResource extends Resource
                     ->label('Leader principale (legacy)')
                     ->placeholder('-'),
                 TextEntry::make('max_members_per_profession')
-                    ->label('Max membri per professione'),
+                    ->label('Max utenti per professione'),
                 IconEntry::make('enforce_profession_limit')
                     ->label('Limitazioni professionisti attive')
                     ->boolean(),
@@ -154,7 +154,7 @@ class ChapterResource extends Resource
                     ->label('Limite/professione')
                     ->sortable(),
                 TextColumn::make('active_members_count')
-                    ->label('Membri attivi')
+                    ->label('Utenti attivi')
                     ->counts('activeMembers')
                     ->sortable(),
                 ImageColumn::make('cover_image')->label('Copertina'),

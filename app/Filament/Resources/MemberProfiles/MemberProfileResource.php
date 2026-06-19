@@ -34,10 +34,10 @@ use Filament\Tables\Table;
 class MemberProfileResource extends Resource
 {
     protected static ?string $model = MemberProfile::class;
-    protected static ?string $navigationLabel = 'Profili membri';
-    protected static ?string $modelLabel = 'profilo membro';
-    protected static ?string $pluralModelLabel = 'profili membri';
-    protected static string|\UnitEnum|null $navigationGroup = 'Membri';
+    protected static ?string $navigationLabel = 'Profili utenti';
+    protected static ?string $modelLabel = 'profilo utente';
+    protected static ?string $pluralModelLabel = 'profili utenti';
+    protected static string|\UnitEnum|null $navigationGroup = 'Utenti';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -46,7 +46,7 @@ class MemberProfileResource extends Resource
         return $schema
             ->components([
                 Select::make('user_id')
-                    ->label('Membro')
+                    ->label('Utente')
                     ->relationship('user', 'name')
                     ->required(),
                 TextInput::make('company_name')->label('Azienda'),
@@ -80,7 +80,7 @@ class MemberProfileResource extends Resource
                 Select::make('active_chapter_id')
                     ->label('Pianeta attivo (principale)')
                     ->relationship('chapter', 'name')
-                    ->helperText('Il pianeta attualmente attivo per questo membro.'),
+                    ->helperText('Il pianeta attualmente attivo per questo utente.'),
                 Select::make('admin_planets')
                     ->label('Tutti i Pianeti iscritti')
                     ->options(fn () => Chapter::orderBy('name')->pluck('name', 'id'))
@@ -127,7 +127,7 @@ class MemberProfileResource extends Resource
                     ->columnSpanFull(),
                 Toggle::make('use_ai_profile_rewrite')
                     ->label('Usa AI per rielaborare i testi')
-                    ->helperText('Quando il membro salva il profilo, i campi narrativi vengono riscritti in modo professionale.'),
+                    ->helperText('Quando l\'utente salva il profilo, i campi narrativi vengono riscritti in modo professionale.'),
                 TextInput::make('website')
                     ->label('Sito web')
                     ->maxLength(255)
@@ -240,7 +240,7 @@ class MemberProfileResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('user.name')
-                    ->label('Membro'),
+                    ->label('Utente'),
                 TextEntry::make('company_name')
                     ->label('Azienda')
                     ->placeholder('-'),
@@ -378,7 +378,7 @@ class MemberProfileResource extends Resource
             ->columns([
                 // ── Colonne sempre visibili (essenziali per identificare il membro) ──
                 TextColumn::make('user.name')
-                    ->label('Membro')
+                    ->label('Utente')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('company_name')

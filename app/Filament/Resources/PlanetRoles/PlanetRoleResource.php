@@ -40,7 +40,7 @@ class PlanetRoleResource extends Resource
         return $schema->components([
             TextInput::make('name')
                 ->label('Nome ruolo')
-                ->placeholder('es. Leader, Moderatore, Membro semplice')
+                ->placeholder('es. Leader, Moderatore, Utente semplice')
                 ->required()
                 ->maxLength(100)
                 ->live(onBlur: true)
@@ -68,7 +68,7 @@ class PlanetRoleResource extends Resource
 
             CheckboxList::make('permissions')
                 ->label('Permessi')
-                ->helperText('Seleziona cosa può fare un membro con questo ruolo nel suo Pianeta.')
+                ->helperText('Seleziona cosa può fare un utente con questo ruolo nel suo Pianeta.')
                 ->options(PlanetRole::availablePermissions())
                 ->columns(2)
                 ->columnSpanFull()
