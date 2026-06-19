@@ -7,7 +7,10 @@ use App\Enums\ReferralStatus;
 use App\Models\OneToOneRequest;
 use App\Models\Referral;
 use App\Models\User;
+use App\Notifications\ReferralConfirmedNotification;
 use App\Notifications\ReferralReceivedNotification;
+use App\Notifications\ReferralValueDeclaredNotification;
+use App\Services\ReferralScoreService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +21,7 @@ class ReferralController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request): View
+    public function index(Request $request, ReferralScoreService $scores): View
     {
         $user    = $request->user();
         $isAdmin = $user->hasAnyRole(['super-admin', 'admin-community']);
@@ -27,7 +30,7 @@ class ReferralController extends Controller
             'search'   => ['nullable', 'string', 'max:255'],
             'status'   => ['nullable', Rule::in(array_column(ReferralStatus::cases(), 'value'))],
             'priority' => ['nullable', Rule::in(['1', '2', '3', '4', '5'])],
-            'tab'      => ['nullable', 'string', 'in:ricevute,inviate,archivio,moderazione'],
+            'tab'      => ['nullable', 'string', 'in:ricevute,inviate,archivio,classifica,moderazione'],
         ]);
 
         $eligibleMemberIds = $this->eligibleRecipientIds($user->id);
@@ -57,10 +60,14 @@ class ReferralController extends Controller
             }
         }
 
-        // Per il pannello admin: tutte le referenze (paginato)
+        // Per il pannello admin: tutte le referenze (paginato), con priorità a quelle da validare.
         $adminReferrals = null;
+        $pendingValidation = 0;
         if ($isAdmin) {
-            $adminQuery = Referral::query()->with(['sender', 'recipient'])->latest();
+            $adminQuery = Referral::query()
+                ->with(['sender', 'recipient'])
+                ->orderByRaw("CASE WHEN status = '".ReferralStatus::Completed->value."' THEN 0 ELSE 1 END")
+                ->latest();
             if (! empty($filters['search'])) {
                 $adminQuery->where(function ($q) use ($filters): void {
                     $q->where('title', 'like', '%'.$filters['search'].'%')
@@ -68,6 +75,7 @@ class ReferralController extends Controller
                 });
             }
             $adminReferrals = $adminQuery->paginate(20, ['*'], 'admin');
+            $pendingValidation = Referral::query()->where('status', ReferralStatus::Completed->value)->count();
         }
 
         return view('referrals.index', [
@@ -81,21 +89,27 @@ class ReferralController extends Controller
             'sentReferrals' => $sentQuery->latest()->paginate(20, ['*'], 'inviate')->withQueryString(),
             'receivedReferrals' => $receivedQuery->latest()->paginate(20, ['*'], 'ricevute')->withQueryString(),
             'adminReferrals' => $adminReferrals,
+            'pendingValidation' => $pendingValidation,
             'statusOptions' => ReferralStatus::options(),
             'filters' => $filters,
             'eligibleMemberIds' => $eligibleMemberIds,
             'isAdmin' => $isAdmin,
             'activeTab' => $filters['tab'] ?? 'ricevute',
+            'leaderboard' => $scores->leaderboard(20),
+            'myScore'     => $scores->summaryFor($user->id),
             'summary' => [
                 'sent'     => Referral::query()->where('sender_id', $user->id)->count(),
                 'received' => Referral::query()->where('recipient_id', $user->id)->count(),
                 'open'     => Referral::query()
                     ->where(fn ($q) => $q->where('sender_id', $user->id)->orWhere('recipient_id', $user->id))
-                    ->whereNotIn('status', [ReferralStatus::Won->value, ReferralStatus::Lost->value, ReferralStatus::Archived->value])
+                    ->whereIn('status', [
+                        ReferralStatus::Sent->value, ReferralStatus::InProgress->value,
+                        ReferralStatus::InCharge->value, ReferralStatus::Contacted->value, ReferralStatus::Negotiating->value,
+                    ])
                     ->count(),
                 'won' => Referral::query()
                     ->where(fn ($q) => $q->where('sender_id', $user->id)->orWhere('recipient_id', $user->id))
-                    ->where('status', ReferralStatus::Won->value)
+                    ->confirmed()
                     ->count(),
             ],
         ]);
@@ -139,12 +153,28 @@ class ReferralController extends Controller
             ]);
     }
 
+    /**
+     * Aggiornamento "leggero" di stato/note/esito (presa in carico, annullamento).
+     * NON gestisce la dichiarazione del valore né la validazione (metodi dedicati).
+     */
     public function updateStatus(Request $request, Referral $referral): RedirectResponse
     {
         $this->authorize('updateStatus', $referral);
 
+        $isAdmin = $request->user()->hasAnyRole(['super-admin', 'admin-community']);
+
+        // Stati ammessi qui: solo transizioni operative. Confirmed/Rejected passano da validateValue().
+        $allowed = [
+            ReferralStatus::Sent->value,
+            ReferralStatus::InProgress->value,
+            ReferralStatus::Cancelled->value,
+        ];
+        if ($isAdmin) {
+            $allowed = array_column(ReferralStatus::currentCases(), 'value');
+        }
+
         $data = $request->validate([
-            'status'  => ['required', Rule::in(array_column(ReferralStatus::cases(), 'value'))],
+            'status'  => ['required', Rule::in($allowed)],
             'notes'   => ['nullable', 'string', 'max:3000'],
             'outcome' => ['nullable', 'string', 'max:3000'],
         ]);
@@ -154,18 +184,86 @@ class ReferralController extends Controller
         return back()->with('status', 'referral-updated');
     }
 
+    /**
+     * Il professionista (destinatario) prende in carico la referenza.
+     */
     public function acknowledge(Request $request, Referral $referral): RedirectResponse
     {
         $this->authorize('acknowledge', $referral);
 
-        if ($referral->status === ReferralStatus::Sent) {
+        if (in_array($referral->status, [ReferralStatus::Sent], true)) {
             $referral->update([
-                'status'          => ReferralStatus::InCharge,
+                'status'          => ReferralStatus::InProgress,
                 'acknowledged_at' => now(),
             ]);
         }
 
         return back()->with('status', 'referral-acknowledged');
+    }
+
+    /**
+     * Il professionista dichiara il valore della consulenza realizzata.
+     * "Grazie a <segnalatore> ho realizzato una consulenza di X €."
+     * → stato Completed, in attesa di validazione admin.
+     */
+    public function declareValue(Request $request, Referral $referral): RedirectResponse
+    {
+        $this->authorize('declareValue', $referral);
+
+        $data = $request->validate([
+            'declared_value' => ['required', 'numeric', 'min:0', 'max:99999999'],
+            'outcome'        => ['nullable', 'string', 'max:3000'],
+        ]);
+
+        $referral->update([
+            'declared_value' => $data['declared_value'],
+            'declared_at'    => now(),
+            'outcome'        => $data['outcome'] ?? $referral->outcome,
+            'status'         => ReferralStatus::Completed,
+        ]);
+
+        // Notifica il segnalatore e gli admin (validazione in attesa).
+        $referral->loadMissing('sender', 'recipient');
+        $referral->sender?->notify(new ReferralValueDeclaredNotification($referral));
+        $this->admins()->each->notify(new ReferralValueDeclaredNotification($referral));
+
+        return back()->with('status', 'referral-declared');
+    }
+
+    /**
+     * L'admin valida (o rifiuta) il valore dichiarato.
+     * Solo dopo l'approvazione il valore concorre alla classifica e ai premi.
+     */
+    public function validateValue(Request $request, Referral $referral): RedirectResponse
+    {
+        $this->authorize('validateValue', $referral);
+
+        $data = $request->validate([
+            'decision'       => ['required', Rule::in(['approve', 'reject'])],
+            'approved_value' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
+        ]);
+
+        if ($data['decision'] === 'approve') {
+            $referral->update([
+                'approved_value' => $data['approved_value'] ?? $referral->declared_value,
+                'approved_at'    => now(),
+                'approved_by'    => $request->user()->id,
+                'status'         => ReferralStatus::Confirmed,
+            ]);
+
+            $referral->loadMissing('sender');
+            $referral->sender?->notify(new ReferralConfirmedNotification($referral));
+
+            return back()->with('status', 'referral-confirmed');
+        }
+
+        $referral->update([
+            'approved_at' => now(),
+            'approved_by' => $request->user()->id,
+            'status'      => ReferralStatus::Rejected,
+        ]);
+
+        return back()->with('status', 'referral-rejected');
     }
 
     public function togglePublic(Request $request, Referral $referral): RedirectResponse
@@ -187,6 +285,14 @@ class ReferralController extends Controller
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * @return \Illuminate\Support\Collection<int, User>
+     */
+    private function admins()
+    {
+        return User::query()->whereHas('roles', fn ($q) => $q->whereIn('name', ['super-admin', 'admin-community']))->get();
+    }
 
     private function eligibleRecipientIds(int $userId): array
     {

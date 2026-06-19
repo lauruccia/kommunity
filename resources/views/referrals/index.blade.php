@@ -1,10 +1,9 @@
 <x-app-layout>
     @php
-        $openStatuses = ['sent', 'in_charge', 'contacted', 'negotiating'];
         $allItems     = $receivedReferrals->getCollection()->concat($sentReferrals->getCollection())->sortByDesc('updated_at');
-        $receivedOpen = $receivedReferrals->getCollection()->filter(fn ($r) => in_array($r->status->value, $openStatuses, true));
-        $sentOpen     = $sentReferrals->getCollection()->filter(fn ($r) => in_array($r->status->value, $openStatuses, true));
-        $archiveAll   = $allItems->filter(fn ($r) => ! in_array($r->status->value, $openStatuses, true));
+        $receivedOpen = $receivedReferrals->getCollection()->filter(fn ($r) => $r->status->isOpen());
+        $sentOpen     = $sentReferrals->getCollection()->filter(fn ($r) => $r->status->isOpen());
+        $archiveAll   = $allItems->filter(fn ($r) => ! $r->status->isOpen());
 
         $priorityStars = fn (?string $p) => match(true) {
             in_array($p, ['1','2','3','4','5'], true) => (int) $p,
@@ -13,14 +12,8 @@
             default         => 3,
         };
 
-        $statusClass = fn ($status) => match ($status?->value ?? $status) {
-            'sent'                              => 'kr-status-blue',
-            'in_charge','contacted','negotiating' => 'kr-status-green',
-            'won'                               => 'kr-status-won',
-            'lost'                              => 'kr-status-red',
-            'archived'                          => 'kr-status-slate',
-            default                             => 'kr-status-slate',
-        };
+        $statusClass = fn ($status) => $status instanceof \App\Enums\ReferralStatus ? $status->colorClass() : 'kr-status-slate';
+        $eur = fn ($v) => $v === null ? null : '€ ' . number_format((float) $v, 2, ',', '.');
     @endphp
 
     <style>
@@ -82,7 +75,11 @@
         .kr-status-blue   { background:rgba(113,151,255,.18); color:#adc0ff; }
         .kr-status-green  { background:rgba(121,200,67,.22); color:#a7ea76; }
         .kr-status-won    { background:rgba(46,213,115,.22); color:#6ffaac; }
+        .kr-status-amber  { background:rgba(246,195,67,.20); color:#f6c343; }
         .kr-status-red    { background:rgba(239,98,98,.16); color:#ff8888; }
+        .kr-value-pill { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:700; }
+        .kr-value-declared { background:rgba(246,195,67,.14); color:#f6c343; }
+        .kr-value-approved { background:rgba(46,213,115,.16); color:#6ffaac; }
         .kr-status-slate  { background:rgba(148,163,184,.18); color:#d0dae4; }
         .kr-dir-badge { border-radius:999px; padding:2px 9px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; }
         .kr-dir-in  { background:rgba(45,212,191,.14); color:#5eead4; }
@@ -178,6 +175,12 @@
             <div class="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">Stato referenza aggiornato.</div>
         @elseif (session('status') === 'referral-acknowledged')
             <div class="mb-4 rounded-xl border border-teal-400/30 bg-teal-400/10 px-4 py-3 text-sm text-teal-200">Referenza presa in carico. Il mittente è stato notificato.</div>
+        @elseif (session('status') === 'referral-declared')
+            <div class="mb-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">{{ __('referrals.flash.declared') }}</div>
+        @elseif (session('status') === 'referral-confirmed')
+            <div class="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">{{ __('referrals.flash.confirmed') }}</div>
+        @elseif (session('status') === 'referral-rejected')
+            <div class="mb-4 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">{{ __('referrals.flash.rejected') }}</div>
         @elseif (session('status') === 'referral-public')
             <div class="mb-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">Referenza ora visibile sul tuo profilo pubblico.</div>
         @elseif (session('status') === 'referral-private')
@@ -247,6 +250,9 @@
                     </button>
                     <button class="kr-tab {{ $activeTab === 'archivio' ? 'active' : '' }}" data-tab="archivio" onclick="switchTab('archivio')">
                         Archivio <span class="kr-tab-count">{{ $archiveAll->count() }}</span>
+                    </button>
+                    <button class="kr-tab {{ $activeTab === 'classifica' ? 'active' : '' }}" data-tab="classifica" onclick="switchTab('classifica')">
+                        🏆 {{ __('referrals.tabs.leaderboard') }}
                     </button>
                     @if ($isAdmin)
                         <button class="kr-tab admin-tab {{ $activeTab === 'moderazione' ? 'active' : '' }}" data-tab="moderazione" onclick="switchTab('moderazione')" style="margin-left:auto;">
@@ -320,6 +326,11 @@
                                         @if ($referral->is_public)
                                             <span class="kr-endorse-badge kr-endorse-on">★ Pubblica</span>
                                         @endif
+                                        @if ($referral->approved_value !== null)
+                                            <span class="kr-value-pill kr-value-approved">✓ {{ $eur($referral->approved_value) }}</span>
+                                        @elseif ($referral->declared_value !== null)
+                                            <span class="kr-value-pill kr-value-declared">{{ $eur($referral->declared_value) }} · {{ __('referrals.value.pending') }}</span>
+                                        @endif
                                     </div>
                                     <h3 class="mt-2 text-base font-semibold text-white">{{ $referral->title }}</h3>
                                     <p class="mt-1 text-sm" style="color:var(--kr-muted);">Da <strong class="text-white">{{ $referral->sender?->name ?? 'Utente eliminato' }}</strong>{{ $referral->company_name ? ' · '.$referral->company_name : '' }} · {{ $referral->created_at->format('d M Y') }}</p>
@@ -342,6 +353,19 @@
                                                 ✓ Prendi in carico
                                             </button>
                                         </form>
+                                    @endif
+                                    {{-- Dichiara valore consulenza (professionista) --}}
+                                    @if ($referral->status->isOpen())
+                                        <button type="button"
+                                            class="w-full rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-300 hover:bg-amber-400/20 transition"
+                                            data-action="{{ route('referrals.declare', $referral) }}"
+                                            data-title="{{ e($referral->title) }}"
+                                            data-sender="{{ e($referral->sender?->name ?? '') }}"
+                                            data-value="{{ $referral->declared_value }}"
+                                            data-outcome="{{ e($referral->outcome) }}"
+                                            onclick="openDeclareModal(this)">
+                                            💶 {{ __('referrals.actions.declare_value') }}
+                                        </button>
                                     @endif
                                     {{-- Gestisci (modal) --}}
                                     <button type="button"
@@ -389,6 +413,11 @@
                                         <span style="display:inline-flex;gap:.1rem;">
                                             @for ($s=1;$s<=5;$s++)<svg width="12" height="12" viewBox="0 0 24 24" fill="{{ $s<=$stars?'#FCD34D':'none' }}" stroke="#FCD34D" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>@endfor
                                         </span>
+                                        @if ($referral->approved_value !== null)
+                                            <span class="kr-value-pill kr-value-approved">✓ {{ $eur($referral->approved_value) }}</span>
+                                        @elseif ($referral->declared_value !== null)
+                                            <span class="kr-value-pill kr-value-declared">{{ $eur($referral->declared_value) }} · {{ __('referrals.value.pending') }}</span>
+                                        @endif
                                     </div>
                                     <h3 class="mt-2 text-base font-semibold text-white">{{ $referral->title }}</h3>
                                     <p class="mt-1 text-sm" style="color:var(--kr-muted);">A <strong class="text-white">{{ $referral->recipient?->name ?? 'Utente eliminato' }}</strong>{{ $referral->company_name ? ' · '.$referral->company_name : '' }} · {{ $referral->created_at->format('d M Y') }}</p>
@@ -472,6 +501,55 @@
                     @endforelse
                 </section>
 
+                {{-- ════════════════ TAB: CLASSIFICA ════════════════ --}}
+                <section id="tab-classifica" class="space-y-5 kr-tab-pane" style="{{ $activeTab !== 'classifica' ? 'display:none' : '' }}">
+                    {{-- Il mio punteggio --}}
+                    <div class="kr-card p-6">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <h2 class="text-lg font-semibold text-white">{{ __('referrals.leaderboard.title') }}</h2>
+                                <p class="mt-1 text-sm" style="color:var(--kr-muted);">{{ __('referrals.leaderboard.subtitle') }}</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="rounded-2xl border border-amber-400/25 bg-amber-400/10 px-5 py-3 text-center">
+                                    <div class="text-2xl font-bold" style="color:var(--kr-amber);">{{ $myScore['points'] }}</div>
+                                    <div class="text-xs" style="color:var(--kr-muted);">{{ __('referrals.leaderboard.my_points') }}</div>
+                                </div>
+                                <div class="rounded-2xl border border-emerald-400/25 bg-emerald-400/10 px-5 py-3 text-center">
+                                    <div class="text-2xl font-bold" style="color:#6ffaac;">{{ $eur($myScore['total_value']) ?? '€ 0,00' }}</div>
+                                    <div class="text-xs" style="color:var(--kr-muted);">{{ __('referrals.leaderboard.my_value') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-xs leading-5" style="color:var(--kr-soft);">
+                            <strong class="text-white">{{ __('referrals.leaderboard.how_title') }}:</strong> {{ __('referrals.leaderboard.how_body') }}
+                        </div>
+                    </div>
+
+                    {{-- Tabella classifica --}}
+                    <div class="kr-card overflow-hidden">
+                        <div class="border-b border-white/10 px-6 py-4">
+                            <h3 class="text-base font-semibold text-white">🏆 Top {{ $leaderboard->count() }}</h3>
+                        </div>
+                        @forelse ($leaderboard as $i => $row)
+                            <div class="kr-admin-row hover:bg-white/[.02]" style="grid-template-columns:50px minmax(0,1fr) 150px 140px 90px;">
+                                <span class="text-lg font-bold" style="color:{{ $i < 3 ? 'var(--kr-amber)' : 'var(--kr-muted)' }};">{{ $i + 1 }}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-semibold text-white">{{ $row['user']->name }}</span>
+                                    @if ($row['user']->id === auth()->id())
+                                        <span class="kr-value-pill kr-value-approved" style="font-size:10px;">{{ __('referrals.leaderboard.you') }}</span>
+                                    @endif
+                                </div>
+                                <span class="text-sm" style="color:var(--kr-muted);">{{ $row['confirmed_count'] }} {{ __('referrals.leaderboard.referrals') }}</span>
+                                <span class="text-sm font-semibold" style="color:#6ffaac;">{{ $eur($row['total_value']) }}</span>
+                                <span class="kr-value-pill kr-value-declared">{{ $row['points'] }} pt</span>
+                            </div>
+                        @empty
+                            <div class="px-6 py-12 text-center text-sm" style="color:var(--kr-muted);">{{ __('referrals.leaderboard.empty') }}</div>
+                        @endforelse
+                    </div>
+                </section>
+
                 {{-- ════════════════ TAB: MODERAZIONE (ADMIN) ════════════════ --}}
                 @if ($isAdmin)
                 <section id="tab-moderazione" class="kr-card overflow-hidden kr-tab-pane" style="{{ $activeTab !== 'moderazione' ? 'display:none' : '' }}">
@@ -489,6 +567,11 @@
                                 @if ($referral->company_name)
                                     <p class="text-xs mt-0.5" style="color:var(--kr-soft);">{{ $referral->company_name }}</p>
                                 @endif
+                                @if ($referral->approved_value !== null)
+                                    <span class="kr-value-pill kr-value-approved mt-1" style="font-size:10px;">✓ {{ $eur($referral->approved_value) }}</span>
+                                @elseif ($referral->declared_value !== null)
+                                    <span class="kr-value-pill kr-value-declared mt-1" style="font-size:10px;">{{ $eur($referral->declared_value) }} · {{ __('referrals.value.pending') }}</span>
+                                @endif
                             </div>
                             <div class="text-xs" style="color:var(--kr-muted);">
                                 <span class="text-white">{{ $referral->sender?->name ?? '?' }}</span>
@@ -497,7 +580,20 @@
                             </div>
                             <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
                             <span class="text-xs" style="color:var(--kr-muted);">{{ $referral->created_at->format('d/m/Y') }}</span>
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                @if ($referral->status->value === 'completed')
+                                    <form method="POST" action="{{ route('referrals.validate', $referral) }}">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="decision" value="approve">
+                                        <input type="hidden" name="approved_value" value="{{ $referral->declared_value }}">
+                                        <button type="submit" class="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-400/20 transition" title="{{ __('referrals.actions.approve') }}">✓ {{ __('referrals.actions.approve') }}</button>
+                                    </form>
+                                    <form method="POST" action="{{ route('referrals.validate', $referral) }}" onsubmit="return confirm('{{ __('referrals.actions.reject') }}?')">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="decision" value="reject">
+                                        <button type="submit" class="rounded-lg border border-rose-400/20 bg-rose-400/10 px-3 py-1.5 text-xs font-semibold text-rose-300 hover:bg-rose-400/20 transition">{{ __('referrals.actions.reject') }}</button>
+                                    </form>
+                                @endif
                                 <button type="button"
                                     class="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/5 transition"
                                     data-role="admin"
@@ -551,10 +647,11 @@
                     <div>
                         <label class="mb-1 block text-sm text-white">Stato</label>
                         <select id="kr-m-status" name="status" class="kr-input h-11 w-full rounded-lg px-3">
-                            @foreach ($statusOptions as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
-                            @endforeach
+                            <option value="sent">{{ __('referrals.status.sent') }}</option>
+                            <option value="in_progress">{{ __('referrals.status.in_progress') }}</option>
+                            <option value="cancelled">{{ __('referrals.status.cancelled') }}</option>
                         </select>
+                        <p class="mt-1 text-xs" style="color:var(--kr-soft);">Per registrare il valore della consulenza usa il pulsante "{{ __('referrals.actions.declare_value') }}".</p>
                     </div>
                     <div>
                         <label class="mb-1 block text-sm text-white">Esito</label>
@@ -600,7 +697,48 @@
         </div>
     </div>
 
+    {{-- ── MODALE: DICHIARA VALORE (professionista) ──────────────────────── --}}
+    <div id="kr-declare-backdrop" style="display:none;position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;">
+        <div class="kr-card w-full p-7" style="max-width:480px;position:relative;">
+            <button type="button" onclick="closeDeclareModal()" style="position:absolute;top:16px;right:18px;background:none;border:none;color:rgba(255,255,255,.45);font-size:22px;cursor:pointer;">✕</button>
+            <p class="text-xs font-semibold uppercase tracking-widest" style="color:var(--kr-amber);">💶 {{ __('referrals.actions.declare_value') }}</p>
+            <h2 id="kr-d-title" class="mt-2 text-xl font-semibold text-white pr-8"></h2>
+            <p id="kr-d-sender" class="mt-1 text-sm" style="color:var(--kr-soft);"></p>
+            <form id="kr-d-form" method="POST" class="mt-5 space-y-4">
+                @csrf @method('PATCH')
+                <div>
+                    <label class="mb-1 block text-sm text-white">{{ __('referrals.value.amount_label') }}</label>
+                    <input type="number" step="0.01" min="0" name="declared_value" id="kr-d-value" class="kr-input h-12 w-full rounded-xl px-4" placeholder="1000.00" required>
+                    <p class="mt-1 text-xs" style="color:var(--kr-soft);">{{ __('referrals.value.amount_help') }}</p>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm text-white">Esito / nota</label>
+                    <textarea name="outcome" id="kr-d-outcome" rows="2" class="kr-input w-full rounded-xl px-4 py-2"></textarea>
+                </div>
+                <button type="submit" class="kr-primary h-12 w-full rounded-xl font-semibold">{{ __('referrals.actions.declare_submit') }}</button>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // ── Declare value modal ────────────────────────────────────────────
+        function openDeclareModal(btn) {
+            document.getElementById('kr-d-title').textContent  = btn.dataset.title || '';
+            document.getElementById('kr-d-sender').textContent = btn.dataset.sender ? ('Segnalata da ' + btn.dataset.sender) : '';
+            document.getElementById('kr-d-form').action        = btn.dataset.action;
+            document.getElementById('kr-d-value').value        = btn.dataset.value || '';
+            document.getElementById('kr-d-outcome').value      = btn.dataset.outcome || '';
+            document.getElementById('kr-declare-backdrop').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeDeclareModal() {
+            document.getElementById('kr-declare-backdrop').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        document.getElementById('kr-declare-backdrop').addEventListener('click', function (e) {
+            if (e.target === this) closeDeclareModal();
+        });
+
         // ── Tab switching ──────────────────────────────────────────────────
         function switchTab(tab) {
             document.querySelectorAll('.kr-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));

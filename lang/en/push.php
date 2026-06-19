@@ -32,6 +32,14 @@ return [
     // ReferralReceived
     'referral_received_title' => '🔗 New referral from :name',
 
+    // ReferralValueDeclared
+    'referral_declared_title' => '💶 Consulting value declared',
+    'referral_declared_body'  => ':pro declared a consulting worth :amount',
+
+    // ReferralConfirmed
+    'referral_confirmed_title' => '🏆 Referral confirmed',
+    'referral_confirmed_body'  => 'The value of :amount has been validated and counts towards the leaderboard',
+
     // SubscriptionApproved
     'subscription_approved_title' => '🎉 Subscription approved',
     'subscription_approved_body'  => 'Your :plan subscription has been approved.',

@@ -40,6 +40,22 @@ class ReferralPolicy
     }
 
     /**
+     * Dichiarare il valore della consulenza realizzata: solo il professionista (destinatario).
+     */
+    public function declareValue(User $user, Referral $referral): bool
+    {
+        return $user->id === $referral->recipient_id;
+    }
+
+    /**
+     * Validare/rifiutare il valore dichiarato: solo admin.
+     */
+    public function validateValue(User $user, Referral $referral): bool
+    {
+        return $this->isAdmin($user);
+    }
+
+    /**
      * Rendere pubblica/privata una referenza: solo destinatario.
      */
     public function togglePublic(User $user, Referral $referral): bool

@@ -32,6 +32,14 @@ return [
     // ReferralReceived
     'referral_received_title' => '🔗 Nuovo referral da :name',
 
+    // ReferralValueDeclared
+    'referral_declared_title' => '💶 Valore consulenza dichiarato',
+    'referral_declared_body'  => ':pro ha dichiarato una consulenza di :amount',
+
+    // ReferralConfirmed
+    'referral_confirmed_title' => '🏆 Referenza confermata',
+    'referral_confirmed_body'  => 'Il valore di :amount è stato validato e conta per la classifica',
+
     // SubscriptionApproved
     'subscription_approved_title' => '🎉 Abbonamento approvato',
     'subscription_approved_body'  => 'Il tuo abbonamento :plan è stato approvato.',
