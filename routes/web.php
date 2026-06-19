@@ -169,6 +169,7 @@ Route::middleware(['auth', 'verified', 'onboarding'])->group(function () {
     Route::patch('/referenze/{referral}/status', [ReferralController::class, 'updateStatus'])->name('referrals.status');
     Route::patch('/referenze/{referral}/acknowledge', [ReferralController::class, 'acknowledge'])->name('referrals.acknowledge');
     Route::patch('/referenze/{referral}/dichiara-valore', [ReferralController::class, 'declareValue'])->name('referrals.declare');
+    Route::patch('/referenze/{referral}/conferma-cliente', [ReferralController::class, 'clientConfirm'])->name('referrals.client-confirm');
     Route::patch('/referenze/{referral}/valida-valore', [ReferralController::class, 'validateValue'])->name('referrals.validate');
     Route::patch('/referenze/{referral}/toggle-public', [ReferralController::class, 'togglePublic'])->name('referrals.toggle-public');
     Route::delete('/referenze/{referral}', [ReferralController::class, 'destroy'])->name('referrals.destroy');

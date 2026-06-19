@@ -1,9 +1,10 @@
 <x-app-layout>
     @php
         $allItems     = $receivedReferrals->getCollection()->concat($sentReferrals->getCollection())->sortByDesc('updated_at');
-        $receivedOpen = $receivedReferrals->getCollection()->filter(fn ($r) => $r->status->isOpen());
-        $sentOpen     = $sentReferrals->getCollection()->filter(fn ($r) => $r->status->isOpen());
-        $archiveAll   = $allItems->filter(fn ($r) => ! $r->status->isOpen());
+        $receivedOpen = $receivedReferrals->getCollection()->filter(fn ($r) => ! $r->status->isFinal());
+        $sentOpen     = $sentReferrals->getCollection()->filter(fn ($r) => ! $r->status->isFinal());
+        $archiveAll   = $allItems->filter(fn ($r) => $r->status->isFinal());
+        $clientOpen   = $clientReferrals->getCollection()->filter(fn ($r) => ! $r->status->isFinal());
 
         $priorityStars = fn (?string $p) => match(true) {
             in_array($p, ['1','2','3','4','5'], true) => (int) $p,
@@ -76,6 +77,7 @@
         .kr-status-green  { background:rgba(121,200,67,.22); color:#a7ea76; }
         .kr-status-won    { background:rgba(46,213,115,.22); color:#6ffaac; }
         .kr-status-amber  { background:rgba(246,195,67,.20); color:#f6c343; }
+        .kr-status-teal   { background:rgba(45,212,191,.20); color:#5eead4; }
         .kr-status-red    { background:rgba(239,98,98,.16); color:#ff8888; }
         .kr-value-pill { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:700; }
         .kr-value-declared { background:rgba(246,195,67,.14); color:#f6c343; }
@@ -177,6 +179,8 @@
             <div class="mb-4 rounded-xl border border-teal-400/30 bg-teal-400/10 px-4 py-3 text-sm text-teal-200">Referenza presa in carico. Il mittente è stato notificato.</div>
         @elseif (session('status') === 'referral-declared')
             <div class="mb-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">{{ __('referrals.flash.declared') }}</div>
+        @elseif (session('status') === 'referral-client-confirmed')
+            <div class="mb-4 rounded-xl border border-teal-400/30 bg-teal-400/10 px-4 py-3 text-sm text-teal-200">{{ __('referrals.flash.client_confirmed') }}</div>
         @elseif (session('status') === 'referral-confirmed')
             <div class="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">{{ __('referrals.flash.confirmed') }}</div>
         @elseif (session('status') === 'referral-rejected')
@@ -193,8 +197,8 @@
 
             {{-- ── SIDEBAR FORM ──────────────────────────────────────────── --}}
             <aside class="kr-card p-5">
-                <h2 class="text-xl font-semibold text-white">Nuova referenza</h2>
-                <p class="mt-3 text-sm leading-6" style="color:var(--kr-muted);">Puoi inviare una referenza solo a utenti con cui hai un one-to-one completato e confermato da entrambi.</p>
+                <h2 class="text-xl font-semibold text-white">{{ __('referrals.form.title') }}</h2>
+                <p class="mt-3 text-sm leading-6" style="color:var(--kr-muted);">{{ __('referrals.form.intro') }}</p>
 
                 @if ($errors->any())
                     <div class="mt-4 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
@@ -212,15 +216,29 @@
                 @else
                     <form method="POST" action="{{ route('referrals.store') }}" class="mt-6 space-y-4">
                         @csrf
-                        <select name="recipient_id" class="kr-input h-12 w-full rounded-xl px-4" required>
-                            <option value="">Seleziona destinatario</option>
-                            @foreach ($members as $member)
-                                <option value="{{ $member->id }}" @selected((string) old('recipient_id') === (string) $member->id)>{{ $member->name }}</option>
-                            @endforeach
-                        </select>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-white">{{ __('referrals.form.professional') }}</label>
+                            <select name="recipient_id" class="kr-input h-12 w-full rounded-xl px-4" required>
+                                <option value="">{{ __('referrals.form.professional_ph') }}</option>
+                                @foreach ($members as $member)
+                                    <option value="{{ $member->id }}" @selected((string) old('recipient_id') === (string) $member->id)>{{ $member->name }}</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs" style="color:var(--kr-soft);">{{ __('referrals.form.professional_help') }}</p>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-semibold text-white">{{ __('referrals.form.client') }}</label>
+                            <select name="client_user_id" class="kr-input h-12 w-full rounded-xl px-4" required>
+                                <option value="">{{ __('referrals.form.client_ph') }}</option>
+                                @foreach ($clientMembers as $member)
+                                    <option value="{{ $member->id }}" @selected((string) old('client_user_id') === (string) $member->id)>{{ $member->name }}</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs" style="color:var(--kr-soft);">{{ __('referrals.form.client_help') }}</p>
+                        </div>
                         <input type="text" name="title" value="{{ old('title') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Titolo opportunità" required>
-                        <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità — contesto, obiettivo, perché questo utente può aiutare" required>{{ old('description') }}</textarea>
-                        <input type="text" name="company_name" value="{{ old('company_name') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Azienda (opzionale)">
+                        <textarea name="description" rows="4" class="kr-input w-full rounded-xl px-4 py-3" placeholder="Descrivi l'opportunità — contesto, obiettivo, perché questo professionista può aiutare il cliente" required>{{ old('description') }}</textarea>
+                        <input type="text" name="company_name" value="{{ old('company_name') }}" class="kr-input h-12 w-full rounded-xl px-4" placeholder="Azienda del cliente (opzionale)">
                         <div>
                             <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:rgba(222,235,238,.55);margin-bottom:.5rem;">Qualità dell'opportunità</p>
                             <div id="kr-new-stars" style="display:flex;gap:.3rem;">
@@ -232,7 +250,7 @@
                             </div>
                             <input type="hidden" name="priority" id="kr-new-priority" value="{{ old('priority','3') }}">
                         </div>
-                        <button type="submit" class="kr-primary h-12 w-full rounded-xl font-semibold">Invia referenza</button>
+                        <button type="submit" class="kr-primary h-12 w-full rounded-xl font-semibold">{{ __('referrals.form.submit') }}</button>
                     </form>
                 @endif
             </aside>
@@ -246,7 +264,10 @@
                         Ricevute <span class="kr-tab-count">{{ $receivedOpen->count() }}</span>
                     </button>
                     <button class="kr-tab {{ $activeTab === 'inviate' ? 'active' : '' }}" data-tab="inviate" onclick="switchTab('inviate')">
-                        Inviate <span class="kr-tab-count">{{ $sentOpen->count() }}</span>
+                        {{ __('referrals.tabs.sent') }} <span class="kr-tab-count">{{ $sentOpen->count() }}</span>
+                    </button>
+                    <button class="kr-tab {{ $activeTab === 'segnalato' ? 'active' : '' }}" data-tab="segnalato" onclick="switchTab('segnalato')">
+                        🙌 {{ __('referrals.tabs.client') }} <span class="kr-tab-count">{{ $clientOpen->count() }}</span>
                     </button>
                     <button class="kr-tab {{ $activeTab === 'archivio' ? 'active' : '' }}" data-tab="archivio" onclick="switchTab('archivio')">
                         Archivio <span class="kr-tab-count">{{ $archiveAll->count() }}</span>
@@ -333,7 +354,7 @@
                                         @endif
                                     </div>
                                     <h3 class="mt-2 text-base font-semibold text-white">{{ $referral->title }}</h3>
-                                    <p class="mt-1 text-sm" style="color:var(--kr-muted);">Da <strong class="text-white">{{ $referral->sender?->name ?? 'Utente eliminato' }}</strong>{{ $referral->company_name ? ' · '.$referral->company_name : '' }} · {{ $referral->created_at->format('d M Y') }}</p>
+                                    <p class="mt-1 text-sm" style="color:var(--kr-muted);">Da <strong class="text-white">{{ $referral->sender?->name ?? 'Utente eliminato' }}</strong> · 🙋 {{ __('referrals.roles.client') }}: <strong class="text-white">{{ $referral->client?->name ?? ($referral->company_name ?: '—') }}</strong> · {{ $referral->created_at->format('d M Y') }}</p>
                                     <p class="mt-2 text-sm leading-6" style="color:var(--kr-soft);">{{ Str::limit($referral->description, 140) }}</p>
                                 </div>
 
@@ -420,7 +441,7 @@
                                         @endif
                                     </div>
                                     <h3 class="mt-2 text-base font-semibold text-white">{{ $referral->title }}</h3>
-                                    <p class="mt-1 text-sm" style="color:var(--kr-muted);">A <strong class="text-white">{{ $referral->recipient?->name ?? 'Utente eliminato' }}</strong>{{ $referral->company_name ? ' · '.$referral->company_name : '' }} · {{ $referral->created_at->format('d M Y') }}</p>
+                                    <p class="mt-1 text-sm" style="color:var(--kr-muted);">A <strong class="text-white">{{ $referral->recipient?->name ?? 'Utente eliminato' }}</strong> · 🙋 {{ __('referrals.roles.client') }}: <strong class="text-white">{{ $referral->client?->name ?? ($referral->company_name ?: '—') }}</strong> · {{ $referral->created_at->format('d M Y') }}</p>
                                     <p class="mt-2 text-sm leading-6" style="color:var(--kr-soft);">{{ Str::limit($referral->description, 140) }}</p>
                                 </div>
                                 <div class="text-sm" style="color:var(--kr-muted);">
@@ -499,6 +520,59 @@
                     @empty
                         <div class="px-6 py-12 text-center text-sm" style="color:var(--kr-muted);">Nessuna referenza in archivio.</div>
                     @endforelse
+                </section>
+
+                {{-- ════════════════ TAB: SONO STATO SEGNALATO (CLIENTE) ════════════════ --}}
+                <section id="tab-segnalato" class="kr-card overflow-hidden kr-tab-pane" style="{{ $activeTab !== 'segnalato' ? 'display:none' : '' }}">
+                    <div class="flex items-center justify-between border-b border-white/10 px-6 py-4">
+                        <h2 class="text-lg font-semibold text-white">🙌 {{ __('referrals.tabs.client') }}</h2>
+                        <span class="text-sm" style="color:var(--kr-muted);">{{ $clientOpen->count() }}</span>
+                    </div>
+                    @forelse ($clientOpen as $referral)
+                        <div class="kr-referral-row">
+                            <div class="kr-referral-grid">
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="kr-dir-badge kr-dir-in">🙌 {{ __('referrals.roles.client') }}</span>
+                                        <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
+                                        @if ($referral->approved_value !== null)
+                                            <span class="kr-value-pill kr-value-approved">✓ {{ $eur($referral->approved_value) }}</span>
+                                        @elseif ($referral->declared_value !== null)
+                                            <span class="kr-value-pill kr-value-declared">{{ $eur($referral->declared_value) }}</span>
+                                        @endif
+                                    </div>
+                                    <h3 class="mt-2 text-base font-semibold text-white">{{ $referral->title }}</h3>
+                                    <p class="mt-1 text-sm" style="color:var(--kr-muted);">
+                                        {{ __('referrals.roles.professional') }}: <strong class="text-white">{{ $referral->recipient?->name ?? '—' }}</strong>
+                                        · {{ __('referrals.roles.sender') }}: <strong class="text-white">{{ $referral->sender?->name ?? '—' }}</strong>
+                                    </p>
+                                    <p class="mt-2 text-sm leading-6" style="color:var(--kr-soft);">{{ Str::limit($referral->description, 140) }}</p>
+                                </div>
+                                <div class="text-sm" style="color:var(--kr-muted);">
+                                    <div>{{ $referral->created_at->format('d M Y') }}</div>
+                                    @if ($referral->client_confirmed_at)
+                                        <div class="mt-1" style="color:var(--kr-teal);">✓ Confermato {{ $referral->client_confirmed_at->format('d M') }}</div>
+                                    @endif
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    @if ($referral->status->value === 'completed')
+                                        <form method="POST" action="{{ route('referrals.client-confirm', $referral) }}">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="w-full rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2.5 text-sm font-semibold text-emerald-300 hover:bg-emerald-400/20 transition">
+                                                ✓ {{ __('referrals.actions.client_confirm') }}
+                                            </button>
+                                        </form>
+                                        <p class="text-xs leading-5" style="color:var(--kr-soft);">{{ __('referrals.actions.client_confirm_help') }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="px-6 py-12 text-center text-sm" style="color:var(--kr-muted);">Nessuna referenza in cui sei stato segnalato.</div>
+                    @endforelse
+                    @if ($clientReferrals->hasPages())
+                        <div class="px-6 py-4 border-t border-white/10">{{ $clientReferrals->links() }}</div>
+                    @endif
                 </section>
 
                 {{-- ════════════════ TAB: CLASSIFICA ════════════════ --}}
@@ -581,7 +655,7 @@
                             <span class="kr-status {{ $statusClass($referral->status) }}">{{ $referral->status->label() }}</span>
                             <span class="text-xs" style="color:var(--kr-muted);">{{ $referral->created_at->format('d/m/Y') }}</span>
                             <div class="flex items-center gap-2 flex-wrap">
-                                @if ($referral->status->value === 'completed')
+                                @if (in_array($referral->status->value, ['completed', 'client_confirmed'], true))
                                     <form method="POST" action="{{ route('referrals.validate', $referral) }}">
                                         @csrf @method('PATCH')
                                         <input type="hidden" name="decision" value="approve">

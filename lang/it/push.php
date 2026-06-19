@@ -32,6 +32,14 @@ return [
     // ReferralReceived
     'referral_received_title' => '🔗 Nuovo referral da :name',
 
+    // ReferralClientReferred
+    'referral_client_referred_title' => '🙌 Sei stato segnalato',
+    'referral_client_referred_body'  => ':sender ti ha consigliato a :pro',
+
+    // ReferralClientConfirmed
+    'referral_client_confirmed_title' => '✅ Cliente ha confermato il servizio',
+    'referral_client_confirmed_body'  => ':client ha confermato la consulenza ricevuta',
+
     // ReferralValueDeclared
     'referral_declared_title' => '💶 Valore consulenza dichiarato',
     'referral_declared_body'  => ':pro ha dichiarato una consulenza di :amount',

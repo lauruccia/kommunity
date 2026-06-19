@@ -1,107 +1,126 @@
-# Referenze 2.0 — Valore generato e premi
+# Referenze 2.0 — Tre attori, valore generato e premi
 
-Proposta concreta e implementazione per la revisione del sistema **Referenze**.
+Proposta e implementazione della revisione del sistema **Referenze**.
 
-## 1. Il problema da risolvere
+## 1. I tre attori
 
-Il flusso reale è a **tre attori**:
+| Attore | Ruolo | Esempio |
+|--------|-------|---------|
+| **Segnalatore** | Crea la segnalazione, collega cliente e professionista | Francesco |
+| **Professionista** | Riceve il lavoro, esegue la consulenza, dichiara il valore | il commercialista |
+| **Cliente segnalato** | Il membro che ha bisogno del servizio, conferma di averlo ricevuto | Fabbro |
 
-1. **Segnalatore** (Francesco) — fa parte della Kommunity, conosce un bisogno.
-2. **Professionista** (il commercialista) — anche lui in Kommunity, riceve il lavoro.
-3. **Cliente segnalato** (l'amico Fabbro) — la persona che ha bisogno del servizio.
+Tutti e tre sono **membri della Kommunity** e hanno una propria vista sullo stato della referenza.
 
-> Francesco al commercialista: «Ti segnalo il mio amico Fabbro che ha bisogno di un commercialista.»
-> A consulenza conclusa il commercialista dichiara: «Grazie a Francesco ho fatto una consulenza da 1.000 €.»
-
-Il valore così generato deve essere **tracciato, validato e premiato**: chi porta più valore alla Kommunity sale in classifica e potrà ricevere premi.
-
-Nel sistema attuale mancavano tre cose: la **dichiarazione del valore realizzato** da parte del professionista, una **validazione** di quel valore, e una **classifica** che trasformi il valore in punti.
+> Francesco collega Fabbro (che ha bisogno di un commercialista) al commercialista della Kommunity.
+> Sia il commercialista sia Fabbro vengono avvisati. A lavoro concluso il commercialista dichiara «consulenza da 1.000 €», Fabbro conferma di averla ricevuta, l'admin valida, e Francesco prende i punti.
 
 ## 2. Decisioni di prodotto adottate
 
 | Tema | Scelta |
 |------|--------|
-| Chi riceve i punti/premi | **Il segnalatore** (chi genera valore per la Kommunity) |
-| Validazione del valore | **Approvazione admin** prima che entri in classifica |
-| Cliente segnalato | Resta come testo libero (campi *Azienda / cliente* e *Contatto*) |
+| Chi riceve i punti/premi | **Il segnalatore** |
+| Validazione del valore | **Approvazione admin** |
+| Cliente segnalato | **Membro Kommunity** (vista + notifiche) |
+| Destinatario della segnalazione | **Entrambi** (professionista + cliente avvisati) |
+| Conferma del servizio | **Sì, il cliente conferma** prima della validazione admin |
 
-## 3. Nuovo ciclo di vita degli stati
+## 3. Ciclo di vita degli stati
 
-Stati ridisegnati (più chiari, sostituiscono i vecchi `in_charge/contacted/negotiating/won/lost/archived`):
-
-| Stato | Significato | Chi lo imposta |
-|-------|-------------|----------------|
-| **Inviata** (`sent`) | Segnalazione appena creata | Segnalatore (automatico) |
-| **In corso** (`in_progress`) | Il professionista l'ha presa in carico | Professionista |
-| **Conclusa (da validare)** (`completed`) | Valore dichiarato, in attesa di controllo | Professionista (dichiara importo) |
+| Stato | Significato | Chi agisce |
+|-------|-------------|-----------|
+| **Inviata** (`sent`) | Segnalatore collega cliente ↔ professionista | Segnalatore |
+| **In corso** (`in_progress`) | Il professionista ha preso in carico | Professionista |
+| **Valore dichiarato** (`completed`) | Importo dichiarato, in attesa di conferma cliente | Professionista |
+| **Confermata dal cliente** (`client_confirmed`) | Il cliente ha confermato il servizio, in attesa admin | Cliente |
 | **Confermata** (`confirmed`) | Valore validato → **conta per classifica e premi** | Admin |
 | **Annullata** (`cancelled`) | Non andata a buon fine | Professionista/Admin |
 | **Valore rifiutato** (`rejected`) | Importo non approvato | Admin |
 
-I dati storici vengono migrati automaticamente: `in_charge/contacted/negotiating → in_progress`, `won → confirmed` (con valore = stima), `lost/archived → cancelled`.
+Migrazione automatica dei dati storici: `in_charge/contacted/negotiating → in_progress`, `won → confirmed`, `lost/archived → cancelled`.
 
-## 4. Il flusso completo
+## 4. Funzioni per attore
 
-1. **Segnalo** → creo la referenza verso il professionista (stato *Inviata*).
-2. **Prende in carico** → il professionista clicca "Prendi in carico" (*In corso*).
-3. **Dichiara il valore** → a lavoro concluso il professionista clicca **💶 Dichiara valore consulenza**, inserisce l'importo (es. 1.000 €) ed eventuale esito (*Conclusa, da validare*). Segnalatore e admin vengono notificati.
-4. **Validazione admin** → un admin **Approva** (l'importo entra in classifica, stato *Confermata*) oppure **Rifiuta** (*Valore rifiutato*). Può correggere l'importo dal pannello.
-5. **Classifica** → il valore confermato aggiorna automaticamente i punti del segnalatore.
+| Funzione | Segnalatore | Professionista | Cliente | Admin |
+|---|:--:|:--:|:--:|:--:|
+| Crea la referenza (sceglie professionista **e** cliente) | ✅ | | | |
+| Riceve notifica alla creazione | | ✅ | ✅ | |
+| Prende in carico / contatta | | ✅ | | |
+| Dichiara il valore | | ✅ | | |
+| Conferma il servizio ricevuto | | | ✅ | |
+| Valida il valore | | | | ✅ |
+| Vede lo stato | ✅ (tab *Inviate*) | ✅ (tab *Ricevute*) | ✅ (tab *Sono stato segnalato*) | ✅ (Moderazione + Filament) |
+| Riceve i punti/premi | ✅ | | | |
 
-## 5. Dati: nuove colonne su `referrals`
+## 5. Il flusso completo
+
+1. **Segnalo** → il segnalatore sceglie **professionista** e **cliente**, crea la referenza (*Inviata*). Professionista e cliente vengono notificati.
+2. **Prende in carico** → il professionista (*In corso*).
+3. **Dichiara il valore** → il professionista inserisce l'importo (*Valore dichiarato*); cliente e segnalatore notificati.
+4. **Conferma cliente** → il cliente clicca "Conferma servizio ricevuto" (*Confermata dal cliente*); segnalatore e admin notificati.
+5. **Validazione admin** → l'admin **Approva** (*Confermata*, entra in classifica) o **Rifiuta** (*Valore rifiutato*).
+6. **Classifica** → i punti del segnalatore si aggiornano.
+
+## 6. Dati: colonne su `referrals`
 
 | Colonna | Tipo | Uso |
 |---------|------|-----|
+| `client_user_id` | FK users | **Il cliente segnalato (membro)** |
 | `declared_value` | DECIMAL(12,2) | Importo dichiarato dal professionista |
 | `declared_at` | TIMESTAMP | Quando è stato dichiarato |
+| `client_confirmed_at` | TIMESTAMP | Quando il cliente ha confermato |
 | `approved_value` | DECIMAL(12,2) | Importo validato dall'admin (conta per i premi) |
 | `approved_at` | TIMESTAMP | Quando è stato validato |
 | `approved_by` | FK users | Admin che ha validato |
 
-(`estimated_value`, `is_public`, `acknowledged_at` già presenti.)
+(`estimated_value`, `is_public`, `acknowledged_at` già presenti. `company_name`/`contact_name` restano come ripiego per clienti esterni.)
 
-## 6. Sistema di punteggio e premi
+## 7. Sistema di punteggio e premi
 
-I punti vanno **al segnalatore**, solo per referenze in stato *Confermata*:
+Punti **al segnalatore**, solo per referenze in stato *Confermata*:
 
 ```
 punti = (n. consulenze confermate × 50) + (valore confermato totale ÷ 10)
 ```
 
-- **50 punti** per ogni consulenza andata a buon fine → premia il *volume*.
-- **1 punto ogni 10 €** di valore validato → premia chi genera *alto valore*.
+- **50 punti** per ogni consulenza andata a buon fine (premia il volume).
+- **1 punto ogni 10 €** di valore validato (premia l'alto valore).
 
-Esempio: 3 consulenze confermate per 1.000 € + 5.000 € + 2.000 € = `3×50 + 8000/10` = **950 punti**.
+Esempio: 3 consulenze (1.000 + 5.000 + 2.000 €) = `3×50 + 8000/10` = **950 punti**.
 
-La formula è centralizzata in `ReferralScoreService` (costanti `PUNTI_BASE` ed `EURO_PER_PUNTO`): si possono ritarare i pesi senza toccare il resto. Su questa base si possono poi definire i **premi** (es. soglie a punti, badge, classifica mensile/annuale azzerando il periodo via `approved_at`).
+Formula centralizzata in `ReferralScoreService` (costanti `PUNTI_BASE`, `EURO_PER_PUNTO`): base per definire i premi (soglie, classifica mensile/annuale via `approved_at`).
 
-## 7. Dove si vede
+## 8. Dove si vede
 
-- **Membri** (`/referenze`): pulsante "Dichiara valore", pill con valore dichiarato/confermato sulle righe, nuovo tab **🏆 Classifica** con i propri punti e la top dei generatori di valore.
-- **Admin** — tab *Moderazione*: pulsanti **Approva/Rifiuta** sulle referenze "da validare".
-- **Pannello Filament** (`/admin`): colonne valore, filtro per stato, azioni Approva/Rifiuta, badge di navigazione col numero di referenze in attesa, e **widget Classifica** in dashboard.
+- **Membri** (`/referenze`): form con **due menù** (professionista + cliente); tab **Ricevute / Inviate / 🙌 Sono stato segnalato / Archivio / 🏆 Classifica**; pulsanti "Dichiara valore" (professionista) e "Conferma servizio ricevuto" (cliente).
+- **Admin** — tab *Moderazione*: Approva/Rifiuta sulle referenze da validare.
+- **Filament** (`/admin`): colonne segnalatore/professionista/cliente/valori, filtro stato, azioni Approva/Rifiuta, badge col numero di referenze in attesa, widget Classifica in dashboard.
 
-## 8. File toccati
+## 9. File toccati
 
-**Backend:** `app/Enums/ReferralStatus.php`, `app/Models/Referral.php`, `app/Http/Controllers/ReferralController.php`, `app/Policies/ReferralPolicy.php`, `routes/web.php`, `app/Services/ReferralScoreService.php` (nuovo), `app/Notifications/ReferralValueDeclaredNotification.php` + `ReferralConfirmedNotification.php` (nuovi), `database/migrations/2026_06_19_120000_add_referral_value_validation_columns.php` (nuovo).
+**Backend:** `app/Enums/ReferralStatus.php`, `app/Models/Referral.php`, `app/Http/Controllers/ReferralController.php`, `app/Policies/ReferralPolicy.php`, `routes/web.php`, `app/Services/ReferralScoreService.php`, `database/migrations/2026_06_19_120000_add_referral_value_validation_columns.php`.
 
-**Admin/UI:** `app/Filament/Resources/Referrals/ReferralResource.php`, `app/Filament/Widgets/ReferralLeaderboardWidget.php` (nuovo), `resources/views/referrals/index.blade.php`.
+**Notifiche:** `ReferralClientReferredNotification`, `ReferralClientConfirmedNotification`, `ReferralValueDeclaredNotification`, `ReferralConfirmedNotification`.
 
-**Lingua:** `lang/it/referrals.php` + `lang/en/referrals.php` (nuovi), `lang/{it,en}/push.php`.
+**Admin/UI:** `app/Filament/Resources/Referrals/ReferralResource.php`, `app/Filament/Widgets/ReferralLeaderboardWidget.php`, `resources/views/referrals/index.blade.php`.
 
-## 9. SQL per phpMyAdmin (produzione)
+**Lingua:** `lang/{it,en}/referrals.php`, `lang/{it,en}/push.php`.
+
+## 10. SQL per phpMyAdmin (produzione)
 
 ```sql
 ALTER TABLE `referrals`
-  ADD COLUMN `declared_value` DECIMAL(12,2) NULL AFTER `estimated_value`,
-  ADD COLUMN `declared_at`    TIMESTAMP    NULL AFTER `declared_value`,
-  ADD COLUMN `approved_value` DECIMAL(12,2) NULL AFTER `declared_at`,
-  ADD COLUMN `approved_at`    TIMESTAMP    NULL AFTER `approved_value`,
-  ADD COLUMN `approved_by`    BIGINT UNSIGNED NULL AFTER `approved_at`;
+  ADD COLUMN `client_user_id`      BIGINT UNSIGNED NULL AFTER `recipient_id`,
+  ADD COLUMN `declared_value`      DECIMAL(12,2)   NULL AFTER `estimated_value`,
+  ADD COLUMN `declared_at`         TIMESTAMP       NULL AFTER `declared_value`,
+  ADD COLUMN `client_confirmed_at` TIMESTAMP       NULL AFTER `declared_at`,
+  ADD COLUMN `approved_value`      DECIMAL(12,2)   NULL AFTER `client_confirmed_at`,
+  ADD COLUMN `approved_at`         TIMESTAMP       NULL AFTER `approved_value`,
+  ADD COLUMN `approved_by`         BIGINT UNSIGNED NULL AFTER `approved_at`;
 
 ALTER TABLE `referrals`
-  ADD CONSTRAINT `referrals_approved_by_foreign`
-  FOREIGN KEY (`approved_by`) REFERENCES `users`(`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `referrals_client_user_id_foreign` FOREIGN KEY (`client_user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `referrals_approved_by_foreign`    FOREIGN KEY (`approved_by`)     REFERENCES `users`(`id`) ON DELETE SET NULL;
 
 -- Normalizzazione stati storici → nuovo ciclo di vita
 UPDATE `referrals` SET `status`='in_progress' WHERE `status` IN ('in_charge','contacted','negotiating');
@@ -109,11 +128,15 @@ UPDATE `referrals` SET `approved_value`=`estimated_value`, `approved_at`=`update
 UPDATE `referrals` SET `status`='cancelled' WHERE `status` IN ('lost','archived');
 ```
 
-> Se le colonne `is_public` / `acknowledged_at` non esistessero ancora in produzione, aggiungerle con:
+> Se mancassero `is_public` / `acknowledged_at`:
 > ```sql
 > ALTER TABLE `referrals`
 >   ADD COLUMN `is_public` TINYINT(1) NOT NULL DEFAULT 0 AFTER `outcome`,
 >   ADD COLUMN `acknowledged_at` TIMESTAMP NULL AFTER `is_public`;
 > ```
 
-In locale è sufficiente `php artisan migrate`.
+In locale: `php artisan migrate`.
+
+## 11. Nota sulle referenze esistenti
+
+Le referenze già presenti non hanno un `client_user_id` (la colonna è nullable): restano valide ma senza cliente collegato. Il flusso a tre attori si applica alle **nuove** segnalazioni.

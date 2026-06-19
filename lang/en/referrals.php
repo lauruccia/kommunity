@@ -2,30 +2,52 @@
 
 return [
     'status' => [
-        'sent'        => 'Sent',
-        'in_progress' => 'In progress',
-        'completed'   => 'Completed (to validate)',
-        'confirmed'   => 'Confirmed',
-        'cancelled'   => 'Cancelled',
-        'rejected'    => 'Value rejected',
+        'sent'             => 'Sent',
+        'in_progress'      => 'In progress',
+        'completed'        => 'Value declared (client to confirm)',
+        'client_confirmed' => 'Client confirmed (to validate)',
+        'confirmed'        => 'Confirmed',
+        'cancelled'        => 'Cancelled',
+        'rejected'         => 'Value rejected',
     ],
 
     'tabs' => [
-        'received'    => 'Received',
-        'sent'        => 'Sent',
+        'received'    => 'Received (I am the professional)',
+        'sent'        => 'Sent (I referred)',
+        'client'      => 'I was referred',
         'archive'     => 'Archive',
         'leaderboard' => 'Leaderboard',
         'moderation'  => 'Moderation',
     ],
 
+    'roles' => [
+        'sender'       => 'Referrer',
+        'professional' => 'Professional',
+        'client'       => 'Referred client',
+    ],
+
+    'form' => [
+        'title'             => 'New referral',
+        'intro'             => 'Connect a client who needs a service with a professional in the Kommunity.',
+        'professional'      => 'Professional (who provides the service)',
+        'professional_ph'   => 'Select professional',
+        'professional_help' => 'Only members you have a completed one-to-one with.',
+        'client'            => 'Client (who needs the service)',
+        'client_ph'         => 'Select client',
+        'client_help'       => 'The member you are referring (e.g. your friend).',
+        'submit'            => 'Send referral',
+    ],
+
     'actions' => [
-        'view'           => 'View referral',
-        'acknowledge'    => 'Take charge',
-        'declare_value'  => 'Declare consulting value',
-        'declare_submit' => 'Declare consulting completed',
-        'approve'        => 'Approve value',
-        'reject'         => 'Reject',
-        'cancel'         => 'Cancel referral',
+        'view'                 => 'View referral',
+        'acknowledge'          => 'Take charge',
+        'declare_value'        => 'Declare consulting value',
+        'declare_submit'       => 'Declare consulting completed',
+        'client_confirm'       => 'Confirm service received',
+        'client_confirm_help'  => 'Confirm you received the consulting: the referral moves to admin validation.',
+        'approve'              => 'Approve value',
+        'reject'               => 'Reject',
+        'cancel'               => 'Cancel referral',
     ],
 
     'value' => [
@@ -54,8 +76,9 @@ return [
     ],
 
     'flash' => [
-        'declared'  => 'Value declared. The referral is awaiting validation by an admin.',
-        'confirmed' => 'Value confirmed: it now counts towards the leaderboard and rewards.',
-        'rejected'  => 'Value not approved.',
+        'declared'         => 'Value declared. The referred client now needs to confirm the service.',
+        'client_confirmed' => 'Thank you! You confirmed the service. The referral is awaiting admin validation.',
+        'confirmed'        => 'Value confirmed: it now counts towards the leaderboard and rewards.',
+        'rejected'         => 'Value not approved.',
     ],
 ];

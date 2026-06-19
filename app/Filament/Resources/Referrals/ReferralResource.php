@@ -38,7 +38,10 @@ class ReferralResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = Referral::query()->where('status', ReferralStatus::Completed->value)->count();
+        $count = Referral::query()->whereIn('status', [
+            ReferralStatus::Completed->value,
+            ReferralStatus::ClientConfirmed->value,
+        ])->count();
 
         return $count > 0 ? (string) $count : null;
     }
@@ -62,6 +65,10 @@ class ReferralResource extends Resource
                     ->relationship('recipient', 'name')
                     ->searchable()
                     ->required(),
+                Select::make('client_user_id')
+                    ->label('Cliente segnalato')
+                    ->relationship('client', 'name')
+                    ->searchable(),
                 TextInput::make('title')
                     ->label('Titolo')
                     ->required(),
@@ -100,6 +107,7 @@ class ReferralResource extends Resource
             ->components([
                 TextEntry::make('sender.name')->label('Segnalatore'),
                 TextEntry::make('recipient.name')->label('Professionista'),
+                TextEntry::make('client.name')->label('Cliente segnalato')->placeholder('-'),
                 TextEntry::make('title')->label('Titolo'),
                 TextEntry::make('description')->label('Descrizione')->placeholder('-')->columnSpanFull(),
                 TextEntry::make('company_name')->label('Azienda / cliente')->placeholder('-'),
@@ -128,7 +136,8 @@ class ReferralResource extends Resource
             ->columns([
                 TextColumn::make('sender.name')->label('Segnalatore')->searchable(),
                 TextColumn::make('recipient.name')->label('Professionista')->searchable(),
-                TextColumn::make('title')->label('Titolo')->searchable()->limit(30),
+                TextColumn::make('client.name')->label('Cliente')->searchable()->placeholder('-'),
+                TextColumn::make('title')->label('Titolo')->searchable()->limit(28),
                 TextColumn::make('declared_value')->label('Dichiarato')->money('EUR')->sortable()->placeholder('-'),
                 TextColumn::make('approved_value')->label('Confermato')->money('EUR')->sortable()->placeholder('-'),
                 TextColumn::make('status')
@@ -150,7 +159,7 @@ class ReferralResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalDescription(fn (Referral $record) => 'Confermi il valore dichiarato di € '.number_format((float) $record->declared_value, 2, ',', '.').'? Entrerà in classifica per '.($record->sender?->name ?? 'il segnalatore').'.')
-                    ->visible(fn (Referral $record) => $record->status === ReferralStatus::Completed)
+                    ->visible(fn (Referral $record) => in_array($record->status, [ReferralStatus::Completed, ReferralStatus::ClientConfirmed], true))
                     ->action(function (Referral $record): void {
                         $record->update([
                             'approved_value' => $record->declared_value,
@@ -166,7 +175,7 @@ class ReferralResource extends Resource
                     ->icon(Heroicon::OutlinedXCircle)
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn (Referral $record) => $record->status === ReferralStatus::Completed)
+                    ->visible(fn (Referral $record) => in_array($record->status, [ReferralStatus::Completed, ReferralStatus::ClientConfirmed], true))
                     ->action(function (Referral $record): void {
                         $record->update([
                             'approved_at' => now(),

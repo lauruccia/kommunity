@@ -7,6 +7,8 @@ use App\Enums\ReferralStatus;
 use App\Models\OneToOneRequest;
 use App\Models\Referral;
 use App\Models\User;
+use App\Notifications\ReferralClientConfirmedNotification;
+use App\Notifications\ReferralClientReferredNotification;
 use App\Notifications\ReferralConfirmedNotification;
 use App\Notifications\ReferralReceivedNotification;
 use App\Notifications\ReferralValueDeclaredNotification;
@@ -30,20 +32,25 @@ class ReferralController extends Controller
             'search'   => ['nullable', 'string', 'max:255'],
             'status'   => ['nullable', Rule::in(array_column(ReferralStatus::cases(), 'value'))],
             'priority' => ['nullable', Rule::in(['1', '2', '3', '4', '5'])],
-            'tab'      => ['nullable', 'string', 'in:ricevute,inviate,archivio,classifica,moderazione'],
+            'tab'      => ['nullable', 'string', 'in:ricevute,inviate,segnalato,archivio,classifica,moderazione'],
         ]);
 
         $eligibleMemberIds = $this->eligibleRecipientIds($user->id);
 
         $sentQuery = Referral::query()
-            ->with(['recipient.memberProfile'])
+            ->with(['recipient.memberProfile', 'client'])
             ->where('sender_id', $user->id);
 
         $receivedQuery = Referral::query()
-            ->with(['sender.memberProfile'])
+            ->with(['sender.memberProfile', 'client'])
             ->where('recipient_id', $user->id);
 
-        foreach ([$sentQuery, $receivedQuery] as $query) {
+        // Referenze in cui SONO il cliente segnalato.
+        $clientQuery = Referral::query()
+            ->with(['sender.memberProfile', 'recipient.memberProfile'])
+            ->where('client_user_id', $user->id);
+
+        foreach ([$sentQuery, $receivedQuery, $clientQuery] as $query) {
             if (! empty($filters['search'])) {
                 $query->where(function ($q) use ($filters): void {
                     $q->where('title', 'like', '%'.$filters['search'].'%')
@@ -86,8 +93,15 @@ class ReferralController extends Controller
                 ->whereHas('memberProfile', fn ($q) => $q->where('is_active', true))
                 ->orderBy('name')
                 ->get(),
+            'clientMembers' => User::query()
+                ->with('memberProfile')
+                ->whereKeyNot($user->id)
+                ->whereHas('memberProfile', fn ($q) => $q->where('is_active', true))
+                ->orderBy('name')
+                ->get(),
             'sentReferrals' => $sentQuery->latest()->paginate(20, ['*'], 'inviate')->withQueryString(),
             'receivedReferrals' => $receivedQuery->latest()->paginate(20, ['*'], 'ricevute')->withQueryString(),
+            'clientReferrals' => $clientQuery->latest()->paginate(20, ['*'], 'segnalato')->withQueryString(),
             'adminReferrals' => $adminReferrals,
             'pendingValidation' => $pendingValidation,
             'statusOptions' => ReferralStatus::options(),
@@ -117,9 +131,11 @@ class ReferralController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $eligibleMemberIds = $this->eligibleRecipientIds($request->user()->id);
+        $userId            = $request->user()->id;
+        $eligibleMemberIds = $this->eligibleRecipientIds($userId);
         $data = $request->validate([
-            'recipient_id' => ['required', 'exists:users,id', 'different:'.$request->user()->id],
+            'recipient_id'   => ['required', 'exists:users,id', 'different:'.$userId],
+            'client_user_id' => ['required', 'exists:users,id', 'different:'.$userId, 'different:recipient_id'],
             'title'        => ['required', 'string', 'max:255'],
             'description'  => ['required', 'string', 'max:5000'],
             'company_name' => ['nullable', 'string', 'max:255'],
@@ -129,19 +145,25 @@ class ReferralController extends Controller
             'notes'    => ['nullable', 'string', 'max:3000'],
         ]);
 
+        // Il professionista deve essere un contatto con cui ho un one-to-one completato.
         abort_unless(in_array((int) $data['recipient_id'], $eligibleMemberIds, true), 403);
 
         $referral = Referral::query()->create([
             ...$data,
             'priority'  => $data['priority'] ?? '3',
-            'sender_id' => $request->user()->id,
+            'sender_id' => $userId,
             'status'    => ReferralStatus::Sent,
             'is_public' => true,
         ]);
 
-        $recipient = User::find($data['recipient_id']);
         $referral->load('sender');
+
+        // Avviso ENTRAMBI: il professionista e il cliente segnalato.
+        $recipient = User::find($data['recipient_id']);
         $recipient?->notify(new ReferralReceivedNotification($referral));
+
+        $client = User::find($data['client_user_id']);
+        $client?->notify(new ReferralClientReferredNotification($referral));
 
         return redirect()
             ->route('referrals.index', ['tab' => 'inviate'])
@@ -222,12 +244,35 @@ class ReferralController extends Controller
             'status'         => ReferralStatus::Completed,
         ]);
 
-        // Notifica il segnalatore e gli admin (validazione in attesa).
-        $referral->loadMissing('sender', 'recipient');
+        // Prossimo passo: il cliente deve confermare il servizio. Avviso cliente + segnalatore.
+        $referral->loadMissing('sender', 'recipient', 'client');
+        $referral->client?->notify(new ReferralValueDeclaredNotification($referral));
         $referral->sender?->notify(new ReferralValueDeclaredNotification($referral));
-        $this->admins()->each->notify(new ReferralValueDeclaredNotification($referral));
 
         return back()->with('status', 'referral-declared');
+    }
+
+    /**
+     * Il cliente segnalato conferma di aver ricevuto il servizio.
+     * → stato ClientConfirmed, in attesa di validazione admin.
+     */
+    public function clientConfirm(Request $request, Referral $referral): RedirectResponse
+    {
+        $this->authorize('clientConfirm', $referral);
+
+        // Si conferma solo dopo che il professionista ha dichiarato il valore.
+        if ($referral->status === ReferralStatus::Completed) {
+            $referral->update([
+                'client_confirmed_at' => now(),
+                'status'              => ReferralStatus::ClientConfirmed,
+            ]);
+
+            $referral->loadMissing('sender', 'client');
+            $referral->sender?->notify(new ReferralClientConfirmedNotification($referral));
+            $this->admins()->each->notify(new ReferralClientConfirmedNotification($referral));
+        }
+
+        return back()->with('status', 'referral-client-confirmed');
     }
 
     /**

@@ -15,6 +15,7 @@ class Referral extends Model
     protected $fillable = [
         'sender_id',
         'recipient_id',
+        'client_user_id',
         'title',
         'description',
         'company_name',
@@ -22,6 +23,7 @@ class Referral extends Model
         'estimated_value',
         'declared_value',
         'declared_at',
+        'client_confirmed_at',
         'approved_value',
         'approved_at',
         'approved_by',
@@ -39,8 +41,9 @@ class Referral extends Model
             'estimated_value' => 'decimal:2',
             'declared_value'  => 'decimal:2',
             'approved_value'  => 'decimal:2',
-            'declared_at'     => 'datetime',
-            'approved_at'     => 'datetime',
+            'declared_at'         => 'datetime',
+            'client_confirmed_at' => 'datetime',
+            'approved_at'         => 'datetime',
             'status'          => ReferralStatus::class,
             'is_public'       => 'boolean',
             'acknowledged_at' => 'datetime',
@@ -55,6 +58,14 @@ class Referral extends Model
     public function recipient(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recipient_id');
+    }
+
+    /**
+     * Il cliente segnalato (il membro che ha bisogno del servizio, es. Fabbro).
+     */
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'client_user_id');
     }
 
     public function approvedBy(): BelongsTo

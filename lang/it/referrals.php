@@ -2,30 +2,52 @@
 
 return [
     'status' => [
-        'sent'        => 'Inviata',
-        'in_progress' => 'In corso',
-        'completed'   => 'Conclusa (da validare)',
-        'confirmed'   => 'Confermata',
-        'cancelled'   => 'Annullata',
-        'rejected'    => 'Valore rifiutato',
+        'sent'             => 'Inviata',
+        'in_progress'      => 'In corso',
+        'completed'        => 'Valore dichiarato (conferma cliente)',
+        'client_confirmed' => 'Confermata dal cliente (da validare)',
+        'confirmed'        => 'Confermata',
+        'cancelled'        => 'Annullata',
+        'rejected'         => 'Valore rifiutato',
     ],
 
     'tabs' => [
-        'received'    => 'Ricevute',
-        'sent'        => 'Inviate',
+        'received'    => 'Ricevute (sono il professionista)',
+        'sent'        => 'Inviate (ho segnalato)',
+        'client'      => 'Sono stato segnalato',
         'archive'     => 'Archivio',
         'leaderboard' => 'Classifica',
         'moderation'  => 'Moderazione',
     ],
 
+    'roles' => [
+        'sender'       => 'Segnalatore',
+        'professional' => 'Professionista',
+        'client'       => 'Cliente segnalato',
+    ],
+
+    'form' => [
+        'title'             => 'Nuova segnalazione',
+        'intro'             => 'Collega un cliente che ha bisogno di un servizio a un professionista della Kommunity.',
+        'professional'      => 'Professionista (chi offre il servizio)',
+        'professional_ph'   => 'Seleziona professionista',
+        'professional_help' => 'Solo membri con cui hai un one-to-one completato.',
+        'client'            => 'Cliente (chi ha bisogno del servizio)',
+        'client_ph'         => 'Seleziona cliente',
+        'client_help'       => 'Il membro che stai segnalando (es. il tuo amico Fabbro).',
+        'submit'            => 'Invia segnalazione',
+    ],
+
     'actions' => [
-        'view'           => 'Vedi referenza',
-        'acknowledge'    => 'Prendi in carico',
-        'declare_value'  => 'Dichiara valore consulenza',
-        'declare_submit' => 'Dichiara consulenza conclusa',
-        'approve'        => 'Approva valore',
-        'reject'         => 'Rifiuta',
-        'cancel'         => 'Annulla referenza',
+        'view'                 => 'Vedi referenza',
+        'acknowledge'          => 'Prendi in carico',
+        'declare_value'        => 'Dichiara valore consulenza',
+        'declare_submit'       => 'Dichiara consulenza conclusa',
+        'client_confirm'       => 'Conferma servizio ricevuto',
+        'client_confirm_help'  => 'Conferma di aver ricevuto la consulenza: la referenza passerà alla validazione dell\'admin.',
+        'approve'              => 'Approva valore',
+        'reject'               => 'Rifiuta',
+        'cancel'               => 'Annulla referenza',
     ],
 
     'value' => [
@@ -54,8 +76,9 @@ return [
     ],
 
     'flash' => [
-        'declared'  => 'Valore dichiarato. La referenza è in attesa di validazione da parte di un admin.',
-        'confirmed' => 'Valore confermato: ora conta per la classifica e i premi.',
-        'rejected'  => 'Valore non approvato.',
+        'declared'         => 'Valore dichiarato. Ora il cliente deve confermare di aver ricevuto il servizio.',
+        'client_confirmed' => 'Grazie! Hai confermato il servizio. La referenza è in attesa di validazione da parte di un admin.',
+        'confirmed'        => 'Valore confermato: ora conta per la classifica e i premi.',
+        'rejected'         => 'Valore non approvato.',
     ],
 ];

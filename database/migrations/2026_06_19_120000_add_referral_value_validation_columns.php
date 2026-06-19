@@ -20,6 +20,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('referrals', function (Blueprint $table): void {
+            if (! Schema::hasColumn('referrals', 'client_user_id')) {
+                $table->foreignId('client_user_id')->nullable()->after('recipient_id')
+                    ->constrained('users')->nullOnDelete();
+            }
+            if (! Schema::hasColumn('referrals', 'client_confirmed_at')) {
+                $table->timestamp('client_confirmed_at')->nullable()->after('declared_at');
+            }
             if (! Schema::hasColumn('referrals', 'is_public')) {
                 $table->boolean('is_public')->default(false)->after('outcome');
             }
@@ -68,7 +75,10 @@ return new class extends Migration
             if (Schema::hasColumn('referrals', 'approved_by')) {
                 $table->dropConstrainedForeignId('approved_by');
             }
-            foreach (['declared_value', 'declared_at', 'approved_value', 'approved_at'] as $col) {
+            if (Schema::hasColumn('referrals', 'client_user_id')) {
+                $table->dropConstrainedForeignId('client_user_id');
+            }
+            foreach (['declared_value', 'declared_at', 'client_confirmed_at', 'approved_value', 'approved_at'] as $col) {
                 if (Schema::hasColumn('referrals', $col)) {
                     $table->dropColumn($col);
                 }

@@ -48,6 +48,14 @@ class ReferralPolicy
     }
 
     /**
+     * Confermare di aver ricevuto il servizio: solo il cliente segnalato.
+     */
+    public function clientConfirm(User $user, Referral $referral): bool
+    {
+        return $referral->client_user_id !== null && $user->id === $referral->client_user_id;
+    }
+
+    /**
      * Validare/rifiutare il valore dichiarato: solo admin.
      */
     public function validateValue(User $user, Referral $referral): bool
@@ -75,7 +83,11 @@ class ReferralPolicy
 
     protected function isParticipant(User $user, Referral $referral): bool
     {
-        return in_array($user->id, [$referral->sender_id, $referral->recipient_id], true);
+        return in_array($user->id, [
+            $referral->sender_id,
+            $referral->recipient_id,
+            $referral->client_user_id,
+        ], true);
     }
 
     protected function isAdmin(User $user): bool
