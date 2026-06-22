@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MemberOnepage;
+use App\Services\ProfileCompletionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -51,7 +52,12 @@ class CardController extends Controller
         // Auto-detect lingua dal browser del visitatore
         $locale = $request->getPreferredLanguage(['it', 'en', 'fr', 'es', 'de', 'ro']) ?? 'it';
 
-        return view('card.show', compact('onepage', 'profile', 'user', 'whatsappUrl', 'cardUrl', 'locale', 'activePlanet', 'referralUrl'));
+        // Completezza profilo: il link al profilo pubblico Kommunity
+        // viene mostrato solo se il profilo è completo almeno all'80%.
+        $completion      = app(ProfileCompletionService::class)->calculate($user);
+        $profileComplete = $completion['percentage'] >= 80;
+
+        return view('card.show', compact('onepage', 'profile', 'user', 'whatsappUrl', 'cardUrl', 'locale', 'activePlanet', 'referralUrl', 'profileComplete'));
     }
 
     /**

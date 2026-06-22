@@ -506,13 +506,15 @@
         </div>
         @endif
 
-        {{-- Link al profilo su Kommunity --}}
+        {{-- Link al profilo su Kommunity — solo se il profilo è completo ≥ 80% --}}
+        @if(($profileComplete ?? false))
         <a class="kc-profile-link"
            href="{{ route('members.show', $onepage->slug) }}"
            target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
             {{ $t['view_on_komm'] }}
         </a>
+        @endif
 
         {{-- Condividi --}}
         <button class="kc-btn-share" id="kc-share-btn" type="button" aria-label="{{ $t['share'] }}">
@@ -525,6 +527,7 @@
         @if($hasSocialFoot)
         <div class="kc-socials-foot" role="list" aria-label="Social">
 
+            @if(($profileComplete ?? false))
             <a class="kc-sf"
                href="{{ route('members.show', $onepage->slug) }}"
                target="_blank" rel="noopener"
@@ -532,6 +535,7 @@
                role="listitem">
                 <img class="kc-sf-img" src="{{ asset('brand/kommunity-mark.png') }}" alt="" aria-hidden="true">
             </a>
+            @endif
 
             @if($showWhatsapp)
             <a class="kc-sf" href="{{ $whatsappUrl }}" target="_blank" rel="noopener" aria-label="WhatsApp" role="listitem">
@@ -606,6 +610,32 @@
 
 <script>
 (function () {
+    // ── Auto-salvataggio contatto (vCard) ──────────────────────────────
+    // Avvia automaticamente lo scaricamento del .vcf quando si apre la card,
+    // così il visitatore può aggiungere il contatto senza premere "Salva".
+    // Nota: l'aggiunta effettiva alla rubrica richiede comunque la conferma
+    // finale del sistema operativo (iOS/Android) — non è aggirabile.
+    // Si attiva una sola volta per sessione e solo su dispositivi mobili,
+    // per non infastidire chi apre la card da desktop.
+    (function () {
+        var vcardUrl = '{{ route('card.vcard', $onepage->slug) }}';
+        var once     = 'kc_vcard_{{ $onepage->slug }}';
+        var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        try {
+            if (!isMobile || sessionStorage.getItem(once)) return;
+            sessionStorage.setItem(once, '1');
+        } catch (e) { /* sessionStorage non disponibile: procedi comunque una volta */ }
+
+        function triggerSave() {
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = vcardUrl;
+            document.body.appendChild(iframe);
+        }
+        // Piccolo ritardo: lascia disegnare la card prima del prompt di sistema.
+        setTimeout(triggerSave, 1200);
+    }());
+
     var btn   = document.getElementById('kc-share-btn');
     var msg   = document.getElementById('kc-copied-msg');
     var url   = '{{ $cardUrl }}';
