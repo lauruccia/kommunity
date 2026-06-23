@@ -74,6 +74,7 @@ Route::get('/member/{slug}/recensioni', [MemberOnepageController::class, 'review
 // ── Biglietto da visita digitale (pubblico, nessun layout app) ───────────────
 Route::get('/card/{slug}', [CardController::class, 'show'])->name('card.show');
 Route::get('/card/{slug}/vcard', [CardController::class, 'vcard'])->name('card.vcard');
+Route::get('/card/{slug}/manifest.webmanifest', [CardController::class, 'manifest'])->name('card.manifest');
 
 // ── Dashboard e onboarding: accessibili senza onboarding completato ─────────
 Route::middleware(['auth', 'verified'])->group(function () {

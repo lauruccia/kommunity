@@ -15,6 +15,18 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-06-23 — Card: salva come immagine + Aggiungi a Home (PWA offline)
+
+- File creati: `public/card-sw.js`
+- File modificati: `app/Http/Controllers/CardController.php`, `routes/web.php`, `resources/views/card/show.blade.php`, `.cpanel.yml`
+- Cosa è cambiato:
+  1. **Salva come immagine**: nuovo bottone "Salva come immagine" sulla card che genera un PNG del biglietto con html2canvas (caricato da CDN solo al click). Gli elementi interattivi (bottoni, footer) sono marcati `data-noexport` ed esclusi dall'immagine; resta avatar/nome/professione/azienda/contatti/social. Avatar è same-origin → nessun problema CORS.
+  2. **Aggiungi a Home (PWA)**: `card-sw.js` è un service worker dedicato con scope `/card/` (non tocca l'app autenticata né il push `sw.js`), che cacha la pagina (network-first) e gli asset (cache-first) → la card è disponibile **offline** dopo la prima apertura. Aggiunto `CardController::manifest()` + route `card.manifest` (`/card/{slug}/manifest.webmanifest`) per installazione standalone su Android. Su iOS i meta `apple-*` + istruzioni "Aggiungi alla schermata Home".
+  3. `.cpanel.yml`: aggiunta copia di `public/card-sw.js` in `public_html/`.
+- Bilingue: nuove chiavi `save_image`, `add_to_home`, `ios_hint` aggiunte a tutte e 6 le lingue dell'array `$translations` in `show.blade.php` (it, en, fr, es, de, ro).
+- SQL eseguito: NO
+- Note: nessun aggiornamento `vendor` necessario. Service worker registrabile solo su HTTPS/localhost (in produzione kommunity.it è HTTPS). Backup: `.bak` di controller, routes, view, .cpanel.yml.
+
 ## 2026-06-19 — One-to-one: fix riprogrammazione, completamento, UI
 
 - File creati: `database/migrations/2026_06_19_000001_add_rescheduled_by_to_one_to_one_requests.php`

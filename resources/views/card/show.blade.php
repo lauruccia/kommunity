@@ -60,6 +60,9 @@
             'cta_card'       => 'Crea anche tu il biglietto da visita digitale',
             'cta_register'   => 'Registrati con l\'invito di',
             'cta_planet'     => 'Entrerai nel Pianeta',
+            'save_image'     => 'Salva come immagine',
+            'add_to_home'    => 'Aggiungi a Home',
+            'ios_hint'       => 'Per salvarlo: tocca Condividi e poi "Aggiungi alla schermata Home".',
         ],
         'en' => [
             'save'           => 'Add to contacts',
@@ -77,6 +80,9 @@
             'cta_card'       => 'Create your digital business card too',
             'cta_register'   => 'Join with the invite of',
             'cta_planet'     => 'You\'ll join the Planet',
+            'save_image'     => 'Save as image',
+            'add_to_home'    => 'Add to Home',
+            'ios_hint'       => 'To save it: tap Share, then "Add to Home Screen".',
         ],
         'fr' => [
             'save'           => 'Ajouter aux contacts',
@@ -94,6 +100,9 @@
             'cta_card'       => 'Créez vous aussi votre carte de visite digitale',
             'cta_register'   => 'Inscrivez-vous avec l\'invitation de',
             'cta_planet'     => 'Vous rejoindrez la Planète',
+            'save_image'     => 'Enregistrer en image',
+            'add_to_home'    => 'Ajouter à l\'accueil',
+            'ios_hint'       => 'Pour l\'enregistrer : touchez Partager, puis "Sur l\'écran d\'accueil".',
         ],
         'es' => [
             'save'           => 'Añadir a contactos',
@@ -111,6 +120,9 @@
             'cta_card'       => 'Crea también tu tarjeta de visita digital',
             'cta_register'   => 'Regístrate con la invitación de',
             'cta_planet'     => 'Entrarás al Planeta',
+            'save_image'     => 'Guardar como imagen',
+            'add_to_home'    => 'Añadir a inicio',
+            'ios_hint'       => 'Para guardarla: toca Compartir y luego "Añadir a pantalla de inicio".',
         ],
         'de' => [
             'save'           => 'Zu Kontakten hinzufügen',
@@ -128,6 +140,9 @@
             'cta_card'       => 'Erstelle auch du deine digitale Visitenkarte',
             'cta_register'   => 'Registriere dich mit der Einladung von',
             'cta_planet'     => 'Du trittst dem Planeten bei',
+            'save_image'     => 'Als Bild speichern',
+            'add_to_home'    => 'Zum Home hinzufügen',
+            'ios_hint'       => 'Zum Speichern: auf Teilen tippen, dann "Zum Home-Bildschirm".',
         ],
         'ro' => [
             'save'           => 'Adaugă la contacte',
@@ -145,6 +160,9 @@
             'cta_card'       => 'Creează și tu cartea de vizită digitală',
             'cta_register'   => 'Înregistrează-te cu invitația lui',
             'cta_planet'     => 'Vei intra în Planeta',
+            'save_image'     => 'Salvează ca imagine',
+            'add_to_home'    => 'Adaugă pe ecran',
+            'ios_hint'       => 'Pentru a salva: apasă Distribuie, apoi "Adaugă pe ecranul principal".',
         ],
     ];
 
@@ -179,6 +197,15 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/kommunity.css') }}?v={{ filemtime(public_path('css/kommunity.css')) }}">
+
+    {{-- ── PWA: installazione card come "app" + offline ── --}}
+    <meta name="theme-color" content="#0b1f17">
+    <link rel="manifest" href="{{ route('card.manifest', $onepage->slug) }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ explode(' ', $user->name)[0] }}">
+    <link rel="apple-touch-icon" href="{{ $avatarUrl ?: asset('images/icon-192.png') }}">
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -456,7 +483,7 @@
     <div class="kc-body">
 
         {{-- Aggiungi ai contatti --}}
-        <a class="kc-btn-save"
+        <a class="kc-btn-save" data-noexport
            href="{{ route('card.vcard', $onepage->slug) }}"
            aria-label="{{ $t['save'] }} — {{ $user->name }}">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 10a2 2 0 104 0 2 2 0 00-4 0"/><path d="M4 20c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4"/><path d="M16 8h2M16 12h2"/></svg>
@@ -508,7 +535,7 @@
 
         {{-- Link al profilo su Kommunity — solo se il profilo è completo ≥ 80% --}}
         @if(($profileComplete ?? false))
-        <a class="kc-profile-link"
+        <a class="kc-profile-link" data-noexport
            href="{{ route('members.show', $onepage->slug) }}"
            target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
@@ -517,11 +544,24 @@
         @endif
 
         {{-- Condividi --}}
-        <button class="kc-btn-share" id="kc-share-btn" type="button" aria-label="{{ $t['share'] }}">
+        <button class="kc-btn-share" id="kc-share-btn" type="button" data-noexport aria-label="{{ $t['share'] }}">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             {{ $t['share'] }}
         </button>
-        <p class="kc-copied" id="kc-copied-msg" role="status" aria-live="polite">✓ Link copiato</p>
+        <p class="kc-copied" id="kc-copied-msg" role="status" aria-live="polite" data-noexport>✓ Link copiato</p>
+
+        {{-- Salva immagine + Aggiungi a Home ──────────────────────────── --}}
+        <button class="kc-btn-share" id="kc-img-btn" type="button" data-noexport aria-label="{{ $t['save_image'] }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            {{ $t['save_image'] }}
+        </button>
+
+        <button class="kc-btn-share" id="kc-home-btn" type="button" data-noexport style="display:none" aria-label="{{ $t['add_to_home'] }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            {{ $t['add_to_home'] }}
+        </button>
+
+        <p class="kc-copied" id="kc-ios-hint" data-noexport style="display:none">{{ $t['ios_hint'] }}</p>
 
         {{-- Social in fondo — cerchi neutri, nessuna label ─────── --}}
         @if($hasSocialFoot)
@@ -567,7 +607,7 @@
     </div>{{-- /.kc-body --}}
 
     {{-- ════════ FOOTER ════════ --}}
-    <div class="kc-footer">
+    <div class="kc-footer" data-noexport>
         @auth
             @if(auth()->id() !== $user->id)
             <div class="kc-footer-logged">
@@ -651,6 +691,103 @@
                 setTimeout(function () { msg.style.display = 'none'; }, 2500);
             }).catch(function () { window.prompt('Copia il link:', url); });
         }
+    });
+}());
+
+// ── PWA: service worker dedicato alla card (offline) ───────────────────
+(function () {
+    if (!('serviceWorker' in navigator)) return;
+    // Scope ristretto a /card/: non interferisce con l'app né col push sw.js.
+    navigator.serviceWorker.register('/card-sw.js', { scope: '/card/' }).catch(function(){});
+}());
+
+// ── "Aggiungi a Home" (Android = prompt nativo, iOS = istruzioni) ──────
+(function () {
+    var homeBtn = document.getElementById('kc-home-btn');
+    var iosHint = document.getElementById('kc-ios-hint');
+    if (!homeBtn) return;
+
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    if (standalone) return; // già installata: niente da fare
+
+    // Android / Chrome: prompt di installazione nativo
+    var deferred = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferred = e;
+        homeBtn.style.display = '';
+    });
+    homeBtn.addEventListener('click', function () {
+        if (!deferred) return;
+        deferred.prompt();
+        deferred.userChoice.finally(function () {
+            deferred = null;
+            homeBtn.style.display = 'none';
+        });
+    });
+
+    // iOS Safari: nessun prompt programmatico → mostra le istruzioni
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS && iosHint) {
+        iosHint.style.display = 'block';
+    }
+}());
+
+// ── "Salva come immagine" (html2canvas caricato solo al click) ─────────
+(function () {
+    var imgBtn = document.getElementById('kc-img-btn');
+    if (!imgBtn) return;
+    var wrap   = document.querySelector('.kc-wrap');
+    var CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    var filename = '{{ \Illuminate\Support\Str::slug($user->name) }}-kommunity.png';
+
+    function ensureLib(cb) {
+        if (window.html2canvas) { cb(); return; }
+        var s = document.createElement('script');
+        s.src = CDN;
+        s.onload = cb;
+        s.onerror = function () { reset(); alert('Impossibile caricare lo strumento immagine. Riprova online.'); };
+        document.head.appendChild(s);
+    }
+
+    var original = imgBtn.innerHTML;
+    function reset() { imgBtn.disabled = false; imgBtn.innerHTML = original; }
+
+    imgBtn.addEventListener('click', function () {
+        imgBtn.disabled = true;
+        imgBtn.textContent = '…';
+
+        ensureLib(function () {
+            // Nascondi gli elementi interattivi e compatta l'altezza
+            var hidden = wrap.querySelectorAll('[data-noexport]');
+            var prevMin = wrap.style.minHeight;
+            wrap.style.minHeight = 'auto';
+            hidden.forEach(function (el) { el.dataset.kcPrev = el.style.display; el.style.display = 'none'; });
+
+            var restore = function () {
+                hidden.forEach(function (el) { el.style.display = el.dataset.kcPrev || ''; delete el.dataset.kcPrev; });
+                wrap.style.minHeight = prevMin;
+            };
+
+            window.html2canvas(wrap, {
+                backgroundColor: getComputedStyle(document.body).backgroundColor || '#ffffff',
+                scale: Math.min(window.devicePixelRatio || 1, 2),
+                useCORS: true,
+                logging: false
+            }).then(function (canvas) {
+                restore();
+                var link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                reset();
+            }).catch(function () {
+                restore();
+                reset();
+            });
+        });
     });
 }());
 </script>

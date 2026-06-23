@@ -37,6 +37,7 @@ deployment:
     - /bin/cp public/robots.txt        $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/manifest.json     $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/sw.js             $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp public/card-sw.js        $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/.user.ini         $DEPLOYPATH/ 2>/dev/null || true
     # ── Script migrazione media ONE-TIME (rimuovere dopo l'uso) ───────────
     - /bin/cp public/migrate-media.php $DEPLOYPATH/ 2>/dev/null || true

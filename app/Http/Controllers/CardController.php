@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MemberOnepage;
+use App\Models\MemberProfile;
 use App\Services\ProfileCompletionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -18,18 +19,39 @@ class CardController extends Controller
     public function show(Request $request, string $slug): View
     {
         $onepage = MemberOnepage::query()
-            ->with([
-                'user.memberProfile.professions',
-                'user.memberProfile.profession',
-                'user.memberProfile.city',
-                'user.memberProfile.chapter',
-            ])
+            ->with(['user'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
 
-        $profile = $onepage->user->memberProfile;
-        $user    = $onepage->user;
+        $user = $onepage->user;
+
+        // ── Risoluzione robusta del profilo ──────────────────────────────────
+        // Non ci affidiamo alla relazione hasOne non filtrata (User::memberProfile):
+        // se per qualsiasi motivo l'utente avesse PIÙ righe in member_profiles
+        // (es. account/profili duplicati storici, omonimie con doppia registra-
+        // zione), selezioniamo sempre quella ATTIVA e più recente. Così la card
+        // non rischia di agganciare per errore una riga vuota.
+        $profile = $this->resolveProfile($user->id, ['professions', 'profession', 'city', 'chapter']);
+
+        // ── La card ha dati reali da mostrare? ───────────────────────────────
+        // Evita la "card vuota": se il profilo manca del tutto o non contiene
+        // alcun dato identificativo/di contatto, la view mostra un fallback
+        // pulito ("profilo in allestimento") invece di un biglietto privo di
+        // informazioni utili.
+        $hasProfileData = $profile !== null && (
+            filled($profile->avatar)
+            || filled($profile->phone)
+            || filled($profile->website)
+            || filled($profile->company_name)
+            || $profile->city !== null
+            || $profile->professions->isNotEmpty()
+            || $profile->profession !== null
+            || filled($profile->linkedin_url)
+            || filled($profile->instagram_url)
+            || filled($profile->facebook_url)
+            || ($profile->show_email && filled($user->email))
+        );
 
         // URL WhatsApp con messaggio precompilato
         $whatsappUrl = null;
@@ -57,7 +79,18 @@ class CardController extends Controller
         $completion      = app(ProfileCompletionService::class)->calculate($user);
         $profileComplete = $completion['percentage'] >= 80;
 
-        return view('card.show', compact('onepage', 'profile', 'user', 'whatsappUrl', 'cardUrl', 'locale', 'activePlanet', 'referralUrl', 'profileComplete'));
+        return view('card.show', compact(
+            'onepage',
+            'profile',
+            'user',
+            'hasProfileData',
+            'whatsappUrl',
+            'cardUrl',
+            'locale',
+            'activePlanet',
+            'referralUrl',
+            'profileComplete',
+        ));
     }
 
     /**
@@ -67,16 +100,13 @@ class CardController extends Controller
     public function vcard(string $slug): Response
     {
         $onepage = MemberOnepage::query()
-            ->with([
-                'user.memberProfile.profession',
-                'user.memberProfile.city',
-            ])
+            ->with(['user'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
 
-        $profile = $onepage->user->memberProfile;
         $user    = $onepage->user;
+        $profile = $this->resolveProfile($user->id, ['profession', 'city']);
 
         // Separa nome e cognome (split sul primo spazio)
         $parts     = explode(' ', trim($user->name), 2);
@@ -122,5 +152,25 @@ class CardController extends Controller
             'Content-Type'        => 'text/vcard; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    /**
+     * Seleziona in modo deterministico il profilo "buono" di un utente.
+     *
+     * In presenza di più righe member_profiles per lo stesso user_id
+     * (duplicati storici, omonimie con doppia registrazione) preferisce
+     * sempre la riga ATTIVA e con id più alto (la più recente), evitando
+     * che la card agganci per sbaglio un profilo vuoto/inattivo.
+     *
+     * @param  array<int, string>  $with  Relazioni da eager-loadare.
+     */
+    private function resolveProfile(int $userId, array $with = []): ?MemberProfile
+    {
+        return MemberProfile::query()
+            ->with($with)
+            ->where('user_id', $userId)
+            ->orderByDesc('is_active')
+            ->orderByDesc('id')
+            ->first();
     }
 }
