@@ -15,6 +15,28 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-06-23 — Card: irrobustimento risoluzione profilo (anti card vuota)
+
+- File modificati: `app/Http/Controllers/CardController.php`, `resources/views/card/show.blade.php`
+- Contesto: la card pubblica `/card/{slug}` mostrava un biglietto **vuoto** (solo nome + iniziali, nessun contatto) per Linda Gean. Causa reale: **account duplicato** — un secondo utente omonimo (`user_id 7`, linda@kommunity.it) senza profilo. Il doppione vuoto è stato eliminato (mantenuto `user_id 10` con profilo completo e card `linda-gean-2`). Per evitare il ripetersi del problema in futuro (duplicati / omonimie / onboarding incompleto), irrobustita la card.
+- Cosa è cambiato:
+  1. **Risoluzione deterministica del profilo**: nuovo metodo privato `CardController::resolveProfile()` usato sia in `show()` sia in `vcard()`. Non si affida più alla relazione `User::memberProfile()` (hasOne non filtrata, non deterministica con righe multiple): seleziona sempre `MemberProfile` per `user_id` ordinando `is_active DESC, id DESC` → preferisce la riga attiva e più recente, mai una vuota/inattiva.
+  2. **Fallback "profilo in allestimento"**: nuovo flag `$hasProfileData` (true solo se il profilo ha avatar/telefono/sito/azienda/città/professione/social/email visibile). Se falso, la view mostra un placeholder pulito e centrato (icona + titolo + testo) invece della card senza dati; per l'utente proprietario loggato compare il bottone "Modifica profilo".
+  3. Disattivato l'auto-download della vCard quando `$hasProfileData` è false (niente contatto col solo nome).
+- Bilingue: nuove chiavi `incomplete_title`, `incomplete_text` aggiunte a tutte e 6 le lingue dell'array `$translations` in `show.blade.php` (it, en, fr, es, de, ro).
+- SQL eseguito: NO (nessuna modifica di schema). Bonifica dati: eliminato `user_id 7` dal pannello admin.
+- Note: backup pre-modifica `app/Http/Controllers/CardController.php.bak` e `resources/views/card/show.blade.php.bak.20260623`. Nessun rebuild Vite necessario (CSS inline nella view standalone).
+
+---
+
+## 2026-06-23 — Card: rimosso auto-download vCard, bottone "Salva biglietto da visita"
+
+- File modificati: `resources/views/card/show.blade.php`
+- Cosa è cambiato:
+  1. **Rimosso del tutto il download automatico della vCard** all'apertura della card (eliminato lo script con iframe + sessionStorage). Ora il `.vcf` si scarica SOLO se il visitatore preme manualmente "Aggiungi ai contatti" (bottone già esistente, invariato).
+  2. Il bottone immagine è stato rinominato da "Salva come immagine" a **"Salva biglietto da visita"** in tutte e 6 le lingue (chiave `save_image`): salva il PNG del biglietto nelle immagini/galleria.
+- SQL eseguito: NO. Vendor: nessun aggiornamento. Backup: `show.blade.php.bak.<timestamp>`.
+
 ## 2026-06-23 — Card: salva come immagine + Aggiungi a Home (PWA offline)
 
 - File creati: `public/card-sw.js`

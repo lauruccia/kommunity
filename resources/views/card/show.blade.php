@@ -60,9 +60,11 @@
             'cta_card'       => 'Crea anche tu il biglietto da visita digitale',
             'cta_register'   => 'Registrati con l\'invito di',
             'cta_planet'     => 'Entrerai nel Pianeta',
-            'save_image'     => 'Salva come immagine',
+            'save_image'     => 'Salva biglietto da visita',
             'add_to_home'    => 'Aggiungi a Home',
             'ios_hint'       => 'Per salvarlo: tocca Condividi e poi "Aggiungi alla schermata Home".',
+            'incomplete_title' => 'Profilo in allestimento',
+            'incomplete_text'  => 'Questo biglietto da visita non è ancora stato completato.',
         ],
         'en' => [
             'save'           => 'Add to contacts',
@@ -80,9 +82,11 @@
             'cta_card'       => 'Create your digital business card too',
             'cta_register'   => 'Join with the invite of',
             'cta_planet'     => 'You\'ll join the Planet',
-            'save_image'     => 'Save as image',
+            'save_image'     => 'Save business card',
             'add_to_home'    => 'Add to Home',
             'ios_hint'       => 'To save it: tap Share, then "Add to Home Screen".',
+            'incomplete_title' => 'Profile in progress',
+            'incomplete_text'  => 'This business card hasn\'t been completed yet.',
         ],
         'fr' => [
             'save'           => 'Ajouter aux contacts',
@@ -100,9 +104,11 @@
             'cta_card'       => 'Créez vous aussi votre carte de visite digitale',
             'cta_register'   => 'Inscrivez-vous avec l\'invitation de',
             'cta_planet'     => 'Vous rejoindrez la Planète',
-            'save_image'     => 'Enregistrer en image',
+            'save_image'     => 'Enregistrer la carte',
             'add_to_home'    => 'Ajouter à l\'accueil',
             'ios_hint'       => 'Pour l\'enregistrer : touchez Partager, puis "Sur l\'écran d\'accueil".',
+            'incomplete_title' => 'Profil en cours',
+            'incomplete_text'  => 'Cette carte de visite n\'a pas encore été complétée.',
         ],
         'es' => [
             'save'           => 'Añadir a contactos',
@@ -120,9 +126,11 @@
             'cta_card'       => 'Crea también tu tarjeta de visita digital',
             'cta_register'   => 'Regístrate con la invitación de',
             'cta_planet'     => 'Entrarás al Planeta',
-            'save_image'     => 'Guardar como imagen',
+            'save_image'     => 'Guardar la tarjeta',
             'add_to_home'    => 'Añadir a inicio',
             'ios_hint'       => 'Para guardarla: toca Compartir y luego "Añadir a pantalla de inicio".',
+            'incomplete_title' => 'Perfil en preparación',
+            'incomplete_text'  => 'Esta tarjeta de visita aún no se ha completado.',
         ],
         'de' => [
             'save'           => 'Zu Kontakten hinzufügen',
@@ -140,9 +148,11 @@
             'cta_card'       => 'Erstelle auch du deine digitale Visitenkarte',
             'cta_register'   => 'Registriere dich mit der Einladung von',
             'cta_planet'     => 'Du trittst dem Planeten bei',
-            'save_image'     => 'Als Bild speichern',
+            'save_image'     => 'Visitenkarte speichern',
             'add_to_home'    => 'Zum Home hinzufügen',
             'ios_hint'       => 'Zum Speichern: auf Teilen tippen, dann "Zum Home-Bildschirm".',
+            'incomplete_title' => 'Profil in Bearbeitung',
+            'incomplete_text'  => 'Diese Visitenkarte wurde noch nicht vervollständigt.',
         ],
         'ro' => [
             'save'           => 'Adaugă la contacte',
@@ -160,9 +170,11 @@
             'cta_card'       => 'Creează și tu cartea de vizită digitală',
             'cta_register'   => 'Înregistrează-te cu invitația lui',
             'cta_planet'     => 'Vei intra în Planeta',
-            'save_image'     => 'Salvează ca imagine',
+            'save_image'     => 'Salvează cartea de vizită',
             'add_to_home'    => 'Adaugă pe ecran',
             'ios_hint'       => 'Pentru a salva: apasă Distribuie, apoi "Adaugă pe ecranul principal".',
+            'incomplete_title' => 'Profil în pregătire',
+            'incomplete_text'  => 'Acest card de vizită nu a fost încă completat.',
         ],
     ];
 
@@ -288,6 +300,23 @@
         }
         .kc-btn-save:hover { opacity: .9; }
         .kc-btn-save svg { width: 17px; height: 17px; stroke: #061018; flex-shrink: 0; }
+
+        /* ── Stato "profilo in allestimento" (card senza dati) ───────── */
+        .kc-incomplete {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; gap: .45rem;
+            padding: 1.75rem 1rem 1.25rem;
+        }
+        .kc-incomplete-ic {
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--km-surface-strong);
+            border: .5px solid var(--km-line);
+            margin-bottom: .25rem;
+        }
+        .kc-incomplete-ic svg { width: 24px; height: 24px; stroke: var(--km-muted); }
+        .kc-incomplete-title { font-size: 1rem; font-weight: 600; color: var(--km-ink); }
+        .kc-incomplete-text  { font-size: .8125rem; color: var(--km-muted); max-width: 17rem; line-height: 1.4; }
 
         /* ── Sezione CONTATTI ─────────────────────────────────────── */
         .kc-contacts {
@@ -482,6 +511,8 @@
     {{-- ════════ BODY ════════ --}}
     <div class="kc-body">
 
+    @if($hasProfileData)
+
         {{-- Aggiungi ai contatti --}}
         <a class="kc-btn-save" data-noexport
            href="{{ route('card.vcard', $onepage->slug) }}"
@@ -604,6 +635,30 @@
         </div>
         @endif
 
+    @else
+
+        {{-- Fallback "profilo in allestimento": evita la card vuota quando
+             il profilo manca o non contiene alcun dato (es. account doppio,
+             omonimia con doppia registrazione, onboarding non completato). --}}
+        <div class="kc-incomplete">
+            <span class="kc-incomplete-ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </span>
+            <h2 class="kc-incomplete-title">{{ $t['incomplete_title'] }}</h2>
+            <p class="kc-incomplete-text">{{ $t['incomplete_text'] }}</p>
+
+            @auth
+                @if(auth()->id() === $user->id)
+                <a class="kc-profile-link" data-noexport href="{{ route('profile.edit') }}" style="margin-top:.5rem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    {{ $t['edit_profile'] }}
+                </a>
+                @endif
+            @endauth
+        </div>
+
+    @endif
+
     </div>{{-- /.kc-body --}}
 
     {{-- ════════ FOOTER ════════ --}}
@@ -650,31 +705,9 @@
 
 <script>
 (function () {
-    // ── Auto-salvataggio contatto (vCard) ──────────────────────────────
-    // Avvia automaticamente lo scaricamento del .vcf quando si apre la card,
-    // così il visitatore può aggiungere il contatto senza premere "Salva".
-    // Nota: l'aggiunta effettiva alla rubrica richiede comunque la conferma
-    // finale del sistema operativo (iOS/Android) — non è aggirabile.
-    // Si attiva una sola volta per sessione e solo su dispositivi mobili,
-    // per non infastidire chi apre la card da desktop.
-    (function () {
-        var vcardUrl = '{{ route('card.vcard', $onepage->slug) }}';
-        var once     = 'kc_vcard_{{ $onepage->slug }}';
-        var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-        try {
-            if (!isMobile || sessionStorage.getItem(once)) return;
-            sessionStorage.setItem(once, '1');
-        } catch (e) { /* sessionStorage non disponibile: procedi comunque una volta */ }
-
-        function triggerSave() {
-            var iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = vcardUrl;
-            document.body.appendChild(iframe);
-        }
-        // Piccolo ritardo: lascia disegnare la card prima del prompt di sistema.
-        setTimeout(triggerSave, 1200);
-    }());
+    // Nessun download automatico: il contatto vCard si scarica SOLO se il
+    // visitatore preme "Aggiungi ai contatti". Il biglietto si salva come
+    // immagine col bottone "Salva biglietto da visita".
 
     var btn   = document.getElementById('kc-share-btn');
     var msg   = document.getElementById('kc-copied-msg');
