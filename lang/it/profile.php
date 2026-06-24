@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // Riepilogo errori di validazione (form modifica profilo)
+    'validation_summary_title' => "Non è stato possibile salvare il profilo. Controlla i campi qui sotto:",
+
     // Sezioni
     'identity_title'       => "Identità e contatti",
     'identity_desc'        => "Dati base dell'utente e canali di contatto da usare nelle schede directory.",

@@ -5,7 +5,9 @@ namespace App\Http\Requests;
 use App\Support\VideoUploadLimits;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
@@ -106,6 +108,22 @@ class ProfileUpdateRequest extends FormRequest
             'is_visible_in_directory' => ['sometimes', 'boolean'],
             'onboarding_completed' => ['sometimes', 'boolean'],
         ];
+    }
+
+    /**
+     * Logga gli errori di validazione quando il salvataggio profilo fallisce,
+     * così è possibile capire quale campo ha bloccato il salvataggio del singolo
+     * utente (utile in produzione: storage/logs/laravel.log).
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        Log::warning('Profilo non salvato: validazione fallita', [
+            'user_id' => $this->user()?->id,
+            'email'   => $this->user()?->email,
+            'errors'  => $validator->errors()->toArray(),
+        ]);
+
+        parent::failedValidation($validator);
     }
 
     public function withValidator($validator): void

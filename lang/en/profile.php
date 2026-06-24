@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // Validation error summary (profile edit form)
+    'validation_summary_title' => "The profile could not be saved. Please check the fields below:",
+
     // Sections
     'identity_title'       => "Identity & contacts",
     'identity_desc'        => "Basic member data and contact channels used in directory cards.",

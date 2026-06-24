@@ -15,6 +15,17 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-06-23 — Profilo: riepilogo errori visibile + log validazione (diagnosi "profilo non salva")
+
+- File modificati: `resources/views/profile/partials/update-profile-information-form.blade.php`, `app/Http/Requests/ProfileUpdateRequest.php`, `lang/it/profile.php`, `lang/en/profile.php`
+- Contesto: un cliente riferiva che, dopo aver compilato il profilo 2 volte, la sua pagina di modifica restava **vuota** ("non salva"). Sintomo confermato: al salvataggio la pagina si ricarica senza messaggi e i dati non vengono salvati. Causa: la validazione di `ProfileUpdateRequest` fallisce su un campo **obbligatorio** (`profession_ids` min:1, `city_id`/`region_id`/`province_id`, `phone`) e l'utente viene rimandato indietro **senza alcun errore in evidenza** — il form aveva solo i piccoli `<x-input-error>` accanto ai singoli campi, nessun riepilogo in cima. Quindi l'utente non capiva cosa bloccasse il salvataggio.
+- Cosa è cambiato:
+  1. **Banner riepilogo errori** in cima al form di modifica profilo: mostra `$errors->all()` quando la validazione fallisce, così il campo bloccante è immediatamente visibile.
+  2. **Log di validazione**: override di `failedValidation()` in `ProfileUpdateRequest` → scrive in `storage/logs/laravel.log` `user_id`, `email` e l'elenco dei campi falliti. Permette di identificare in produzione quale campo blocca il singolo cliente.
+- Bilingue: nuova chiave `validation_summary_title` aggiunta a `lang/it/profile.php` e `lang/en/profile.php`.
+- SQL eseguito: NO (nessuna modifica di schema).
+- Note: backup pre-modifica `.bak` per tutti e 4 i file. Nessun rebuild Vite necessario (solo Blade + lang + PHP). Possibile concausa da verificare lato dati: account duplicato/omonimo (vedi entry card sotto) — controllare se il cliente ha più di un profilo.
+
 ## 2026-06-23 — Card: irrobustimento risoluzione profilo (anti card vuota)
 
 - File modificati: `app/Http/Controllers/CardController.php`, `resources/views/card/show.blade.php`
