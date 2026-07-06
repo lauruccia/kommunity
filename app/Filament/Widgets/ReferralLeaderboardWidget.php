@@ -33,7 +33,9 @@ class ReferralLeaderboardWidget extends BaseWidget
                     ->selectRaw('MIN(id) as id, sender_id, COUNT(*) as confirmed_count, COALESCE(SUM(COALESCE(approved_value, declared_value, 0)), 0) as total_value')
                     ->groupBy('sender_id')
                     ->orderByDesc('total_value')
+                    ->orderBy('sender_id')
             )
+            ->defaultKeySort(false)
             ->columns([
                 TextColumn::make('sender.name')
                     ->label('Segnalatore')
