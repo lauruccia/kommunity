@@ -155,6 +155,58 @@ class CardController extends Controller
     }
 
     /**
+     * Web App Manifest dinamico per la singola card (PWA "Aggiungi a Home").
+     * Ogni card ha il proprio manifest con nome del membro e start_url
+     * puntata alla card stessa, così l'icona installata apre direttamente
+     * il biglietto da visita.
+     */
+    public function manifest(string $slug): \Illuminate\Http\JsonResponse
+    {
+        $onepage = MemberOnepage::query()
+            ->with(['user'])
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $user    = $onepage->user;
+        $cardUrl = '/card/' . $slug;
+
+        $manifest = [
+            'name'             => $user->name . ' — Kommunity Card',
+            'short_name'       => Str::limit($user->name, 12, ''),
+            'description'      => 'Biglietto da visita digitale di ' . $user->name . ' su Kommunity.',
+            'id'               => $cardUrl,
+            'start_url'        => $cardUrl,
+            'scope'            => $cardUrl,
+            'display'          => 'standalone',
+            'orientation'      => 'portrait',
+            'background_color' => '#0b1f17',
+            'theme_color'      => '#0b1f17',
+            'lang'             => 'it',
+            'dir'              => 'ltr',
+            'icons'            => [
+                [
+                    'src'     => asset('images/icon-192.png'),
+                    'sizes'   => '192x192',
+                    'type'    => 'image/png',
+                    'purpose' => 'any maskable',
+                ],
+                [
+                    'src'     => asset('images/icon-512.png'),
+                    'sizes'   => '512x512',
+                    'type'    => 'image/png',
+                    'purpose' => 'any maskable',
+                ],
+            ],
+        ];
+
+        return response()->json($manifest, 200, [
+            'Content-Type'  => 'application/manifest+json',
+            'Cache-Control' => 'public, max-age=3600',
+        ]);
+    }
+
+    /**
      * Seleziona in modo deterministico il profilo "buono" di un utente.
      *
      * In presenza di più righe member_profiles per lo stesso user_id
