@@ -39,8 +39,8 @@ deployment:
     - /bin/cp public/sw.js             $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/card-sw.js        $DEPLOYPATH/ 2>/dev/null || true
     - /bin/cp public/.user.ini         $DEPLOYPATH/ 2>/dev/null || true
-    # ── Script migrazione media ONE-TIME (rimuovere dopo l'uso) ───────────
-    - /bin/cp public/migrate-media.php $DEPLOYPATH/ 2>/dev/null || true
+    # ── SICUREZZA: rimuovi script legacy da public_html se ancora presenti ──
+    - /bin/rm -f $DEPLOYPATH/migrate-media.php $DEPLOYPATH/deploy_view.php $DEPLOYPATH/opcache-reset.php $DEPLOYPATH/deploy_content.txt 2>/dev/null || true
 
     # ── Directory media upload: crea le sottocartelle se non esistono ──────
     # I file caricati dagli utenti vanno in public_html/media/{tipo}/ e sono

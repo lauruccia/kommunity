@@ -15,6 +15,16 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-07-07 — Sicurezza: blocco esecuzione PHP in media/ + pulizia script legacy (post-attacco)
+
+- File modificati: `public/media/.htaccess`, `.cpanel.yml`
+- Contesto: secondo giorno consecutivo di sito giù con file mancanti in `public_html/` (vedi incidente 2026-07-05: `index.php` sparito, probabile quarantena antivirus hosting → sospetta webshell/malware nell'account).
+- Cosa è cambiato:
+  1. `public/media/.htaccess`: aggiunto blocco esecuzione script (`FilesMatch` deny su .php/.phtml/.phar/ecc. + `RemoveHandler` + `php_flag engine off`). `media/` è l'unica cartella scrivibile dal web (upload utenti): ora qualsiasi script piazzato lì è inerte.
+  2. `.cpanel.yml`: rimossa la copia di `migrate-media.php` in deploy; aggiunto `rm -f` dei legacy script (`migrate-media.php`, `deploy_view.php`, `opcache-reset.php`, `deploy_content.txt`) da `public_html/` a ogni deploy.
+- SQL eseguito: NO.
+- Note: backup `.htaccess.bak` e `.cpanel.yml.bak2`. Azioni server-side raccomandate (manuali): cambio password cPanel/FTP + 2FA, scansione malware hosting, ModSecurity ON, Cloudflare davanti al dominio, verifica cron job e FTP account sconosciuti.
+
 ## 2026-06-23 — Profilo: riepilogo errori visibile + log validazione (diagnosi "profilo non salva")
 
 - File modificati: `resources/views/profile/partials/update-profile-information-form.blade.php`, `app/Http/Requests/ProfileUpdateRequest.php`, `lang/it/profile.php`, `lang/en/profile.php`

@@ -2,6 +2,20 @@
 # Instrada le richieste a file non esistenti verso Laravel (MediaController)
 # così le immagini old (path members/avatars/...) vengono servite dal fallback PHP.
 
+# ── SICUREZZA: blocca esecuzione script nella cartella upload ────────────────
+# media/ contiene solo file caricati dagli utenti (immagini/video).
+# Nessuno script deve MAI essere eseguito qui: se una webshell .php venisse
+# caricata o piazzata in questa cartella, verrebbe servita come testo inerte.
+<FilesMatch "\.(php|php[0-9]|phtml|phar|pl|py|cgi|sh|asp|aspx)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+RemoveHandler .php .phtml .phar
+RemoveType .php .phtml .phar
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /media/
