@@ -15,6 +15,14 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-07-08 — Directory: sidebar mostra solo professioni con almeno un membro
+
+- File modificati: `app/Http/Controllers/DirectoryController.php`
+- Cosa è cambiato: la query `$professions` ora aggiunge `whereHas('memberProfiles', …)` con gli stessi filtri dell'elenco membri (`is_active`, `is_visible_in_directory` e scope Pianeta attivo via `chapter_members`). La sidebar "Professioni" della directory elenca quindi solo le professioni con almeno un utente registrato visibile nel Pianeta corrente.
+- Motivazione: richiesta utente — la sidebar mostrava tutte le professioni attive, anche vuote.
+- SQL eseguito: NO.
+- Note: backup `DirectoryController.php.bak`. Nessuna stringa nuova (niente lang). Nessun rebuild Vite.
+
 ## 2026-07-08 — Fix "Sessione scaduta" (419) dopo login da mobile
 
 - File modificati: `bootstrap/app.php`, `resources/views/layouts/guest.blade.php`, `lang/it/auth.php`, `lang/en/auth.php`

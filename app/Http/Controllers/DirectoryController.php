@@ -158,8 +158,22 @@ class DirectoryController extends Controller
             // Tabella province non ancora migrata
         }
 
+        // Solo le professioni con almeno un membro visibile in directory
+        // (stesso scope del Pianeta attivo applicato all'elenco membri).
         $professions = Profession::query()
             ->where('is_active', true)
+            ->whereHas('memberProfiles', function (Builder $q) use ($activePlanetId): void {
+                $q->where('member_profiles.is_active', true)
+                    ->where('member_profiles.is_visible_in_directory', true)
+                    ->when($activePlanetId, fn (Builder $inner) =>
+                        $inner->whereExists(fn ($sub) => $sub
+                            ->from('chapter_members')
+                            ->whereColumn('chapter_members.user_id', 'member_profiles.user_id')
+                            ->where('chapter_members.chapter_id', $activePlanetId)
+                            ->where('chapter_members.status', 'active')
+                        )
+                    );
+            })
             ->orderBy('name')
             ->get();
 
