@@ -59,8 +59,23 @@ class MemberProfileResource extends Resource
                     ->label('Professioni (selezione multipla)')
                     ->options(fn () => \App\Models\Profession::flatTree()->pluck('label', 'id'))
                     ->multiple()
+                    ->maxItems(3)
+                    ->helperText('Massimo 3 professioni. I padri gerarchici vengono inclusi automaticamente al salvataggio.')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    // Il campo non è un attributo del model: idratazione e salvataggio
+                    // sono gestiti manualmente (vedi EditMemberProfile), come admin_planets.
+                    ->dehydrated(false)
+                    ->afterStateHydrated(function (Select $component, ?MemberProfile $record): void {
+                        if (! $record) {
+                            return;
+                        }
+                        // Mostra solo le scelte effettive (senza i padri auto-inclusi),
+                        // così il limite di 3 non viene falsato.
+                        $component->state(\App\Models\Profession::stripAncestors(
+                            $record->professions()->pluck('professions.id')->all()
+                        ));
+                    }),
                 Select::make('categories')
                     ->label('Categorie (selezione multipla)')
                     ->relationship('categories', 'name')

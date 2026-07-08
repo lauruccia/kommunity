@@ -208,21 +208,7 @@ class ProfileController extends Controller
         $profile?->categories()->sync($validated['category_ids'] ?? []);
         // Auto-include i padri nella gerarchia: se seleziono "Marketing digitale",
         // aggiungo anche "Marketing" (e così via fino alla radice)
-        $expandedProfIds = collect($validated['profession_ids'] ?? [])
-            ->filter()
-            ->map(fn ($v) => (int) $v)
-            ->flatMap(function (int $id): array {
-                $ids = [$id];
-                $prof = Profession::find($id);
-                while ($prof?->parent_id) {
-                    $ids[] = (int) $prof->parent_id;
-                    $prof = Profession::find($prof->parent_id);
-                }
-                return $ids;
-            })
-            ->unique()
-            ->values()
-            ->all();
+        $expandedProfIds = Profession::expandWithAncestors($validated['profession_ids'] ?? []);
         $profile?->professions()->sync($expandedProfIds);
         $profile?->professionsOfInterest()->sync($validated['profession_interest_ids'] ?? []);
 

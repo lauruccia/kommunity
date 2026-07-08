@@ -26,16 +26,16 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 - SQL eseguito: NO.
 - Note: backup `.bak` per tutti e 4 i file. `errors/419.blade.php` resta come fallback (ora quasi irraggiungibile). Il deploy `.cpanel.yml` svuota già le view compilate in `storage/framework/views/`.
 
-## 2026-07-08 — Profilo: limite massimo 3 professioni selezionabili
+## 2026-07-08 — Profilo: limite massimo 3 professioni + fix campo professioni admin (era rotto)
 
-- File modificati: `app/Http/Requests/ProfileUpdateRequest.php`, `resources/views/profile/partials/update-profile-information-form.blade.php`, `resources/views/profile/partials/_multiselect.blade.php`, `lang/it/profile.php`, `lang/en/profile.php`
+- File modificati: `app/Http/Requests/ProfileUpdateRequest.php`, `app/Http/Controllers/ProfileController.php`, `app/Models/Profession.php`, `app/Filament/Resources/MemberProfiles/MemberProfileResource.php`, `app/Filament/Resources/MemberProfiles/Pages/EditMemberProfile.php`, `app/Filament/Resources/MemberProfiles/Pages/CreateMemberProfile.php`, `resources/views/profile/partials/update-profile-information-form.blade.php`, `resources/views/profile/partials/_multiselect.blade.php`, `lang/it/profile.php`, `lang/en/profile.php`
 - Cosa è cambiato:
-  1. **Validazione backend**: `profession_ids` ora ha regola `max:3` con messaggio custom bilingue (`profile.professions_max_error`).
-  2. **UI**: il componente Alpine `kmMultiSelect` accetta un 4° parametro opzionale `maxSelected`; per "In quale settore lavori" è impostato a 3. Raggiunto il limite, le opzioni non selezionate risultano disabilitate/attenuate nel dropdown. Aggiunto hint sotto la label (`profile.professions_max_hint`).
-  3. Il multi-select "professionisti da conoscere" (`profession_interest_ids`) resta senza limite — il parametro è opzionale e retrocompatibile.
-- Motivazione: richiesta utente — prima si potevano selezionare infinite professioni.
+  1. **Limite lato utente**: `profession_ids` con regola `max:3` + messaggio bilingue (`profile.professions_max_error`). Il componente Alpine `kmMultiSelect` accetta un 4° parametro opzionale `maxSelected` (=3 per "In quale settore lavori"): al limite, le opzioni non selezionate sono disabilitate/attenuate. Hint sotto la label (`profile.professions_max_hint`). Il multi-select "professionisti da conoscere" resta illimitato.
+  2. **Fix bug admin Filament**: il select "Professioni (selezione multipla)" in MemberProfileResource era NON funzionante — senza `->relationship()` né sync: non caricava le professioni dal DB e scartava silenziosamente la selezione al salvataggio. Ora: idratazione via `afterStateHydrated` + `dehydrated(false)` + sync manuale in `EditMemberProfile`/`CreateMemberProfile` (pattern admin_planets), con `maxItems(3)`.
+  3. **Helper centralizzati** in `Profession`: `expandWithAncestors()` (auto-include padri gerarchici, prima inline in ProfileController) e `stripAncestors()` (rimuove i padri auto-inclusi per la pre-selezione nei form, così il limite 3 vale solo sulle scelte effettive dell'utente — evita il lockout di profili con 3 figlie + padri in DB).
+- Motivazione: richiesta utente — prima si potevano selezionare infinite professioni; verifica admin ha rivelato il campo rotto.
 - SQL eseguito: NO (nessuna modifica di schema).
-- Note: backup `.bak` per tutti e 5 i file. L'espansione automatica dei padri gerarchici in `ProfileController@update` non è toccata: il limite vale sulla selezione dell'utente, i padri auto-inclusi possono portare il totale sincronizzato oltre 3 (comportamento voluto). Admin Filament non limitato.
+- Note: backup `.bak` per tutti i file. In DB restano possibili >3 righe pivot per via dei padri auto-inclusi (comportamento voluto, utile ai filtri directory).
 
 ## 2026-07-07 — Sicurezza: blocco esecuzione PHP in media/ + pulizia script legacy (post-attacco)
 

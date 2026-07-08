@@ -107,6 +107,60 @@ class Profession extends Model
         }
     }
 
+    // ── Helper selezione multipla ─────────────────────────────────────────────
+
+    /**
+     * Espande un elenco di ID includendo tutti gli antenati gerarchici.
+     * Es. selezionando "Sviluppatore software" viene incluso anche il padre
+     * "Programmazione / Sviluppo software" (fino alla radice).
+     *
+     * @param  array<int|string>  $ids
+     * @return array<int>
+     */
+    public static function expandWithAncestors(array $ids): array
+    {
+        return collect($ids)
+            ->filter()
+            ->map(fn ($v) => (int) $v)
+            ->flatMap(function (int $id): array {
+                $result = [$id];
+                $prof = static::find($id);
+                while ($prof?->parent_id) {
+                    $result[] = (int) $prof->parent_id;
+                    $prof = static::find($prof->parent_id);
+                }
+                return $result;
+            })
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Inverso di expandWithAncestors(): rimuove dall'elenco gli ID che sono
+     * antenati di altri ID selezionati (cioè i padri auto-inclusi al salvataggio).
+     * Usato per pre-selezionare nei form solo le scelte effettive dell'utente,
+     * così il limite max 3 non viene falsato dai padri gerarchici.
+     *
+     * @param  array<int|string>  $ids
+     * @return array<int>
+     */
+    public static function stripAncestors(array $ids): array
+    {
+        $ids = collect($ids)->filter()->map(fn ($v) => (int) $v)->unique()->values();
+
+        // I padri auto-inclusi coprono sempre l'intera catena, quindi basta
+        // escludere gli ID che risultano parent_id di un altro ID selezionato.
+        $parentIds = static::query()
+            ->whereKey($ids->all())
+            ->pluck('parent_id')
+            ->filter()
+            ->map(fn ($v) => (int) $v)
+            ->all();
+
+        return $ids->reject(fn (int $id) => in_array($id, $parentIds, true))->values()->all();
+    }
+
     // ── Relazioni verso profili ───────────────────────────────────────────────
 
     /** Relazione legacy (singola professione) */

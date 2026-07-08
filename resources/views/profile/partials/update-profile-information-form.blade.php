@@ -273,7 +273,9 @@
                 {{-- In quale settore lavori: multi-select sulle professioni --}}
                 @php
                     $professionOptions = $professions->map(fn($p) => ['id' => $p->id, 'label' => $p->name])->values()->all();
-                    $selectedProfIds   = collect(old('profession_ids', $profile->professions->pluck('id')->all()))->map(fn($v) => (int) $v)->values()->all();
+                    // stripAncestors: esclude i padri gerarchici auto-inclusi al salvataggio,
+                    // così il limite di 3 vale solo sulle scelte effettive dell'utente.
+                    $selectedProfIds   = collect(old('profession_ids', \App\Models\Profession::stripAncestors($profile->professions->pluck('id')->all())))->map(fn($v) => (int) $v)->values()->all();
                 @endphp
                 <div class="md:col-span-2"
                      x-data="kmMultiSelect(@js($professionOptions), @js($selectedProfIds), 'profession_ids', 3)">

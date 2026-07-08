@@ -27,6 +27,10 @@ class EditMemberProfile extends EditRecord
         $adminPlanets = $this->data['admin_planets'] ?? null;
         unset($data['admin_planets']);
 
+        // professions (M2M) è dehydrated(false): si legge dallo stato raw del form
+        $professions = $this->data['professions'] ?? null;
+        unset($data['professions']);
+
         $previousChapterId = $record->active_chapter_id;
 
         /** @var MemberProfile $record */
@@ -37,6 +41,14 @@ class EditMemberProfile extends EditRecord
         // Sincronizza i pianeti iscritti (chapter_members)
         if ($adminPlanets !== null && $record->user_id) {
             $this->syncAdminPlanets($record, array_map('intval', (array) $adminPlanets));
+        }
+
+        // Sincronizza le professioni (max 3 lato form) espandendo i padri
+        // gerarchici, come fa ProfileController lato utente.
+        if ($professions !== null) {
+            $record->professions()->sync(
+                \App\Models\Profession::expandWithAncestors((array) $professions)
+            );
         }
 
         $this->syncPublicOnepage($record, $coverImage);
