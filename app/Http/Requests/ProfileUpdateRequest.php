@@ -62,7 +62,7 @@ class ProfileUpdateRequest extends FormRequest
             'company_name' => ['nullable', 'string', 'max:255'],
             'profession_id' => ['nullable', 'exists:professions,id'],
             'profession_other' => ['nullable', 'string', 'max:255'],
-            'profession_ids' => ['required', 'array', 'min:1'],
+            'profession_ids' => ['required', 'array', 'min:1', 'max:3'],
             'profession_ids.*' => ['integer', 'exists:professions,id'],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['integer', 'exists:categories,id'],
@@ -107,6 +107,18 @@ class ProfileUpdateRequest extends FormRequest
             'show_read_receipts' => ['sometimes', 'boolean'],
             'is_visible_in_directory' => ['sometimes', 'boolean'],
             'onboarding_completed' => ['sometimes', 'boolean'],
+        ];
+    }
+
+    /**
+     * Messaggi di validazione personalizzati.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'profession_ids.max' => __('profile.professions_max_error'),
         ];
     }
 

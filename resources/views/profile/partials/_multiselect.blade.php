@@ -32,11 +32,14 @@
         </div>
         <div class="max-h-52 overflow-y-auto py-1">
             <template x-for="opt in filtered" :key="opt.id">
-                <label class="flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm transition"
-                       :class="isSelected(opt.id) ? 'bg-emerald-50 text-emerald-800 font-medium' : 'text-stone-700 hover:bg-stone-50'">
+                <label class="flex items-center gap-3 px-4 py-2.5 text-sm transition"
+                       :class="isSelected(opt.id)
+                            ? 'cursor-pointer bg-emerald-50 text-emerald-800 font-medium'
+                            : (atMax ? 'cursor-not-allowed text-stone-400 opacity-60' : 'cursor-pointer text-stone-700 hover:bg-stone-50')">
                     <input type="checkbox" :checked="isSelected(opt.id)" @change="toggle(opt.id)"
                            @click.stop
-                           class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-300">
+                           :disabled="!isSelected(opt.id) && atMax"
+                           class="rounded border-stone-300 text-emerald-600 focus:ring-emerald-300 disabled:opacity-50">
                     <span x-text="opt.label"></span>
                 </label>
             </template>

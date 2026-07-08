@@ -24,6 +24,8 @@ return [
     'referral_link'        => "Personal referral link",
     'company_name'         => "Company or business",
     'professions'          => "Professions",
+    'professions_max_hint' => "You can select up to 3 professions.",
+    'professions_max_error' => "You can select up to 3 professions.",
     'categories'           => "Categories",
     'planet'               => "Planet",
     'region'               => "Region",

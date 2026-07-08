@@ -20,6 +20,9 @@ Questo progetto è già stato analizzato.
 - Middleware: Laravel standard + Spatie permission + `auth` + `verified`
 - Modelli principali (47 totali): `User`, `Chapter`, `ChapterMember`, `ChapterRole`, `ChapterInvitation`, `ChapterJoinRequest`, `PlanetRole`, `MemberProfile`, `MemberOnepage`, `MemberGalleryImage`, `ForumCategory`, `ForumThread`, `ForumPost`, `ForumCategoryProposal`, `Conversation`, `Message`, `OneToOneRequest`, `OneToOneNote`, `OneToOneFollowup`, `OneToOneReference`, `Event`, `EventRegistration`, `EventInvitation`, `SubscriptionPlan`, `MemberSubscription`, `BannerCampaign`, `BannerCreative`, `BannerPlacement`, `BannerClick`, `BannerImpression`, `Advertiser`, `PushSubscription`, `FeatureFlag`, `Referral`, `Page`, `SiteSetting`, `City`, `Province`, `Region`, `Sector`, `Category`, `Profession`, `AvailabilitySlot`, `ProfileSuggestion`, `ProfileVideoAccessRequest`, `CompanyInterestType`
 
+## Vincoli funzionali
+- Profilo: max **3 professioni** selezionabili (`profession_ids` max:3 in `ProfileUpdateRequest` + limite UI in `kmMultiSelect` con parametro `maxSelected`). I padri gerarchici auto-inclusi in `ProfileController@update` non contano nel limite.
+
 ## Flussi da non rompere
 - Login: Laravel Breeze, sessioni, email verification (`routes/auth.php`)
 - Registrazione: Breeze + referral tracking (`Referral` model)

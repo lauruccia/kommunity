@@ -276,8 +276,9 @@
                     $selectedProfIds   = collect(old('profession_ids', $profile->professions->pluck('id')->all()))->map(fn($v) => (int) $v)->values()->all();
                 @endphp
                 <div class="md:col-span-2"
-                     x-data="kmMultiSelect(@js($professionOptions), @js($selectedProfIds), 'profession_ids')">
+                     x-data="kmMultiSelect(@js($professionOptions), @js($selectedProfIds), 'profession_ids', 3)">
                     <x-input-label :value="'In quale settore lavori *'" />
+                    <p class="mt-1 text-xs text-stone-500">{{ __('profile.professions_max_hint') }}</p>
                     @include('profile.partials._multiselect')
                     <x-input-error class="mt-2" :messages="$errors->get('profession_ids')" />
                 </div>
@@ -980,20 +981,26 @@ document.addEventListener('alpine:init', () => {
     }));
 
     /* ── Multi-select generico ─────────────────────────────────────────── */
-    Alpine.data('kmMultiSelect', (options, initialSelected, fieldName) => ({
+    Alpine.data('kmMultiSelect', (options, initialSelected, fieldName, maxSelected = null) => ({
         options:  options,
         selected: initialSelected.map(Number),
         fieldName: fieldName,
+        maxSelected: maxSelected,
         open:   false,
         search: '',
         get filtered() {
             const q = this.search.toLowerCase();
             return q ? this.options.filter(o => o.label.toLowerCase().includes(q)) : this.options;
         },
+        get atMax() {
+            return this.maxSelected !== null && this.selected.length >= this.maxSelected;
+        },
         isSelected(id) { return this.selected.includes(Number(id)); },
         toggle(id) {
             id = Number(id);
-            this.isSelected(id) ? this.deselect(id) : this.selected.push(id);
+            if (this.isSelected(id)) { this.deselect(id); return; }
+            if (this.atMax) return; // limite raggiunto: non aggiungere
+            this.selected.push(id);
         },
         deselect(id) { this.selected = this.selected.filter(s => s !== Number(id)); },
     }));

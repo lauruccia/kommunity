@@ -15,6 +15,17 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-07-08 — Profilo: limite massimo 3 professioni selezionabili
+
+- File modificati: `app/Http/Requests/ProfileUpdateRequest.php`, `resources/views/profile/partials/update-profile-information-form.blade.php`, `resources/views/profile/partials/_multiselect.blade.php`, `lang/it/profile.php`, `lang/en/profile.php`
+- Cosa è cambiato:
+  1. **Validazione backend**: `profession_ids` ora ha regola `max:3` con messaggio custom bilingue (`profile.professions_max_error`).
+  2. **UI**: il componente Alpine `kmMultiSelect` accetta un 4° parametro opzionale `maxSelected`; per "In quale settore lavori" è impostato a 3. Raggiunto il limite, le opzioni non selezionate risultano disabilitate/attenuate nel dropdown. Aggiunto hint sotto la label (`profile.professions_max_hint`).
+  3. Il multi-select "professionisti da conoscere" (`profession_interest_ids`) resta senza limite — il parametro è opzionale e retrocompatibile.
+- Motivazione: richiesta utente — prima si potevano selezionare infinite professioni.
+- SQL eseguito: NO (nessuna modifica di schema).
+- Note: backup `.bak` per tutti e 5 i file. L'espansione automatica dei padri gerarchici in `ProfileController@update` non è toccata: il limite vale sulla selezione dell'utente, i padri auto-inclusi possono portare il totale sincronizzato oltre 3 (comportamento voluto). Admin Filament non limitato.
+
 ## 2026-07-07 — Sicurezza: blocco esecuzione PHP in media/ + pulizia script legacy (post-attacco)
 
 - File modificati: `public/media/.htaccess`, `.cpanel.yml`

@@ -24,6 +24,8 @@ return [
     'referral_link'        => "Referral link personale",
     'company_name'         => "Azienda o attività",
     'professions'          => "Professioni",
+    'professions_max_hint' => "Puoi selezionare al massimo 3 professioni.",
+    'professions_max_error' => "Puoi selezionare al massimo 3 professioni.",
     'categories'           => "Categorie",
     'planet'               => "Pianeta",
     'region'               => "Regione",
