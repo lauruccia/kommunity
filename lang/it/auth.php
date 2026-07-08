@@ -23,4 +23,5 @@ return [
     'reset_password'      => 'Reimposta password',
     'send_reset_link'     => 'Invia link di reimpostazione',
     'back_to_login'       => 'Torna al login',
+    'session_expired'     => 'La sessione è scaduta o hai inviato un form aperto da troppo tempo. Ricarica la pagina e accedi di nuovo.',
 ];

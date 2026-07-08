@@ -49,5 +49,17 @@
 
         {{-- Cookie banner GDPR (sempre presente, anche su login/register) --}}
         @include('partials.cookie-banner')
+
+        <script>
+        // Fix 419 su mobile: se il browser ripristina la pagina dalla
+        // back/forward cache (tab riaperta dopo ore), il token CSRF nel form
+        // è scaduto e il submit fallirebbe con "Sessione scaduta".
+        // Ricarichiamo la pagina dal server per ottenere un token fresco.
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) {
+                window.location.reload();
+            }
+        });
+        </script>
     </body>
 </html>

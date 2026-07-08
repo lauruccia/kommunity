@@ -23,4 +23,5 @@ return [
     'reset_password'      => 'Reset password',
     'send_reset_link'     => 'Send reset link',
     'back_to_login'       => 'Back to login',
+    'session_expired'     => 'Your session has expired or the form was open for too long. Please reload the page and log in again.',
 ];

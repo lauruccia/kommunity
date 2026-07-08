@@ -39,13 +39,22 @@ return Application::configure(basePath: dirname(__DIR__))
             return redirect()->route('login')->with('warning', $message);
         });
 
-        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
-            $message = 'La sessione è scaduta o hai inviato un form aperto da troppo tempo. Ricarica la pagina e accedi di nuovo.';
+        // NB: in Laravel 12 prepareException() converte TokenMismatchException in
+        // HttpException(419) PRIMA dei render callback, quindi il callback va
+        // registrato su HttpException (non su TokenMismatchException).
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, \Illuminate\Http\Request $request) {
+            if ($e->getStatusCode() !== 419 || $request->expectsJson()) {
+                return null;
+            }
+
+            $message = __('auth.session_expired');
 
             if ($request->is('admin/*') || $request->is('admin')) {
                 return redirect('/admin/login')->with('warning', $message);
             }
 
+            // Se l'utente è già autenticato (es. doppio submit del login o
+            // cookie "ricordami"), il middleware guest lo porterà in dashboard.
             return redirect()->route('login')->with('warning', $message);
         });
     })->create();

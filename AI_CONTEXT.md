@@ -35,6 +35,10 @@ Questo progetto è già stato analizzato.
 ## Enums (`app/Enums/`)
 `ContactMethod`, `EventAttendanceStatus`, `EventType`, `MemberProfileStatus`, `OneToOneStatus`, `OnepageVisibility`, `PaymentMethod`, `ReferralStatus`, `SubscriptionPlanType`, `SubscriptionStatus`
 
+## Gestione 419/CSRF (non rompere)
+- Il render callback in `bootstrap/app.php` è registrato su `HttpException` con check status 419, NON su `TokenMismatchException`: in Laravel 12 `prepareException()` la converte prima dei callback.
+- `layouts/guest.blade.php` ricarica la pagina se ripristinata da bfcache (`pageshow` + `e.persisted`) per evitare token CSRF stantii su mobile.
+
 ## Policies (`app/Policies/`)
 `ConversationPolicy`, `EventPolicy`, `MemberOnepagePolicy`, `OneToOnePolicy`, `ReferralPolicy`
 

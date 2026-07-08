@@ -15,6 +15,17 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-07-08 — Fix "Sessione scaduta" (419) dopo login da mobile
+
+- File modificati: `bootstrap/app.php`, `resources/views/layouts/guest.blade.php`, `lang/it/auth.php`, `lang/en/auth.php`
+- Cosa è cambiato:
+  1. **Bug root**: in Laravel 12 `prepareException()` converte `TokenMismatchException` in `HttpException(419)` PRIMA dei render callback → il callback registrato su `TokenMismatchException` non scattava mai e veniva mostrata la pagina `errors/419.blade.php` come vicolo cieco. Il callback ora è registrato su `HttpException` con check `getStatusCode() === 419`: redirect a `/admin/login` o `route('login')` con warning bilingue (`auth.session_expired`). Se l'utente è già autenticato (doppio submit o cookie "ricordami") il middleware guest lo porta in dashboard.
+  2. **Prevenzione su mobile**: in `layouts/guest.blade.php` aggiunto listener `pageshow` — se la pagina di login viene ripristinata dalla back/forward cache (tab riaperta dopo ore, tipico su mobile) il token CSRF è stantio → reload automatico dal server per ottenere un token fresco.
+  3. Nuova chiave lang `auth.session_expired` (IT + EN).
+- Motivazione: da mobile, dopo il login compariva sempre la schermata "Sessione scaduta" anche se l'accesso era di fatto riuscito (dashboard accessibile).
+- SQL eseguito: NO.
+- Note: backup `.bak` per tutti e 4 i file. `errors/419.blade.php` resta come fallback (ora quasi irraggiungibile). Il deploy `.cpanel.yml` svuota già le view compilate in `storage/framework/views/`.
+
 ## 2026-07-08 — Profilo: limite massimo 3 professioni selezionabili
 
 - File modificati: `app/Http/Requests/ProfileUpdateRequest.php`, `resources/views/profile/partials/update-profile-information-form.blade.php`, `resources/views/profile/partials/_multiselect.blade.php`, `lang/it/profile.php`, `lang/en/profile.php`
