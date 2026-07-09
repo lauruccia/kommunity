@@ -12,7 +12,7 @@ return [
     // ── Homepage section ──────────────────────────────────────────────────
     'home_badge'      => 'Members by selection',
     'home_title_1'    => 'We don\'t collect sign-ups.',
-    'home_title_2'    => 'We choose people.',
+    'home_title_2'    => 'We build relationships that matter.',
     'home_text'       => 'Kommunity is a closed-number community: professionals and companies selected one by one, to guarantee high-quality relationships and concrete opportunities. Every application is reviewed personally.',
     'home_point_1'    => 'Verified profiles, no random contacts',
     'home_point_2'    => 'Local Planets with limited seats per profession',

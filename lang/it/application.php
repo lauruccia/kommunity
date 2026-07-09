@@ -12,7 +12,7 @@ return [
     // ── Sezione homepage ──────────────────────────────────────────────────
     'home_badge'      => 'Accesso su selezione',
     'home_title_1'    => 'Non cerchiamo iscritti.',
-    'home_title_2'    => 'Scegliamo persone.',
+    'home_title_2'    => 'Costruiamo relazioni che contano.',
     'home_text'       => 'Kommunity è una community a numero chiuso: professionisti e aziende selezionati uno a uno, per garantire relazioni di qualità e opportunità concrete. Ogni candidatura viene valutata personalmente.',
     'home_point_1'    => 'Profili verificati, nessun contatto casuale',
     'home_point_2'    => 'Pianeti territoriali con posti limitati per professione',
