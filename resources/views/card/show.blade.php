@@ -602,17 +602,17 @@
 
         /* ── Candidatura di ammissione (solo ospiti) ─────────────── */
         .kc-join {
-            margin: .25rem .875rem .875rem;
+            margin: .25rem .875rem .75rem;
             border-radius: var(--km-radius-sm);
-            padding: 1.3rem 1.1rem 1.2rem;
+            padding: .85rem .9rem .9rem;
             background:
                 radial-gradient(circle at 85% -20%, rgba(139,197,63,.18), transparent 42%),
                 linear-gradient(160deg, var(--km-dark) 0%, var(--km-dark-2) 65%, #073040 100%);
             border: .5px solid rgba(139,197,63,.28);
             text-align: center;
         }
-        .kc-join-eyebrow { font-size: .62rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--km-green); margin-bottom: .5rem; }
-        .kc-join-title   { font-size: 1.15rem; font-weight: 600; color: var(--km-text); margin-bottom: .4rem; }
+        .kc-join-eyebrow { font-size: .6rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--km-green); margin-bottom: .45rem; }
+        .kc-join-title   { font-size: 1.1rem; font-weight: 600; color: var(--km-text); margin: .55rem 0 .4rem; }
         .kc-join-text    { font-size: .78rem; line-height: 1.55; color: var(--km-text-muted); margin-bottom: .6rem; }
         .kc-join-presenter { font-size: .74rem; line-height: 1.5; color: rgba(224,235,243,.9); background: rgba(255,255,255,.06); border: .5px solid rgba(255,255,255,.10); border-radius: .6rem; padding: .55rem .7rem; margin-bottom: .85rem; }
         .kc-join-btn {
@@ -822,7 +822,9 @@
 
     </div>{{-- /.kc-body --}}
 
-    {{-- ════════ CANDIDATURA DI AMMISSIONE (solo ospiti) ════════ --}}
+    {{-- ════════ CANDIDATURA DI AMMISSIONE (solo ospiti) ════════
+         Compatta di default (eyebrow + bottone) per non allungare la card
+         su smartphone: testo, presentatore e form compaiono al tocco. --}}
     @guest
     @php
         $joinFirstName = explode(' ', trim($user->name))[0];
@@ -831,9 +833,6 @@
     @endphp
     <div class="kc-join" id="candidatura" data-noexport>
         <p class="kc-join-eyebrow">{{ $t['join_eyebrow'] }}</p>
-        <h2 class="kc-join-title">{{ $t['join_title'] }}</h2>
-        <p class="kc-join-text">{{ $t['join_text'] }}</p>
-        <p class="kc-join-presenter">🪐 {{ str_replace(':name', $joinFirstName, $t['join_presenter']) }}</p>
 
         @if($joinSuccess)
             <div class="kc-join-success" role="status">
@@ -844,51 +843,56 @@
             <button class="kc-join-btn" id="kc-join-toggle" type="button"
                     @if($joinOpen) style="display:none" @endif>
                 <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#061018" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                {{ $t['join_btn'] }}
+                {{ $t['join_title'] }}
             </button>
 
-            <form class="kc-join-form" id="kc-join-form" method="POST"
-                  action="{{ route('membership.apply') }}"
-                  @unless($joinOpen) style="display:none" @endunless>
-                @csrf
-                <input type="hidden" name="card_slug" value="{{ $onepage->slug }}">
-                <input type="hidden" name="locale" value="{{ $locale }}">
-                {{-- Honeypot anti-bot: invisibile agli umani --}}
-                <input type="text" name="company_website" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+            <div id="kc-join-more" @unless($joinOpen) style="display:none" @endunless>
+                <h2 class="kc-join-title">{{ $t['join_title'] }}</h2>
+                <p class="kc-join-text">{{ $t['join_text'] }}</p>
+                <p class="kc-join-presenter">🪐 {{ str_replace(':name', $joinFirstName, $t['join_presenter']) }}</p>
 
-                @if($errors->any())
-                    <div class="kc-join-errors" role="alert">
-                        @foreach($errors->all() as $error)
-                            <p>• {{ $error }}</p>
-                        @endforeach
+                <form class="kc-join-form" id="kc-join-form" method="POST"
+                      action="{{ route('membership.apply') }}">
+                    @csrf
+                    <input type="hidden" name="card_slug" value="{{ $onepage->slug }}">
+                    <input type="hidden" name="locale" value="{{ $locale }}">
+                    {{-- Honeypot anti-bot: invisibile agli umani --}}
+                    <input type="text" name="company_website" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+
+                    @if($errors->any())
+                        <div class="kc-join-errors" role="alert">
+                            @foreach($errors->all() as $error)
+                                <p>• {{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <label for="kj-name">{{ $t['f_name'] }}</label>
+                    <input type="text" id="kj-name" name="name" value="{{ old('name') }}" required autocomplete="name">
+
+                    <label for="kj-email">{{ $t['f_email'] }}</label>
+                    <input type="email" id="kj-email" name="email" value="{{ old('email') }}" required autocomplete="email">
+
+                    <label for="kj-phone">{{ $t['f_phone'] }}</label>
+                    <input type="tel" id="kj-phone" name="phone" value="{{ old('phone') }}" required autocomplete="tel">
+
+                    <label>{{ $t['f_type'] }}</label>
+                    <div class="kc-join-type">
+                        <label><input type="radio" name="applicant_type" value="privato" {{ old('applicant_type', 'privato') === 'privato' ? 'checked' : '' }}> {{ $t['f_private'] }}</label>
+                        <label><input type="radio" name="applicant_type" value="azienda" {{ old('applicant_type') === 'azienda' ? 'checked' : '' }}> {{ $t['f_company'] }}</label>
                     </div>
-                @endif
 
-                <label for="kj-name">{{ $t['f_name'] }}</label>
-                <input type="text" id="kj-name" name="name" value="{{ old('name') }}" required autocomplete="name">
+                    <label for="kj-vat">{{ $t['f_vat'] }}</label>
+                    <input type="text" id="kj-vat" name="vat_number" value="{{ old('vat_number') }}" autocomplete="off" {{ old('applicant_type') === 'azienda' ? 'required' : '' }}>
+                    <p class="kc-join-hint">{{ $t['f_vat_hint'] }}</p>
 
-                <label for="kj-email">{{ $t['f_email'] }}</label>
-                <input type="email" id="kj-email" name="email" value="{{ old('email') }}" required autocomplete="email">
+                    <label for="kj-profession">{{ $t['f_profession'] }}</label>
+                    <input type="text" id="kj-profession" name="profession" value="{{ old('profession') }}" required>
 
-                <label for="kj-phone">{{ $t['f_phone'] }}</label>
-                <input type="tel" id="kj-phone" name="phone" value="{{ old('phone') }}" required autocomplete="tel">
-
-                <label>{{ $t['f_type'] }}</label>
-                <div class="kc-join-type">
-                    <label><input type="radio" name="applicant_type" value="privato" {{ old('applicant_type', 'privato') === 'privato' ? 'checked' : '' }}> {{ $t['f_private'] }}</label>
-                    <label><input type="radio" name="applicant_type" value="azienda" {{ old('applicant_type') === 'azienda' ? 'checked' : '' }}> {{ $t['f_company'] }}</label>
-                </div>
-
-                <label for="kj-vat">{{ $t['f_vat'] }}</label>
-                <input type="text" id="kj-vat" name="vat_number" value="{{ old('vat_number') }}" autocomplete="off" {{ old('applicant_type') === 'azienda' ? 'required' : '' }}>
-                <p class="kc-join-hint">{{ $t['f_vat_hint'] }}</p>
-
-                <label for="kj-profession">{{ $t['f_profession'] }}</label>
-                <input type="text" id="kj-profession" name="profession" value="{{ old('profession') }}" required>
-
-                <button class="kc-join-btn" type="submit">{{ $t['f_submit'] }}</button>
-                <p class="kc-join-privacy">{{ $t['f_privacy'] }}</p>
-            </form>
+                    <button class="kc-join-btn" type="submit">{{ $t['f_submit'] }}</button>
+                    <p class="kc-join-privacy">{{ $t['f_privacy'] }}</p>
+                </form>
+            </div>
         @endif
     </div>
     @endguest
@@ -936,20 +940,24 @@
 </div>{{-- /.kc-wrap --}}
 
 <script>
-// ── Candidatura di ammissione: toggle form + P.IVA per aziende ─────────
+// ── Candidatura di ammissione: toggle sezione + P.IVA per aziende ──────
 (function () {
     var toggle = document.getElementById('kc-join-toggle');
+    var more   = document.getElementById('kc-join-more');
     var form   = document.getElementById('kc-join-form');
     var box    = document.getElementById('candidatura');
 
-    if (toggle && form) {
+    if (toggle && more) {
         toggle.addEventListener('click', function () {
             toggle.style.display = 'none';
-            form.style.display = '';
-            var first = form.querySelector('input[name="name"]');
-            if (first) first.focus();
+            more.style.display = '';
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            var first = more.querySelector('input[name="name"]');
+            if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 350);
         });
+    }
 
+    if (form) {
         // P.IVA obbligatoria solo per le aziende
         var vat = document.getElementById('kj-vat');
         form.querySelectorAll('input[name="applicant_type"]').forEach(function (radio) {
