@@ -168,7 +168,7 @@ class ReferralController extends Controller
                 'status'       => 'referral-created',
                 'suggest_name' => $recipient?->name ?? 'il destinatario',
                 'suggest_id'   => $data['recipient_id'],
-                'suggest_title'=> $data['title'],
+                'suggest_title'=> $referral->title,
             ]);
     }
 
