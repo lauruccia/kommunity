@@ -55,6 +55,10 @@ return [
     // EventReminder
     'event_reminder_title' => '📅 Tomorrow: :title',
 
+    // NewMembershipApplication (application awaiting review)
+    'membership_application_title' => '📥 New Kommunity application',
+    'membership_application_body'  => 'Awaiting review: :name',
+
     // NewMemberConciergeAlert
     'new_member_concierge_title' => '🟢 New Kommunity member',
     'new_member_concierge_body'  => 'Concierge within 24h: :name',

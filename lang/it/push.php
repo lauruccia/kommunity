@@ -55,6 +55,10 @@ return [
     // EventReminder
     'event_reminder_title' => '📅 Domani: :title',
 
+    // NewMembershipApplication (candidatura da approvare)
+    'membership_application_title' => '📥 Nuova candidatura Kommunity',
+    'membership_application_body'  => 'Da valutare: :name',
+
     // NewMemberConciergeAlert
     'new_member_concierge_title' => '🟢 Nuovo utente Kommunity',
     'new_member_concierge_body'  => 'Concierge entro 24h: :name',

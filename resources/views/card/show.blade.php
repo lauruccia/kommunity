@@ -65,6 +65,25 @@
             'ios_hint'       => 'Per salvarlo: tocca Condividi e poi "Aggiungi alla schermata Home".',
             'incomplete_title' => 'Profilo in allestimento',
             'incomplete_text'  => 'Questo biglietto da visita non è ancora stato completato.',
+            // Candidatura di ammissione (sezione ospiti)
+            'join_eyebrow'   => 'Accesso su selezione',
+            'join_title'     => 'Entra in Kommunity',
+            'join_text'      => 'Una community a numero chiuso di professionisti e aziende scelti uno a uno. Qui non ci si iscrive: ci si candida.',
+            'join_presenter' => ':name può presentarti. Se la tua candidatura viene approvata, entrerai nel suo Pianeta.',
+            'join_btn'       => 'Candidati ora',
+            'f_name'         => 'Nome e cognome',
+            'f_email'        => 'Email',
+            'f_phone'        => 'Telefono',
+            'f_type'         => 'Ti candidi come',
+            'f_private'      => 'Privato / Professionista',
+            'f_company'      => 'Azienda',
+            'f_vat'          => 'Partita IVA',
+            'f_vat_hint'     => 'Obbligatoria per le aziende',
+            'f_profession'   => 'Professione / attività',
+            'f_submit'       => 'Invia la candidatura',
+            'f_privacy'      => 'I dati saranno usati solo per valutare la candidatura.',
+            'join_success_title' => 'Candidatura ricevuta',
+            'join_success_text'  => 'Il tuo profilo è ora in valutazione: ti risponderemo via email al più presto.',
         ],
         'en' => [
             'save'           => 'Add to contacts',
@@ -87,6 +106,25 @@
             'ios_hint'       => 'To save it: tap Share, then "Add to Home Screen".',
             'incomplete_title' => 'Profile in progress',
             'incomplete_text'  => 'This business card hasn\'t been completed yet.',
+            // Membership application (guest section)
+            'join_eyebrow'   => 'Members by selection',
+            'join_title'     => 'Join Kommunity',
+            'join_text'      => 'A closed-number community of professionals and companies chosen one by one. You don\'t sign up here: you apply.',
+            'join_presenter' => ':name can introduce you. If your application is approved, you\'ll join their Planet.',
+            'join_btn'       => 'Apply now',
+            'f_name'         => 'Full name',
+            'f_email'        => 'Email',
+            'f_phone'        => 'Phone',
+            'f_type'         => 'You are applying as',
+            'f_private'      => 'Individual / Professional',
+            'f_company'      => 'Company',
+            'f_vat'          => 'VAT number',
+            'f_vat_hint'     => 'Required for companies',
+            'f_profession'   => 'Profession / business',
+            'f_submit'       => 'Submit application',
+            'f_privacy'      => 'Your data will only be used to review the application.',
+            'join_success_title' => 'Application received',
+            'join_success_text'  => 'Your profile is under review: we\'ll get back to you by email soon.',
         ],
         'fr' => [
             'save'           => 'Ajouter aux contacts',
@@ -109,6 +147,25 @@
             'ios_hint'       => 'Pour l\'enregistrer : touchez Partager, puis "Sur l\'écran d\'accueil".',
             'incomplete_title' => 'Profil en cours',
             'incomplete_text'  => 'Cette carte de visite n\'a pas encore été complétée.',
+            // Candidature d'admission (section visiteurs)
+            'join_eyebrow'   => 'Accès sur sélection',
+            'join_title'     => 'Rejoignez Kommunity',
+            'join_text'      => 'Une communauté à nombre fermé de professionnels et d\'entreprises choisis un par un. Ici on ne s\'inscrit pas : on pose sa candidature.',
+            'join_presenter' => ':name peut vous présenter. Si votre candidature est approuvée, vous rejoindrez sa Planète.',
+            'join_btn'       => 'Postuler',
+            'f_name'         => 'Nom et prénom',
+            'f_email'        => 'Email',
+            'f_phone'        => 'Téléphone',
+            'f_type'         => 'Vous postulez en tant que',
+            'f_private'      => 'Particulier / Professionnel',
+            'f_company'      => 'Entreprise',
+            'f_vat'          => 'Numéro de TVA',
+            'f_vat_hint'     => 'Obligatoire pour les entreprises',
+            'f_profession'   => 'Profession / activité',
+            'f_submit'       => 'Envoyer la candidature',
+            'f_privacy'      => 'Vos données ne seront utilisées que pour évaluer la candidature.',
+            'join_success_title' => 'Candidature reçue',
+            'join_success_text'  => 'Votre profil est en cours d\'évaluation : nous vous répondrons par email au plus vite.',
         ],
         'es' => [
             'save'           => 'Añadir a contactos',
@@ -131,6 +188,25 @@
             'ios_hint'       => 'Para guardarla: toca Compartir y luego "Añadir a pantalla de inicio".',
             'incomplete_title' => 'Perfil en preparación',
             'incomplete_text'  => 'Esta tarjeta de visita aún no se ha completado.',
+            // Candidatura de admisión (sección visitantes)
+            'join_eyebrow'   => 'Acceso por selección',
+            'join_title'     => 'Únete a Kommunity',
+            'join_text'      => 'Una comunidad de número cerrado de profesionales y empresas elegidos uno a uno. Aquí no te registras: presentas tu candidatura.',
+            'join_presenter' => ':name puede presentarte. Si tu candidatura es aprobada, entrarás en su Planeta.',
+            'join_btn'       => 'Presenta tu candidatura',
+            'f_name'         => 'Nombre y apellidos',
+            'f_email'        => 'Email',
+            'f_phone'        => 'Teléfono',
+            'f_type'         => 'Te presentas como',
+            'f_private'      => 'Particular / Profesional',
+            'f_company'      => 'Empresa',
+            'f_vat'          => 'NIF / IVA',
+            'f_vat_hint'     => 'Obligatorio para empresas',
+            'f_profession'   => 'Profesión / actividad',
+            'f_submit'       => 'Enviar candidatura',
+            'f_privacy'      => 'Tus datos solo se usarán para evaluar la candidatura.',
+            'join_success_title' => 'Candidatura recibida',
+            'join_success_text'  => 'Tu perfil está en evaluación: te responderemos por email lo antes posible.',
         ],
         'de' => [
             'save'           => 'Zu Kontakten hinzufügen',
@@ -153,6 +229,25 @@
             'ios_hint'       => 'Zum Speichern: auf Teilen tippen, dann "Zum Home-Bildschirm".',
             'incomplete_title' => 'Profil in Bearbeitung',
             'incomplete_text'  => 'Diese Visitenkarte wurde noch nicht vervollständigt.',
+            // Aufnahmebewerbung (Gast-Bereich)
+            'join_eyebrow'   => 'Zugang nur auf Auswahl',
+            'join_title'     => 'Werde Teil von Kommunity',
+            'join_text'      => 'Eine geschlossene Community aus einzeln ausgewählten Fachleuten und Unternehmen. Hier meldet man sich nicht an: man bewirbt sich.',
+            'join_presenter' => ':name kann dich vorstellen. Wird deine Bewerbung angenommen, trittst du seinem Planeten bei.',
+            'join_btn'       => 'Jetzt bewerben',
+            'f_name'         => 'Vor- und Nachname',
+            'f_email'        => 'E-Mail',
+            'f_phone'        => 'Telefon',
+            'f_type'         => 'Du bewirbst dich als',
+            'f_private'      => 'Privatperson / Freiberufler',
+            'f_company'      => 'Unternehmen',
+            'f_vat'          => 'USt-IdNr.',
+            'f_vat_hint'     => 'Pflicht für Unternehmen',
+            'f_profession'   => 'Beruf / Tätigkeit',
+            'f_submit'       => 'Bewerbung senden',
+            'f_privacy'      => 'Deine Daten werden nur zur Prüfung der Bewerbung verwendet.',
+            'join_success_title' => 'Bewerbung erhalten',
+            'join_success_text'  => 'Dein Profil wird geprüft: wir melden uns so bald wie möglich per E-Mail.',
         ],
         'ro' => [
             'save'           => 'Adaugă la contacte',
@@ -175,6 +270,25 @@
             'ios_hint'       => 'Pentru a salva: apasă Distribuie, apoi "Adaugă pe ecranul principal".',
             'incomplete_title' => 'Profil în pregătire',
             'incomplete_text'  => 'Acest card de vizită nu a fost încă completat.',
+            // Candidatură de admitere (secțiune vizitatori)
+            'join_eyebrow'   => 'Acces pe bază de selecție',
+            'join_title'     => 'Intră în Kommunity',
+            'join_text'      => 'O comunitate cu număr închis de profesioniști și companii aleși unul câte unul. Aici nu te înscrii: îți depui candidatura.',
+            'join_presenter' => ':name te poate recomanda. Dacă îți este aprobată candidatura, vei intra în Planeta sa.',
+            'join_btn'       => 'Candidează acum',
+            'f_name'         => 'Nume și prenume',
+            'f_email'        => 'Email',
+            'f_phone'        => 'Telefon',
+            'f_type'         => 'Candidezi ca',
+            'f_private'      => 'Persoană fizică / Profesionist',
+            'f_company'      => 'Companie',
+            'f_vat'          => 'Cod TVA / CUI',
+            'f_vat_hint'     => 'Obligatoriu pentru companii',
+            'f_profession'   => 'Profesie / activitate',
+            'f_submit'       => 'Trimite candidatura',
+            'f_privacy'      => 'Datele vor fi folosite doar pentru evaluarea candidaturii.',
+            'join_success_title' => 'Candidatură primită',
+            'join_success_text'  => 'Profilul tău este în evaluare: îți vom răspunde prin email cât mai curând.',
         ],
     ];
 
@@ -485,6 +599,53 @@
         .kc-footer-btn--primary svg { stroke: #061018; }
         .kc-footer-btn--secondary { background: var(--km-surface-strong); color: var(--km-ink); border: .5px solid var(--km-line-strong); }
         .kc-footer-btn--secondary svg { stroke: var(--km-ink); }
+
+        /* ── Candidatura di ammissione (solo ospiti) ─────────────── */
+        .kc-join {
+            margin: .25rem .875rem .875rem;
+            border-radius: var(--km-radius-sm);
+            padding: 1.3rem 1.1rem 1.2rem;
+            background:
+                radial-gradient(circle at 85% -20%, rgba(139,197,63,.18), transparent 42%),
+                linear-gradient(160deg, var(--km-dark) 0%, var(--km-dark-2) 65%, #073040 100%);
+            border: .5px solid rgba(139,197,63,.28);
+            text-align: center;
+        }
+        .kc-join-eyebrow { font-size: .62rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--km-green); margin-bottom: .5rem; }
+        .kc-join-title   { font-size: 1.15rem; font-weight: 600; color: var(--km-text); margin-bottom: .4rem; }
+        .kc-join-text    { font-size: .78rem; line-height: 1.55; color: var(--km-text-muted); margin-bottom: .6rem; }
+        .kc-join-presenter { font-size: .74rem; line-height: 1.5; color: rgba(224,235,243,.9); background: rgba(255,255,255,.06); border: .5px solid rgba(255,255,255,.10); border-radius: .6rem; padding: .55rem .7rem; margin-bottom: .85rem; }
+        .kc-join-btn {
+            display: flex; align-items: center; justify-content: center; gap: .4rem;
+            width: 100%; padding: .75rem 1rem;
+            background: linear-gradient(135deg, var(--km-green), #5f9d42);
+            color: #061018; font-family: inherit; font-size: .9375rem; font-weight: 600;
+            border: none; border-radius: var(--km-radius-sm);
+            cursor: pointer; transition: opacity var(--km-transition);
+        }
+        .kc-join-btn:hover { opacity: .9; }
+        .kc-join-form { text-align: left; margin-top: .35rem; }
+        .kc-join-form label { display: block; font-size: .68rem; font-weight: 600; letter-spacing: .04em; color: rgba(224,235,243,.88); margin: .65rem 0 .25rem; }
+        .kc-join-form input[type="text"],
+        .kc-join-form input[type="email"],
+        .kc-join-form input[type="tel"] {
+            width: 100%; box-sizing: border-box; padding: .6rem .7rem;
+            border-radius: .55rem; border: .5px solid rgba(255,255,255,.18);
+            background: rgba(255,255,255,.07); color: var(--km-text);
+            font-family: inherit; font-size: .85rem; outline: none;
+        }
+        .kc-join-form input:focus { border-color: var(--km-green); }
+        .kc-join-type { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+        .kc-join-type label { display: flex; align-items: center; justify-content: center; gap: .35rem; margin: 0; padding: .55rem .4rem; border: .5px solid rgba(255,255,255,.18); border-radius: .55rem; background: rgba(255,255,255,.05); font-size: .72rem; color: var(--km-text); cursor: pointer; text-align: center; }
+        .kc-join-type input { accent-color: #8bc53f; }
+        .kc-join-type label:has(input:checked) { border-color: var(--km-green); background: rgba(139,197,63,.14); }
+        .kc-join-hint    { font-size: .62rem; color: rgba(190,203,214,.75); margin-top: .25rem; }
+        .kc-join-privacy { font-size: .62rem; color: rgba(190,203,214,.7); text-align: center; margin-top: .65rem; line-height: 1.5; }
+        .kc-join-errors  { background: rgba(220,38,38,.16); border: .5px solid rgba(248,113,113,.5); color: #fecaca; border-radius: .55rem; padding: .55rem .75rem; font-size: .72rem; line-height: 1.55; margin: .5rem 0 .2rem; text-align: left; }
+        .kc-join-errors p { margin: 0; }
+        .kc-join-success { background: rgba(139,197,63,.13); border: .5px solid rgba(139,197,63,.45); border-radius: .6rem; padding: .95rem .8rem; color: var(--km-text); font-size: .8rem; line-height: 1.55; }
+        .kc-join-success strong { color: var(--km-green); }
+        .kc-join-form .kc-join-btn { margin-top: .95rem; }
     </style>
 </head>
 <body>
@@ -661,6 +822,77 @@
 
     </div>{{-- /.kc-body --}}
 
+    {{-- ════════ CANDIDATURA DI AMMISSIONE (solo ospiti) ════════ --}}
+    @guest
+    @php
+        $joinFirstName = explode(' ', trim($user->name))[0];
+        $joinSuccess   = (bool) session('membership_applied');
+        $joinOpen      = $errors->any() && old('card_slug') === $onepage->slug;
+    @endphp
+    <div class="kc-join" id="candidatura" data-noexport>
+        <p class="kc-join-eyebrow">{{ $t['join_eyebrow'] }}</p>
+        <h2 class="kc-join-title">{{ $t['join_title'] }}</h2>
+        <p class="kc-join-text">{{ $t['join_text'] }}</p>
+        <p class="kc-join-presenter">🪐 {{ str_replace(':name', $joinFirstName, $t['join_presenter']) }}</p>
+
+        @if($joinSuccess)
+            <div class="kc-join-success" role="status">
+                <strong>✓ {{ $t['join_success_title'] }}</strong><br>
+                {{ $t['join_success_text'] }}
+            </div>
+        @else
+            <button class="kc-join-btn" id="kc-join-toggle" type="button"
+                    @if($joinOpen) style="display:none" @endif>
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#061018" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                {{ $t['join_btn'] }}
+            </button>
+
+            <form class="kc-join-form" id="kc-join-form" method="POST"
+                  action="{{ route('membership.apply') }}"
+                  @unless($joinOpen) style="display:none" @endunless>
+                @csrf
+                <input type="hidden" name="card_slug" value="{{ $onepage->slug }}">
+                <input type="hidden" name="locale" value="{{ $locale }}">
+                {{-- Honeypot anti-bot: invisibile agli umani --}}
+                <input type="text" name="company_website" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+
+                @if($errors->any())
+                    <div class="kc-join-errors" role="alert">
+                        @foreach($errors->all() as $error)
+                            <p>• {{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
+
+                <label for="kj-name">{{ $t['f_name'] }}</label>
+                <input type="text" id="kj-name" name="name" value="{{ old('name') }}" required autocomplete="name">
+
+                <label for="kj-email">{{ $t['f_email'] }}</label>
+                <input type="email" id="kj-email" name="email" value="{{ old('email') }}" required autocomplete="email">
+
+                <label for="kj-phone">{{ $t['f_phone'] }}</label>
+                <input type="tel" id="kj-phone" name="phone" value="{{ old('phone') }}" required autocomplete="tel">
+
+                <label>{{ $t['f_type'] }}</label>
+                <div class="kc-join-type">
+                    <label><input type="radio" name="applicant_type" value="privato" {{ old('applicant_type', 'privato') === 'privato' ? 'checked' : '' }}> {{ $t['f_private'] }}</label>
+                    <label><input type="radio" name="applicant_type" value="azienda" {{ old('applicant_type') === 'azienda' ? 'checked' : '' }}> {{ $t['f_company'] }}</label>
+                </div>
+
+                <label for="kj-vat">{{ $t['f_vat'] }}</label>
+                <input type="text" id="kj-vat" name="vat_number" value="{{ old('vat_number') }}" autocomplete="off" {{ old('applicant_type') === 'azienda' ? 'required' : '' }}>
+                <p class="kc-join-hint">{{ $t['f_vat_hint'] }}</p>
+
+                <label for="kj-profession">{{ $t['f_profession'] }}</label>
+                <input type="text" id="kj-profession" name="profession" value="{{ old('profession') }}" required>
+
+                <button class="kc-join-btn" type="submit">{{ $t['f_submit'] }}</button>
+                <p class="kc-join-privacy">{{ $t['f_privacy'] }}</p>
+            </form>
+        @endif
+    </div>
+    @endguest
+
     {{-- ════════ FOOTER ════════ --}}
     <div class="kc-footer" data-noexport>
         @auth
@@ -704,6 +936,35 @@
 </div>{{-- /.kc-wrap --}}
 
 <script>
+// ── Candidatura di ammissione: toggle form + P.IVA per aziende ─────────
+(function () {
+    var toggle = document.getElementById('kc-join-toggle');
+    var form   = document.getElementById('kc-join-form');
+    var box    = document.getElementById('candidatura');
+
+    if (toggle && form) {
+        toggle.addEventListener('click', function () {
+            toggle.style.display = 'none';
+            form.style.display = '';
+            var first = form.querySelector('input[name="name"]');
+            if (first) first.focus();
+        });
+
+        // P.IVA obbligatoria solo per le aziende
+        var vat = document.getElementById('kj-vat');
+        form.querySelectorAll('input[name="applicant_type"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                if (vat) vat.required = (radio.value === 'azienda' && radio.checked);
+            });
+        });
+    }
+
+    // Dopo submit (errori o successo) riporta la vista sulla sezione
+    if (box && ({{ (isset($joinSuccess) && $joinSuccess) || (isset($joinOpen) && $joinOpen) ? 'true' : 'false' }})) {
+        setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 150);
+    }
+}());
+
 (function () {
     // Nessun download automatico: il contatto vCard si scarica SOLO se il
     // visitatore preme "Aggiungi ai contatti". Il biglietto si salva come

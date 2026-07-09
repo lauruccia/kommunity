@@ -163,6 +163,7 @@
             <a href="#come-funziona" class="nav-link">Come funziona</a>
             <a href="#community" class="nav-link">Kommunity</a>
 
+            <a href="#candidatura" class="nav-link">{{ __('application.home_nav') }}</a>
             <a href="#contatti" class="nav-link">Contatti</a>
             @foreach($navPages as $np)<a href="{{ route('page.show', $np->slug) }}" class="nav-link">{{ $np->title }}</a>@endforeach
             {{-- Visibile solo nel menu mobile --}}
@@ -170,6 +171,7 @@
         </nav>
         <div class="header-cta">
             <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Accedi</a>
+            <a href="#candidatura" class="btn btn-primary btn-sm">{{ __('application.home_nav') }}</a>
         </div>
         <button class="hamburger" aria-label="Apri menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
@@ -182,6 +184,7 @@
             <h1 id="hero-heading"><span class="title-line">Relazioni giuste.</span><span class="title-line accent">Opportunità reali.</span></h1>
             <p class="hero-body">Kommunity è l'ecosistema dove professionisti e aziende si connettono, collaborano e crescono insieme.</p>
             <div class="hero-actions">
+                <a href="#candidatura" class="btn btn-primary btn-lg">{{ __('application.home_cta') }} <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
                 <a href="#come-funziona" class="btn btn-ghost btn-lg">Scopri come funziona <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .8.9 1.27 1.56.82l10.04-6.86a1 1 0 0 0 0-1.64L9.56 4.32C8.9 3.87 8 4.34 8 5.14Z"/></svg></a>
             </div>
             <div class="social-proof">
@@ -259,7 +262,9 @@
 
 <section id="eventi" class="km-section"><div class="km-wrap video-grid"><div class="video-player glass"><button type="button" class="play-btn" aria-label="Guarda il video"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .8.9 1.27 1.56.82l10.04-6.86a1 1 0 0 0 0-1.64L9.56 4.32C8.9 3.87 8 4.34 8 5.14Z"/></svg></button><div class="video-brand brand-lockup" style="font-size:.95rem"><span class="brand-mark"><x-application-logo /></span><span>Kommunity</span></div></div><div><span class="badge badge-green" style="margin-bottom:1.2rem"><span class="badge-dot"></span>Scopri Kommunity</span><h2 class="section-title" style="font-size:clamp(2rem,4vw,3.2rem)">In 60 secondi</h2><p class="section-copy">Guarda il video e scopri come Kommunity può trasformare le tue relazioni in risultati concreti.</p><a href="#come-funziona" class="btn btn-ghost" style="margin-top:2rem">Guarda il video ▶</a></div></div></section>
 
-<section class="cta-section"><div class="km-wrap cta-inner"><div><h2 class="cta-title">Pronto a trasformare<br>le relazioni in risultati?</h2><p class="cta-body">Kommunity cresce tramite inviti qualificati e accessi selezionati.</p></div><a href="{{ route('login') }}" class="btn btn-primary btn-lg">Accedi <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></section>
+@include('partials.membership-apply-home')
+
+<section class="cta-section"><div class="km-wrap cta-inner"><div><h2 class="cta-title">Pronto a trasformare<br>le relazioni in risultati?</h2><p class="cta-body">Kommunity cresce tramite inviti qualificati e accessi selezionati.</p></div><div style="display:flex;flex-wrap:wrap;gap:.85rem"><a href="#candidatura" class="btn btn-primary btn-lg">{{ __('application.home_cta') }} <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="{{ route('login') }}" class="btn btn-ghost btn-lg">Accedi</a></div></div></section>
 </main>
 
 <footer id="contatti" class="site-footer">

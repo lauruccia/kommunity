@@ -18,7 +18,7 @@ Questo progetto è già stato analizzato.
 - Viste: `resources/views/` (layouts/, components/, partials/, dashboard, forum, events, members, one-to-ones, conversations, notifications, onboarding, subscriptions, referrals, card, invito, directory, …)
 - Componenti principali: Filament Resources in `app/Filament/Resources/`, View composers in `app/View/`
 - Middleware: Laravel standard + Spatie permission + `auth` + `verified`
-- Modelli principali (47 totali): `User`, `Chapter`, `ChapterMember`, `ChapterRole`, `ChapterInvitation`, `ChapterJoinRequest`, `PlanetRole`, `MemberProfile`, `MemberOnepage`, `MemberGalleryImage`, `ForumCategory`, `ForumThread`, `ForumPost`, `ForumCategoryProposal`, `Conversation`, `Message`, `OneToOneRequest`, `OneToOneNote`, `OneToOneFollowup`, `OneToOneReference`, `Event`, `EventRegistration`, `EventInvitation`, `SubscriptionPlan`, `MemberSubscription`, `BannerCampaign`, `BannerCreative`, `BannerPlacement`, `BannerClick`, `BannerImpression`, `Advertiser`, `PushSubscription`, `FeatureFlag`, `Referral`, `Page`, `SiteSetting`, `City`, `Province`, `Region`, `Sector`, `Category`, `Profession`, `AvailabilitySlot`, `ProfileSuggestion`, `ProfileVideoAccessRequest`, `CompanyInterestType`
+- Modelli principali (48 totali): `User`, `MembershipApplication`, `Chapter`, `ChapterMember`, `ChapterRole`, `ChapterInvitation`, `ChapterJoinRequest`, `PlanetRole`, `MemberProfile`, `MemberOnepage`, `MemberGalleryImage`, `ForumCategory`, `ForumThread`, `ForumPost`, `ForumCategoryProposal`, `Conversation`, `Message`, `OneToOneRequest`, `OneToOneNote`, `OneToOneFollowup`, `OneToOneReference`, `Event`, `EventRegistration`, `EventInvitation`, `SubscriptionPlan`, `MemberSubscription`, `BannerCampaign`, `BannerCreative`, `BannerPlacement`, `BannerClick`, `BannerImpression`, `Advertiser`, `PushSubscription`, `FeatureFlag`, `Referral`, `Page`, `SiteSetting`, `City`, `Province`, `Region`, `Sector`, `Category`, `Profession`, `AvailabilitySlot`, `ProfileSuggestion`, `ProfileVideoAccessRequest`, `CompanyInterestType`
 
 ## Vincoli funzionali
 - Profilo: max **3 professioni** selezionabili (`profession_ids` max:3 in `ProfileUpdateRequest` + limite UI in `kmMultiSelect` con parametro `maxSelected`). I padri gerarchici auto-inclusi in `ProfileController@update` non contano nel limite.
@@ -48,14 +48,14 @@ Questo progetto è già stato analizzato.
 ## Observers (`app/Observers/`)
 `UserObserver`
 
-## Filament Resources (`app/Filament/Resources/`) — 30 risorse
-Advertisers, AvailabilitySlots, BannerCampaigns, BannerCreatives, BannerPlacements, Categories, Chapters, Cities, CompanyInterestTypes, Conversations, Events, FeatureFlags, ForumCategories, ForumCategoryProposals, ForumThreads, MemberOnepages, MemberProfiles, MemberSubscriptions, OneToOneRequests, Pages, Permissions, PlanetRoles, Professions, ProfileSuggestions, Referrals, Regions, Roles, Sectors, SubscriptionPlans, Users
+## Filament Resources (`app/Filament/Resources/`) — 31 risorse
+Advertisers, MembershipApplications, AvailabilitySlots, BannerCampaigns, BannerCreatives, BannerPlacements, Categories, Chapters, Cities, CompanyInterestTypes, Conversations, Events, FeatureFlags, ForumCategories, ForumCategoryProposals, ForumThreads, MemberOnepages, MemberProfiles, MemberSubscriptions, OneToOneRequests, Pages, Permissions, PlanetRoles, Professions, ProfileSuggestions, Referrals, Regions, Roles, Sectors, SubscriptionPlans, Users
 
 ## Migrazioni
-43 migrazioni in `database/migrations/`
+44 migrazioni in `database/migrations/`
 
 ## i18n
-- `lang/it/` e `lang/en/`: `auth.php`, `directory.php`, `nav.php`, `planet_chat.php`, `profile.php`, `push.php`, `subscription.php`, `validation.php`
+- `lang/it/` e `lang/en/`: `application.php`, `auth.php`, `directory.php`, `nav.php`, `planet_chat.php`, `profile.php`, `push.php`, `subscription.php`, `validation.php`
 
 ## Convenzioni
 - Non modificare `.env` (né locale né produzione).
@@ -69,7 +69,9 @@ Advertisers, AvailabilitySlots, BannerCampaigns, BannerCreatives, BannerPlacemen
 - Quando modifichi qualcosa, aggiorna questo file.
 
 ## Ultime modifiche
-Data: 2026-06-19 — One-to-one: la conferma di completamento (anche di una sola parte) blocca riprogrammazione/annullamento (`OneToOneRequest::completionStarted()`); nuova colonna `one_to_one_requests.rescheduled_by` + `canRespondTo()` per far confermare la riprogrammazione alla controparte (passa subito ad Accettato). Fix CSS hover `.km-button-secondary` su tema scuro in `kommunity.css`. Semplificata `auth/verify-email`. Dettagli in `CHANGELOG_AI.md`.
+Data: 2026-07-09 — Candidature di ammissione (`MembershipApplication`): form pubblico premium su card (`/card/{slug}`, sezione @guest in 6 lingue) e homepage (#candidatura, campo "chi ti ha fatto conoscere"), rotta `POST /candidatura` (throttle+honeypot), approvazione/rifiuto in Filament `/admin/membership-applications` (approva = crea User verificato + iscrive al Pianeta scelto + email "imposta password"; pianeta di default: attivo del proprietario card, o Kosmos da home). Nuova tabella `membership_applications` (in produzione: eseguire `membership_applications.sql` in phpMyAdmin). Lang: `application.php` (it/en) + chiavi `push.membership_application_*`. Dettagli in `CHANGELOG_AI.md`.
+
+Data precedente: 2026-06-19 — One-to-one: la conferma di completamento (anche di una sola parte) blocca riprogrammazione/annullamento (`OneToOneRequest::completionStarted()`); nuova colonna `one_to_one_requests.rescheduled_by` + `canRespondTo()` per far confermare la riprogrammazione alla controparte (passa subito ad Accettato). Fix CSS hover `.km-button-secondary` su tema scuro in `kommunity.css`. Semplificata `auth/verify-email`. Dettagli in `CHANGELOG_AI.md`.
 
 ## Ultima analisi
 Data: 2026-06-10

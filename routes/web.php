@@ -23,6 +23,7 @@ use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\ChapterInviteController;
+use App\Http\Controllers\MembershipApplicationController;
 use App\Http\Controllers\MyInvitesController;
 use App\Http\Controllers\PlanetChatController;
 use App\Http\Controllers\PlanetContextController;
@@ -54,6 +55,11 @@ Route::get('/', function () {
 
 // ── Newsletter iscrizione ─────────────────────────────────────────────────────
 Route::post('/newsletter', [PageController::class, 'newsletter'])->name('newsletter.subscribe');
+
+// ── Candidatura di ammissione (pubblica: da card membro e da homepage) ────────
+Route::post('/candidatura', [MembershipApplicationController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('membership.apply');
 
 // ── Pagine CMS pubbliche ──────────────────────────────────────────────────────
 Route::get('/pagina/{slug}', [PageController::class, 'show'])->name('page.show');
