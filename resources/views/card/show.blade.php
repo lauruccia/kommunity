@@ -362,7 +362,7 @@
                 radial-gradient(circle at 80% -10%, rgba(139,197,63,.14), transparent 30%),
                 radial-gradient(circle at 8% 22%, rgba(45,212,191,.08), transparent 32%),
                 linear-gradient(160deg, var(--km-dark) 0%, var(--km-dark-2) 60%, #073040 100%);
-            padding: 1.25rem 1.5rem 2.75rem;
+            padding: .9rem 1.25rem 2.05rem;
             text-align: center;
             position: relative;
         }
@@ -370,14 +370,14 @@
             content: '';
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            height: 1.5rem;
+            height: 1rem;
             background: var(--km-surface);
             border-radius: 1.25rem 1.25rem 0 0;
         }
-        .kc-avatar-wrap { display: inline-block; margin-bottom: .5rem; }
+        .kc-avatar-wrap { display: inline-block; margin-bottom: .35rem; }
         .kc-avatar,
         .kc-avatar-initials {
-            width: 72px; height: 72px;
+            width: 58px; height: 58px;
             border-radius: 50%;
             border: 2px solid rgba(139,197,63,.35);
         }
@@ -385,31 +385,31 @@
         .kc-avatar-initials {
             background: linear-gradient(135deg, #1d3a28, #2d5a3d);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.375rem; font-weight: 500;
+            font-size: 1.15rem; font-weight: 500;
             color: var(--km-green); letter-spacing: .04em;
         }
-        .kc-name    { font-size: 1.2rem; font-weight: 600; color: var(--km-text); margin-bottom: .18rem; }
-        .kc-role    { font-size: .8rem; color: var(--km-text-muted); margin-bottom: .12rem; }
-        .kc-company { font-size: .72rem; color: rgba(170,183,196,.7); }
+        .kc-name    { font-size: 1.08rem; font-weight: 600; color: var(--km-text); margin-bottom: .14rem; }
+        .kc-role    { font-size: .75rem; color: var(--km-text-muted); margin-bottom: .1rem; }
+        .kc-company { font-size: .68rem; color: rgba(170,183,196,.7); }
 
         /* ── BODY ─────────────────────────────────────────────────── */
         .kc-body {
             flex: 1 0 auto;
             display: flex;
             flex-direction: column;
-            padding: .2rem .875rem .75rem;
+            padding: .15rem .75rem .5rem;
             background: var(--km-surface);
         }
 
         /* Bottone primario */
         .kc-btn-save {
             display: flex; align-items: center; justify-content: center; gap: .4rem;
-            width: 100%; padding: .75rem 1rem;
+            width: 100%; padding: .6rem 1rem;
             background: linear-gradient(135deg, var(--km-green), #5f9d42);
-            color: #061018; font-family: inherit; font-size: .9375rem; font-weight: 600;
+            color: #061018; font-family: inherit; font-size: .875rem; font-weight: 600;
             border: none; border-radius: var(--km-radius-sm);
             text-decoration: none; cursor: pointer;
-            margin-bottom: .75rem;
+            margin-bottom: .55rem;
             transition: opacity var(--km-transition);
         }
         .kc-btn-save:hover { opacity: .9; }
@@ -437,14 +437,14 @@
             background: var(--km-surface-strong);
             border: .5px solid var(--km-line);
             border-radius: var(--km-radius-sm);
-            padding: .1rem .75rem;
-            margin-bottom: .625rem;
+            padding: .05rem .7rem;
+            margin-bottom: .5rem;
         }
         .kc-contact-row {
-            display: flex; align-items: center; gap: .625rem;
-            padding: .55rem 0;
+            display: flex; align-items: center; gap: .55rem;
+            padding: .42rem 0;
             border-bottom: .5px solid var(--km-line);
-            font-size: .8125rem; color: var(--km-ink);
+            font-size: .78rem; color: var(--km-ink);
             text-decoration: none;
         }
         .kc-contact-row:last-child { border-bottom: none; }
@@ -453,7 +453,7 @@
 
         /* Icona cerchio inline */
         .kc-ci {
-            width: 24px; height: 24px; border-radius: 50%;
+            width: 22px; height: 22px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
@@ -492,16 +492,19 @@
 
         /* Bottone condividi */
         .kc-btn-share {
-            display: flex; align-items: center; justify-content: center; gap: .4rem;
-            width: 100%; padding: .7rem;
+            display: flex; align-items: center; justify-content: center; gap: .3rem;
+            width: 100%; padding: .5rem .3rem;
             background: transparent; color: var(--km-accent-strong);
-            font-family: inherit; font-size: .9375rem; font-weight: 600;
-            border: 1.5px solid var(--km-accent); border-radius: var(--km-radius-sm);
-            cursor: pointer; margin-bottom: .5rem;
+            font-family: inherit; font-size: .74rem; font-weight: 600; line-height: 1.15;
+            border: 1px solid var(--km-accent); border-radius: var(--km-radius-sm);
+            cursor: pointer;
             transition: background var(--km-transition);
         }
         .kc-btn-share:hover { background: var(--km-accent-soft); }
-        .kc-btn-share svg { width: 17px; height: 17px; stroke: var(--km-accent-strong); flex-shrink: 0; }
+        .kc-btn-share svg { width: 14px; height: 14px; stroke: var(--km-accent-strong); flex-shrink: 0; }
+        /* Riga compatta: Condividi + Salva biglietto (+ Aggiungi a Home) */
+        .kc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; margin-bottom: .5rem; }
+        .kc-actions #kc-home-btn { grid-column: 1 / -1; }
 
         .kc-copied {
             display: none; text-align: center;
@@ -512,12 +515,12 @@
         /* ── Social in fondo (cerchi neutri, nessuna label) ─── */
         .kc-socials-foot {
             display: flex; flex-wrap: wrap;
-            justify-content: center; gap: .65rem;
-            padding: .65rem 0 .35rem;
+            justify-content: center; gap: .5rem;
+            padding: .45rem 0 .2rem;
             border-top: .5px solid var(--km-line);
         }
         .kc-sf {
-            width: 42px; height: 42px;
+            width: 36px; height: 36px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             text-decoration: none;
@@ -527,9 +530,9 @@
             flex-shrink: 0;
         }
         .kc-sf:hover { opacity: .7; }
-        .kc-sf svg { width: 21px; height: 21px; stroke: var(--km-muted); }
+        .kc-sf svg { width: 18px; height: 18px; stroke: var(--km-muted); }
         .kc-sf-img {
-            width: 23px; height: 23px;
+            width: 20px; height: 20px;
             object-fit: contain;
             display: block;
         }
@@ -570,13 +573,13 @@
         /* Link profilo Kommunity nel body */
         .kc-profile-link {
             display: flex; align-items: center; justify-content: center; gap: .35rem;
-            width: 100%; padding: .55rem 1rem;
+            width: 100%; padding: .45rem 1rem;
             background: var(--km-surface-strong);
             border: .5px solid var(--km-line);
             border-radius: var(--km-radius-sm);
-            font-family: inherit; font-size: .8125rem; font-weight: 500;
+            font-family: inherit; font-size: .78rem; font-weight: 500;
             color: var(--km-accent-strong); text-decoration: none;
-            margin-bottom: .625rem;
+            margin-bottom: .5rem;
             transition: opacity var(--km-transition);
         }
         .kc-profile-link:hover { opacity: .8; }
@@ -602,24 +605,24 @@
 
         /* ── Candidatura di ammissione (solo ospiti) ─────────────── */
         .kc-join {
-            margin: .25rem .875rem .75rem;
+            margin: .2rem .75rem .6rem;
             border-radius: var(--km-radius-sm);
-            padding: .85rem .9rem .9rem;
+            padding: .7rem .8rem .8rem;
             background:
                 radial-gradient(circle at 85% -20%, rgba(139,197,63,.18), transparent 42%),
                 linear-gradient(160deg, var(--km-dark) 0%, var(--km-dark-2) 65%, #073040 100%);
             border: .5px solid rgba(139,197,63,.28);
             text-align: center;
         }
-        .kc-join-eyebrow { font-size: .6rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--km-green); margin-bottom: .45rem; }
+        .kc-join-eyebrow { font-size: .58rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--km-green); margin-bottom: .4rem; }
         .kc-join-title   { font-size: 1.1rem; font-weight: 600; color: var(--km-text); margin: .55rem 0 .4rem; }
         .kc-join-text    { font-size: .78rem; line-height: 1.55; color: var(--km-text-muted); margin-bottom: .6rem; }
         .kc-join-presenter { font-size: .74rem; line-height: 1.5; color: rgba(224,235,243,.9); background: rgba(255,255,255,.06); border: .5px solid rgba(255,255,255,.10); border-radius: .6rem; padding: .55rem .7rem; margin-bottom: .85rem; }
         .kc-join-btn {
             display: flex; align-items: center; justify-content: center; gap: .4rem;
-            width: 100%; padding: .75rem 1rem;
+            width: 100%; padding: .6rem 1rem;
             background: linear-gradient(135deg, var(--km-green), #5f9d42);
-            color: #061018; font-family: inherit; font-size: .9375rem; font-weight: 600;
+            color: #061018; font-family: inherit; font-size: .875rem; font-weight: 600;
             border: none; border-radius: var(--km-radius-sm);
             cursor: pointer; transition: opacity var(--km-transition);
         }
@@ -735,24 +738,22 @@
         </a>
         @endif
 
-        {{-- Condividi --}}
-        <button class="kc-btn-share" id="kc-share-btn" type="button" data-noexport aria-label="{{ $t['share'] }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            {{ $t['share'] }}
-        </button>
+        {{-- Condividi + Salva biglietto + Aggiungi a Home: riga compatta --}}
+        <div class="kc-actions" data-noexport>
+            <button class="kc-btn-share" id="kc-share-btn" type="button" aria-label="{{ $t['share'] }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                {{ $t['share'] }}
+            </button>
+            <button class="kc-btn-share" id="kc-img-btn" type="button" aria-label="{{ $t['save_image'] }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                {{ $t['save_image'] }}
+            </button>
+            <button class="kc-btn-share" id="kc-home-btn" type="button" style="display:none" aria-label="{{ $t['add_to_home'] }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                {{ $t['add_to_home'] }}
+            </button>
+        </div>
         <p class="kc-copied" id="kc-copied-msg" role="status" aria-live="polite" data-noexport>✓ Link copiato</p>
-
-        {{-- Salva immagine + Aggiungi a Home ──────────────────────────── --}}
-        <button class="kc-btn-share" id="kc-img-btn" type="button" data-noexport aria-label="{{ $t['save_image'] }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-            {{ $t['save_image'] }}
-        </button>
-
-        <button class="kc-btn-share" id="kc-home-btn" type="button" data-noexport style="display:none" aria-label="{{ $t['add_to_home'] }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-            {{ $t['add_to_home'] }}
-        </button>
-
         <p class="kc-copied" id="kc-ios-hint" data-noexport style="display:none">{{ $t['ios_hint'] }}</p>
 
         {{-- Social in fondo — cerchi neutri, nessuna label ─────── --}}

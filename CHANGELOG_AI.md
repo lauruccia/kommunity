@@ -15,6 +15,14 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-07-10 — Card: layout compatto per smartphone (niente scroll)
+
+- File modificati: `resources/views/card/show.blade.php`
+- Cosa è cambiato: (1) sezione candidatura compressa — da chiusa mostra solo eyebrow "Accesso su selezione" + bottone "Entra in Kommunity"; testo, presentatore e form si aprono al tocco (wrapper `#kc-join-more`). (2) Compattazione verticale generale per far stare la card in un viewport smartphone senza scroll: hero più basso (padding ridotto, avatar 72→58px, font ridotti), righe contatti più strette, e i tre bottoni Condividi / Salva biglietto / Aggiungi a Home riuniti in un'unica riga a griglia (`.kc-actions`, 2 colonne; "Aggiungi a Home" a riga piena quando appare). Social ridotti a 36px. Aggiornata anche la headline homepage: "Non cerchiamo iscritti. Costruiamo relazioni che contano." (`lang/{it,en}/application.php`).
+- Motivazione: richiesta utente — la card superava l'altezza dello schermo del telefono.
+- SQL eseguito: NO.
+- Note: backup `show.blade.php.bak.20260709_v2` (pre-compattazione) e `.bak.20260709_v3` (pre-riduzione). Il salvataggio come immagine è invariato: la griglia azioni ha `data-noexport`.
+
 ## 2026-07-09 — Candidature di ammissione: form pubblico su card + homepage, approvazione admin
 
 - File NUOVI: `app/Models/MembershipApplication.php`, `app/Http/Controllers/MembershipApplicationController.php`, `app/Filament/Resources/MembershipApplications/MembershipApplicationResource.php` (+ `Pages/ListMembershipApplications.php`), `app/Mail/MembershipApplicationReceivedMail.php`, `app/Mail/MembershipApprovedMail.php`, `app/Mail/MembershipRejectedMail.php`, `app/Notifications/NewMembershipApplicationNotification.php`, `resources/views/emails/membership-{received,approved,rejected}.blade.php`, `resources/views/partials/membership-apply-home.blade.php`, `lang/it/application.php`, `lang/en/application.php`, `database/migrations/2026_07_09_000001_create_membership_applications.php`, `membership_applications.sql` (root, per phpMyAdmin)
