@@ -15,6 +15,14 @@ Log delle modifiche effettuate con assistenza AI. Aggiornare ad ogni sessione.
 
 ---
 
+## 2026-07-20 — Card: nuovi testi sezione ammissione ("non ci si iscrive, ci si propone")
+
+- File modificati: `resources/views/card/show.blade.php`
+- Cosa è cambiato: riscritti i testi della sezione candidatura per ospiti in tutte le 6 lingue inline (it/en/fr/es/de/ro). Nuovo messaggio: eyebrow "Accesso su selezione" → "Accesso su valutazione"; titolo "Entra in Kommunity" → "Chiedi di entrare in Kommunity"; testo intro → "Kommunity è a numero chiuso: professionisti e aziende, uno ad uno. Non ci si iscrive, ci si propone."; frase presentatore → ":name potrà presentarti, ma sarai ammesso solo se la posizione richiesta sarà libera." (rimosso il riferimento al Pianeta). Lessico "candidatura" → "proposta" anche su bottone ("Proponiti ora"), campo tipo ("Ti proponi come"), submit ("Invia la tua proposta"), privacy e messaggio di conferma ("Proposta ricevuta").
+- Motivazione: richiesta utente — il senso deve essere "non ci si iscrive, ci si propone", accesso su valutazione (non selezione), ammissione condizionata alla disponibilità della posizione.
+- SQL eseguito: NO.
+- Note: backup `show.blade.php.bak.20260720`. Modificata SOLO la card: i testi analoghi della homepage (`lang/{it,en}/application.php`) sono rimasti invariati su scelta esplicita dell'utente. Nessun cambio di logica/route/JS: solo stringhe nell'array `$translations`.
+
 ## 2026-07-10 — Card: layout compatto per smartphone (niente scroll)
 
 - File modificati: `resources/views/card/show.blade.php`
